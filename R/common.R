@@ -1,29 +1,25 @@
-## For common libraries, directories, functions
-
-
 ## Libraries
-library(tidyverse)
 library(here)
-library(tools)
-library(purrr)
-library(broom)
-
-library(ggmap) # install.packages("ggmap")
-library(here) 
-
-library(odbc) # devtools::install_github("rstats-db/odbc")
-library(DBI) # install.packages("DBI")
-library(RMySQL)
-
+library(readr)
+library(dplyr)
+library(stringr)
+# library(tools)
+# library(purrr)
+# library(broom)
 
 ## Directories
-dir_baltic <- here::here()
-dir_layers <- file.path(dir_baltic, "layers")
-dir_R <- file.path(dir_baltic, "R")
-dir_spatial <- file.path(dir_baltic, "prep/spatial")
+dir_bhi <- here::here()
+dir_baltic <- file.path(dir_bhi, "baltic") # CHANGE BHI ASSESSMENT DIRECTORY HERE!
+dir_spatial <- file.path(dir_bhi, "spatial") # spatial folder of bhi repo
+dir_prep <- file.path("..", "bhi-prep") # only works if assessment and prep repos are in same main (github) directory...
+dir_B <- file.path(c("Darwin" = "/Volumes/BHI_share", # "Windows" = ?
+                     "Linux" = "/home/shares/ohi")[[ Sys.info()[["sysname"]] ]], "BHI 2.0") # CHANGE MAIN AUX BHI DIRECTORY HERE!
+if(Sys.info()[["sysname"]] != "Linux" & !file.exists(dir_B)){ # warning if BHI internal, shared directory doesn't exist
+  paste("The BHI directory dir_share set in R/common.R does not exist.",
+        sprintf("Do you need to mount the BHI server: %s?", dir_B))
+}
 
 ## Functions
-
 
 #' provide a link to the data prep github_document in readme
 #'
