@@ -1,14 +1,24 @@
 ## Libraries
+source(file.path(here::here(), "R", "common.R"))
 library(rgdal)
 library(sp)
 library(sf)
 library(raster)
+library(fasterize)
 library(rgeos)
 library(maptools)
 library(ncdf4)
 library(colorRamps)
+library(paletteer)
+library(parallel)
+library(RQGIS)
+library(tibble)
 
-source(sprintf("%s/R/common.R", here::here()))
+## Functions
+
+subset_to_bhi_rgns <- function(){
+  
+}
 
 
 # loc = "C:/Users/jgrif/Documents/StockholmUnivPostDoc/BalticHealthIndex/BHI_r/shapefiles/BHI_shapefile_projected"
