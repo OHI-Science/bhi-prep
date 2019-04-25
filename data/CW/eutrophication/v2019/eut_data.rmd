@@ -1,0 +1,56 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+## 2. Data
+
+### 2.1 Datasets with Sources
+<br/>
+
+**Secchi Depth, SMHI**  
+<!-- Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata)   -->
+<!-- Downloaded 22 April 2019 by Ellie Campbell   -->
+<!-- Data selections:   -->
+<!-- Datatype = Physical and Chemical   -->
+<!-- Parameter = secchi depth   -->
+<!-- Months = All   -->
+<!-- Years = 1893-2019 (all listed; though goes back only to 1967 in downloaded dataset)   -->
+<!-- Decimal/fält-avgränsare (decimal/delimiter) = punkt/semikolon (period/semicolon)   -->
+<!-- Teckenkodning = UTF-8   -->
+<!-- Rubrikrad = Englelska (English)   -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Datatype:", "Physical and Chemical"), 
+  c("Parameter:", "secchi depth"),
+  c("Months:", "All"),
+  c("Years:", "1893-2019 (all listed; though goes back only to 1967 in downloaded dataset)"),
+  c("Decimal/fält-avgränsare (decimal/delimiter):", "punkt/semikolon (period/semicolon)"),
+  c("Teckenkodning:", "UTF-8"),
+  c("Rubrikrad:", "Englelska (English)")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+```
+<br/>
+
+**Secchi Depth, ICES**  
+
+
+
+
+### 2.2 Centralization & Normalization
+<br/>
+
+```{r}
+```
+
+
+
+### 2.3 Initial Data Exploration
+

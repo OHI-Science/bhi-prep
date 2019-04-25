@@ -1,0 +1,107 @@
+
+
+## 2. Data
+
+### 2.1 Datasets with Sources
+<br/>
+
+**PCB Data**
+<!-- Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) -->
+<!-- Downloaded 22 April 2019 by Ellie Campbell -->
+<!-- Data selections: -->
+<!-- Year = 1990-2017 -->
+<!-- Purpose of monitoring = All -->
+<!-- Country = All -->
+<!-- Monitoring Program = All -->
+<!-- Parameter Group = Chlorobiphenyls -->
+<!-- Reporting Laboratory = All -->
+<!-- Analytical laboratory = All -->
+<!-- Geographical Areas = (HELCOM) ALL HELCOM sub-basins -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Year", "1990-2017"),
+  c("Purpose of monitoring", "All"),
+  c("Country", "All"),
+  c("Monitoring Program", "All"),
+  c("Parameter Group", "Chlorobiphenyls"),
+  c("Reporting Laboratory", "All"),
+  c("Analytical laboratory", "All"),
+  c("Geographical Areas", "(HELCOM) ALL HELCOM sub-basins")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+```
+<br/>
+
+**Dioxins**  
+<!-- Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) -->
+<!-- Downloaded 22 April 2019 by Ellie Campbell   -->
+<!-- Data selections:   -->
+<!-- Year = 1998-2017  (1998 earliest allowed)   -->
+<!-- Purpose of monitoring = All   -->
+<!-- Country = All   -->
+<!-- MOnitoring Program = All   -->
+<!-- Parameter Group = Dioxins   -->
+<!-- Reporting Laboratory = All   -->
+<!-- Analytical laboratory = All   -->
+<!-- Geographical Areas = (HELCOM) ALL HELCOM sub-basins -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Year", "1998-2017  (1998 earliest allowed)"),  
+  c("Purpose of monitoring", "All"), 
+  c("Country", "All"),  
+  c("Monitoring Program", "All"),  
+  c("Parameter Group", "Dioxins"),  
+  c("Reporting Laboratory", "All"),  
+  c("Analytical laboratory", "All"),  
+  c("Geographical Areas", "(HELCOM) ALL HELCOM sub-basins")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+```
+<br/>
+
+
+**PFOS**  
+<!-- Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) -->
+<!-- Downloaded 22 April 2019 by Ellie Campbell   -->
+<!-- Data selections:   -->
+<!-- Year = 2005-2017  (2005 earliest allowed)   -->
+<!-- Purpose of Monitoring = All   -->
+<!-- Monitoring Program = All   -->
+<!-- Parameter group = Organofluorines   -->
+<!-- Reporting Laboratory = All   -->
+<!-- Analytical laboratory = All   -->
+<!-- Geographical Areas = (HELCOM) ALL HELCOM sub-basins   -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Year", "2005-2017  (2005 earliest allowed)"),  
+  c("Purpose of monitoring", "All"), 
+  c("Country", "All"),  
+  c("Monitoring Program", "All"),  
+  c("Parameter Group", "Organofluorines"),  
+  c("Reporting Laboratory", "All"),  
+  c("Analytical laboratory", "All"),  
+  c("Geographical Areas", "(HELCOM) ALL HELCOM sub-basins")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+```
+<br/>
+
+
+
+### 2.2 Centralization & Normalization
+
+
+### 2.3 Initial Data Exploration
+
