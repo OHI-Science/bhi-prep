@@ -20,7 +20,7 @@ Background information on the BHI goals -the meaning of or philosophy the goals,
 
 **`R`**  
 
-A folder containing R functions used throughout the data prep process, and to keep the repo tidy. Functions are subdivided in to a number of (hopefully helpfully) descriptively-named scripts. 
+A folder containing R functions used throughout the data prep process, and to keep the repo tidy. Functions are subdivided in to multiple -hopefully helpfully named- scripts. 
 
 ---
 
