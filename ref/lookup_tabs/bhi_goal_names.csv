@@ -1,0 +1,19 @@
+goal,parent,name,description
+FP,NA,Food Provision,"This goal measures the amount of seafood sustainably harvested in a given region through any means for use primarily in human consumption and thus includes wild-caught commercial fisheries, mariculture, artisanal-scale and recreational fisheries."
+FIS,FP,Fisheries,"This subgoal model aims to assess the amount of wild-caught seafood that can be sustainably harvested, with sustainability defined by multi-species yield, and with penalties assigned for both over- and under-harvesting."
+MAR,FP,Mariculture,This subgoal measures the ability to obtain maximal seafood yield from farm-raised facilities without damaging the ocean's ability to continue providing fish for people in the future.
+AO,NA,Artisanal Fishing Opportunity,"This goal captures the access people have to coastal resources, whether or not they actually take fish or harvest from coastal waters."
+NP,NA,Natural Products,This goal model calculates overall status by weighting the status of sustainable harvest of each product by its proportional value relative to other harvested products.
+CS,NA,Carbon Storage,This goal captures the carbon stored in natural coastal ecosystems that absorb and sequester carbon in large amounts.
+TR,NA,Tourism & Recreation,This goal captures the value people have for experiencing and taking pleasure in coastal areas.
+LE,NA,Coastal Livelihoods & Economies,This goal aims to maintain coastal and ocean-dependent livelihoods and productive coastal economies while also maximizing livelihood quality.
+LIV,LE,Livelihoods,This subgoal evaluates the benefits people obtain from the oceans in the form of jobs and wages.
+ECO,LE,Economies,This subgoal captures the economic value associated with marine industries.
+SP,NA,Sense of Place,This goal aims to capture the level of protection for aspects of the coastal and marine system that contribute to a person's sense of cultural identity.
+ICO,SP,Iconic Species,This subgoal captures the species that are important to a region because they are relevant to local cultural identity.
+LSP,SP,Lasting Special Places,"This subgoal captures the conservation status of geographic locations that hold significant aesthetic, spiritual, cultural, recreational, or existence value for people."
+CW,NA,Clean Waters,"This goal captures the degree to which waters are polluted by nutrients, contaminants and litter."
+EUT,CW,Eutrophication,This subgoal captures the degree to which waters are polluted by nutrients.
+TRA,CW,Trash,This goal captures the degree to which waters are polluted by litter.
+CON,CW,Contaminants,This goal captures the degree to which waters are polluted by contaminants.
+BD,NA,Biodiversity,This goal captures the conservation status of marine species.
