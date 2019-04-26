@@ -14,9 +14,9 @@ Contains subfolders for each goal/subgoal, pressure and resilience dimensions an
 
 Contains subfolders for each goal/subgoal, pressure and resilience dimensions and within those subfolders for each assessment year, identical to `data` folder structure. These subfolders of the `prep` folder contain scripts for converting, combining, rescaling, or otherwise deriving BHI input data layers. The line between this 'prep' step and the actual modeling of the BHI goals is somewhat arbitrary, but generally ...
 
-**`conf`**  
+**`ref`**  
 
-Background information on the BHI goals -the meaning of or philosophy the goals, and the data sources behind them- is documented in the `goals` subfolder. The goals.Rmd document is used in knitting together pieces of the data prep into a single document per goal. General reference and lookup tables are stored in `reference`.
+Background information on the BHI goals -the meaning of or philosophy the goals, and the data sources behind them- is documented in the `goal_summaries` subfolder. General reference/lookup tables are stored in `lookup_tabs`. 
 
 **`R`**  
 
