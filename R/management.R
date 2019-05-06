@@ -7,7 +7,7 @@ library(tools)
 #' provide a link to the data prep github_document in readme
 #'
 #' @param dir path from project root to a goal or dimension subfolder of `prep` or `data`
-#' @param file file path starting where `dir` leaves off, to a specific data prep rmarkdown document (e.g. "v2019/ao_prep.rmd")
+#' @param prep_file file path starting where `dir` leaves off, to a specific data prep rmarkdown document (e.g. "v2019/ao_prep.rmd")
 #'
 #' @return no immediate output; result is the created readme
 
