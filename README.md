@@ -24,10 +24,7 @@ A folder containing R functions used throughout the data prep process, and to ke
 
 ---
 
-### Learn more about the Baltic Health Index <br/>
-[BHI at the Stockholm Resilience Centre](http://www.stockholmresilience.org/research/research-themes/marine/baltic-health-index.html)  
-[BHI assessment](https://github.com/OHI-Science/bhi)  
-[Ocean Health Index](http://www.oceanhealthindex.org/about)  
-[Ocean Health Index Science](http://ohi-science.org)
+**More about the Baltic Health Index: [BHI Assessment](https://github.com/OHI-Science/bhi)**   
+**About the Ocean Health Index: [Ocean Health Index Science](http://ohi-science.org)**
 
 ---
