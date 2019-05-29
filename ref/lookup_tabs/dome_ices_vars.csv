@@ -1,0 +1,44 @@
+var,description
+MPROG, Monitoring programme (cf. MPROG). Multiple programmes are possible separated by “~” (ascii 126)
+PURPM, Purpose of monitoring (cf. PURPM) . Multiple purposes possible separated by “~” (ascii 126)
+Country, Country that has reported the measurement
+RLABO, Reporting institude (cf. RLABO)
+STATN, Station name as reported
+MYEAR, Monitoring year. Note that MYEAR may not always be identical to the year in date of sampling
+DATE, Date of sampling (DD/MM/YYYY)
+Latitude, Latitude of measurement (decimal degrees)
+Longitude, Longitude of measurement (decimal degrees)
+Species, Species/taxon name of examined specimen
+SEXCO, Sex of specimen (cf. SEXCO)
+NOINP, Number of individuals in sub-sample
+MATRX, Matrix being analysed (cf. MATRX)
+NODIS, Not used in this data type
+PARGROUP, Parameter group of measured parameter (cf. PARGROUP)
+PARAM, Measured parameter (cf. PARAM)
+BASIS, Basis of determination (cf. BASIS)
+QFLAG," Qualifier flag for measured value, i.e. “<” (cf. QFLAG). Multiple flags possible separated by “~” (ascii 126)"
+Value, Value measured
+MUNIT, Measurement unit
+VFLAG," Validity flag, i.e. “S“ suspect value (cf. VFLAG). Multiple flags possible separated by “~” (ascii 126)"
+DETLI, Detection limit value
+LMQNT, Limit of quantification
+UNCRT, Uncertainty value
+METCU, Method of calculating uncertainty (cf. METCU)
+ALABO, Analytical laboratory (cf. RLABO)
+REFSK, Reference source or key (cf. REFSK)
+METST, Method of storage (cf. METST)
+METPT, Method of pretreatment (cf. METPT)
+METPS, Method of purification/separation (cf. METPS)
+METFP, Method of chemical fixation/preservation (cf. METFP)
+METCX, Method of chemical extraction (cf. METCX) multiple flags possible (separate multiple entries with “~” (ascii 126))
+METOA, Method of analysis (cf. METOA)
+FORML, Formula used in calculation (cf. FORML)
+Test, Not used in this data type
+SMTYP, Sampler type (cf. SMTYP)
+SUBNO, Sub-sample identification (can refer to an individual specimen or an aggregate pool of same species)
+BULKID," If an individual (or parts thereof) has been analysed in one or more bulks, the sub-sample (SUBNO) identification(s) of the bulk(s) can be indicated as a BULKID. BULKID refer to a SUBNO within the same sample (see “tblSampleID”). Multiple SUBNO’s possible separated by “~” (ascii 126)"
+FINFL, Factors potentially influencing guideline compliance and interpretation of data (cf. FINFL) Multiple factors possible separated by “~” (ascii 126)
+tblAnalysisID, Reference to analytical method (integer). Can be used to trace additional fields in ICES data systems
+tblParamID, Reference to the measurement (integer). Unique for the data table
+tblBioID, Reference to the sub-sample (integer). Unique for a sub-sample
+tblSampleID, Reference to the sample (integer). Unique for a sample
