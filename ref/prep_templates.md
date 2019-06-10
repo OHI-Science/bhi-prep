@@ -3,10 +3,15 @@
 
 ## 2. Data
 
+```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+```
+
 ### 2.1 Datasets with Sources
 <br/>
 
 **DATASET NAME/VARIABLE**  
+<!-- dataset save location BHI_share/2.0/Goals/ -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -57,6 +62,7 @@ params:
 loc <- file.path(here::here(), "prep", "GOAL", "SUBGOAL")
 
 source(file.path(here::here(), "R", "common.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
 bkgd_path <- file.path(here::here(), "ref", "goal_summaries", "GOALCODE.Rmd")
 data_path <- file.path(here::here(), "data", "GOAL", ["SUBGOAL"], assessment_yr, "GOALCODE_data.rmd")
