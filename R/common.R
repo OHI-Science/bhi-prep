@@ -3,6 +3,7 @@ library(here)
 library(readr)
 library(dplyr)
 library(stringr)
+library(knitr)
 
 ## Directories
 dir_prep <- here::here() # CHANGE BHI PREP DIRECTORY HERE!
@@ -15,3 +16,5 @@ if(Sys.info()[["sysname"]] != "Linux" & !file.exists(dir_B)){
   paste("The BHI directory dir_share set in R/common.R does not exist.",
         sprintf("Do you need to mount the BHI server: %s?", dir_B))
 }
+
+assessment_yr <- "v2019"
