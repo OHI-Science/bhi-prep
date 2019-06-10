@@ -9,7 +9,8 @@ source(file.path(here::here(), "R", "data.R"))
 ### 2.1 Datasets with Sources
 <br/>
 
-**PCB Data**
+**PCB Data in Biota**
+<!-- filepath -->
 
 ```{r PCB data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -29,7 +30,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 ```
 <br/>
 
-**Dioxins**  
+**Dioxins in Biota**  
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -49,7 +50,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 ```
 <br/>
 
-**PFOS**  
+**PFOS in Biota**  
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
