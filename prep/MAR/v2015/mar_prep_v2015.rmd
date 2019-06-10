@@ -263,6 +263,16 @@ mar_harvest_tonnes= prod_allot %>% select(BHI,ISSCAAP_FAO,year,prod_tot)%>%
 head(mar_harvest_tonnes)
 is.na(mar_harvest_tonnes$tonnes)
 
+# ## spread and gather data again which will result in all years present for all regions
+# ## move this from functions.R MAR for multiyear framework, so can use AlignDataYears function...
+# 
+# harvest_tonnes <- harvest_tonnes %>% spread(key = year, value = tonnes) %>%
+#   gather(year, tonnes, -rgn_id,-species_code) %>%
+#   mutate(year = as.numeric(year) )%>%  # make sure year is not a character
+#   arrange(rgn_id,year) %>%
+#   filter(year %in% status_years)
+
+
 write.csv(mar_harvest_tonnes, 
                  file.path(dir_layers, "mar_harvest_tonnes_bhi2015.csv"),row.names=FALSE)
 

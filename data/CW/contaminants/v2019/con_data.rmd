@@ -1,24 +1,17 @@
 
-
 ## 2. Data
+
+```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+```
+
 
 ### 2.1 Datasets with Sources
 <br/>
 
 **PCB Data**
-<!-- Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) -->
-<!-- Downloaded 22 April 2019 by Ellie Campbell -->
-<!-- Data selections: -->
-<!-- Year = 1990-2017 -->
-<!-- Purpose of monitoring = All -->
-<!-- Country = All -->
-<!-- Monitoring Program = All -->
-<!-- Parameter Group = Chlorobiphenyls -->
-<!-- Reporting Laboratory = All -->
-<!-- Analytical laboratory = All -->
-<!-- Geographical Areas = (HELCOM) ALL HELCOM sub-basins -->
 
-```{r echo = FALSE, results = "asis"}
+```{r PCB data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1990-2017"),
   c("Purpose of monitoring", "All"),
@@ -37,17 +30,6 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 <br/>
 
 **Dioxins**  
-<!-- Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) -->
-<!-- Downloaded 22 April 2019 by Ellie Campbell   -->
-<!-- Data selections:   -->
-<!-- Year = 1998-2017  (1998 earliest allowed)   -->
-<!-- Purpose of monitoring = All   -->
-<!-- Country = All   -->
-<!-- MOnitoring Program = All   -->
-<!-- Parameter Group = Dioxins   -->
-<!-- Reporting Laboratory = All   -->
-<!-- Analytical laboratory = All   -->
-<!-- Geographical Areas = (HELCOM) ALL HELCOM sub-basins -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -67,18 +49,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 ```
 <br/>
 
-
 **PFOS**  
-<!-- Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) -->
-<!-- Downloaded 22 April 2019 by Ellie Campbell   -->
-<!-- Data selections:   -->
-<!-- Year = 2005-2017  (2005 earliest allowed)   -->
-<!-- Purpose of Monitoring = All   -->
-<!-- Monitoring Program = All   -->
-<!-- Parameter group = Organofluorines   -->
-<!-- Reporting Laboratory = All   -->
-<!-- Analytical laboratory = All   -->
-<!-- Geographical Areas = (HELCOM) ALL HELCOM sub-basins   -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -99,9 +70,69 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 <br/>
 
 
-
 ### 2.2 Centralization & Normalization
+
+#### 2.2.1 Standardize Units
+
+#### 2.2.2 Rename Fields/Variables
+
+#### 2.2.3 Save to BHI Database
+
+
+<!-- ### 2.2 Data prep prior to database -->
+<!-- #### PCB -->
+<!-- Raw data from ICES were prepared in `~/github/bhi/baltic2015/prep/CW/contaminants/raw_contaminants_data_prep`   -->
+<!--     - If duplicate measurements were made from the same sample, values were averaged (all were two measurement of LIPIDWT% per sample, all from 2014, Poland).   -->
+<!--     -  Data were standardized to the same unit ug/kg   -->
+<!--     - If data were presented in lipid weight, they were converted to wet weight by: (EXLIP% / 100)*(CB-conc lipid weight).   -->
+
+<!-- **Note**: Detection limit (detect_lim) and Quantification limit (quant_lim) values are in the original units.  They are not standardized to ug/kg and not converted to wet weight if originally in lipid weight -->
+
+<!-- ## 3. Other Info  -->
+<!-- ### 3.1 Congers in ICES database   -->
+<!-- #### PCB Congeners -->
+<!-- CB101       2 2' 4 5 5'-pentachlorobiphenyl   -->
+<!-- CB105       2 3 3' 4 4'-pentachlorobiphenyl   -->
+<!-- CB118       2 3' 4 4' 5-pentachlorobiphenyl   -->
+<!-- CB128     2 2' 3 3' 4 4'-hexachlorobiphenyl   -->
+<!-- CB138     2 2' 3 4 4' 5'-hexachlorobiphenyl    -->
+<!-- CB149     2 2' 3 4' 5' 6-hexachlorobiphenyl   -->
+<!-- CB153     2 2' 4 4' 5 5'-hexachlorobiphenyl   -->
+<!-- CB156      2 3 3' 4 4' 5-hexachlorobiphenyl   -->
+<!-- CB157     2 3 4 3' 4' 5'-hexachlorobiphenyl   -->
+<!-- CB167     2' 3 4 4' 5 5'-hexachlorobiphenyl   -->
+<!-- CB169     3 3' 4 4' 5 5'-hexachlorobiphenyl   -->
+<!-- CB170  2 2' 3 3' 4 4' 5-heptachlorobiphenyl   -->
+<!-- CB180  2 2' 3 4 4' 5 5'-heptachlorobiphenyl   -->
+<!-- CB28               2 4 4'-trichlorobiphenyl   -->
+<!-- CB52          2 2' 5 5'-tetrachlorobiphenyl   -->
+<!-- CB77          3 3' 4 4'-tetrachlorobiphenyl   -->
+
+
+<!-- #### Dioxin Congeners -->
+<!-- CDD1N         1 2 3 7 8-pentachlorodibenzo-p-dioxin   -->
+<!-- CDD4X        1 2 3 4 7 8-hexachlorodibenzo-p-dioxin   -->
+<!-- CDD6P     1 2 3 4 6 7 8-heptachlorodibenzo-p-dioxin   -->
+<!-- CDD6X        1 2 3 6 7 8-hexachlorodibenzo-p-dioxin   -->
+<!-- CDD9X        1 2 3 7 8 9-hexachlorodibenzo-p-dioxin   -->
+<!-- CDDO    1 2 3 4 6 7 8 9-octachlorodibenzo-p-dioxin    -->
+<!-- CDF2N             2 3 4 7 8-pentachlorodibenzofuran   -->
+<!-- CDF2T              2 3 7 8-tetrachloro-dibenzofuran   -->
+<!-- CDF4X            2 3 4 6 7 8-hexachlorodibenzofuran   -->
+<!-- CDF6P         1 2 3 4 6 7 8-heptachlorodibenzofuran   -->
+<!-- CDF6X            1 2 3 6 7 8-hexachlorodibenzofuran   -->
+<!-- CDF9P         1 2 3 4 7 8 9-heptachlorodibenzofuran   -->
+<!-- CDF9X            1 2 3 7 8 9-hexachlorodibenzofuran   -->
+<!-- CDFDN  1 2 3 7 8/1 2 3 4 8-pentachloro-dibenzofuran   -->
+<!-- CDFO               octachloro-dibenzofuran (group)    -->
+<!-- TCDD           2 3 7 8-tetrachlorodibenzo-p-dioxin    -->
 
 
 ### 2.3 Initial Data Exploration
+
+#### 2.3.1 Compare versus Previous Years Data
+
+#### 2.3.2 Timeseries Plots
+
+#### 2.3.3 Map
 

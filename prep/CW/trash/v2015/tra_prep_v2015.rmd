@@ -8,53 +8,14 @@ params:
     datasource: cs
 ---
 
-
-```{r Preamble}
-loc <- file.path(here::here(), "prep", "CW", "trash")
-
-source(file.path(here::here(), "R", "common.R"))
-
-bkgd_path <- file.path(here::here(), "ref", "goal_summaries", "TRA.Rmd")
-data_path <- file.path(here::here(), "data", "CW", "trash", assessment_yr, "tra_data.rmd")
-refs_path <- file.path(loc, "tra_references.Rmd")
-```
-
 ## 1. Background
 
-```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```{r, child='../../../conf/goals/TRA.Rmd', results='asis', echo=FALSE}
 ```
-
-<br/>
 
 ## 2. Data
 
-```{r Data, child = data_path, results = "asis", echo = FALSE}
-```
-
-<br/>
-
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation
-
-<br/>
-
-## 4. Prep: Gapfilling
-
-<br/>
-
-## 5. Visualizing Data Layers
-
-<br/>
-
-## 6. References
-
-```{r References, child = refs_path, results = "asis", echo = FALSE}
-```
-
-
-#################
-
-
-<!-- Data for litter/trash from [**Jambeck et al 2015: Plastic waste inputs from land into the ocean**](http://science.sciencemag.org/content/347/6223/768.full.pdf+html) -->
+Data for litter/trash from [**Jambeck et al 2015: Plastic waste inputs from land into the ocean**](http://science.sciencemag.org/content/347/6223/768.full.pdf+html)
 
 **the Jambeck et al method includes:** 
 

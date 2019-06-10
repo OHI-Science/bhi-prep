@@ -1,26 +1,28 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-
 
 ## 2. Data
+
+```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+```
+
 
 ### 2.1 Datasets with Sources
 <br/>
 
+**Secchi Depth, ICES**
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Dataset set:", "Oceanographic (per Parameter)"), 
+  c("Parameter:", "secchi depth (Download)")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ices.dk/inventory/Index.aspx?) <br/> Requested 23 May 2019 by Ellie Campbell; must request all records as web download limited to max 10000 records per layer")
+```
+<br/>
+
 **Secchi Depth, SMHI**  
-<!-- Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata)   -->
-<!-- Downloaded 22 April 2019 by Ellie Campbell   -->
-<!-- Data selections:   -->
-<!-- Datatype = Physical and Chemical   -->
-<!-- Parameter = secchi depth   -->
-<!-- Months = All   -->
-<!-- Years = 1893-2019 (all listed; though goes back only to 1967 in downloaded dataset)   -->
-<!-- Decimal/fält-avgränsare (decimal/delimiter) = punkt/semikolon (period/semicolon)   -->
-<!-- Teckenkodning = UTF-8   -->
-<!-- Rubrikrad = Englelska (English)   -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -39,8 +41,22 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 ```
 <br/>
 
-**Secchi Depth, ICES**  
+**Chlorophyll A**
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
 
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Baltic Nest database]() <br/> Downloaded 24 May 2019 by Ellie Campbell")
+
+## using data.R 'get_input_data' function
+months <- c(11, 12, 1, 2, 3)
+
+
+```
 
 
 
@@ -54,3 +70,8 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 
 ### 2.3 Initial Data Exploration
 
+#### 2.3.1 Compare versus Previous Years Data
+
+#### 2.3.2 Timeseries Plots
+
+#### 2.3.3 Map
