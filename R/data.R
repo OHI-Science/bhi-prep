@@ -6,17 +6,6 @@ library(xml2)
 library(XML)
 library(lubridate)
 library(data.table)
-# library(doParallel)
-# library(foreach)
-# library(RCurl)
-# library(dbplyr)
-# library(DBI)
-# library(odbc)
-# library(config)
-# library(RMySQL)
-# library(rvest)
-# library(splashr)
-# library(RSelenium)
 
 ## Functions
 
@@ -28,10 +17,13 @@ library(data.table)
 #' 
 #' @param data_source name of the source
 #' @param date_range list or vector with two values given in YYYYMMDD format
+#' @param months
 #' @param latlon_ranges four-element vector or list: min lat, max lat, min lon, max lon.
 #' @param param_code 
 #' @param search_terms
-#' @param 
+#' @param api_key
+#' @param delay
+#' @param cores
 #'
 #' @return result of the data query; parsed and filtered/subsetted response. Object will be a dataframe or raster depending on the data source.
 
@@ -83,18 +75,20 @@ get_input_data <- function(data_source, date_range, months = 1:12,
         dates_lst <- c(dates_lst, list(dates_seq[c(j, (i-1))])); j <- i
       }; i <- i + 1
     }
+    if(length(dates_lst) == 0){
+      dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
+    }
 
-    for(j in 1:length(dates_lst)){
+    for(d in 1:length(dates_lst)){
       full_url <- sprintf(
         "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
         "http://nest.su.se/dataPortal/getStations",
         latlon_ranges[1], latlon_ranges[2], latlon_ranges[3], latlon_ranges[4],
-        dates_lst[[j]][1], dates_lst[[j]][2]
+        dates_lst[[d]][1], dates_lst[[d]][2]
       )
       tmp <- readr::read_csv(full_url)
       if(nrow(tmp) == 0){
-        message(sprintf("no rows of data found for %s to %s...", 
-                        dates_lst[[j]][1], dates_lst[[j]][2]))
+        message(sprintf("no rows of data found for %s to %s...", dates_lst[[d]][1], dates_lst[[d]][2]))
       }
       result <- rbind(result, tmp)
     }
@@ -103,6 +97,7 @@ get_input_data <- function(data_source, date_range, months = 1:12,
   } else if(data_source == "smhi"){
     ## smhi open data oceanographical observations ----
 
+    url_base <- "https://opendata-download-ocobs.smhi.se/api"
     
   } else if(data_source == "ices"){
     ## ices data center ----
@@ -272,13 +267,8 @@ get_input_data <- function(data_source, date_range, months = 1:12,
     
   }
   if(str_to_lower(data_source) %in% c("copernicus", "sentinel")){
-    
     # OData Service Root URI for the Open Access Hub
     root_uri <- "https://scihub.copernicus.eu/dhus/odata/v1"  
-    
-    
-    
-    
   }
   if(str_to_lower(data_source) == "das"){}
   if(str_to_lower(data_source) == "holas"){}
@@ -287,53 +277,53 @@ get_input_data <- function(data_source, date_range, months = 1:12,
   return(result)
 }
 
-
-# write_to_db <- function(datatable, name_in_db, harmonize_vars, connection){}
-
-
-
-#' call goal data from database
-#' 
-#' this calls the data from the database and saves as a cvs in a specified location
-#' this function should be used before preparing a data layer, if the raw data were updated
-#'
-#' @param goal_code
-#' @param assess_year
-#' @param datasets 
-#' @param save_loc
-#' 
-#' @return
-
-extract_data <- function(goal_code, assess_year, datasets, save_loc = NA){
-  
-  if(is.na(save_loc)){
-    dir_goal <- file.path(dir_prep, "prep", "", assess_year) 
-  } else { dir_goal <- save_loc }
-  
-  ## access database
-  ## make sure data are in database, and put them there if not
-  ## import datasets
-  
-  for(d in datasets){
-    readr::read_csv(file.path(dir_goal, "raw", "name dataset..."))
-  }
-  
-}
-
 #' compare raw data inputs
 #' 
 #' checks raw data inputs -from same source/table but obtained different years- against each other
 #' the aim is to ensure consistency between sequential assessments, where expected
 #'
-#' @param dataset1 
-#' @param dataset2 
+#' @param data1
+#' @param data2
+#' @param compare
+#' @param keys
+#' @param keep_cols
+#' @param color_var
 #'
 #' @return
 
-compare_yrs_data <- function(dataset1, dataset2, ){
-  # if paths read_csv, otherwise expect dataframes
-  # create some kind of merged table by key variables
-  # missing vs extra entries?
+compare_yrs_data <- function(data1, data2, compare, keys, keep_cols = NA, color_var = NA){
+
+  if("string" %in% class(data1)){data1 <- readr::read_csv(data1)}
+  if("string" %in% class(data2)){data2 <- readr::read_csv(data2)}
   
-  # can base this on bhi/R/common.R 'compare_tabs' function...
+  if(is.na(keep_cols)){keep_cols = compare}
+  keep_cols <- union(union(keep_cols, compare), keys)
+  
+  if(any(!c(keep_cols, keys) %in% names(data1))){
+    stop("some key variables and/or selected columns not found in dataset 1")
+  } else { df1 <- select(data1, keep_cols) }
+
+  if(any(!c(keep_cols, keys) %in% names(data2))){
+    stop("some key variables and/or selected columns not found in dataset 2")
+  } else { df2 <- select(data2, keep_cols) }
+  
+  compare_df <- dplyr::full_join(df1, df2, by = keys)
+  colnames(compare_df) <- c(paste0(names(df1), "1"), paste0(setdiff(names(df2), keys), "2")) %>% 
+    stringr::str_to_lower() %>% 
+    stringr::str_replace_all(pattern = str_to_lower(compare), replacement = "VALUE")
+
+  ## other ideas of things to include in a script for comparing data...
+  ## group by relevant categorical vars and check summary stats
+  ## check for NAs after filtering to shared date range
+  
+  if(!is.na(color_var)){
+    p <- ggplot2::ggplot(compare_df, aes(x = VALUE1, y = VALUE2, color = color_var))
+  } else { p <- ggplot2::ggplot(compare_df, aes(x = VALUE1, y = VALUE2))}
+  
+  plot_obj <- p + geom_abline(slope = 1, intercept = 0, color = "grey") + 
+    geom_point(cex = 2, alpha = 0.1) + 
+    theme(legend.position = "none")
+
+  return(plot_obj)
 }
+
