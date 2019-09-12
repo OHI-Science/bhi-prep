@@ -1,0 +1,37 @@
+---
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "setup.R"))
+short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
+```
+
+## Mariculture Sustainability Score
+
+[mar_sustainability_score](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/mar_sustainability_score_bhi2015.csv.csv)
+*Units: sustainability*
+*Category:*
+*Subcategory:*
+*Index Dimension: Status and Trend*
+*Goal Targets: MAR*
+
+<br>
+
+```{r, echo = FALSE, results = "hide"}
+tmp <- tempfile(fileext = "Rmd")
+on.exit(unlink(tmp))
+download.file(file.path(short_layer_web, "mar_sustainability_score.Rmd"), tmp) 
+```
+
+```{r, child = tmp, echo = FALSE, results = "asis"} 
+``` 
+
+See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+
+<br>
+
+---- 

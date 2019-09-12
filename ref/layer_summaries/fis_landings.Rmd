@@ -1,0 +1,37 @@
+---
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "setup.R"))
+short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
+```
+
+## Landings By Stock And Year
+
+[fis_landings](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/fis_landings_bhi2015.csv.csv)
+*Units: metric tons*
+*Category:*
+*Subcategory:*
+*Index Dimension: Status and Trend*
+*Goal Targets: FIS*
+
+<br>
+
+```{r, echo = FALSE, results = "hide"}
+tmp <- tempfile(fileext = "Rmd")
+on.exit(unlink(tmp))
+download.file(file.path(short_layer_web, "fis_landings.Rmd"), tmp) 
+```
+
+```{r, child = tmp, echo = FALSE, results = "asis"} 
+``` 
+
+See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+
+<br>
+
+---- 

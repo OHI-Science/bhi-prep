@@ -1,0 +1,37 @@
+---
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "setup.R"))
+short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
+```
+
+## Council Directive 91/676/Eec Of 12 December 1991 Concerning The Protection Of Waters Against Pollution Caused By Nitrates From Agricultural Sources
+
+[res_reg_nd](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nd_bhi2015.csv.csv)
+*Units: resilience score*
+*Category:*
+*Subcategory:*
+*Index Dimension: Resilience*
+*Goal Targets: resilience*
+
+<br>
+
+```{r, echo = FALSE, results = "hide"}
+tmp <- tempfile(fileext = "Rmd")
+on.exit(unlink(tmp))
+download.file(file.path(short_layer_web, "res_reg_nd.Rmd"), tmp) 
+```
+
+```{r, child = tmp, echo = FALSE, results = "asis"} 
+``` 
+
+See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+
+<br>
+
+---- 

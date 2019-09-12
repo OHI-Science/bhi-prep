@@ -1,0 +1,37 @@
+---
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "setup.R"))
+short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
+```
+
+## Regulation 1380/2013/Eu Of The European Parliament And Of The Council Of 11 December 2013 On The Common Fisheries Policy, Amending Council Regulations (Ec) No 1954/2003 And (Ec) No 1224/2009 And Repealing Council Regulations (Ec) No 2371/2002 And (Ec) No
+
+[res_reg_cfp](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_cfp_bhi2015.csv.csv)
+*Units: resilience score*
+*Category:*
+*Subcategory:*
+*Index Dimension: Resilience*
+*Goal Targets: resilience*
+
+<br>
+
+```{r, echo = FALSE, results = "hide"}
+tmp <- tempfile(fileext = "Rmd")
+on.exit(unlink(tmp))
+download.file(file.path(short_layer_web, "res_reg_cfp.Rmd"), tmp) 
+```
+
+```{r, child = tmp, echo = FALSE, results = "asis"} 
+``` 
+
+See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+
+<br>
+
+---- 

@@ -1,0 +1,37 @@
+---
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "setup.R"))
+short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
+```
+
+## High Bycatch Due To Artisanal Fishing
+
+[fp_art_hb](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/fp_art_hb_gl2018.csv.csv)
+*Units: scaled 0-1*
+*Category:*
+*Subcategory:*
+*Index Dimension: Status and Trend*
+*Goal Targets: AO pressureECO pressureFIS pressureHAB pressureICO pressureLIV pressureNP pressureSPP pressure*
+
+<br>
+
+```{r, echo = FALSE, results = "hide"}
+tmp <- tempfile(fileext = "Rmd")
+on.exit(unlink(tmp))
+download.file(file.path(short_layer_web, "fp_art_hb.Rmd"), tmp) 
+```
+
+```{r, child = tmp, echo = FALSE, results = "asis"} 
+``` 
+
+See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+
+<br>
+
+---- 
