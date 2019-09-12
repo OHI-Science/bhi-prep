@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[rgn_labels](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/rgn_labels.csv)
-*Units: label*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: spatial*
+[rgn_labels](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/rgn_labels.csv)\
+*Units: label*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: spatial*\
+<br>
 
 Regions by type (eez, subocean, unclaimed)
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Regions by type (eez, subocean, unclaimed)
 
 <br>
 
---- 

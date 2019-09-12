@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[res_reg_birds](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_birds_bhi2015.csv)
-*Units: resilience score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Resilience*
-*Goal Targets: resilience*
+[res_reg_birds](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_birds_bhi2015.csv)\
+*Units: resilience score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Resilience*\
+*Goal Targets: resilience*\
+<br>
 
 Directive 2009/147/EC of the European Parliament and of the Council of 30 November 2009 on the conservation of wild birds
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Directive 2009/147/EC of the European Parliament and of the Council of 30 Novemb
 
 <br>
 
---- 

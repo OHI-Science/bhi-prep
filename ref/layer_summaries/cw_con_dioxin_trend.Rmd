@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[cw_con_dioxin_trend](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/cw_con_dioxin_trend_bhi2015.csv)
-*Units: trend score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: CW*
+[cw_con_dioxin_trend](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/cw_con_dioxin_trend_bhi2015.csv)\
+*Units: trend score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: CW*\
+<br>
 
 Trend calculated on basin time series (2004-2013) with each observation first transformed to a ?status? based on the human health threshold. Basin trends applied to BHI regions
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ See [**CW prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/
 
 <br>
 
---- 

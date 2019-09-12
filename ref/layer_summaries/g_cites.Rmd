@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[g_cites](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/g_cites_gl2018.csv)
-*Units: 0 or 1*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: ICO resilienceNP resilienceSPP resilience*
+[g_cites](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/g_cites_gl2018.csv)\
+*Units: 0 or 1*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: ICO resilienceNP resilienceSPP resilience*\
+<br>
 
 Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES) signatories
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Convention on International Trade in Endangered Species of Wild Fauna and Flora 
 
 <br>
 
---- 

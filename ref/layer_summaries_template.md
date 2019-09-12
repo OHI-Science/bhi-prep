@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[LAYERNAME](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/LAYERFILENAME)
-*Units: UNITS*
-*Category:*
-*Subcategory:*
-*Index Dimension: INDEXDIMENSION*
-*Goal Targets: GOALTARGETS*
+[LAYERNAME](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/LAYERFILENAME)\
+*Units: UNITS*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: INDEXDIMENSION*\
+*Goal Targets: GOALTARGETS*\
+<br>
 
 DESCRIPTION
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ See [**THISGOAL prep documents**](https://github.com/OHI-Science/bhi-1.0-archive
 
 <br>
 
---- 

@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[hd_mpa_eez](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/hd_mpa_eez_gl2018.csv)
-*Units: scaled 0-1*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: FIS resilienceHAB resilienceICO resilienceNP resilienceSPP resilience*
+[hd_mpa_eez](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/hd_mpa_eez_gl2018.csv)\
+*Units: scaled 0-1*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: FIS resilienceHAB resilienceICO resilienceNP resilienceSPP resilience*\
+<br>
 
 Protected marine areas within EEZ (lasting special places calculation applied to the entire EEZ)
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Protected marine areas within EEZ (lasting special places calculation applied to
 
 <br>
 
---- 

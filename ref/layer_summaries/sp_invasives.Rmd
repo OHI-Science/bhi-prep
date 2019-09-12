@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[sp_invasives](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/sp_invasives_bhi2015.csv)
-*Units: pressure score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Pressure*
-*Goal Targets: pressures*
+[sp_invasives](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/sp_invasives_bhi2015.csv)\
+*Units: pressure score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Pressure*\
+*Goal Targets: pressures*\
+<br>
 
 Invasive species scores based on the number of invasive species introduction evenets in each country.
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Invasive species scores based on the number of invasive species introduction eve
 
 <br>
 
---- 

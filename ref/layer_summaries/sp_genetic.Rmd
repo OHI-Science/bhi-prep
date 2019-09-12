@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[sp_genetic](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/sp_genetic_gl2018.csv)
-*Units: scaled 0-1*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: ECO pressureFIS pressureLIV pressureSPP pressure*
+[sp_genetic](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/sp_genetic_gl2018.csv)\
+*Units: scaled 0-1*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: ECO pressureFIS pressureLIV pressureSPP pressure*\
+<br>
 
 Introduced mariculture species (Mariculture Sustainability Index) as a proxy for genetic escapes
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Introduced mariculture species (Mariculture Sustainability Index) as a proxy for
 
 <br>
 
---- 

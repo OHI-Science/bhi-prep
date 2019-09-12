@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[res_reg_nd](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nd_bhi2015.csv)
-*Units: resilience score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Resilience*
-*Goal Targets: resilience*
+[res_reg_nd](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nd_bhi2015.csv)\
+*Units: resilience score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Resilience*\
+*Goal Targets: resilience*\
+<br>
 
 Council Directive 91/676/EEC of 12 December 1991 concerning the protection of waters against pollution caused by nitrates from agricultural sources
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Council Directive 91/676/EEC of 12 December 1991 concerning the protection of wa
 
 <br>
 
---- 

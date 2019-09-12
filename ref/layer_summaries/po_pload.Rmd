@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[po_pload](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_pload_bhi2015.csv)
-*Units: pressure score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Pressure*
-*Goal Targets: pressures*
+[po_pload](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_pload_bhi2015.csv)\
+*Units: pressure score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Pressure*\
+*Goal Targets: pressures*\
+<br>
 
 phosphorus load including atmospheric and land-based sources from HELCOM data normalized to ceilings set by HELCOM for each of the seven major basins
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ phosphorus load including atmospheric and land-based sources from HELCOM data no
 
 <br>
 
---- 

@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[res_reg_nec](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nec_bhi2015.csv)
-*Units: resilience score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Resilience*
-*Goal Targets: resilience*
+[res_reg_nec](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nec_bhi2015.csv)\
+*Units: resilience score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Resilience*\
+*Goal Targets: resilience*\
+<br>
 
 Directive 1999/32/EC of 26 April 1999 relating to a reduction in the sulphur content of certain liquid fuels and amending Directive 93/12/EEC
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Directive 1999/32/EC of 26 April 1999 relating to a reduction in the sulphur con
 
 <br>
 
---- 

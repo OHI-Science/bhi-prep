@@ -64,7 +64,7 @@ filetxt <- scan(
 )
 
 bhiRmd_txt <- c(
-  "## LAYERFULLNAME",
+  "**LAYERFULLNAME**",
   "",
   "```{r, echo = FALSE, results = \"hide\"}",
   "tmp <- tempfile(fileext = \"Rmd\")",

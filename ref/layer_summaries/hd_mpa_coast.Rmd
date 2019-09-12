@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[hd_mpa_coast](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/hd_mpa_coast_gl2018.csv)
-*Units: scaled 0-1*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: AO resilienceCP resilienceCS resilienceHAB resilienceNP resilience*
+[hd_mpa_coast](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/hd_mpa_coast_gl2018.csv)\
+*Units: scaled 0-1*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: AO resilienceCP resilienceCS resilienceHAB resilienceNP resilience*\
+<br>
 
 Protected marine areas within 3nm of coastline (lasting special places goal status score)
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ Protected marine areas within 3nm of coastline (lasting special places goal stat
 
 <br>
 
---- 

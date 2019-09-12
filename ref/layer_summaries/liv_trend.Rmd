@@ -5,14 +5,17 @@ output:
     toc_float: true
 ---
 
-[liv_trend](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/liv_trend_score_bhi2015.csv)
-*Units: trend score*
-*Category:*
-*Subcategory:*
-*Index Dimension: Status and Trend*
-*Goal Targets: LIV*
+[liv_trend](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/liv_trend_score_bhi2015.csv)\
+*Units: trend score*\
+*Category:*\
+*Subcategory:*\
+*Index Dimension: Status and Trend*\
+*Goal Targets: LIV*\
+<br>
 
 LIV trend calculated in data prep. Based on most recent five years' status scores.
+
+<br>
 
 *Will add more text here as the layers are prepared for the BHI2.0*
 
@@ -22,4 +25,3 @@ See [**LIV prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob
 
 <br>
 
---- 
