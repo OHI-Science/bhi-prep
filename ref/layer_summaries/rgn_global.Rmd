@@ -13,7 +13,7 @@ output:
 *Goal Targets: spatial*\
 <br>
 
-Subset of regions that are not deleted or disputed
+Regions used in global analysis for Nature 2012, subset of regions_labels by type=eez and not deleted or disputed.
 
 <br>
 

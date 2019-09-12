@@ -5,15 +5,19 @@ output:
     toc_float: true
 ---
 
-[po_trash](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_trash_gl2018.csv)\
-*Units: scaled 0-1*\
+[po_trash](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_trash_bhi2015.csv)\
+*Units: score*\
 *Category:*\
 *Subcategory:*\
-*Index Dimension: Status and Trend*\
-*Goal Targets: CWCW pressureECO pressureICO pressureLIV pressureLSP pressureSPP pressureTR pressure*\
+*Index Dimension: Pressure*\
+*Goal Targets: pressures*\
 <br>
 
-Global marine plastic pollution
+Density of trash from coastal land and sea (Ocean Conservancy).
+Data sources:
+- [Ocean Conservancy International Coastal Cleanup 2012](http://www.oceanconservancy.org/our-work/international-coastal-cleanup/2012-ocean-trash-index.html)
+
+
 
 <br>
 

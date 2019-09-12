@@ -14,8 +14,7 @@ layers0 <- readr::read_csv(file.path(
 #   basename(dir_assess),
 #   "layers.csv"))
 lyr_csv <- layers0 %>%
-  select(targets, name, layer, description, units) %>% 
-  filter(name != "proxy_layer") %>% 
+  select(targets, name, layer, description, units, filename) %>% 
   mutate(description = ifelse(is.na(description), "See goal description above or data prep documents for more information.", description)) %>% 
   
   mutate(description = description %>% 
@@ -31,7 +30,7 @@ lyr_csv <- layers0 %>%
   rowwise() %>% 
   mutate(
     name_abbrev = ifelse(
-      str_length(name) < 35,
+      str_length(name) < 45,
       name,
       str_split(
         name_abbrev,
@@ -46,13 +45,7 @@ lyr_csv <- layers0 %>%
   mutate(
     name_abbrev = name_abbrev %>% 
       str_replace_all(pattern = " periodpunctuation", replacement = "\\.") %>% 
-      str_replace_all(pattern = " basedon", replacement = "based on")) %>%
-  mutate(
-    web_name = str_to_lower(gsub(" ", "_", name_abbrev)) %>% 
-      gsub(pattern = "/", replacement = "")
-  ) %>% 
-  
-  mutate(info = sprintf("[%s](%s#%s) (%s): %s", name_abbrev, layers_web, web_name, layer, description))
+      str_replace_all(pattern = " basedon", replacement = "based on"))
 
 
 ## layer summaries templates text ----
@@ -64,7 +57,7 @@ filetxt <- scan(
 )
 
 bhiRmd_txt <- c(
-  "**LAYERFULLNAME**",
+  "### LAYERFULLNAME",
   "",
   "```{r, echo = FALSE, results = \"hide\"}",
   "tmp <- tempfile(fileext = \"Rmd\")",
@@ -156,7 +149,7 @@ for(lyr in lyrs_names){
   bhiRmd_lyrtxt[grep(x = bhiRmd_lyrtxt, pattern = "LAYERFULLNAME")] <- bhiRmd_lyrtxt[grep(
     x = bhiRmd_lyrtxt, 
     pattern = "LAYERFULLNAME"
-  )] %>% str_replace_all(pattern = "LAYERFULLNAME", filter(lyr_csv, layer == lyr)$name %>% str_to_title())
+  )] %>% str_replace_all(pattern = "LAYERFULLNAME", filter(lyr_csv, layer == lyr)$name_abbrev %>% str_to_title())
   ## layername
   bhiRmd_lyrtxt[grep(x = bhiRmd_lyrtxt, pattern = "LAYERNAME")] <- bhiRmd_lyrtxt[grep(
     x = bhiRmd_lyrtxt, 

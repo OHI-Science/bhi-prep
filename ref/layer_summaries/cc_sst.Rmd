@@ -5,15 +5,15 @@ output:
     toc_float: true
 ---
 
-[cc_sst](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/cc_sst_gl2018.csv)\
-*Units: scaled 0-1*\
+[cc_sst](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/cc_sst_bhi2015.csv)\
+*Units: pressure score*\
 *Category:*\
 *Subcategory:*\
-*Index Dimension: Status and Trend*\
-*Goal Targets: CP pressureCS pressureECO pressureHAB pressureICO pressureNP pressureSPP pressure*\
+*Index Dimension: Pressure*\
+*Goal Targets: pressures*\
 <br>
 
-Presure due to increasing extreme sea surface temperature events
+Modelled Jul-Aug SST using the BALTSEM model, Future projections force by the ECHAM5 global climate model A1b scenario.
 
 <br>
 

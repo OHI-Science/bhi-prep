@@ -5,15 +5,17 @@ output:
     toc_float: true
 ---
 
-[wgi_all](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/wgi_all_gl2018.csv)\
-*Units: scaled 0-1*\
+[wgi_all](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/wgi_all_bhi2015.csv)\
+*Units: resilience score*\
 *Category:*\
 *Subcategory:*\
-*Index Dimension: Status and Trend*\
-*Goal Targets: AO resilienceCP resilienceCS resilienceCW resilienceECO resilienceFIS resilienceHAB resilienceICO resilienceLIV resilienceLSP resilienceMAR resilienceNP resilienceSPP resilienceTR resilience*\
+*Index Dimension: Resilience*\
+*Goal Targets: resilience*\
 <br>
 
-World Governance Indicators (WGI) six combined scores
+World Governance Indicators (WGI) six combined scores.
+Data sources:
+- [Worldwide Governance Indicators (WGI)](http://info.worldbank.org/governance/wgi)
 
 <br>
 

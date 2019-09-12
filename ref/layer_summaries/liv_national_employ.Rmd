@@ -14,13 +14,7 @@ output:
 <br>
 
 Employment percentage by eutS0 region from Eurostat.
-
-
-
 Data sources:
-
-
-
 - [Eurostat database lfst_r_lfe2emprt](http://ec.europa.eu/eurostat/data/database?p_auth=BgwyNWIM&p_p_id=estatsearchportlet_WAR_estatsearchportlet&p_p_lifecycle=1&p_p_state=maximized&p_p_mode=view&_estatsearchportlet_WAR_estatsearchportlet_action=search&text=lfst_r_lfe2emprt)
 
 <br>

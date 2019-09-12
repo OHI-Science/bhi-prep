@@ -13,7 +13,7 @@ output:
 *Goal Targets: LSP*\
 <br>
 
-NA
+See goal description above or data prep documents for more information.
 
 <br>
 

@@ -5,15 +5,19 @@ output:
     toc_float: true
 ---
 
-[rgn_area](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/rgn_area.csv)\
-*Units: km2*\
+[rgn_area](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/rgn_area_sc2014-area.csv)\
+*Units: km^2*\
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Status and Trend*\
 *Goal Targets: spatial*\
 <br>
 
-Area of Ocean Health Index regions modified from exclusive economic zones, weights used to calculate global score
+Area of Ocean Health Index regions based on exclusive economic zones (VLIZ 2012).
+Data sources:
+- [VLIZ Maritime Boundaries Geodatabase, version 7](http://www.marineregions.org/)
+
+
 
 <br>
 

@@ -5,7 +5,7 @@ output:
     toc_float: true
 ---
 
-[hab_illegal_oil](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/hab_illegal_oil_bhi2015.csv)\
+[hab_coastal_pop](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/hab_coastal_pop_bhi2015.csv)\
 *Units: pressure score*\
 *Category:*\
 *Subcategory:*\

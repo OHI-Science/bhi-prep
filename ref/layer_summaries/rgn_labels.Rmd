@@ -13,7 +13,7 @@ output:
 *Goal Targets: spatial*\
 <br>
 
-Regions by type (eez, subocean, unclaimed)
+Ocean Health Index regions by type (eez, subocean, unclaimed) and label
 
 <br>
 
