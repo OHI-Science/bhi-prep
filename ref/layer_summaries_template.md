@@ -13,13 +13,8 @@ output:
 *Goal Targets: GOALTARGETS*\
 <br>
 
-DESCRIPTION
-
-<br>
-
+DESCRIPTION\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**THISGOAL prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/THISGOAL/THISGOALPREP.md) for more information about data and methods.
 

@@ -13,13 +13,8 @@ output:
 *Goal Targets: BD*\
 <br>
 
-HELCOM species distributions from HELCOM species checklists and threat level based upon IUCN red list criteria.  Data sources:  - [HELCOM](http://www.helcom.fi/baltic-sea-trends/biodiversity/red-list-of-species)
-
-<br>
-
+HELCOM species distributions from HELCOM species checklists and threat level based upon IUCN red list criteria.  Data sources:  - [HELCOM](http://www.helcom.fi/baltic-sea-trends/biodiversity/red-list-of-species)\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**BD prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/BD/bd_prep.md) for more information about data and methods.
 

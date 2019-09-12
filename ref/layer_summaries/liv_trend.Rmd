@@ -13,13 +13,8 @@ output:
 *Goal Targets: LIV*\
 <br>
 
-LIV trend calculated in data prep. Based on most recent five years' status scores.
-
-<br>
-
+LIV trend calculated in data prep. Based on most recent five years' status scores.\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**LIV prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/LIV/liv_prep.md) for more information about data and methods.
 

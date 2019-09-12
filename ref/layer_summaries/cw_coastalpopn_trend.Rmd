@@ -17,13 +17,8 @@ Coastal population, defined as the total population inland of 25 miles, extracte
 Data sources:
 - Center for International Earth Science Information Network (CIESIN)/Columbia University
 
-- CIESIN & CIAT (Center for International Earth Science Information Network (CIESIN)/Columbia University, & Centro Internacional de Agricultura Tropical (CIAT)) (2005). **Gridded Population of the World, Version 3 (GPWv3): Population Density Grid, Future Estimates**. Palisades, NY. [NASA Socioeconomic Data and Applications Center (SEDAC)](http://sedac.ciesin.columbia.edu/data/set/gpw-v3-population-density-future-estimates)
-
-<br>
-
+- CIESIN & CIAT (Center for International Earth Science Information Network (CIESIN)/Columbia University, & Centro Internacional de Agricultura Tropical (CIAT)) (2005). **Gridded Population of the World, Version 3 (GPWv3): Population Density Grid, Future Estimates**. Palisades, NY. [NASA Socioeconomic Data and Applications Center (SEDAC)](http://sedac.ciesin.columbia.edu/data/set/gpw-v3-population-density-future-estimates)\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**CW prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/CW/cw_prep.md) for more information about data and methods.
 

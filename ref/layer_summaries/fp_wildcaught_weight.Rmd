@@ -13,13 +13,8 @@ output:
 *Goal Targets: FP*\
 <br>
 
-Proportion of wild caught fisheries yield to mariculture yield, based in ICES area landings used in FIS and mariculture production of rainbow trout used in MAR.
-
-<br>
-
+Proportion of wild caught fisheries yield to mariculture yield, based in ICES area landings used in FIS and mariculture production of rainbow trout used in MAR.\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**FP prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/FP/fp_prep.md) for more information about data and methods.
 

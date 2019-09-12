@@ -15,13 +15,8 @@ output:
 
 Inverse of World Governance Indicators (WGI) six combined scores.
 Data sources:
-- [Worldwide Governance Indicators (WGI)](http://info.worldbank.org/governance/wgi)
-
-<br>
-
+- [Worldwide Governance Indicators (WGI)](http://info.worldbank.org/governance/wgi)\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 
 

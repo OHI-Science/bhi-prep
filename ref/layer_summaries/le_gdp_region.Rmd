@@ -17,13 +17,8 @@ Gross Domestic Product (GDP) data (nominal values) from Eurostat.
 Data sources:
 - [Eurostat](http://ec.europa.eu/eurostat/data/database?p_auth=EgN81qAf&p_p_id=estatsearchportlet_WAR_estatsearchportlet&p_p_lifecycle=1&p_p_state=maximized&p_p_mode=view&_estatsearchportlet_WAR_estatsearchportlet_action=search&text=nama_10r_3gdp)
 
-
-
-<br>
-
+\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**ECO prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/ECO/eco_prep.md) for more information about data and methods.
 

@@ -13,13 +13,8 @@ output:
 *Goal Targets: ECO*\
 <br>
 
-Status of economics based on revenue from different blue sectors from EU's Blue Growth Report
-
-<br>
-
+Status of economics based on revenue from different blue sectors from EU's Blue Growth Report\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**ECO prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/ECO/eco_prep.md) for more information about data and methods.
 

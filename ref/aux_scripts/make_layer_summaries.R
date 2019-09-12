@@ -30,7 +30,7 @@ lyr_csv <- layers0 %>%
   rowwise() %>% 
   mutate(
     name_abbrev = ifelse(
-      str_length(name) < 45,
+      str_length(name) <= 45,
       name,
       str_split(
         name_abbrev,
@@ -121,7 +121,11 @@ for(lyr in lyrs_names){
     replacement = ifelse(
       is.na(filter(lyr_csv, layer == lyr)$targets),
       "This layer is no longer used but has not yet been removed from the BHI",
-      filter(lyr_csv, layer == lyr)$targets
+      ifelse(
+        filter(lyr_csv, layer == lyr)$targets %in% c("pressures", "resilience"),
+        filter(lyr_csv, layer == lyr)$targets %>% str_to_sentence(),
+        filter(lyr_csv, layer == lyr)$targets
+      )
     )
   )
   ## layer description

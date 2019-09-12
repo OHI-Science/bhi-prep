@@ -13,13 +13,8 @@ output:
 *Goal Targets: CW*\
 <br>
 
-Status calculated only for most recent period (2010-2014) for each HOLAS basin and applied to all BHI regions
-
-<br>
-
+Status calculated only for most recent period (2010-2014) for each HOLAS basin and applied to all BHI regions\
 *Will add more text here as the layers are prepared for the BHI2.0*
-
-<br>
 
 See [**CW prep documents**](https://github.com/OHI-Science/bhi-1.0-archive/blob/draft/baltic2015/prep/CW/cw_prep.md) for more information about data and methods.
 
