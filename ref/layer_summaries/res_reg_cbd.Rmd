@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Resilience*\
-*Goal Targets: resilience*\
+*Goal Targets: Resilience*\
 <br>
 
 Convention on Biodiversity\

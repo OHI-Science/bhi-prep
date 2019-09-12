@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Resilience*\
-*Goal Targets: resilience*\
+*Goal Targets: Resilience*\
 <br>
 
 Regulation 850/2004/EC of the European Parliament and of the Council of 29 April 2004 on persistent organic pollutants and amending Directive 79/117/EEC\

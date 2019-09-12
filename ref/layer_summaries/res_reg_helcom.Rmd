@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Resilience*\
-*Goal Targets: resilience*\
+*Goal Targets: Resilience*\
 <br>
 
 Convention on the Protection of the Marine Environment of the Baltic Sea Area 1992\

@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Pressure*\
-*Goal Targets: pressures*\
+*Goal Targets: Pressures*\
 <br>
 
 Modelled Jul-Aug SST using the BALTSEM model, Future projections force by the ECHAM5 global climate model A1b scenario.\

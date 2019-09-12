@@ -14,6 +14,7 @@ layers0 <- readr::read_csv(file.path(
 #   basename(dir_assess),
 #   "layers.csv"))
 lyr_csv <- layers0 %>%
+  filter(name != "proxy_layer") %>% 
   select(targets, name, layer, description, units, filename) %>% 
   mutate(description = ifelse(is.na(description), "See goal description above or data prep documents for more information.", description)) %>% 
   
@@ -76,7 +77,8 @@ bhiRmd_txt <- c(
 lyrs_names <- lyr_csv$layer %>% sort()
 for(lyr in lyrs_names){
   make_file <- file.path(getwd(), "ref", "layer_summaries", paste(lyr, "Rmd", sep = "."))
-  if(!file.exists(make_file)){file.create(make_file)}
+  if(file.exists(make_file)){file.remove(make_file)}
+  file.create(make_file)
   
   lyr_txt <- filetxt
   

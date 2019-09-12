@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Resilience*\
-*Goal Targets: resilience*\
+*Goal Targets: Resilience*\
 <br>
 
 Directive 2009/147/EC of the European Parliament and of the Council of 30 November 2009 on the conservation of wild birds\

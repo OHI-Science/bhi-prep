@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Pressure*\
-*Goal Targets: pressures*\
+*Goal Targets: Pressures*\
 <br>
 
 Atmospheric deposition of PCB-153 on the Baltic Sea .    Data sources:    - [HELCOM provides EMEP/MSC data for Baltic Sea basins](http://www.helcom.fi/baltic-sea-trends/environment-fact-sheets/hazardous-substances/atmospheric-deposition-of-pcb-153-on-the-baltic-sea/)\

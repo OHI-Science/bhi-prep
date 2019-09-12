@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Pressure*\
-*Goal Targets: pressures*\
+*Goal Targets: Pressures*\
 <br>
 
 Inverse of World Governance Indicators (WGI) six combined scores.

@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Pressure*\
-*Goal Targets: pressures*\
+*Goal Targets: Pressures*\
 <br>
 
 Density of trash from coastal land and sea (Ocean Conservancy).

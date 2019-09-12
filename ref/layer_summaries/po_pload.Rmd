@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Pressure*\
-*Goal Targets: pressures*\
+*Goal Targets: Pressures*\
 <br>
 
 phosphorus load including atmospheric and land-based sources from HELCOM data normalized to ceilings set by HELCOM for each of the seven major basins\

@@ -10,7 +10,7 @@ output:
 *Category:*\
 *Subcategory:*\
 *Index Dimension: Resilience*\
-*Goal Targets: resilience*\
+*Goal Targets: Resilience*\
 <br>
 
 Directive 1991/271/EEC Council Directive of 21 May 1991 concerning urban waste water treatment\
