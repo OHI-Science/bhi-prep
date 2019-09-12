@@ -18,9 +18,4 @@ We used Eurostat dataset on [nights spent at tourist accommodation establishment
 
 Study in support of policy measures for maritime and coastal tourism at EU level (Page 157) states that the Nordic Countries sea basins tourism has a potential to grow annually by 2.2 % until 2020. We therefore set the reference point to an annual growth of 2.2% for ten years from 2010 onwards for all three tourism categories (see above).
 
-
-### Considerations for *BHI 2.0*
-
-<!---MISSING data for region 19, 22, 30, 33 --->
-
 ### Other information

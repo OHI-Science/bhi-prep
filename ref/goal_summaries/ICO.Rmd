@@ -18,7 +18,7 @@ Iconic species are those that are relevant to local cultural identity through a 
 - Harbour porpoise  
 - Ringed seal
 - White-tailed sea eagle 
-- Common eider
+- Common eider/
 
 
 ### Model & Data
@@ -29,8 +29,6 @@ HELCOM provides species checklists for the Baltic that include distribution and 
 ### Reference points
 
 The target is for all species are in the "least concern" category; this will produce a score of 100. The lower cut-off point when 75% of species are extinct and score is 0.
-
-### Considerations for *BHI 2.0*
 
 ### Other information
 

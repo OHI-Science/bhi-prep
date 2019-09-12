@@ -2,11 +2,11 @@
 
 The Nutrient sub-goal of the Clean Water goal captures the degree to which local waters are affected by eutrophication. For the BHI four eutrophication indicators were included: 
 
--	winter (December-February) dissolved inorganic nitrogen (DIN) 
--	dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth)
--	summer (June-September) chlorophyll a concentration in the surface layer (0 - 10 m depth) 
--	summer (June-September) Secchi depth, 
--	hypoxic area below the halocline. 
+-	Winter (December-February) dissolved inorganic nitrogen (DIN) 
+-	Dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth) 
+-	Summer (June-September) chlorophyll a concentration in the surface layer (0 - 10 m depth)  
+-	Summer (June-September) Secchi depth  
+-	Hypoxic area below the halocline  
 
 The first three indicators are HELCOM core indicators (Baltic Sea Environmental Proceedings No 143). Hypoxic area is taken from Carstensen et al 2014. 
 
@@ -31,9 +31,6 @@ The _hypoxic_ area reference point is set to be the hypoxic area of each basin i
 
 Reference points for the _winter (DIN), (DIP), and summer chlorophyll_ a have been assessed from the Baltic Sea Environmental Proceedings No 143.
 
-
-### Considerations for *BHI 2.0*
-
 ### Other information
 
-*external advisors/goalkeepers: Christoph Humborg*
+*External advisors/goalkeepers: Christoph Humborg*

@@ -10,6 +10,4 @@ HELCOM provides species checklists for the Baltic that include distribution and 
 
 The target is for all species are in the "least concern" category; this will produce a score of 100. The lower cut-off point when 75% of species are extinct and score is 0.
 
-### Considerations for *BHI 2.0*
-
 ### Other information

@@ -17,8 +17,6 @@ Both MPA area and management status data were downloaded from the [HELCOM MPA](h
 
 The target is for 10% of a country's EEZs is designated as MPAs, and are fully managed.
 
-### Considerations for *BHI 2.0*
-
 ### Other information
 
-*external advisors/goalkeepers: Sofia Wikström*
+*External advisors/goalkeepers: Sofia Wikström*

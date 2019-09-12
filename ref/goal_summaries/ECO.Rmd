@@ -13,9 +13,9 @@ The goal model compares the combined total revenue per country and the reference
 
 As reference points we used a 1.5% annual growth between 2010 and 2020, as envisioned in the blue growth report. 
 
-### Considerations for *BHI 2.0*
-
 <!---
+### Considerations for BHI 2.0
+
 In this assessment, GDP used is for entire NUTS3, but divided among populations along a 25km buffer along the shore. 
 
 Population data was not extracted for the entire NUTS3 area, only for the buffer area.  Therefore, the entire GDP for the NUTS3 is allocated among BHI regions, rather than only the GDP associated with the population in the buffer.

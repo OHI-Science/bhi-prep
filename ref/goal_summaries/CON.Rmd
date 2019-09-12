@@ -12,8 +12,8 @@ All contaminant data were downloaded from the open-accessible ICES database (see
 
 Data to calculate the penalty factor were taken from: 
 
--	the CHASE assessment tool to account for the chemicals monitored in the Baltic Sea - _Andersen et al 2016, Environ Monit Assess (2016) 188:115, DOI 10.1007/s10661-016-5121-x_
--	the [Candidate List (Annex XV of the REACH regulation)]((https://echa.europa.eu/candidate-list-table)), which compiles chemicals that within REACH have been identified as Substances of Very High Concern (SVHC).
+-	The CHASE assessment tool to account for the chemicals monitored in the Baltic Sea - _Andersen et al 2016, Environ Monit Assess (2016) 188:115, DOI 10.1007/s10661-016-5121-x_
+-	The [Candidate List (Annex XV of the REACH regulation)]((https://echa.europa.eu/candidate-list-table)), which compiles chemicals that within REACH have been identified as Substances of Very High Concern (SVHC) 
 
 
 ### Reference points
@@ -26,8 +26,8 @@ Data to calculate the penalty factor were taken from:
 
 The status score was penalized requesting that 10% of the “Substances of Very High Concern” should be regularly monitored. 
 
-### Considerations for *BHI 2.0*
+<!-- ### Considerations for BHI 2.0 -->
 
 ### Other information
 
-*external advisors/goalkeepers: Anna Sobek*
+*External advisors/goalkeepers: Anna Sobek*

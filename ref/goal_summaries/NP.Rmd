@@ -11,8 +11,6 @@ The data used for this goal are composed of total sprat spawning biomass (SSB) a
 
 The reference point used for the computation are based on the MSY principle and are described as a functional relationship. MSY means the highest theoretical equilibrium yield that can be continuously taken on average from a stock under existing average environmental conditions without significantly affecting the reproduction process *(European Union 2013, World Ocean Review 2013).* 
 
-### Considerations for _BHI 2.0_
-
 ### Other information
 
 *External advisors/goalkeepers are Christian Möllmann & Stefan Neuenfeldt*
