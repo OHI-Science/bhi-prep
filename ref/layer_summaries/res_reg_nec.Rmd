@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Directive 1999/32/Ec Of 26 April 1999 Relating To A Reduction In The Sulphur Content Of Certain Liquid Fuels And Amending Directive 93/12/Eec
-
-[res_reg_nec](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nec_bhi2015.csv.csv)
+[res_reg_nec](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_nec_bhi2015.csv)
 *Units: resilience score*
 *Category:*
 *Subcategory:*
 *Index Dimension: Resilience*
 *Goal Targets: resilience*
 
-<br>
+Directive 1999/32/EC of 26 April 1999 relating to a reduction in the sulphur content of certain liquid fuels and amending Directive 93/12/EEC
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "res_reg_nec.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

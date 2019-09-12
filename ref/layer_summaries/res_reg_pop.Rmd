@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Regulation 850/2004/Ec Of The European Parliament And Of The Council Of 29 April 2004 On Persistent Organic Pollutants And Amending Directive 79/117/Eec
-
-[res_reg_pop](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_pop_bhi2015.csv.csv)
+[res_reg_pop](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_reg_pop_bhi2015.csv)
 *Units: resilience score*
 *Category:*
 *Subcategory:*
 *Index Dimension: Resilience*
 *Goal Targets: resilience*
 
-<br>
+Regulation 850/2004/EC of the European Parliament and of the Council of 29 April 2004 on persistent organic pollutants and amending Directive 79/117/EEC
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "res_reg_pop.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

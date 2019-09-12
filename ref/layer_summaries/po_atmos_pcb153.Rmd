@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Atmospheric Deposition Of Pcb 153 To The Baltic Sea
-
-[po_atmos_pcb153](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_atmos_pcb153_bhi2015.csv.csv)
+[po_atmos_pcb153](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_atmos_pcb153_bhi2015.csv)
 *Units: pressure score*
 *Category:*
 *Subcategory:*
 *Index Dimension: Pressure*
 *Goal Targets: pressures*
 
-<br>
+Atmospheric deposition of PCB-153 on the Baltic Sea .    Data sources:    - [HELCOM provides EMEP/MSC data for Baltic Sea basins](http://www.helcom.fi/baltic-sea-trends/environment-fact-sheets/hazardous-substances/atmospheric-deposition-of-pcb-153-on-the-baltic-sea/)
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "po_atmos_pcb153.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

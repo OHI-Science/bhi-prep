@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Social Progress Index
-
-[res_spi](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_spi_gl2018.csv.csv)
+[res_spi](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/res_spi_gl2018.csv)
 *Units: scaled 0-1*
 *Category:*
 *Subcategory:*
 *Index Dimension: Status and Trend*
 *Goal Targets: AO resilienceCP resilienceCS resilienceCW resilienceECO resilienceFIS resilienceHAB resilienceICO resilienceLIV resilienceLSP resilienceMAR resilienceNP resilienceSPP resilienceTR resilience*
 
-<br>
+Social Progress Index scores
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "res_spi.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

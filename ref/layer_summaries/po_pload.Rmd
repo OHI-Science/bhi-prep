@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Phosphorus Pollution
-
-[po_pload](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_pload_bhi2015.csv.csv)
+[po_pload](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/po_pload_bhi2015.csv)
 *Units: pressure score*
 *Category:*
 *Subcategory:*
 *Index Dimension: Pressure*
 *Goal Targets: pressures*
 
-<br>
+phosphorus load including atmospheric and land-based sources from HELCOM data normalized to ceilings set by HELCOM for each of the seven major basins
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "po_pload.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

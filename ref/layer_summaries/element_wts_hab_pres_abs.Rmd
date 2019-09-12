@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Habitat Presence/Absence
-
-[element_wts_hab_pres_abs](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/element_wts_hab_pres_abs_gl2018.csv.csv)
+[element_wts_hab_pres_abs](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/element_wts_hab_pres_abs_gl2018.csv)
 *Units: 0 or 1*
 *Category:*
 *Subcategory:*
 *Index Dimension: Status and Trend*
 *Goal Targets: weighting*
 
-<br>
+List of habitats in each region (empty dataframe filled by functions.R in ohi-global)
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "element_wts_hab_pres_abs.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

@@ -5,33 +5,21 @@ output:
     toc_float: true
 ---
 
-```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
-short_layer_web <- file.path(bhiprep_gh_raw, "master", "ref", "layer_summaries") # bhiprep_gh_raw defined in setup.R
-```
-
-## Invasive Species Pressure Scores
-
-[sp_invasives](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/sp_invasives_bhi2015.csv.csv)
+[sp_invasives](https://github.com/OHI-Science/bhi/blob/master/baltic/layers/sp_invasives_bhi2015.csv)
 *Units: pressure score*
 *Category:*
 *Subcategory:*
 *Index Dimension: Pressure*
 *Goal Targets: pressures*
 
-<br>
+Invasive species scores based on the number of invasive species introduction evenets in each country.
 
-```{r, echo = FALSE, results = "hide"}
-tmp <- tempfile(fileext = "Rmd")
-on.exit(unlink(tmp))
-download.file(file.path(short_layer_web, "sp_invasives.Rmd"), tmp) 
-```
-
-```{r, child = tmp, echo = FALSE, results = "asis"} 
-``` 
-
-See [**THISGOAL**](link/to/dataprep/or/something) for more information about data and methods.
+*Will add more text here as the layers are prepared for the BHI2.0*
 
 <br>
 
----- 
+
+
+<br>
+
+--- 

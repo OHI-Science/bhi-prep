@@ -55,12 +55,28 @@ lyr_csv <- layers0 %>%
   mutate(info = sprintf("[%s](%s#%s) (%s): %s", name_abbrev, layers_web, web_name, layer, description))
 
 
-## layer summaries template text ----
+## layer summaries templates text ----
 filetxt <- scan(
   file.path(getwd(), "ref", "layer_summaries_template.md"),
   what = "character",
   sep = "\n",
   blank.lines.skip = FALSE
+)
+
+bhiRmd_txt <- c(
+  "## LAYERFULLNAME",
+  "",
+  "```{r, echo = FALSE, results = \"hide\"}",
+  "tmp <- tempfile(fileext = \"Rmd\")",
+  "on.exit(unlink(tmp))",
+  "download.file(file.path(short_layer_web, \"LAYERNAME.Rmd\"), tmp)", 
+  "```",
+  "",
+  "```{r, child = tmp, echo = FALSE, results = \"asis\"}", 
+  "```",
+  "",
+  "---",
+  ""
 )
 
 ## create docs ----
@@ -76,13 +92,32 @@ for(lyr in lyrs_names){
     x = lyr_txt, 
     pattern = "LAYERNAME"
   )] %>% str_replace_all(pattern = "LAYERNAME", lyr)
-  
   ## layer filename
   lyr_txt[grep(x = lyr_txt, pattern = "LAYERFILENAME")] <- lyr_txt[grep(
     x = lyr_txt, 
     pattern = "LAYERFILENAME"
   )] %>% str_replace_all(pattern = "LAYERFILENAME", filter(lyr_csv, layer == lyr)$filename)
-  
+  ## units
+  lyr_txt[grep(x = lyr_txt, pattern = "UNITS")] <- lyr_txt[grep(
+    x = lyr_txt, 
+    pattern = "UNITS"
+  )] %>% str_replace_all(pattern = "UNITS", filter(lyr_csv, layer == lyr)$units)
+  ## index dimension
+  lyr_txt[grep(x = lyr_txt, pattern = "INDEXDIMENSION")] <- lyr_txt[grep(
+    x = lyr_txt, 
+    pattern = "INDEXDIMENSION"
+  )] %>% str_replace_all(
+      pattern = "INDEXDIMENSION", 
+      replacement = ifelse(
+        "pressures" %in% filter(lyr_csv, layer == lyr)$targets %>% str_split(pattern = " ") %>% unlist(),
+        "Pressure",
+        ifelse(
+          "resilience" %in% filter(lyr_csv, layer == lyr)$targets %>% str_split(pattern = " ") %>% unlist(),
+          "Resilience",
+          "Status and Trend"
+        )
+      )
+    )
   ## goal targets
   lyr_txt[grep(x = lyr_txt, pattern = "GOALTARGETS")] <- lyr_txt[grep(
     x = lyr_txt, 
@@ -96,39 +131,46 @@ for(lyr in lyrs_names){
       filter(lyr_csv, layer == lyr)$targets
     )
   )
+  ## layer description
+  lyr_txt[grep(x = lyr_txt, pattern = "DESCRIPTION")] <- lyr_txt[grep(
+    x = lyr_txt, 
+    pattern = "DESCRIPTION"
+  )] %>% str_replace_all(pattern = "DESCRIPTION", filter(lyr_csv, layer == lyr)$description)
+  ## goal prep link if relevant
+  lyr_txt[grep(x = lyr_txt, pattern = "THISGOAL")] <- ifelse(
+    !filter(lyr_csv, layer == lyr)$targets %in% 
+      c("FP", "FIS", "MAR", "AO", "NP", "CS", "TR", "LE", "LIV", "ECO", "SP", "ICO", "LSP", "CW", "EUT", "TRA", "CON", "BD"),
+    "", # could add something more for pressures or resilience docs here with more ifelses
+    lyr_txt[grep(x = lyr_txt, pattern = "THISGOAL")] %>% 
+      str_replace(pattern = "THISGOALPREP",
+                  replacement = paste(str_to_lower(filter(lyr_csv, layer == lyr)$targets), "prep", sep =  "_")) %>% 
+      str_replace_all(pattern = "THISGOAL",
+                  replacement = filter(lyr_csv, layer == lyr)$targets)
+  )
+ 
+  
+  ## for layers.Rmd doc in the bhi repo...
+  bhiRmd_lyrtxt <- bhiRmd_txt
   
   ## layer full name
-  lyr_txt[grep(x = lyr_txt, pattern = "LAYERFULLNAME")] <- lyr_txt[grep(
-    x = lyr_txt, 
+  bhiRmd_lyrtxt[grep(x = bhiRmd_lyrtxt, pattern = "LAYERFULLNAME")] <- bhiRmd_lyrtxt[grep(
+    x = bhiRmd_lyrtxt, 
     pattern = "LAYERFULLNAME"
   )] %>% str_replace_all(pattern = "LAYERFULLNAME", filter(lyr_csv, layer == lyr)$name %>% str_to_title())
+  ## layername
+  bhiRmd_lyrtxt[grep(x = bhiRmd_lyrtxt, pattern = "LAYERNAME")] <- bhiRmd_lyrtxt[grep(
+    x = bhiRmd_lyrtxt, 
+    pattern = "LAYERNAME"
+  )] %>% str_replace_all(pattern = "LAYERNAME", lyr)
   
-  ## units
-  lyr_txt[grep(x = lyr_txt, pattern = "UNITS")] <- lyr_txt[grep(
-    x = lyr_txt, 
-    pattern = "UNITS"
-  )] %>% str_replace_all(pattern = "UNITS", filter(lyr_csv, layer == lyr)$units)
-  
-  ## index dimension
-  lyr_txt[grep(x = lyr_txt, pattern = "INDEXDIMENSION")] <- lyr_txt[grep(
-    x = lyr_txt, 
-    pattern = "INDEXDIMENSION"
-  )] %>% 
-  str_replace_all(
-    pattern = "INDEXDIMENSION", 
-    replacement = ifelse(
-      "pressures" %in% filter(lyr_csv, layer == lyr)$targets %>% str_split(pattern = " ") %>% unlist(),
-      "Pressure",
-      ifelse(
-        "resilience" %in% filter(lyr_csv, layer == lyr)$targets %>% str_split(pattern = " ") %>% unlist(),
-        "Resilience",
-        "Status and Trend"
-      )
-    )
-  )
-  ## write the configured/layer-specific text to the rmd doc
+    
+  ## write the configured/layer-specific text to the rmd docs
   sink(file = make_file, append = FALSE)
   cat(lyr_txt, sep = "\n")
+  closeAllConnections()
+  
+  sink(file = file.path(dir_bhi, "supplement", "web", "layers.Rmd"), append = TRUE)
+  cat(bhiRmd_lyrtxt, sep = "\n")
   closeAllConnections()
 }
 
