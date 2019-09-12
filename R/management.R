@@ -1,17 +1,18 @@
 ## Libraries
-source(file.path(here::here(), "R", "common.R"))
+source(file.path(here::here(), "R", "setup.R"))
 library(tools)
 
 ## Functions
 
 #' provide a link to the data prep github_document in readme
+#' this function is specifically for the data prep documents! not for readmes in general folder structure
 #'
 #' @param dir path from project root to a goal or dimension subfolder of `prep` or `data`
 #' @param prep_file file path starting where `dir` leaves off, to a specific data prep rmarkdown document (e.g. "v2019/ao_prep.rmd")
 #'
 #' @return no immediate output; result is the created readme
 
-create_readme <- function(dir, prep_file) {
+create_readme <- function(dir, prep_file){
   if(dirname(dir) != here::here()){
     dir <- file.path(here::here(), dir)
     if(!file.exists(dir)){stop("cannot find that directory...specify either prep or data subfolder...")}
