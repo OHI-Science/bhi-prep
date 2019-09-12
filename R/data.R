@@ -1,13 +1,106 @@
 ## Libraries
-source(file.path(here::here(), "R", "common.R"))
+source(file.path(here::here(), "R", "setup.R"))
 library(httr)
 library(jsonlite)
 library(xml2)
 library(XML)
 library(lubridate)
 library(data.table)
+# library(eurostat)
+# library(doParallel)
+# library(foreach)
+# library(RCurl)
+# library(dbplyr)
+# library(DBI)
+# library(odbc)
+# library(config)
+# library(RMySQL)
+# library(rvest)
+# library(splashr)
+# library(RSelenium)
 
 ## Functions
+
+#' get data from Baltic Nest data portal
+#' 
+#' @param date_range list or vector with two values given in YYYYMMDD format
+#' @param months values 1 through 12 corresponding to months to obtain data for
+#' @param latlon_ranges four-element vector or list in order: min lat, max lat, min lon, max lon.
+#' @param param_codes baltic nest code options: OBSDEP,TEMP,QTEMP,SALIN,QSALIN,TOTOXY,QTOTOXY,PO4P,QPO4P,TOTP,
+#' QTOTP,SIO4,QSIO4,NO3N,QNO3N,NO2N,QNO2N,NO23N,QNO23N,NH4N,QNH4N,TOTN,QTOTN,CHL,QCHL
+#' 
+#' @return
+#' 
+get_nest_data <- function(date_range, months = 1:12,
+                          latlon_ranges = c(53.6016, 65.9071, 9.42077, 30.3471), 
+                          param_codes){
+  
+  result <- data.frame()
+  i <- 1
+  
+  date_begin <- lubridate::ymd(date_range[1])
+  date_end <- lubridate::ymd(date_range[2])
+  if(is.na(date_begin)|is.na(date_end)){
+    stop("issue with dates, check date_range was given in YYYYMMDD format")
+  }
+  yrs <- seq(year(date_begin), year(date_end))
+  months <- stringr::str_pad(months, width = 2, side = "left", pad = "0")
+  
+  ## construct dates sequence, to download data only associated w selected months
+  dates_seq <- seq(date_begin, date_end, by = "months") %>% 
+    grep(pattern = paste0("-", months, "-", collapse = "|"), value = TRUE)
+  dates_lst <- list()
+  j <- 1
+  for(i in 2:length(dates_seq)){
+    if(!(lubridate::month(dates_seq[i-1])==lubridate::month(dates_seq[i])-1|
+         (lubridate::month(dates_seq[i-1])==12&lubridate::month(dates_seq[i])==1))){
+      dates_lst <- c(dates_lst, list(dates_seq[c(j, (i-1))])); j <- i
+    }; i <- i + 1
+  }
+  if(length(dates_lst) == 0){
+    dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
+  }
+  
+  ## construct and open urls, bind results
+  for(d in 1:length(dates_lst)){
+    full_url <- sprintf(
+      "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
+      "http://nest.su.se/dataPortal/getStations",
+      latlon_ranges[1], latlon_ranges[2], latlon_ranges[3], latlon_ranges[4],
+      dates_lst[[d]][1], dates_lst[[d]][2]
+    )
+    tmp <- readr::read_csv(full_url)
+    if(nrow(tmp) == 0){
+      message(sprintf("no rows of data found for %s to %s...", dates_lst[[d]][1], dates_lst[[d]][2]))
+    }
+    result <- rbind(result, tmp)
+    closeAllConnections()
+  }
+  
+  result <- result %>% 
+    select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "OBSDEP", param_codes) %>% 
+    filter()
+  
+  ## write data to bhi database...
+  
+  return(result)
+}
+
+#' get data from SMHI
+#' 
+#' for more information the SMHI API see [here](http://opendata.smhi.se/apidocs/ocobs/index.html)
+
+get_smhi_data <- function(){
+  
+}
+#' get data from ICES
+#' 
+#' for more about ICES data portal web services see [here](http://ecosystemdata.ices.dk/WebServices/index.aspx)
+.
+get_ices_data <- function(){
+  
+}
+
 
 #' get data from one of our primary sources
 #' 
@@ -45,11 +138,13 @@ get_input_data <- function(data_source, date_range, months = 1:12,
   i <- 1
   
   data_source <- str_to_lower(data_source)
-  search_terms <- search_terms %>% 
-    str_to_lower() %>% 
-    str_remove_all(",") %>% 
-    str_split(pattern = " ") %>% 
-    unlist()
+  if(!is.na(search_terms)){
+    search_terms <- search_terms %>% 
+      str_to_lower() %>% 
+      str_remove_all(",") %>% 
+      str_split(pattern = " ") %>% 
+      unlist()
+  }
 
   date_begin <- lubridate::ymd(date_range[1])
   date_end <- lubridate::ymd(date_range[2])
@@ -57,14 +152,15 @@ get_input_data <- function(data_source, date_range, months = 1:12,
     stop("issue with dates, check date_range was given in YYYYMMDD format")
   }
   yrs <- seq(year(date_begin), year(date_end))
-  months <-  str_pad(months, width = 2, side = "left", pad = "0")
+  months <- str_pad(months, width = 2, side = "left", pad = "0")
   
   
-  ## BY DATA SOURCE ----
+  ## BY DATA SOURCE
   
   if(data_source %in% c("nest", "baltic nest")){
     ## baltic nest data portal ----
     
+    ## construct dates sequence, to download data only associated w selected months
     dates_seq <- seq(date_begin, date_end, by = "months") %>% 
       grep(pattern = paste0("-", months, "-", collapse = "|"), value = TRUE)
     dates_lst <- list()
@@ -79,6 +175,7 @@ get_input_data <- function(data_source, date_range, months = 1:12,
       dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
     }
 
+    ## construct and open urls, bind results
     for(d in 1:length(dates_lst)){
       full_url <- sprintf(
         "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
@@ -142,14 +239,14 @@ get_input_data <- function(data_source, date_range, months = 1:12,
         replacement = paste0("ParamGroup=", tmp[tmp$grp %in% search_terms|tmp$abbrev %in% search_terms,"key"]))
       
       ## Years-- need start and end years as inputs
-      yrs <- mapply(yrs[-length(yrs)], yrs[2:length(yrs)], FUN = function(x, y){sprintf("yearBegining=%s&yearEnd=%s", x, y)})
+      yrs <- mapply(yrs[-length(yrs)], yrs[2:length(yrs)], function(x, y){sprintf("yearBegining=%s&yearEnd=%s", x, y)})
     
       ## Output vars
       ## table of all dome web service outputs, from dome.ices.dk/Webservices/index.aspx
       vars <- select(read_csv(file.path(dir_prep, "ref", "lookup_tabs", "dome_ices_vars.csv"), col_types = cols()), var)
       
       ## Function to transform list from xml
-      to_df <- function(x){
+      xml_to_df <- function(x){
         entry <- unlist(x) %>% 
           data.frame(row.names = str_remove(names(.), "DOMErecord.")) %>% 
           tibble::rownames_to_column() %>% 
@@ -159,7 +256,7 @@ get_input_data <- function(data_source, date_range, months = 1:12,
         entry <- entry[2,]
         return(entry)
       }
-      to_df_comp <- compiler::cmpfun(to_df)
+      to_df_comp <- compiler::cmpfun(xml_to_df)
       
     } else {
       
@@ -222,8 +319,8 @@ get_input_data <- function(data_source, date_range, months = 1:12,
       countrycodes <- c("06","07","RU","67","LT","LA","ES","34","77","26")
       urls <- mapply(expand.grid(yrs, countrycodes)[1], 
                      expand.grid(yrs, countrycodes)[2],
-                     FUN = function(x, y){sprintf(url_base, x, y)})
-    } else {urls <- lapply(yrs, FUN = function(x){sprintf(url_base, x)}) %>% unlist()}
+                     function(x, y){sprintf(url_base, x, y)})
+    } else {urls <- lapply(yrs, function(x){sprintf(url_base, x)}) %>% unlist()}
     
     # result = data.frame()
     # data_lst = list()
