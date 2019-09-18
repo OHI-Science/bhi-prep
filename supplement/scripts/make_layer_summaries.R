@@ -5,14 +5,14 @@ list.files("/Users/eleanorecampbell/Desktop/GitHub/bhi/baltic/layers")
 
 ## layers information ----
 ## NOTE: THIS MATCHES LAYERS USED IN WEB/GOALS.RMD OF BHI MASTER BRANCH (USED TO CREATE WEBSITE GOALS PAGE)
-layers0 <- readr::read_csv(file.path(
-  "https://raw.githubusercontent.com/OHI-Science/bhi-1.0-archive/draft/",
-  "baltic2015",
-  "layers.csv")) # need to read from github so works in eg  ghpages branch
-# layers_csv <- readr::read_csv(file.path(
-#   "https://raw.githubusercontent.com/OHI-Science/bhi/master",
-#   basename(dir_assess),
-#   "layers.csv"))
+# layers0 <- readr::read_csv(file.path(
+#   "https://raw.githubusercontent.com/OHI-Science/bhi-1.0-archive/draft/",
+#   "baltic2015",
+#   "layers.csv")) # need to read from github so works in eg  ghpages branch
+layers_csv <- readr::read_csv(file.path(
+  "https://raw.githubusercontent.com/OHI-Science/bhi/master",
+  basename(dir_assess),
+  "layers.csv"))
 lyr_csv <- layers0 %>%
   filter(name != "proxy_layer") %>% 
   select(targets, name, layer, description, units, filename) %>% 
@@ -46,12 +46,12 @@ lyr_csv <- layers0 %>%
   mutate(
     name_abbrev = name_abbrev %>% 
       str_replace_all(pattern = " periodpunctuation", replacement = "\\.") %>% 
-      str_replace_all(pattern = " basedon", replacement = "based on"))
+      str_replace_all(pattern = " basedon", replacement = " based on"))
 
 
 ## layer summaries templates text ----
 filetxt <- scan(
-  file.path(getwd(), "ref", "layer_summaries_template.md"),
+  file.path(here::here(), "supplement", "layer_summaries_template.md"),
   what = "character",
   sep = "\n",
   blank.lines.skip = FALSE
@@ -76,7 +76,7 @@ bhiRmd_txt <- c(
 ## create docs ----
 lyrs_names <- lyr_csv$layer %>% sort()
 for(lyr in lyrs_names){
-  make_file <- file.path(getwd(), "ref", "layer_summaries", paste(lyr, "Rmd", sep = "."))
+  make_file <- file.path(here::here(), "supplement", "layer_summaries", paste(lyr, "Rmd", sep = "."))
   if(file.exists(make_file)){file.remove(make_file)}
   file.create(make_file)
   
