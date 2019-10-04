@@ -64,8 +64,8 @@ loc <- file.path(here::here(), "prep", "GOAL", "SUBGOAL")
 source(file.path(here::here(), "R", "common.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
-bkgd_path <- file.path(here::here(), "ref", "goal_summaries", "GOALCODE.Rmd")
-data_path <- file.path(here::here(), "data", "GOAL", ["SUBGOAL"], assessment_yr, "GOALCODE_data.rmd")
+bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "GOALCODE.Rmd")
+data_path <- file.path(here::here(), "data", "GOAL", ["SUBGOAL"], assess_year, "GOALCODE_data.rmd")
 refs_path <- file.path(loc, "GOALCODE_references.Rmd")
 ```
 
