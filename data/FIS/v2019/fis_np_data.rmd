@@ -1,0 +1,107 @@
+
+## 2. Data
+
+```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+```
+
+### 2.1 Datasets with Sources
+<br/>
+
+#### Landings (for F/FMSY) and SSB (for B/BMSY) Data
+<br/>
+
+**DATASET NAME/VARIABLE**  
+<!-- dataset save location BHI_share/2.0/Goals/ -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+```
+<br/>
+
+**DATASET NAME/VARIABLE**  
+<!-- dataset save location BHI_share/2.0/Goals/ -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+```
+<br/>
+
+**DATASET NAME/VARIABLE**  
+<!-- dataset save location BHI_share/2.0/Goals/ -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+```
+<br/>
+
+**DATASET NAME/VARIABLE**  
+<!-- dataset save location BHI_share/2.0/Goals/ -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+```
+<br/>
+
+#### FMSY and BMSY
+
+[Cod (Gadus morhua) in subdivisions 22–24, western Baltic stock (western Baltic Sea)](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.22-24.pdf): BMSY: 21 876 ; FMSY (Ftotal 2020): 0.26  
+[Cod (Gadus morhua) in subdivisions 24–32, eastern Baltic stock (eastern Baltic Sea)](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.24-32.pdf): BMSY (Bpa): 108 035 ; FMSY: 0.3  
+
+[Herring (Clupea harengus) in Subdivision 28.1 (Gulf of Riga)](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.28.pdf): BMSY 60 000 ; FMSY 0.32
+
+Herring in subdivisions 20–24: BMSY 150000 , FMSY : 0.31
+Herring in subdivisions 25–29 and 32, excluding the Gulf of Riga. : BMSY: 600000 ; FMSY:0.22
+Herring in subdivisions 30 and 31. BMSY: 140998 ; FMSY: 0.15
+
+
+[Sprat in subdivisions 22–32] : BMSY : 570000 : FMSY 0.26
+
+
+
+### 2.2 Centralization & Normalization
+
+#### 2.2.1 Standardize Units
+
+#### 2.2.2 Rename Fields/Variables
+
+#### 2.2.3 Save to BHI Database
+
+<br/>
+
+### 2.3 Initial Data Exploration
+
+#### 2.3.1 Compare versus Previous Years Data
+
+#### 2.3.2 Timeseries Plots
+
+#### 2.3.3 Map
+
