@@ -26,8 +26,8 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 ```
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Cod in subdivisions 24-32, eastern Baltic stock**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Cod/cod_SDs24-32 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -37,12 +37,12 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12941) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Herring in subdivisions 20-24 -Skagerrak, Kattegat and western Batic-**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs20-24 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -52,12 +52,12 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12592) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Herring in subdivisions 25-29,32 -central Baltic Sea (excluding Gulf of Riga)-**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs25-29,32 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -67,7 +67,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10408) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
