@@ -11,8 +11,8 @@ source(file.path(here::here(), "R", "data.R"))
 #### Landings (for F/FMSY) and SSB (for B/BMSY) Data
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Cod in subdivisions 22-24, western Baltic stock**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Cod/cod_SDs22-24 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -22,7 +22,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10446) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
