@@ -11,8 +11,8 @@ source(file.path(here::here(), "R", "data.R"))
 #### Landings (for F/FMSY) and SSB (for B/BMSY) Data
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Cod in subdivisions 22-24, western Baltic stock**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Cod/cod_SDs22-24 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -22,12 +22,12 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10446) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Cod in subdivisions 24-32, eastern Baltic stock**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Cod/cod_SDs24-32 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -37,12 +37,12 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12941) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Herring in subdivisions 20-24 -Skagerrak, Kattegat and western Batic-**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs20-24 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -52,12 +52,12 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12592) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
 ```
 <br/>
 
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+**Herring in subdivisions 25-29,32 -central Baltic Sea (excluding Gulf of Riga)-**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs25-29,32 -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -67,24 +67,77 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10408) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
+```
+<br/>
+
+**Herring in subdivision 28.1 (Gulf of Riga)**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SD_28.1 -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10404) <br/> Downloaded 2019-10-08 by Andrea De Cervo")
+```
+<br/>
+
+**Herring in subdivisions 30-31 (Gulf of Bothnia)**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs30-31 -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12738) <br/> Downloaded 2019-10-08 by Andrea De Cervo")
+```
+<br/>
+
+**Sprat in subdivisions 22-32 (Baltic Sea)**  
+<!-- dataset save location BHI_share/2.0/Goals/NP/Sprat/sprat_SDs22-32 -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12942) <br/> Downloaded 2019-10-08 by Andrea De Cervo")
 ```
 <br/>
 
 #### FMSY and BMSY
 
-[Cod (Gadus morhua) in subdivisions 22–24, western Baltic stock (western Baltic Sea)](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.22-24.pdf): BMSY: 21 876 ; FMSY (Ftotal 2020): 0.26  
-[Cod (Gadus morhua) in subdivisions 24–32, eastern Baltic stock (eastern Baltic Sea)](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.24-32.pdf): BMSY (Bpa): 108 035 ; FMSY: 0.3  
+[Cod (Gadus morhua) in subdivisions 22–24, western Baltic stock (western Baltic Sea)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.22-24.pdf): 
+BMSY: 21 876 ; FMSY (Ftotal 2020): 0.26  
 
-[Herring (Clupea harengus) in Subdivision 28.1 (Gulf of Riga)](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.28.pdf): BMSY 60 000 ; FMSY 0.32
+[Cod (Gadus morhua) in subdivisions 24–32, eastern Baltic stock (eastern Baltic Sea)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.24-32.pdf): 
+BMSY (Bpa): 108 035 ; FMSY: 0.3  
 
-Herring in subdivisions 20–24: BMSY 150000 , FMSY : 0.31
-Herring in subdivisions 25–29 and 32, excluding the Gulf of Riga. : BMSY: 600000 ; FMSY:0.22
-Herring in subdivisions 30 and 31. BMSY: 140998 ; FMSY: 0.15
+[Herring (Clupea harengus) in Subdivisions 20-24 (Skagerrak, Kattegat and western Baltic)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.20-24.pdf): 
+BMSY 150 000 ; FMSY 0.31
 
+[Herring (Clupea harengus) in Subdivisions 25-29,32 (excluding Gulf of Riga)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.25-2932.pdf): 
+BMSY 600 000 ; FMSY 0.22
 
-[Sprat in subdivisions 22–32] : BMSY : 570000 : FMSY 0.26
+[Herring (Clupea harengus) in Subdivision 28.1 (Gulf of Riga)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.28.pdf): 
+BMSY 60 000 ; FMSY 0.32
 
+[Herring (Clupea harengus) in Subdivisions 30 and 31 (Gulf of Bothnia)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.3031.pdf): 
+BMSY 140 998 ; FMSY 0.15
+
+[Sprat (Sprattus sprattus) in Subdivisions 22-32 (Baltic Sea)](Reference points: http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/spr.27.22-32.pdf): 
+BMSY 570 000 ; FMSY 0.26
 
 
 ### 2.2 Centralization & Normalization

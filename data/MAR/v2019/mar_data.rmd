@@ -1,0 +1,85 @@
+## 2. Data
+
+**Rainbow trout production (Denmark, Sweden and Finland) and Finfish (Denmark, Germany, Sweden and Finland)**
+
+```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+```
+
+### 2.1 Datasets with Sources
+
+**Rainbow trouts mariculture**  
+
+- **Sweden**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Rainbow_trout/rainbow_trout_sweden -->
+
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.se/hitta-statistik/statistik-efter-amne/jord-och-skogsbruk-fiske/vattenbruk/vattenbruk/) <br/> [Jorbruksverket](https://www.scb.se/contentassets/cef2fb103630496bb532e76c98f747e6/jo1201_2018a01_sm_jo60sm1901.pdf) Downloaded 2019-10-09 by Andrea De Cervo")
+```
+
+<br/>
+
+
+- **Denmark**
+
+
+- **Finland**
+
+
+
+**Finfish Mariculture**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Finfish_mariculture -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM database](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> Downloaded 2019-10-09 by Andrea De Cervo")
+```
+<!-- Period 2010-2015 -->
+<!-- The activity was declared relevant for Denmark, Finland, Germany and Sweden -->
+
+<br/>
+
+
+
+#### Sustainability Coefficient
+
+The SMI is the average of the three subindices traditionally used in the OHI framework. Trujillo's study^1^ included 13 subindices in total but only 3 of them are relevant for assessing the sustainability of mariculture : waster water treatment, usage of fishmeal and hatchery vs wild origin of seeds. Since Rainbow trout SMI is only included for Sweden. The mean value 5.3 was rescaled between 0-1 to 0.53 by the OHI code. This value is then applied to Denmark and Finland.
+
+[Rainbow trout (Oncorhynchus mykiss) in Denmark, Sweden and Finland](https://bioenv.gu.se/digitalAssets/1575/1575339_flores-carmenate.pdf): 
+SM,k: 0.53  
+
+
+
+
+### 2.2 Centralization & Normalization
+
+#### 2.2.1 Standardize Units
+
+#### 2.2.2 Rename Fields/Variables
+
+#### 2.2.3 Save to BHI Database
+
+<br/>
+
+### 2.3 Initial Data Exploration
+
+#### 2.3.1 Compare versus Previous Years Data
+
+#### 2.3.2 Timeseries Plots
+
+#### 2.3.3 Map
+
