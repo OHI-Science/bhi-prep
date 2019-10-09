@@ -1,0 +1,47 @@
+---
+title: "Wild-Caught Fisheries - Food Provision Subgoal data prep"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params: 
+    datasource: csv
+---
+
+```{r Preamble}
+loc <- file.path(here::here(), "prep", "FIS")
+
+source(file.path(here::here(), "R", "setup.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
+
+bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
+data_path <- file.path(here::here(), "data", "FIS", version_year, "fis_np_data.rmd")
+refs_path <- file.path(loc, "fis_references.Rmd")
+```
+
+## 1. Background
+
+```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 2. Data
+
+```{r Data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+
+<br/>
+
+## 4. Visualizing Data Layers
+
+<br/>
+
+## 5. References
+
+```{r References, child = refs_path, results = "asis", echo = FALSE}
+```
