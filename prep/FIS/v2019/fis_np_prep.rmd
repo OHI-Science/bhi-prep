@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
-title: "Food Provision (FP) - Fisheries (FIS) subgoal & Natural Products (NP) Goal Data Prep"
-=======
 title: "Wild-Caught Fisheries - Food Provision Subgoal data prep"
->>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
 output:
   github_document:
     toc: true
@@ -15,21 +11,12 @@ params:
 ```{r Preamble}
 loc <- file.path(here::here(), "prep", "FIS")
 
-<<<<<<< HEAD
 source(file.path(here::here(), "R", "prep.R"))
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
-
-bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
-data_path <- file.path(here::here(), "data", "FIS", 2019, "fis_np_data.rmd")
-refs_path <- file.path(loc, "fis_np_references.Rmd")
-=======
-source(file.path(here::here(), "R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
 bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
 data_path <- file.path(here::here(), "data", "FIS", version_year, "fis_np_data.rmd")
 refs_path <- file.path(loc, "fis_references.Rmd")
->>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
 ```
 
 ## 1. Background
@@ -48,7 +35,30 @@ refs_path <- file.path(loc, "fis_references.Rmd")
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
-<<<<<<< HEAD
+This section prepares data layers for FIS and NP at the same time, separating the fish stocks for each:
+
+- FIS stocks: cod_2224, cod_2532, her_3a22, her_2532, her_riga, her_30
+- NP  stocks: spr_2232
+
+```{r read raw datasets, message = FALSE, warning = FALSE}
+## root location of the raw data
+dir_rawdata <- file.path(dir_B, "Goals", "FP", "FIS") # list.files(dir_rawdata)
+
+## PCBs data from ICES
+cod1raw <- read_csv(file.path(dir_rawdata, "cod_SDs22_24", "cod_SDs22_24.csv"))
+cod2raw <- read_csv(file.path(dir_rawdata, "cod_SDs24_32", "cod_SDs24_32.csv"))
+
+herring1raw <- read_csv(file.path(dir_rawdata, "herring_SD_28.1", "herring_SD_28.1.csv"))
+herring2raw <- read_csv(file.path(dir_rawdata, "herring_SDs20_24", "herring_SDs20_24.csv"))
+herring3raw <- read_csv(file.path(dir_rawdata, "herring_SDs25_29_32", "herring_SDs25_29_32.csv"))
+herring4raw <- read_csv(file.path(dir_rawdata, "herring_SDs30_31", "herring_SDs30_31.csv"))
+```
+
+
+```{r}
+
+```
+
 ### 3.1 Cod 
 #### 3.1.1 Reorganizing/wrangling
 #### 3.1.2 Evaluate flagged data & sampling patterns
@@ -69,9 +79,6 @@ refs_path <- file.path(loc, "fis_references.Rmd")
 #### 3.3.3 Status and trend options and calculation
 #### 3.3.4 Gapfilling
 #### 3.3.5 Methods discussion
-
-=======
->>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
 <br/>
 
 ## 4. Visualizing Data Layers
@@ -81,17 +88,4 @@ refs_path <- file.path(loc, "fis_references.Rmd")
 ## 5. References
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
-<<<<<<< HEAD
 ```
-
-
-## 6. Data Prep - Cod
-
-### 6.1 Basic data cleaning and organization
-
-
-#### Read in Cod data
-
-=======
-```
->>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
