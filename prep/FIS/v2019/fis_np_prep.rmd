@@ -35,6 +35,31 @@ refs_path <- file.path(loc, "fis_references.Rmd")
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
+This section prepares data layers for FIS and NP at the same time, separating the fish stocks for each:
+
+- FIS stocks: cod_2224, cod_2532, her_3a22, her_2532, her_riga, her_30
+- NP  stocks: spr_2232
+
+```{r read raw datasets, message = FALSE, warning = FALSE}
+## root location of the raw data
+dir_rawdata <- file.path(dir_B, "Goals", "FP", "FIS") # list.files(dir_rawdata)
+
+## PCBs data from ICES
+cod1raw <- read_csv(file.path(dir_rawdata, "cod_SDs22_24", "cod_SDs22_24.csv"))
+cod2raw <- read_csv(file.path(dir_rawdata, "cod_SDs24_32", "cod_SDs24_32.csv"))
+
+herring1raw <- read_csv(file.path(dir_rawdata, "herring_SD_28.1", "herring_SD_28.1.csv"))
+herring2raw <- read_csv(file.path(dir_rawdata, "herring_SDs20_24", "herring_SDs20_24.csv"))
+herring3raw <- read_csv(file.path(dir_rawdata, "herring_SDs25_29_32", "herring_SDs25_29_32.csv"))
+herring4raw <- read_csv(file.path(dir_rawdata, "herring_SDs30_31", "herring_SDs30_31.csv"))
+```
+
+
+```{r}
+
+```
+
+
 <br/>
 
 ## 4. Visualizing Data Layers
