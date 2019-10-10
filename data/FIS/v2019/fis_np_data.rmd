@@ -16,8 +16,11 @@ source(file.path(here::here(), "R", "data.R"))
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", "Gadus morhua"), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "cod.27.22-24"),
+  c("Assessment Key:", "10446")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -31,8 +34,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", "Gadus morhua"), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "cod.27.24-32"),
+  c("Assessment Key:", "12941")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -46,8 +52,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", "Clupea harengus"), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "her.27.20-24"),
+  c("Assessment Key:", "12592")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -61,8 +70,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", "Clupea harengus"), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "her.27.25-2932"),
+  c("Assessment Key:", "10408")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -76,8 +88,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", "Clupea harengus"), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "her.27.28"),
+  c("Assessment Key:", "10404")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -91,8 +106,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", "Clupea harengus"), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "her.27.3031"),
+  c("Assessment Key:", "12738")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -106,8 +124,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Species:", ""), 
+  c("EcoRegion (Fishstock):", "Baltic Sea"), 
+  c("Assessment year:", "2019"),
+  c("FishStock:", "cod.27.22-24"),
+  c("Assessment Key:", "10446")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL

@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 title: "Food Provision (FP) - Fisheries (FIS) subgoal & Natural Products (NP) Goal Data Prep"
+=======
+title: "Wild-Caught Fisheries - Food Provision Subgoal data prep"
+>>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
 output:
   github_document:
     toc: true
@@ -11,12 +15,21 @@ params:
 ```{r Preamble}
 loc <- file.path(here::here(), "prep", "FIS")
 
+<<<<<<< HEAD
 source(file.path(here::here(), "R", "prep.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
 bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
 data_path <- file.path(here::here(), "data", "FIS", 2019, "fis_np_data.rmd")
 refs_path <- file.path(loc, "fis_np_references.Rmd")
+=======
+source(file.path(here::here(), "R", "setup.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
+
+bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
+data_path <- file.path(here::here(), "data", "FIS", version_year, "fis_np_data.rmd")
+refs_path <- file.path(loc, "fis_references.Rmd")
+>>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
 ```
 
 ## 1. Background
@@ -35,6 +48,7 @@ refs_path <- file.path(loc, "fis_np_references.Rmd")
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
+<<<<<<< HEAD
 ### 3.1 Cod 
 #### 3.1.1 Reorganizing/wrangling
 #### 3.1.2 Evaluate flagged data & sampling patterns
@@ -56,6 +70,8 @@ refs_path <- file.path(loc, "fis_np_references.Rmd")
 #### 3.3.4 Gapfilling
 #### 3.3.5 Methods discussion
 
+=======
+>>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
 <br/>
 
 ## 4. Visualizing Data Layers
@@ -65,6 +81,7 @@ refs_path <- file.path(loc, "fis_np_references.Rmd")
 ## 5. References
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
+<<<<<<< HEAD
 ```
 
 
@@ -75,3 +92,6 @@ refs_path <- file.path(loc, "fis_np_references.Rmd")
 
 #### Read in Cod data
 
+=======
+```
+>>>>>>> 751dbb963601c25a35d2e65c05f27aca59b5122c
