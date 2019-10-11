@@ -11,8 +11,7 @@ source(file.path(here::here(), "R", "data.R"))
 **Rainbow trouts mariculture**  
 
 - **Sweden**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Rainbow_trout/rainbow_trout_sweden -->
-
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rainbow_trout_sweden -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -27,13 +26,46 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 
 <br/>
 
-
 - **Denmark**
+<!-- MAKE NEW EXCEL SHEET -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rainbow_trout_denmark -->
 
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmark database](https://fiskeristyrelsen.dk/fiskeristatistik/akvakulturstatistik/) <br/> Downloaded 2019-10-? by Andrea De Cervo")
+```
+
+<br/>
 
 - **Finland**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rainbow_trout_finland -->
 
+[Natural Resources Institute](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f)  
+    - Data were available as total marine production by fish species: 
+          Production: Quantity 
+          Area: Sea
+          Fish: Rainbow trout
+          Year: All
+Ginnette converted the total production by region to rainbow trout production by region by using the country wide percent rainbow trout of the marine production in each year.  
 
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2019-10-10 by Andrea De Cervo")
+```
+
+<br/>
 
 **Finfish Mariculture**  
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Finfish_mariculture -->

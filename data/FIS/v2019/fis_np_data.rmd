@@ -124,11 +124,11 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c("Species:", ""), 
+  c("Species:", "Sprattus sprattus"), 
   c("EcoRegion (Fishstock):", "Baltic Sea"), 
   c("Assessment year:", "2019"),
-  c("FishStock:", "cod.27.22-24"),
-  c("Assessment Key:", "10446")))
+  c("FishStock:", "spr.27.22-32"),
+  c("Assessment Key:", "12942")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
