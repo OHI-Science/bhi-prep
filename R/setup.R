@@ -2,11 +2,15 @@
 library(here)
 library(readr)
 library(dplyr)
+library(tidyr)
 library(stringr)
 library(knitr)
+library(ggplot2)
 
 ## Directories
-dir_prep <- here::here() # CHANGE BHI PREP DIRECTORY HERE!
+## CHANGE BHI PREP DIRECTORY HERE!
+dir_prep <- here::here()
+dir_layers <- file.path(dir_prep, "layers")
 dir_spatial <- file.path(dir_prep, "spatial") # spatial folder of bhi repo
 dir_bhi <- stringr::str_replace(dir_prep, pattern = "bhi-prep$", "bhi")
 dir_B <- file.path(c("Darwin" = "/Volumes/BHI_share", # "Windows" = ?
