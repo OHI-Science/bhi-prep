@@ -23,46 +23,30 @@ semicolon_to_comma <- function(csv_filepath, remove_na_cols = TRUE, overwrite = 
       basename(csv_filepath)
     ))
     file_commas <- read_csv(csv_filepath, col_types = cols())
-    
-    if(remove_na_cols){
-      for(i in ncol(file_commas)){
-        column <- file_commas[, i]
-        if(nrow(column) == sum(is.na(column))){
-          remove_cols <- c(remove_cols, names(column))
-        }
-      }
-      if(length(remove_cols) > 0){
-        print(
-          sprintf(
-            "removing columns with only NAs: %s",
-            paste(remove_cols, collapse = ", ")
-          )
-        )
-        file_commas <- file_commas %>% 
-          select(setdiff(names(file_commas), remove_cols))
+    chk_cols <- file_commas
+
+  ## if semicolon delimited
+  } else { chk_cols <- file_semicolon }
+  
+  if(remove_na_cols){
+    for(i in ncol(chk_cols)){
+      column <- chk_cols[, i]
+      if(nrow(column) == sum(is.na(column))){
+        remove_cols <- c(remove_cols, names(column))
       }
     }
-  ## if semicolon delimited
-  } else {
-    if(remove_na_cols){
-      for(i in ncol(file_semicolon)){
-        column <- file_semicolon[, i]
-        if(nrow(column) == sum(is.na(column))){
-          remove_cols <- c(remove_cols, names(column))
-        }
-      }
-      if(length(remove_cols) > 0){
-        print(
-          sprintf(
-            "removing columns with only NAs: %s",
-            paste(remove_cols, collapse = ", ")
-          )
+    if(length(remove_cols) > 0){
+      print(
+        sprintf(
+          "removing columns with only NAs: %s",
+          paste(remove_cols, collapse = ", ")
         )
-        file_commas <- file_semicolon %>% 
-          select(setdiff(names(file_semicolon), remove_cols))
-      }
-    } else {file_commas <- file_semicolon}
+      )
+    }
   }
+  file_commas <- chk_cols %>% 
+    select(setdiff(names(chk_cols), remove_cols))
+  
   if(overwrite & !(comma_delim & !remove_na_cols)){
     write_csv(file_commas, csv_filepath)
     file_commas <- read_csv(csv_filepath, col_types = cols()) %>% head()
