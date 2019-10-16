@@ -28,9 +28,9 @@ knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded D
 
 ### 2.2 Centralization & Normalization
 
-#### 2.2.1 Standardize Units
+#### 2.2.1 Rename Fields/Variables
 
-#### 2.2.2 Rename Fields/Variables
+#### 2.2.2 Standardize Units
 
 #### 2.2.3 Save to BHI Database
 
@@ -61,11 +61,11 @@ params:
 ```{r Preamble}
 loc <- file.path(here::here(), "prep", "GOAL", "SUBGOAL")
 
-source(file.path(here::here(), "R", "common.R"))
+source(file.path(here::here(), "R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
 bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "GOALCODE.Rmd")
-data_path <- file.path(here::here(), "data", "GOAL", ["SUBGOAL"], assess_year, "GOALCODE_data.rmd")
+data_path <- file.path(here::here(), "data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
 refs_path <- file.path(loc, "GOALCODE_references.Rmd")
 ```
 
