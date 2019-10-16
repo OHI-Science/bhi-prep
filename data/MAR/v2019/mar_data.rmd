@@ -11,7 +11,7 @@ source(file.path(here::here(), "R", "data.R"))
 **Rainbow trouts mariculture**  
 
 - **Sweden**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_swe -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_swe -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -28,7 +28,7 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 
 - **Denmark**
 <!-- MAKE NEW EXCEL SHEET -->
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_den -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_den -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -44,7 +44,7 @@ knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmar
 <br/>
 
 - **Finland**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_fin -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_fin -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -72,21 +72,31 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [HELCOM database](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> Downloaded 2019-10-09 by Andrea De Cervo")
 ```
-<!-- Period 2010-2015 -->
-<!-- The activity was declared relevant for Denmark, Finland, Germany and Sweden -->
 
 <br/>
 
+**All Baltic countries**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/FAO_fishstat -->
 
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/statistics/software/fishstatj/en#downlApp) <br/> Downloaded 2019-10-16 by Andrea De Cervo")
+```
+
+<br/>
 
 #### Sustainability Coefficient
 
-The SMI is the average of the three subindices traditionally used in the OHI framework. Trujillo's study^1^ included 13 subindices in total but only 3 of them are relevant for assessing the sustainability of mariculture : waster water treatment, usage of fishmeal and hatchery vs wild origin of seeds. Since Rainbow trout SMI is only included for Sweden. The mean value 5.3 was rescaled between 0-1 to 0.53 by the OHI code. This value is then applied to Denmark and Finland.
+The SMI is the average of the three subindices traditionally used in the OHI framework. Trujillo's study^1^ included 13 subindices in total but only 3 of them are relevant for assessing the sustainability of mariculture : waster water treatment, usage of fishmeal and hatchery vs wild origin of seeds. Since Rainbow trout SMI is only included for Sweden, the mean value 5.3 was rescaled between 0-1 to 0.53 by the OHI code. This value is then applied to Denmark and Finland.
 
 [Rainbow trout (Oncorhynchus mykiss) in Denmark, Sweden and Finland](https://bioenv.gu.se/digitalAssets/1575/1575339_flores-carmenate.pdf): 
 SM,k: 0.53  
-
-
 
 
 ### 2.2 Centralization & Normalization
