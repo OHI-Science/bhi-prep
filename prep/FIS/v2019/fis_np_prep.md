@@ -1,17 +1,48 @@
----
-title: "Wild-Caught Fisheries - Food Provision Subgoal data prep"
-output:
-  github_document:
-    toc: true
-    toc_depth: 3
-params: 
-    datasource: csv
----
+Wild-Caught Fisheries - Food Provision Subgoal data prep
+================
 
-```{r preamble prep}
+-   [1. Background](#background)
+    -   [Goal Description](#goal-description)
+    -   [Model & Data](#model-data)
+    -   [Reference points](#reference-points)
+    -   [Other information](#other-information)
+-   [2. Data](#data)
+    -   [2.1 Datasets with Sources](#datasets-with-sources)
+    -   [2.2 Centralization & Normalization](#centralization-normalization)
+    -   [2.3 Initial Data Exploration](#initial-data-exploration)
+-   [3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling](#prep-wrangling-derivations-checksevaluation-gapfilling)
+    -   [3.1 Reorganizing/wrangling](#reorganizingwrangling)
+    -   [3.2 Evaluate flagged data & sampling patterns](#evaluate-flagged-data-sampling-patterns)
+    -   [3.3 Status and trend options and calculation](#status-and-trend-options-and-calculation)
+    -   [3.4 Gapfilling](#gapfilling)
+    -   [3.5 Methods discussion](#methods-discussion)
+-   [4. Visualizing Data Layers](#visualizing-data-layers)
+    -   [4.1 Proportions of Total Catch over time](#proportions-of-total-catch-over-time)
+    -   [4.2 Regional Proportions of Total Catch](#regional-proportions-of-total-catch)
+    -   [4.3 Timeseries plots of F/FMSY, B/BMSY, and Landings](#timeseries-plots-of-ffmsy-bbmsy-and-landings)
+    -   [4.4 FIS Goal Status Map](#fis-goal-status-map)
+-   [5. References](#references)
+
+``` r
 loc <- file.path(here::here(), "prep", "FIS")
 
 source(file.path(here::here(), "R", "setup.R"))
+```
+
+    ## here() starts at /Users/eleanorecampbell/Desktop/GitHub/bhi-prep
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 source(file.path(here::here(), "R", "prep.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width=9.5)
 
@@ -22,31 +53,174 @@ refs_path <- file.path(loc, "fis_references.Rmd")
 dir_layer <- file.path(here::here(), "layers")
 ```
 
-## 1. Background
+1. Background
+-------------
 
-```{r background, child = bkgd_path, results = "asis", echo = FALSE}
-```
+### Goal Description
+
+The Fisheries sub-goal of Food Provision describes the ability to maximize the sustainable yield of wild-caught seafood for human consumption. **For the BHI cod and herring stocks in the Baltic Sea were included as wild-caught fisheries**.
+
+### Model & Data
+
+The data used for this goal are composed of cod and herring spawning biomass (SSB) and fishing mortality (F) data. The current status is calculated as a function of the ratio (B’) between the single species current biomass at sea (B) and the reference biomass at maximum sustainable yield (BMSY), as well as the ratio (F’) between the single species current fishing mortality (F) and the fishing mortality at maximum sustainable yield (FMSY). B/Bmsy and F/Fmsy data are converted to scores between 0 and 1 using this [general relationship](https://github.com/OHI-Science/bhi-prep/blob/master/prep/FIS/ffmsy_bbmsy_score.png), also captured in [this formula](https://cloud.githubusercontent.com/assets/5685517/11152185/5291d988-89ee-11e5-839a-0b1b162832f3.png). This equation simply converts the F/FMSY value to an F' score that will fall between 0-1 (this function applies a penalty when b/bmsy scores indicate good/underfishing, i.e., &gt;= 0.8, but f/fmsy scores indicate high fisheries related mortality, i.e., &gt; 1.2).
+
+-   [Cod and herring data accessed from the ICES homepage](http://www.ices.dk/marine-data/tools/Pages/stock-assessment-graphs.aspx) &gt; search for 'cod' or 'herring' &gt; specify the ecoregion as Baltic Sea &gt; search for the 2013 assessment.
+
+### Reference points
+
+The reference point used for the computation are based on the MSY principle and are described as a functional relationship. MSY means the highest theoretical equilibrium yield that can be continuously taken on average from a stock under existing average environmental conditions without significantly affecting the reproduction process *(European Union 2013, World Ocean Review 2013).*
+
+### Other information
+
+*External advisors/goalkeepers are Christian Möllmann & Stefan Neuenfeldt*
 
 <br/>
 
 <!-- ## 2. Data --- header in the child  document -->
-```{r data, child = data_path, results = "asis", echo = FALSE}
-```
+2. Data
+-------
+
+### 2.1 Datasets with Sources
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+#### Landings (for F/FMSY) and SSB (for B/BMSY) Data
+
+<br/>
+
+**Cod in subdivisions 22-24, western Baltic stock**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Cod/cod_SDs22-24 -->
+
+| Option                 | Specification |
+|:-----------------------|:--------------|
+| Species:               | Gadus morhua  |
+| EcoRegion (Fishstock): | Baltic Sea    |
+| Assessment year:       | 2019          |
+| FishStock:             | cod.27.22-24  |
+| Assessment Key:        | 10446         |
+| <br/>                  |               |
+
+**Cod in subdivisions 24-32, eastern Baltic stock**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Cod/cod_SDs24-32 -->
+
+| Option                 | Specification |
+|:-----------------------|:--------------|
+| Species:               | Gadus morhua  |
+| EcoRegion (Fishstock): | Baltic Sea    |
+| Assessment year:       | 2019          |
+| FishStock:             | cod.27.24-32  |
+| Assessment Key:        | 12941         |
+| <br/>                  |               |
+
+**Herring in subdivisions 20-24 -Skagerrak, Kattegat and western Batic-**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs20-24 -->
+
+| Option                 | Specification   |
+|:-----------------------|:----------------|
+| Species:               | Clupea harengus |
+| EcoRegion (Fishstock): | Baltic Sea      |
+| Assessment year:       | 2019            |
+| FishStock:             | her.27.20-24    |
+| Assessment Key:        | 12592           |
+| <br/>                  |                 |
+
+**Herring in subdivisions 25-29,32 -central Baltic Sea (excluding Gulf of Riga)-**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs25-29,32 -->
+
+| Option                 | Specification   |
+|:-----------------------|:----------------|
+| Species:               | Clupea harengus |
+| EcoRegion (Fishstock): | Baltic Sea      |
+| Assessment year:       | 2019            |
+| FishStock:             | her.27.25-2932  |
+| Assessment Key:        | 10408           |
+| <br/>                  |                 |
+
+**Herring in subdivision 28.1 (Gulf of Riga)**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SD_28.1 -->
+
+| Option                 | Specification   |
+|:-----------------------|:----------------|
+| Species:               | Clupea harengus |
+| EcoRegion (Fishstock): | Baltic Sea      |
+| Assessment year:       | 2019            |
+| FishStock:             | her.27.28       |
+| Assessment Key:        | 10404           |
+| <br/>                  |                 |
+
+**Herring in subdivisions 30-31 (Gulf of Bothnia)**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Fisheries/Herring/herring_SDs30-31 -->
+
+| Option                 | Specification   |
+|:-----------------------|:----------------|
+| Species:               | Clupea harengus |
+| EcoRegion (Fishstock): | Baltic Sea      |
+| Assessment year:       | 2019            |
+| FishStock:             | her.27.3031     |
+| Assessment Key:        | 12738           |
+| <br/>                  |                 |
+
+**Sprat in subdivisions 22-32 (Baltic Sea)**
+<!-- dataset save location BHI_share/2.0/Goals/NP/Sprat/sprat_SDs22-32 -->
+
+| Option                 | Specification     |
+|:-----------------------|:------------------|
+| Species:               | Sprattus sprattus |
+| EcoRegion (Fishstock): | Baltic Sea        |
+| Assessment year:       | 2019              |
+| FishStock:             | spr.27.22-32      |
+| Assessment Key:        | 12942             |
+| <br/>                  |                   |
+
+#### FMSY and BMSY
+
+[Cod (Gadus morhua) in subdivisions 22–24, western Baltic stock (western Baltic Sea)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.22-24.pdf): BMSY: 21 876 ; FMSY (Ftotal 2020): 0.26
+
+[Cod (Gadus morhua) in subdivisions 24–32, eastern Baltic stock (eastern Baltic Sea)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.24-32.pdf): BMSY (Bpa): 108 035 ; FMSY: 0.3
+
+[Herring (Clupea harengus) in Subdivisions 20-24 (Skagerrak, Kattegat and western Baltic)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.20-24.pdf): BMSY 150 000 ; FMSY 0.31
+
+[Herring (Clupea harengus) in Subdivisions 25-29,32 (excluding Gulf of Riga)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.25-2932.pdf): BMSY 600 000 ; FMSY 0.22
+
+[Herring (Clupea harengus) in Subdivision 28.1 (Gulf of Riga)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.28.pdf): BMSY 60 000 ; FMSY 0.32
+
+[Herring (Clupea harengus) in Subdivisions 30 and 31 (Gulf of Bothnia)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/her.27.3031.pdf): BMSY 140 998 ; FMSY 0.15
+
+[Sprat (Sprattus sprattus) in Subdivisions 22-32 (Baltic Sea)](Reference%20points:%20http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/spr.27.22-32.pdf): BMSY 570 000 ; FMSY 0.26
+
+### 2.2 Centralization & Normalization
+
+#### 2.2.1 Standardize Units
+
+#### 2.2.2 Rename Fields/Variables
+
+#### 2.2.3 Save to BHI Database
+
+<br/>
+
+### 2.3 Initial Data Exploration
+
+#### 2.3.1 Compare versus Previous Years Data
+
+#### 2.3.2 Timeseries Plots
+
+#### 2.3.3 Map
+
+<br/>
+
+3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+---------------------------------------------------------------
 
 ### 3.1 Reorganizing/wrangling
 
 This section prepares data layers for FIS and NP at the same time, separating the fish stocks for each:
 
-- FIS stocks: cod_22-24, cod_25-32, her_28.1, her_20-24, her_25-29,32, her_30-31
-- NP stocks: spr_22-32
+-   FIS stocks: cod\_22-24, cod\_25-32, her\_28.1, her\_20-24, her\_25-29,32, her\_30-31
+-   NP stocks: spr\_22-32
 
 **Load datasets:**
 
-```{r load raw datasets, message = FALSE, warning = FALSE}
+``` r
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "FP", "FIS") # list.files(dir_rawdata)
 
@@ -93,13 +267,11 @@ msy_data <- t(data.frame(
 colnames(msy_data) <- c("species", "SDs", "stockname", "BMSY", "FMSY")
 rownames(msy_data) <- NULL
 msy_data <- as_tibble(msy_data)
-
 ```
-
 
 **Merge datasets and calculate F/FMSY and BBMSY ratios:**
 
-```{r merge dataset and calculate ffmsy bbmsy ratios}
+``` r
 combined_rawdata <- rbind(
   ## cod
   cod1raw %>% 
@@ -160,12 +332,11 @@ combined_rawdata <- rbind(
   arrange(species, stockname, year)
 ```
 
-
 **Convert from ICES Fisheries regions to Baltic Regions:**
 
-[Map of ICES regions.](ICES regions map https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png)
+[Map of ICES regions.](ICES%20regions%20map%20https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png)
 
-```{r converting ICES fisheries regions to Baltic regions}
+``` r
 ## based on 'prep/FIS/raw/DataOrganization.R' by Melanie Frazier March 16 2016, in bhi-1.0-archive
 ## ICES regions map https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png
 regions <- read_csv(
@@ -211,10 +382,9 @@ combined_w_rgns <- combined_rawdata %>%
 write_csv(combined_w_rgns, file.path(loc, version_year, "intermediate", "fis_full_merged_dataset.csv"))
 ```
 
-
 **Wrangle and save layers for FIS and NP goals, and quick plots:**
 
-```{r fis_ffmsy_bbmsy and fis_landings datasets, out.width = "850px"}
+``` r
 ## full dataset in long format with calculated ratios:
 long_format_msy_metrics <- combined_w_rgns %>% 
   dplyr::select(region_id, species, stock = stockname, year, bbmsy, ffmsy) %>% 
@@ -238,7 +408,7 @@ landings_plot <- ggplot(landings_all, aes(x = year, y = value, color = stock)) +
   facet_grid(vars(species), vars(metric)) # landings_plot
 ```
 
-```{r create and save FIS and NP layers}
+``` r
 ## same preparation of data for fis and np, just different stocks used:
 ## cod and herring are used in the FIS goal
 ## sprat are used for the NP goal
@@ -285,22 +455,15 @@ for(g in goal_stocks){
 }
 ```
 
-
 ### 3.2 Evaluate flagged data & sampling patterns
 
 ### 3.3 Status and trend options and calculation
 
-Calculating status and trend consists of the following steps:
-- calculate F-scores and B-scores
-- take mean of F and B scores, with data grouped by region_id, stock, year
-- derive weights from landings data (proportions of catch made up of different stocks)
-- apply a penalty because of bad cod condition in the eastern baltic
-- calculate status is a geometric mean weighted by proportion of catch in each region
+Calculating status and trend consists of the following steps: - calculate F-scores and B-scores - take mean of F and B scores, with data grouped by region\_id, stock, year - derive weights from landings data (proportions of catch made up of different stocks) - apply a penalty because of bad cod condition in the eastern baltic - calculate status is a geometric mean weighted by proportion of catch in each region
 
 The formulas for calculating F and B scores are based on [this paper](https://doi.org/10.1371/journal.pone.0098995).
 
-
-```{r calculate scores and trend to evaluate goal model and data}
+``` r
 ## load layers
 fis_bbmsy <- read_csv(
   file.path(dir_layer, sprintf("fis_bbmsy_bhi%s.csv", assess_year))) %>% 
@@ -389,35 +552,30 @@ status <- status_with_penalty %>%
   ungroup()
 ```
 
-
-
 ### 3.4 Gapfilling
 
 **This data processing for FIS and NP goals does not include any gapfilling or interpolation.**
-
 
 ### 3.5 Methods discussion
 
 #### 3.5.1 Adjustment of Cod scores Based on Body Weight
 
-Data source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
-Data available: 1977 - 2014
-Penalty factor (according to `bhi-1.0-archive/baltic2015/prep/FIS/fis_np_prep.Rmd`): cod_condition / mean_cod_condition
+Data source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416) Data available: 1977 - 2014 Penalty factor (according to `bhi-1.0-archive/baltic2015/prep/FIS/fis_np_prep.Rmd`): cod\_condition / mean\_cod\_condition
 
-**[Paper](http://dx.doi.org/10.1098/rsos.160416) used for cod condition penalty factor only includes data through 2014.** Will need to recalculate penalty factor including most recent data, in future assessments, based on their methods. Additionally its **needs to be recorded in more detail transformations from [raw dataset](https://datadryad.org/stash/dataset/doi:10.5061/dryad.875fb) to condition_cod.csv to penalty factor.**
+**[Paper](http://dx.doi.org/10.1098/rsos.160416) used for cod condition penalty factor only includes data through 2014.** Will need to recalculate penalty factor including most recent data, in future assessments, based on their methods. Additionally its **needs to be recorded in more detail transformations from [raw dataset](https://datadryad.org/stash/dataset/doi:10.5061/dryad.875fb) to condition\_cod.csv to penalty factor.**
 
+4. Visualizing Data Layers
+--------------------------
 
-## 4. Visualizing Data Layers
-
-Below are some maps visualizing a few of the intermediate datasets.  
-Spatially, data inputs are the same value per year per stock, across the BHI regions in which the stock exists.  
+Below are some maps visualizing a few of the intermediate datasets.
+Spatially, data inputs are the same value per year per stock, across the BHI regions in which the stock exists.
 BHI status and trend scores differ spatially across regions as they are combinations of multiple stocks status weighted by landings proportions.
 
 ### 4.1 Proportions of Total Catch over time
 
 Of all the fisheries landings that occurred in a given area and year, what proportion is made up by each stock?
 
-```{r catch proportions plots}
+``` r
 source(file.path(here::here(), "R", "spatial.R"))
 regions_shape() # loads spatial features objects
 
@@ -434,9 +592,11 @@ ggplot(filter(yearly_rgn_props, region_id %in% c(3, 11, 14, 27, 37))) +
   ylab("proportion of stock to total catch per (ICES) region")
 ```
 
+![](fis_np_prep_files/figure-markdown_github/catch%20proportions%20plots-1.png)
+
 ### 4.2 Regional Proportions of Total Catch
 
-```{r map values by bhi and ices regions, results = "show"}
+``` r
 map_raw_data <- yearly_rgn_props %>% 
   dplyr::select(-yearlyICESrgn_totCatch) %>% 
   spread(key = "stock", value = "yearly_propCatch") %>% 
@@ -526,18 +686,20 @@ props_catch_map %>%
   addLegend("bottomright", pal, seq(0.05, 1, 0.005))
 ```
 
+![](fis_np_prep_files/figure-markdown_github/map%20values%20by%20bhi%20and%20ices%20regions-1.png)
 
 ### 4.3 Timeseries plots of F/FMSY, B/BMSY, and Landings
 
-```{r timeseries plots}
+``` r
 ## msy_metrics_plot and landings_plot created in 'wrangle and save layers for FIS and NP goals' section above
 gridExtra::grid.arrange(msy_metrics_plot, landings_plot, nrow = 1, widths = c(1, 1.1))
 ```
 
+![](fis_np_prep_files/figure-markdown_github/timeseries%20plots-1.png)
 
 ### 4.4 FIS Goal Status Map
 
-```{r goal status map, results = "show"}
+``` r
 ## combine with spatial info for mapping
 bhi_rgns_shp <- bhi_rgns_shp %>% 
   dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2, Name) %>% 
@@ -566,10 +728,11 @@ leaflet::leaflet(data = bhi_rgns_shp) %>%
   addLegend("bottomright", pal, seq(0, 1, 0.005))
 ```
 
+![](fis_np_prep_files/figure-markdown_github/goal%20status%20map-1.png)
 
 <br/>
 
-## 5. References
+5. References
+-------------
 
-```{r References, child = refs_path, results = "asis", echo = FALSE}
-```
+[Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416) Hypoxic areas, density-dependence and food limitation drive the body condition of a heavily exploited marine sh predator. R. Soc. open sci. 3: 160416. <http://dx.doi.org/10.1098/rsos.160416>
