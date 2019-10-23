@@ -11,7 +11,7 @@ source(file.path(here::here(), "R", "data.R"))
 <br/>
 
 **DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/2.0/Goals/ -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/ -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -75,8 +75,6 @@ refs_path <- file.path(loc, "GOALCODE_references.Rmd")
 ```
 
 <br/>
-
-## 2. Data
 
 ```{r Data, child = data_path, results = "asis", echo = FALSE}
 ```
