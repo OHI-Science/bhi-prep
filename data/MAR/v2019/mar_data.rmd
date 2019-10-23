@@ -27,7 +27,6 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 <br/>
 
 - **Denmark**
-<!-- MAKE NEW EXCEL SHEET -->
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_den -->
 
 ```{r echo = FALSE, results = "asis"}
