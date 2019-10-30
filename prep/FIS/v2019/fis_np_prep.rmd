@@ -498,19 +498,13 @@ yearly_rgn_props <- combined_w_rgns %>%
   dplyr::select(region_id, stock, year, landings, rgn_landings, landings_rate, area_rgn_km2) %>% # ices_subdiv, area_rgn_km2, assessArea
   filter(!str_detect(stock, "spr")) %>%
   group_by(region_id, year) %>% 
-  mutate(
-    rgn_yr_totCatch = sum(rgn_landings),
-    landings_rateCumulative = sum(landings_rate) # same as rgn_yr_totCatch/area_rgn_km2
-  ) %>% 
+  mutate(rgn_yr_totCatch = sum(rgn_landings)) %>% 
   ungroup() %>%
   ## proportion a given stock makes up of total catch in region, by year
   mutate(rgn_yr_propCatch = rgn_landings/rgn_yr_totCatch)
 
-# ggplot(
-#   yearly_rgn_props %>% 
-#     filter(year >= 2008) %>% 
-#     filter(region_id %in% c(1, 3, 11, 14, 27, 37)) # rep. 6 distinct zones created by assessment overlap
-#   ) + 
+# ggplot(yearly_rgn_props %>% filter(year >= 2008, region_id %in% c(1, 3, 11, 14, 27, 37))) + 
+#   ## rep. 6 distinct zones created by assessment overlap
 #   geom_area(aes(x = year, y = rgn_yr_propCatch, fill = stock),  position = "stack", alpha =  0.5) +
 #   scale_fill_brewer(palette = "Set3") +
 #   facet_wrap(~region_id, nrow = 2) +
@@ -530,100 +524,59 @@ These proportions are the weights used for combining statuses of multiple stock 
 
 
 ```{r map values by bhi and ICES regions, results = "show"}
-## wrangle mapping data
-map_raw_data <- yearly_rgn_props %>% 
-  filter(year == max(yearly_rgn_props$year)) %>%
-  dplyr::select(-year, -landings_rate, -rgn_landings) %>% 
-  spread(key = "stock", value = "rgn_yr_propCatch")
+## combine wrangled data with spatial info for mapping
+map_format_data <- yearly_rgn_props %>% 
+      filter(year == max(yearly_rgn_props$year)) %>%
+      dplyr::select(region_id, rgn_yr_totCatch) %>% 
+      distinct() %>% 
+  left_join(
+    yearly_rgn_props %>% 
+      filter(year == max(yearly_rgn_props$year)) %>%
+      dplyr::select(region_id, stock, rgn_yr_propCatch) %>% 
+      spread(key = "stock", value = "rgn_yr_propCatch"),
+    by = "region_id"
+  ) %>% 
+  arrange(region_id)
 
-## combine with spatial info for mapping
 bhi_rgns_shp <- bhi_rgns_simple %>% 
-  mutate(Name = paste(Subbasin, rgn_nam, sep = ", ")) %>% 
-  left_join(map_raw_data, by = c("BHI_ID" = "region_id"))
+  left_join(map_format_data, by = c("BHI_ID" = "region_id")) %>% 
+  arrange(BHI_ID)
 
-## create color palettes
-pal <- colorNumeric(
-  palette = c(
-    colorRampPalette(colors = c("#fffed8", "#c8e9b4"))(10),  
-    colorRampPalette(colors = c("#c8e9b4", "#40b6c4"))(50),
-    colorRampPalette(colors = c("#40b6c4", "#225ea8"))(15)
-  ),
-  na.color = "#fcfcfd",
-  domain = seq(0.02, 0.98, 0.001)
-)
-pal_catch_rate <- colorNumeric(
-    palette = colorRampPalette(colors = c("grey80", "grey40"))(40),
-    na.color = "#fcfcfd",
-    domain = c(0.5, 2)
-)
-
-## make map
-props_catch_map <- leaflet::leaflet(data = bhi_rgns_shp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5)
-
-## add layers for all fisheries
-groups <- c(
-  "Cod SDs 22-24", "Cod SDs 24-32", 
-  "Herring SDs 28.1 (Riga)", "Herring SDs 20-24", 
-  "Herring SDs 25-29, 32","Herring SDs 30-31"
-)
-for(i in 1:6){
-  vars <- sym(c(
-    "cod_SDs22_24", "cod_SDs24_32", 
-    "herring_SD_28.1", "herring_SDs20_24", 
-    "herring_SDs25_29_32", "herring_SDs30_31"
-  )[i])
-  props_catch_map <- props_catch_map %>% 
-    addPolygons(
-      stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.8,
-      fillColor = ~pal(bhi_rgns_shp[[vars]]), group = groups[i]
-    ) %>% 
-    addPolygons(
-    popup = paste(
-      "<h5><strong>", "Proportion of Total Catch:", "</strong>",
-      round(bhi_rgns_shp[[vars]], 3), "</h5>", sep = " "
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    group =  groups[i]
-  )
-}
-## add total catches layer and more formatting
-props_catch_map %>%
-  ## Catch Rate
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.9,
-    fillColor = ~pal_catch_rate(bhi_rgns_shp$landings_rateCumulative), group = "Region Estim. (tonnes/km2) Catch Rate"
+## extract centroid lat lon from BHI region sf geometries and make table
+piechart_coords <- do.call(rbind, st_geometry(bhi_rgns_shp %>% st_centroid())) %>% 
+  as_tibble() %>% setNames(c("long", "lat")) %>% 
+  cbind(
+    map_format_data %>% 
+      mutate(radius = log(rgn_yr_totCatch)/15) %>% 
+      dplyr::select(-rgn_yr_totCatch)
   ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", bhi_rgns_shp$Name, "</strong>", "</h5>",
-      "<h5><strong>", "ICES subdivision ", bhi_rgns_shp$ices_subdiv, "</h5>",
-      "<h5><strong>", "Region Estim. (tonnes/km2) Catch Rate: ", "</strong>",
-      format(round(bhi_rgns_shp$landings_rateCumulative, 3), big.mark = ","), "</h5>", sep = " "
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    group = "Region Estim. (tonnes/km2) Catch Rate"
-  ) %>%
-  
-  ## layer controls and legend
-  addLayersControl(
-    baseGroups = c(
-      "Cod SDs 22-24", "Cod SDs 24-32",
-      "Herring SDs 28.1 (Riga)", "Herring SDs 20-24", "Herring SDs 25-29, 32", "Herring SDs 30-31",
-      "Region Estim. (tonnes/km2) Catch Rate"
-    ),
-    options = layersControlOptions(collapsed = FALSE)
-  ) %>% 
-  addLegend("bottomright", pal, seq(0.02, 0.98, 0.001))
+  mutate_all(coalesce, 0) %>% 
+  mutate(region_id = as.factor(as.character(region_id)))
 
+rgns_sp <- as(bhi_rgns_shp, "Spatial")
+rgns_sp_df <- left_join(
+  fortify(rgns_sp, region = "BHI_ID"),
+  rgns_sp@data %>% mutate(BHI_ID  = as.character(BHI_ID)),
+  by = c("id" = "BHI_ID")
+)
 
-# ggplot2::ggplot(bhi_rgns_shp) +
-#   geom_sf() +
-#   ## https://www.r-bloggers.com/scatterpie-for-plotting-pies-on-ggplot/, install.packages("scatterpie")
-#   scatterpie::geom_scatterpie()
+## map with piecharts showing stock catch proportions of total catch by region
+# ggplot2::ggplot(bhi_rgns_shp) + geom_sf(alpha = 0.3, color = "slategray3") +
+ggplot2::ggplot(rgns_sp_df) + 
+  geom_polygon(aes(long, lat, group = group), alpha = 0.3, color = "slategray3") +
+  ## https://www.r-bloggers.com/scatterpie-for-plotting-pies-on-ggplot/
+  ## install.packages("scatterpie")
+  scatterpie::geom_scatterpie(
+    aes(x = long, y = lat, group = region_id, r = radius), 
+    data = piechart_coords,
+    cols = c(names(piechart_coords)[str_detect(names(piechart_coords), "cod|herring")]),
+    legend_name = "Stock",
+    alpha = 0.5, color = NA
+  ) + 
+  theme(legend.position = "none") +
+  theme_bw() +
+  labs(x =  NULL, y = NULL) +
+  coord_fixed()
 ```
 
 <br>
@@ -800,12 +753,35 @@ ggplot(cod_penalty) +
     ),
     x = "Year", y = "Proportion in Length Classes 20-60cm with K > 0.8\n"
   )
+
+## GAPFILLING ALERT
+## for completeness, need to assign penalty factors for regions 1, 5, (11?) 29, 30, 32-42
+## though actually are no cod in North Baltic Proper and northwards because of too-low salinity...
+gapfill_penalty <- function(use_rgns, for_rgns){
+  gf_rows <- cod_penalty %>% 
+    filter(region_id %in% use_rgns) %>% 
+    group_by(year) %>% 
+    mutate(prop_above_pt8 = mean(prop_above_pt8, na.rm = TRUE), num_samp =  mean(num_samp, na.rm = TRUE), region_id = list(for_rgns)) %>% 
+    tidyr::unnest(region_id = region_id) %>% 
+    ungroup() %>% 
+    distinct() %>% 
+    dplyr::select(region_id, year, prop_above_pt8, num_samp,  stock)
+  return(gf_rows)
+}
+
+cod_penalty_gf <- cod_penalty %>% 
+  rbind(
+    gapfill_penalty(2, 1),
+    gapfill_penalty(6, 5),
+    gapfill_penalty(c(6, 12), 11),
+    gapfill_penalty(c(20, 24:28, 31), c(30, 32:42))
+  )
 ```
 
 
 #### 3.3.2 Calculating Status and Trend
 
-Status and trend are calculated by `functions.R` when the full BHI index is calculated. The calculations are included here also, so that parameters and results can be explored.
+Status and trend are calculated by `functions.R` when the full BHI index is calculated. The calculations are included here also, so that parameters and results (sensitivity) can be explored.
 
 ```{r calculate score components F and B}
 ## bind data layers
@@ -816,9 +792,9 @@ metric_scores <- left_join(fis_bbmsy, fis_ffmsy,  by = c("region_id", "stock", "
 
 ## note: these parameters can be changed!
 ## view Bscores plot to evaluate/test different parameter values...
-lowerB <- 0.8
-upperB1 <- 1.2
-upperB2 <- 3
+lowerB <- 0.9
+upperB1 <- 2.5
+upperB2 <- 5
 
 B_scores <- metric_scores %>%
   mutate(
@@ -854,7 +830,7 @@ ggplot(data = B_scores, aes(bbmsy, score, color = bbmsy)) + geom_line() +
 ## low lowerF ~ tolerance for low catch: doesn't differentiate whether to allow recovery, or despite high effort...
 lowerF <- 0.8
 upperF1 <- 1.1
-upperF2 <- 2
+upperF2 <- 5
 
 ## make this a function so it's easier to explore parameters...
 calcFscores <- function(input_data, lowB = 0.8, lowF = 0.8, uppF1 = 1.2, uppF2 = 2.5){
@@ -928,80 +904,86 @@ ffmsy_bbmsy_score <- calcFscores(
 ## calculate F-scores
 F_scores <- calcFscores(metric_scores, lowB = lowerB, lowF = lowerF, uppF1 = upperF1, uppF2 = upperF2)
 
+## how do sample points overlay Fscores, can use this to check values for F and B parameters
+## where biomass is sufficiently high, high mortality can still correspond to higher Fscore
+## where biomass is very low, low mortality (even with F < FMSY value) will not result in  high Fscore
 ggplot(data = ffmsy_bbmsy_score) +
   geom_tile(aes(bbmsy, ffmsy, fill = score), alpha = 0.8) +
-  # geom_point(aes(bbmsy, ffmsy), F_scores, , shape = 22, alpha = 0.1) + 
+  geom_point(aes(bbmsy, ffmsy), F_scores, shape = 15, size = 3, alpha = 0.01) +
   xlab("B/BMSY") + ylab("F/FMSY") + labs(fill = "F-Score\n")
 ```
 
 
-```{r calculate scores and trend from weights and score components}
-
-## average B-scores and F-scores to get overall score
-## these averages will be weighted by stock landings and have cod condition penalty applied
-scores <- rbind(B_scores, F_scores) %>%
-  group_by(region_id, stock, year) %>%
-  summarize(score = mean(score, na.rm = TRUE)) %>% # hist(scores$score)
-  left_join(
-    spread(rbind(B_scores, F_scores), key = "score_type", value = "score"),
-    by = c("year", "stock", "region_id")
-  )
+```{r calculate scores penalized by poor condition and scores aggregated by BHI region}
 
 ## WEIGHTS
 ## calculate weights with landing data
-## we use the average catch for each stock/region across all years to obtain weights
-
-weights <- landings_all %>%
-  filter(metric == "rgn_landings") %>% # ALTERNATE METHOD TO GET WEIGHTS FROM LANDINGS
-  # filter(metric == "all_landings") %>% # BHI1.0 METHOD FOR LANDINGS -> WEIGHTS
-  filter(year > max(year) - 10) %>% 
-  dplyr::select(-ices_subdiv, landings = value, -metric) %>% 
+## we use the average catch for each stock/region across the last 15 years to obtain weights
+weights <- yearly_rgn_props %>%
+  filter(year > max(year)-25) %>% # considering only the most recent 15 years
+  # dplyr::select(region_id, stock, year, landings) %>% # BHI1.0 approach used ICES area landings values
+  dplyr::select(region_id, stock, year, landings = rgn_landings) %>%
   group_by(region_id, stock) %>% # each region/stock will have same avg catch across years
   mutate(avgCatch = mean(landings)) %>% # timeseries mean, considering last 10 years
   group_by(region_id, year) %>%
   mutate(totCatch = sum(avgCatch)) %>% # total (ie all stock) catch on average (across years)
   ungroup() %>%
-  mutate(propCatch = avgCatch/totCatch) # proportion of catch each stock accounts for
-## total proportion of landings for each region/year will sum to one
-# chk <- weights_orig %>%
+  mutate(propCatch = avgCatch/totCatch) # avg proportion of catch each stock accounts for, over last 10yr
+# chk <- weights %>%
 #   group_by(region_id, year) %>%
 #   summarise(sumProps = sum(propCatch))
-# unique(chk$sumProps)
+# unique(chk$sumProps) # sum of proportions of landings for each region/year sums to one
+
+## visualize for example region 3
+ggplot(filter(weights, region_id == 3)) + 
+  geom_line(aes(x = year, y = avgCatch)) + 
+  geom_line(aes(x = year, y = landings), color = "cadetblue3") +
+  facet_grid(vars(stock))  +
+  labs(x  = "Year", y = "Catch (with 15 year average) by Stock")
 
 
 ## STATUS
-## geometric mean weighted by proportion of catch in each region
+## geometric mean weighted by proportion (hence the weights df) of catch in each region
 status_with_penalty <- weights %>% 
-  left_join(scores, by = c("region_id", "year", "stock")) %>%
+  
+  ## start with overall score as an average of B-scores and F-scores
+  ## these averages will be weighted by stock landings and have cod condition penalty applied
+  left_join(
+    rbind(B_scores, F_scores) %>%
+      group_by(region_id, stock, year) %>%
+      summarize(score = mean(score, na.rm = TRUE)) %>% # hist(scores$score)
+      left_join(
+        spread(rbind(B_scores, F_scores), key = "score_type", value = "score"),
+        by = c("year", "stock", "region_id")
+      ),
+    by =  c("region_id", "year", "stock")) %>%
   filter(!is.na(score)) %>% # remove missing data
-  dplyr::select(region_id, year, stock, propCatch, score) %>% 
   
   ## apply penalty because bad cod condition in eastern baltic
-  left_join(cod_penalty, by = c("year", "region_id", "stock")) %>% 
-  mutate()
-  
-  
-  
-  mutate(
-    score = ifelse(
-      str_detect(stock, "cod") & str_detect(stock, "32"),
-      score*filter(cod_penalty, year == assess_year-1)$penalty_factor, score
+  left_join(cod_penalty_gf, by = c("year", "region_id", "stock")) %>% 
+  mutate(penalty = ifelse(
+    is.na(prop_above_pt8), 1, ifelse(
+      num_samp %in% 1:3, NA, prop_above_pt8
     )
-  )
-status <- status_with_penalty %>% 
-  group_by(region_id, year) %>%
-  summarize(status_prop = prod(score^propCatch), status_avg = mean(score)) %>%
+  )) %>% 
+  dplyr::select(-prop_above_pt8, -num_samp) %>% 
+  mutate(score = penalty*score)
+
+## calculate BHI scores, geometric means of different stocks by region
+scores <- status_with_penalty %>% 
+  group_by(region_id, year) %>% 
+  summarize(status_prop = prod(score^propCatch)) %>%
   ungroup()
 ```
 
 
 ```{r evaluate goal model and data}
 ## visualize scores/status results
-ggplot(scores, aes(x = year)) + 
-  geom_ribbon(aes(ymin = F_score, ymax = B_score, fill = stock), alpha = 0.4) + 
+ggplot(status_with_penalty, aes(x = year)) + 
+  geom_ribbon(aes(ymin = F_score, ymax = B_score, fill = stock), alpha = 0.2) + 
   geom_line(aes(y = score, color = stock)) +
   facet_wrap(vars(region_id)) + 
-  labs(color = "Stock", fill = "Stock")
+  labs(x= "Year", y = "Score", color = "Stock", fill = "Stock")
 ```
 
 
@@ -1010,7 +992,7 @@ ggplot(scores, aes(x = year)) +
 
 The F/FMSY and B/BMSY data processing for FIS and NP goals do not include any gapfilling or interpolation. However, the matching ICES subdivisions to BHI regions is not exact, and...
 
-The calculation of the Eastern Baltic Cod penalty factor does involve some gapfilling. Specifically, no data was reported in for cod in the [Baltic International Trawl survey (BITS)](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) for ICES areas 30, 31, 32 or in ICES area 29 except for Estonia. 
+The calculation of the Eastern Baltic Cod penalty factor does involve some gapfilling. Specifically, no data was reported in for cod in the [Baltic International Trawl survey (BITS)](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) for ICES areas 30, 31, 32 or in ICES area 29 except for Estonia. While...
 
 
 ### 3.5 Methods discussion
@@ -1024,11 +1006,12 @@ Source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
 
 #### 3.5.2 Matching ICES stock assessment areas to  BHI Regions
 
-![Splitting catch by BHI Region](fis-stocks-rgn-props.png)
+![Splitting catch by BHI Region](../fis-stocks-rgn-props.png)
 
 
 #### 3.5.3 Setting F-Score and B-score parameters
 
+![F-Scores parameterization](../fis-fscores-formula.png)
 
 ## 4. Visualizing Data Layers
 
@@ -1040,14 +1023,15 @@ BHI status and trend scores differ spatially across regions as they are combinat
 
 ```{r goal status map, results = "show"}
 ## combine with spatial info for mapping
-bhi_rgns_shp <- bhi_rgns_shp %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2, Name) %>% 
-  left_join(filter(status, year == max(scores$year)), by = c("BHI_ID" = "region_id"))
+scores_shp <- bhi_rgns_shp %>% 
+  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2) %>% 
+  left_join(filter(scores, year == max(scores$year)), by = c("BHI_ID" = "region_id")) %>% 
+  mutate(Name = paste(rgn_nam, Subbasin, sep = ", "))
 pal <- colorNumeric(
   palette = "RdYlBu", na.color = "#fcfcfd",
   domain = seq(0.4, 1, 0.005))
 
-leaflet::leaflet(data = bhi_rgns_shp) %>% 
+leaflet::leaflet(data = scores_shp) %>% 
   addProviderTiles(providers$CartoDB.Positron) %>%
   setView(18, 59, zoom = 5) %>% 
   addPolygons(
@@ -1057,31 +1041,12 @@ leaflet::leaflet(data = bhi_rgns_shp) %>%
   addPolygons(
     popup = paste(
       "<h5><strong>", "Region:", "</strong>",
-      bhi_rgns_shp$Name, "</h5>",
+      scores_shp$Name, "</h5>",
       "<h5><strong>", "Status:", "</strong>",
-      round(bhi_rgns_shp$status_prop, 2), "</h5>", sep = " "
+      round(scores_shp$status_prop, 2), "</h5>", sep = " "
     ),
     fillOpacity = 0,
     stroke = FALSE
-  ) %>% 
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.7,
-    fillColor = ~pal(status_avg)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      bhi_rgns_shp$Name, "</h5>",
-      "<h5><strong>", "Status:", "</strong>",
-      round(bhi_rgns_shp$status_avg, 2), "</h5>", sep = " "
-    ),
-    fillOpacity = 0,
-    stroke = FALSE
-  ) %>% 
-  ## layer controls and legend
-  addLayersControl(
-    baseGroups = c("Status weighted avg by catches", "Status weighted equally"),
-    options = layersControlOptions(collapsed = FALSE)
   ) %>% 
   addLegend("bottomright", pal, seq(0.4, 1, 0.005))
 ```
