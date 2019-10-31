@@ -3,7 +3,7 @@ title: "Mariculture - Food Provision Subgoal data prep"
 output:
   github_document:
     toc: true
-    toc_depth: 3
+    toc_depth: 4
 params: 
     datasource: csv
 ---
@@ -27,8 +27,6 @@ refs_path <- file.path(loc, "mar_references.Rmd")
 
 <br/>
 
-## 2. Data
-
 <!-- ## 2. Data --- header in the child  document -->
 ```{r Data, child = data_path, results = "asis", echo = FALSE}
 ```
@@ -39,11 +37,23 @@ refs_path <- file.path(loc, "mar_references.Rmd")
 
 ### 3.1 Reorganizing/wrangling
 
+This section prepares production and spatial data for MAR. 
+
 <br>
 
 #### 3.1.1 Load datasets
 
+<!-- Swedish aquaculture facilities --> 
+library(sf)
 
+shape1 <- read_sf(dsn = ".", layer = "AF_Vattenbruk")
+
+plot(shape1)
+
+<!-- Finfish mariculture - HELCOM --> 
+library(sf)
+shape2 <- read_sf(dsn = ".", layer = "Finfish_mariculture")
+plot(shape2)
 
 ## 4. Visualizing Data Layers
 

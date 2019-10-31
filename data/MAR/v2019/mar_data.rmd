@@ -58,6 +58,22 @@ knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http
 
 <br/>
 
+- **Germany**
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_ger -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c(":", ""), 
+  c(":", "")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Email from plant manager](tassilo@jaeger-kleinicke.de) <br/> Received 2019-10-30")
+```
+
+<br/>
+
 **Finfish Mariculture**  
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Finfish_mariculture -->
 
