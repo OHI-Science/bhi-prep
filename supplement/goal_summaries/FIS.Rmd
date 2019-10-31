@@ -5,10 +5,10 @@ The Fisheries sub-goal of Food Provision describes the ability to maximize the s
 
 ### Model & Data
 
-The data used for this goal are composed of cod and herring spawning biomass (SSB) and fishing mortality (F) data. The current status is calculated as a function of the ratio (B’) between the single species current biomass at sea (B) and the reference biomass at maximum sustainable yield (BMSY), as well as the ratio (F’) between the single species current fishing mortality (F) and the fishing mortality at maximum sustainable yield (FMSY). B/Bmsy and F/Fmsy data are converted to scores between 0 and 1 using this [general relationship](https://github.com/OHI-Science/bhi-prep/blob/master/prep/FIS/ffmsy_bbmsy_score.png), also captured in [this formula](https://cloud.githubusercontent.com/assets/5685517/11152185/5291d988-89ee-11e5-839a-0b1b162832f3.png). This equation simply converts the F/FMSY value to an F' score that will fall between 0-1 (this function applies a penalty when b/bmsy scores indicate good/underfishing, i.e., >= 0.8, but f/fmsy scores indicate high fisheries related mortality, i.e., > 1.2).
+The data used for this goal are cod and herring spawning biomass (SSB) and fishing mortality (F) data. The current status is calculated as a function of the ratio between the single species current biomass at sea (B) and the reference biomass at maximum sustainable yield (BMSY), as well as the ratio between the single species current fishing mortality (F) and the fishing mortality at maximum sustainable yield (FMSY). These ratios (B/Bmsy and F/Fmsy) are converted to scores between 0 and 1 using as one component this [general relationship](https://github.com/OHI-Science/bhi-prep/blob/master/prep/FIS/Fscoresformula.png). This piecewise equation simply converts the F/FMSY value to an F' score that will fall between 0-1 (this function applies a penalty when B/BMSY scores indicate good/underfishing but F/FMSY scores indicate high fisheries related mortality). 
 
+[Cod and herring data can be found here](http://standardgraphs.ices.dk/stockList.aspx). Search for cod or herring, then specify the ecoregion as Baltic Sea and search for the most current assessment. 
 
-- [Cod and herring data accessed from the ICES homepage](http://www.ices.dk/marine-data/tools/Pages/stock-assessment-graphs.aspx) > search for 'cod' or 'herring' > specify the ecoregion as Baltic Sea > search for the 2013 assessment. 
 
 ### Reference points
 
