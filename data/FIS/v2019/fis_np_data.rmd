@@ -2,7 +2,8 @@
 ## 2. Data
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "data.R"))
+source(file.path(here::here(), "R", "setup.R"))
+# source(file.path(here::here(), "R", "data.R"))
 ```
 
 ### 2.1 Datasets with Sources
@@ -183,19 +184,257 @@ BMSY 570 000 ; FMSY 0.26
 
 ### 2.2 Centralization & Normalization
 
-#### 2.2.1 Standardize Units
 
-#### 2.2.2 Rename Fields/Variables
+Each assessed stock has its own raw datafile. Cod and herring data are saved under `Goals/FP/FIS` and sprat data are saved in the `Goals/NP` folder.
 
-#### 2.2.3 Save to BHI Database
+The MSY values (FMSY and BMSY for each assessed stock) are taken from the ICES advice reports, linked in the `standardgraphs.ices.dk` aspx pages. No table is saved with these values- they are entered directly into a dataframe in the code below.
 
-<br/>
+```{r load raw data, message = FALSE, warning = FALSE, echo = TRUE}
+## root location of the raw data
+dir_rawdata <- file.path(dir_B, "Goals", "FP", "FIS") # list.files(dir_rawdata)
 
-### 2.3 Initial Data Exploration
+## Fisheries data from ICES
+## if csvs are saved w/ semicolons:
+# source(file.path(here::here(), "R", "semicolon_to_comma.R"))
+# lapply(
+#   list("cod_SDs22_24", "cod_SDs24_32",
+#        "herring_SD_28.1", "herring_SDs20_24",
+#        "herring_SDs25_29_32", "herring_SDs30_31"),
+#   function(x){
+#      fp <- file.path(dir_rawdata, x, paste0(x, "_reformat.csv"))
+#      semicolon_to_comma(fp, remove_na_cols = TRUE, overwrite = TRUE)
+#   }
+# )
+# semicolon_to_comma(file.path(dir_B,"Goals","NP","sprat_SDs22_32","sprat_SDs22_32_reformat.csv"), TRUE, TRUE)
 
-#### 2.3.1 Compare versus Previous Years Data
 
-#### 2.3.2 Timeseries Plots
+## cod data
+cod1raw <- read_csv(file.path(dir_rawdata, "cod_SDs22_24", "cod_SDs22_24_reformat.csv"))
+cod2raw <- read_csv(file.path(dir_rawdata, "cod_SDs24_32", "cod_SDs24_32_reformat.csv"))
 
-#### 2.3.3 Map
+## herring data
+herring1raw <- read_csv(file.path(dir_rawdata, "herring_SD_28.1", "herring_SD_28.1_reformat.csv"))
+herring2raw <- read_csv(file.path(dir_rawdata, "herring_SDs20_24", "herring_SDs20_24_reformat.csv"))
+herring3raw <- read_csv(file.path(dir_rawdata, "herring_SDs25_29_32", "herring_SDs25_29_32_reformat.csv"))
+herring4raw <- read_csv(file.path(dir_rawdata, "herring_SDs30_31", "herring_SDs30_31_reformat.csv"))
 
+## sprat data
+sprat1raw <- read_csv(file.path(dir_B, "Goals", "NP", "sprat_SDs22_32", "sprat_SDs22_32_reformat.csv"))
+
+
+## make MSY values table
+## these values are obtained from ICES reports, see data/FIS/fis_np_data.rmd for more details
+msy_data <- t(data.frame(
+  c("cod", "22-24", "cod_SDs22_24", 21876, 0.26),
+  c("cod", "24-32", "cod_SDs24_32", 108035, 0.3),
+  c("herring", "28.1", "herring_SD_28.1", 60000, 0.32),
+  c("herring", "20-24", "herring_SDs20_24", 150000, 0.31),
+  c("herring", "25-29,32", "herring_SDs25_29_32", 600000, 0.22),
+  c("herring", "30-31", "herring_SDs30_31", 140998, 0.15),
+  c("sprat", "22-32", "sprat_SDs22_32", 570000, 0.26)
+))
+## for testing effect of using 2013 values...
+# msy_2013_data <- t(data.frame(
+#   c("cod", "22-24", "cod_SDs22_24", 36400, 0.26),
+#   c("cod", "24-32", "cod_SDs24_32", 88200, 0.46),
+#   c("herring", "28.1", "herring_SD_28.1", 60000, 0.35),
+#   c("herring", "20-24", "herring_SDs20_24", 110000, 0.28),
+#   c("herring", "25-29,32", "herring_SDs25_29_32", 600000, 0.26),
+#   c("herring", "30-31", "herring_SDs30_31", 316000, 0.15),
+#   c("sprat", "22-32", "sprat_SDs22_32", 570000, 0.29)
+# ))
+# msy_data <- msy_2013_data
+colnames(msy_data) <- c("species", "SDs", "stockname", "BMSY", "FMSY")
+rownames(msy_data) <- NULL
+msy_data <- as_tibble(msy_data)
+```
+
+
+#### 2.2.0 Merge datasets and calculate F/FMSY and B/BMSY ratios
+
+```{r merge datasets and calculate ffmsy bbmsy ratios, echo = TRUE}
+combined_rawdata <- rbind(
+  ## cod
+  cod1raw %>% 
+    dplyr::select(
+      year, ssb, 
+      fis_mort = fishing_mortality_age3_5, 
+      landings = landings_tonnes
+    ) %>%
+    mutate(stockname = "cod_SDs22_24"),
+  cod2raw %>% 
+    dplyr::select(
+      year, ssb, 
+      fis_mort = fishing_mortality_age4_6, 
+      landings = landings_tonnes
+    ) %>% 
+    mutate(stockname = "cod_SDs24_32"),
+  ## herring
+  herring1raw %>% 
+    dplyr::select(
+      year, ssb = ssb_tonnes, 
+      fis_mort = `F`, 
+      landings = catches_tonnes
+    ) %>% 
+    mutate(stockname = "herring_SD_28.1"),
+  herring2raw %>% 
+    dplyr::select(
+      year, ssb = ssb_tonnes, 
+      fis_mort = F_age3_6, 
+      landings = catches_tonnes
+    ) %>% 
+    mutate(stockname = "herring_SDs20_24"),
+  herring3raw %>% 
+    dplyr::select(
+      year, ssb = ssb_tonnes, 
+      fis_mort = F_age3_6, 
+      landings = catches_tonnes
+    ) %>% 
+    mutate(stockname = "herring_SDs25_29_32"),
+  herring4raw %>% 
+    dplyr::select(
+      year, ssb = ssb, 
+      fis_mort = F_age3_7, 
+      landings = catches_tonnes
+    ) %>% 
+    mutate(stockname = "herring_SDs30_31"),
+  ## sprat
+  sprat1raw %>% 
+    dplyr::select(
+      year, ssb = ssb_tonnes, 
+      fis_mort = F_age3_5, 
+      landings = catches_tonnes
+    ) %>% 
+    mutate(stockname = "sprat_SDs22_32")) %>% 
+  ## join with msy data
+  filter(!is.na(year)) %>% 
+  left_join(msy_data, by = c("stockname")) %>% 
+  mutate(bbmsy = ssb/as.numeric(BMSY), ffmsy = fis_mort/as.numeric(FMSY)) %>% 
+  arrange(species, stockname, year)
+```
+
+<br>
+
+#### 2.2.1 Standardize Units: Match BHI Regions to ICES Subdivisions
+
+[Map of ICES regions.](ICES regions map https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png)
+The map below shows the overlap between ICES subdivisions and the BHI regions:
+
+```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE}
+source(file.path(here::here(), "R", "spatial.R"))
+regions_shape() # loads spatial features objects
+
+## ICES shapefile has crs EPSG:3035
+## https://spatialreference.org/ref/epsg/etrs89-etrs-laea/
+## transform to match BHI crs of EPSG:4326, and simplify
+
+ices_transform <- rmapshaper::ms_simplify(input = ICES_rgns_shp) %>% 
+  sf::st_as_sf() %>% 
+  sf::st_transform(crs = 4326)
+
+bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
+  sf::st_as_sf() # also simplify BHI shp for plotting
+baltic <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+  st_crop(xmin = -5, xmax = 35, ymin = 48, ymax = 70)
+
+ggplot2::ggplot() + 
+  ## baltic countries borders
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      st_crop(xmin = 5, xmax = 32, ymin = 52, ymax = 67),
+    fill = "ivory2", 
+    size = 0.1
+  ) +
+  ## ICES areas
+  geom_sf(
+    data = ices_transform, 
+    aes(fill = ICES_area), 
+    color = NA
+  ) +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Pastel1"))(14)) +
+  labs(fill = "ICES Subdivisions", x = NULL, y = NULL) +
+  ## BHI regions with ID numbers
+  geom_sf(data = bhi_rgns_simple, fill = NA, color = "grey70") +
+  geom_sf_text(data = bhi_rgns_simple, aes(label = BHI_ID))
+```
+
+
+A lookup table derived from the overlap between ICES subdivisions and BHI regions as shown in the map above, is used in the code below to match BHI region IDs to the raw dataset:
+
+```{r converting ICES fisheries regions to Baltic regions, echo = TRUE}
+## based on 'prep/FIS/raw/DataOrganization.R' by Melanie Frazier March 16 2016, in bhi-1.0-archive
+## table for matching ICES to BHI regions
+regions <- read_csv(
+  file.path(here::here(), "supplement", "lookup_tabs", "ices_to_bhi_lookup.csv"), 
+  col_types = cols()) %>% 
+  mutate(ices_numeric = ifelse(ices_numeric == 3, 21, ices_numeric)) # 3a.21 overlaps BHI rgn 1 & 2
+
+## areas of BHI regions in km2
+bhi_ices_areas <- regions %>% dplyr::select(region_id, area_km2)
+
+
+## convert ICES stock assessments to BHI regions
+combined_w_rgns <- combined_rawdata %>% 
+  
+  ## expand ices subdivisions categories to one row per subdiv
+  rowwise() %>% 
+  mutate(
+    ## check unique(combined_rawdata$SDs) to make sure this string parsing will work
+    sd_from = as.numeric(str_split(SDs, "-|,")[[1]][1]),
+    sd_to = as.numeric(str_split(SDs, "-|,")[[1]][2]),
+    sd_extra = as.numeric(str_split(SDs, "-|,")[[1]][3])
+  ) %>% 
+  mutate(
+    sd_to = ifelse(is.na(sd_to), sd_from, sd_to),
+    sd_extra = ifelse(is.na(sd_extra), sd_from, sd_extra),
+    incl28.2 = sd_from <= 28 & sd_to >= 28,
+    incl28.1 = sd_from <= 28 & sd_to >= 28 & species != "herring"
+  ) %>% 
+  ## ICES regions 28.1 for Riga and 28.2 elsewhere but no 28
+  mutate(SDs = list(
+    unique(
+      c(sd_from:sd_to, sd_extra)[c(sd_from:sd_to, sd_extra)!=28] %>% 
+        c(ifelse(incl28.2, 28.2, sd_from)) %>% 
+        c(ifelse(incl28.1, 28.1, sd_from))
+    )
+  )) %>% 
+  tidyr::unnest(ices_subdiv = SDs) %>% 
+  dplyr::select(-sd_from, -sd_to, -sd_extra, -incl28.1, -incl28.2) %>% 
+  filter(ices_subdiv != 20) %>% # filter because no BHI region assigned to SD 20 and will cause NA means...
+  
+  ## add BHI regions info using ices_to_bhi_lookup
+  left_join(dplyr::select(regions, region_id, ices_numeric), by = c("ices_subdiv" = "ices_numeric")) %>%
+  
+  ## without better information, assuming landings are uniform across stock assessment area, 
+  ## then landings within BHI rgn are proportional to rgn area fraction of total stock area
+  left_join(bhi_ices_areas, by = "region_id") %>% # area information
+  group_by(stockname, year) %>% 
+  mutate(
+    assessArea = sum(area_km2), # stocks assessment areas
+    landings_rate = landings/assessArea # per unit area
+  ) %>%  
+  group_by(region_id) %>% 
+  mutate(rgn_landings = landings_rate*area_km2) %>% 
+  ungroup() %>% 
+  
+  ## save intermediate dataset
+  rename(stock = stockname, area_rgn_km2 = area_km2) %>% 
+  filter(year < assess_year) # current yr fish. mort. data won't be complete
+
+## ICES subdivs 20 and 21 are North Sea and left out of BHI1.0, but herring in 3a.21 for rgn 1 & 2
+# combined_w_rgns <- combined_w_rgns %>% filter(!ices_subdiv %in% c(20, 21))
+```
+
+<br>
+
+#### 2.2.2 Save to BHI Database
+
+```{r save full merged dataset with raw data and calculated MSY ratios, echo = TRUE}
+## full merged dataset with MSY and raw data, as well as calculated ratios
+## this will be used for the shiny app among other things!
+write_csv(
+  combined_w_rgns, 
+  file.path(here::here(), "data", "FIS", version_year, "intermediate", "fis_full_merged_dataset.csv")
+)
+
+```
