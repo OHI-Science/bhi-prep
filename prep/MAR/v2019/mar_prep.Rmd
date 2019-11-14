@@ -44,16 +44,32 @@ This section prepares production and spatial data for MAR.
 #### 3.1.1 Load datasets
 
 <!-- Swedish aquaculture facilities --> 
-library(sf)
 
+```{r}
+library(sf)
 shape1 <- read_sf(dsn = ".", layer = "AF_Vattenbruk")
 
 plot(shape1)
+```
 
 <!-- Finfish mariculture - HELCOM --> 
+```{r}
 library(sf)
-shape2 <- read_sf(dsn = ".", layer = "Finfish_mariculture")
+shape2 <- read_sf(dsn = ".", layer = "Finfish_mariculture") # OR
+getwd()
+setwd(dir = "/Volumes/BHI_share/BHI 2.0/Goals/FP/MAR")
+finfish_mariculture <- st_read(
+  "Finfish_mariculture/Finfish_mariculture.shp")
+st_geometry_type(finfish_mariculture) 
+
+ggplot() +
+  geom_sf(data = finfish_mariculture, size = 3, color = "black", fill = "cyan1") +
+  ggtitle("Finfish Mariculture") +
+  coord_sf()
+
 plot(shape2)
+
+```
 
 ## 4. Visualizing Data Layers
 
