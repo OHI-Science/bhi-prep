@@ -22,6 +22,7 @@ colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.se/hitta-statistik/statistik-efter-amne/jord-och-skogsbruk-fiske/vattenbruk/vattenbruk/) <br/> [Jorbruksverket](https://www.scb.se/contentassets/cef2fb103630496bb532e76c98f747e6/jo1201_2018a01_sm_jo60sm1901.pdf) Downloaded 2019-10-09 by Andrea De Cervo")
+# page 7, table A
 ```
 
 <br/>
@@ -106,13 +107,20 @@ knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/
 
 <br/>
 
-#### Sustainability Coefficient
+#### Reference Point: maximum nutrient discharge (N/P)
 
-The SMI is the average of the three subindices traditionally used in the OHI framework. Trujillo's study^1^ included 13 subindices in total but only 3 of them are relevant for assessing the sustainability of mariculture : waster water treatment, usage of fishmeal and hatchery vs wild origin of seeds. Since Rainbow trout SMI is only included for Sweden, the mean value 5.3 was rescaled between 0-1 to 0.53 by the OHI code. This value is then applied to Denmark and Finland.
+In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on "Sustainable aquaculture in the Baltic Sea Region" (http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
 
-[Rainbow trout (Oncorhynchus mykiss) in Denmark, Sweden and Finland](https://bioenv.gu.se/digitalAssets/1575/1575339_flores-carmenate.pdf): 
-SM,k: 0.53  
+However, the only parameter that can be used as reference point for Mariculture in the Baltic Sea (that can be also found on Finnish Mariculture data provided by HELCOM) is the maximum nutrient discharge for P and N:
+http://www.helcom.fi/Recommendations/Rec%2025-4.pdf
 
+where existing and new marine fish farms should not exceed the annual average of: 
+- 7g of P (tot-P) 
+- 50g of N (tot-N) 
+per 1kg fish (living weight) produced.
+[The nutrient limit values (P and N) are calculated on the basis that living fish contains 0,4% of phosphorus and 2,75% of nitrogen.]
+
+This recommendation was adopted in 2004, but since there are not updated nutirent limit values, this will be the paramenter used as reference point.
 
 ### 2.2 Centralization & Normalization
 
