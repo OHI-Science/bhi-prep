@@ -1,6 +1,4 @@
 
-## 2. Data
-
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
 source(file.path(here::here(), "R", "setup.R"))
 # source(file.path(here::here(), "R", "data.R"))
@@ -140,8 +138,8 @@ knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.
 
 #### Cod Trawl Survey
 
-**Baltic International Trawl Survey (BITS) Cod in ICES subdivisions 21-29**  
-<!-- dataset save location BHI_share/2.0/Goals/FP/FIS/SMALK_2019-10-22 16_34_01/SMALK_2019-10-22 16_34_01.csv -->
+**Baltic International Trawl Survey (BITS) Cod Length and Weight - ICES subdivisions 21-29**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/FIS/SMALK_2019-10-22 16_34_01/SMALK_2019-10-22_16_34_01.csv -->
 
 ```{r cod trawl data to calculate fultons K}
 tab <- t(data.frame(
@@ -156,6 +154,27 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES DATRAS database](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 2019-10-22 by Eleanore Campbell")
 ```
+
+**Baltic International Trawl Survey (BITS) Cod CPUE - ICES subdivisions 21-29**  
+<!-- dataset save location BHI_share/2.0/Goals/FP/FIS/CPUE_per_length_per_haul_per_hour_2019-11-07_13_36_17/CPUE_per_length_per_haul_per_hour_2019-11-07_13_36_17.csv -->
+
+```{r cod trawl CPUE data}
+tab <- t(data.frame(
+  c("Data Product:", "CPUE per length per haul per hour"),
+  c("Survey:", "BITS (Baltic International Trawl Survey)"),
+  c("Quarters:", "All"),
+  c("Years:", "All"),
+  c("Ships:", "All"),
+  c("Gear:", "All"),
+  c("Areas:", "All"),
+  c("Species:", "Standard species -> Gadus morhua")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES DATRAS database](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 2019-11-07 by Eleanore Campbell")
+```
+
 <br/>
 
 #### FMSY and BMSY
@@ -256,17 +275,29 @@ msy_data <- as_tibble(msy_data)
 combined_rawdata <- rbind(
   ## cod
   cod1raw %>% 
+    dplyr::mutate(catch_tonnes = ifelse(
+      !is.na(discards_tonnes), 
+      landings_tonnes + discards_tonnes,
+      landings_tonnes
+    )) %>%
     dplyr::select(
       year, ssb, 
       fis_mort = fishing_mortality_age3_5, 
-      landings = landings_tonnes
+      catch = catch_tonnes
+      # landings = landings_tonnes
     ) %>%
     mutate(stockname = "cod_SDs22_24"),
   cod2raw %>% 
+    dplyr::mutate(catch_tonnes = ifelse(
+      !is.na(discards_tonnes), 
+      landings_tonnes + discards_tonnes,
+      landings_tonnes
+    )) %>%
     dplyr::select(
       year, ssb, 
       fis_mort = fishing_mortality_age4_6, 
-      landings = landings_tonnes
+      catch = catch_tonnes
+      # landings = landings_tonnes
     ) %>% 
     mutate(stockname = "cod_SDs24_32"),
   ## herring
@@ -274,28 +305,28 @@ combined_rawdata <- rbind(
     dplyr::select(
       year, ssb = ssb_tonnes, 
       fis_mort = `F`, 
-      landings = catches_tonnes
+      catch = catches_tonnes # no data on discards, only catch...
     ) %>% 
     mutate(stockname = "herring_SD_28.1"),
   herring2raw %>% 
     dplyr::select(
       year, ssb = ssb_tonnes, 
       fis_mort = F_age3_6, 
-      landings = catches_tonnes
+      catch = catches_tonnes
     ) %>% 
     mutate(stockname = "herring_SDs20_24"),
   herring3raw %>% 
     dplyr::select(
       year, ssb = ssb_tonnes, 
       fis_mort = F_age3_6, 
-      landings = catches_tonnes
+      catch = catches_tonnes
     ) %>% 
     mutate(stockname = "herring_SDs25_29_32"),
   herring4raw %>% 
     dplyr::select(
       year, ssb = ssb, 
       fis_mort = F_age3_7, 
-      landings = catches_tonnes
+      catch = catches_tonnes
     ) %>% 
     mutate(stockname = "herring_SDs30_31"),
   ## sprat
@@ -303,7 +334,7 @@ combined_rawdata <- rbind(
     dplyr::select(
       year, ssb = ssb_tonnes, 
       fis_mort = F_age3_5, 
-      landings = catches_tonnes
+      catch = catches_tonnes
     ) %>% 
     mutate(stockname = "sprat_SDs22_32")) %>% 
   ## join with msy data
@@ -317,10 +348,10 @@ combined_rawdata <- rbind(
 
 #### 2.2.1 Standardize Units: Match BHI Regions to ICES Subdivisions
 
-[Map of ICES regions.](ICES regions map https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png)
+[Map of ICES regions.](https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png)
 The map below shows the overlap between ICES subdivisions and the BHI regions:
 
-```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE}
+```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 source(file.path(here::here(), "R", "spatial.R"))
 regions_shape() # loads spatial features objects
 
@@ -331,31 +362,37 @@ regions_shape() # loads spatial features objects
 ices_transform <- rmapshaper::ms_simplify(input = ICES_rgns_shp) %>% 
   sf::st_as_sf() %>% 
   sf::st_transform(crs = 4326)
-
 bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
   sf::st_as_sf() # also simplify BHI shp for plotting
-baltic <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-  st_crop(xmin = -5, xmax = 35, ymin = 48, ymax = 70)
 
-ggplot2::ggplot() + 
+map_bhi_ices <- ggplot2::ggplot() + 
   ## baltic countries borders
   geom_sf(
     data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-      st_crop(xmin = 5, xmax = 32, ymin = 52, ymax = 67),
-    fill = "ivory2", 
+      st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", 
     size = 0.1
   ) +
   ## ICES areas
   geom_sf(
     data = ices_transform, 
     aes(fill = ICES_area), 
-    color = NA
+    color = NA,
+    alpha = 0.5
   ) +
-  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Pastel1"))(14)) +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Set3"))(14)) +
+  # scale_fill_manual(values = as.vector(pals::kelly(n = 14))) + # library(pals)
+  # scale_fill_manual(values = colorRampPalette(beyonce_palette(127))(14)) + # library(beyonce)
   labs(fill = "ICES Subdivisions", x = NULL, y = NULL) +
   ## BHI regions with ID numbers
-  geom_sf(data = bhi_rgns_simple, fill = NA, color = "grey70") +
-  geom_sf_text(data = bhi_rgns_simple, aes(label = BHI_ID))
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "grey40") +
+  scale_x_continuous(limit = c(5, 37)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(
+    panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"),
+    legend.position = c(0.9, 0.6)
+  )
+map_bhi_ices + geom_sf_text(data = bhi_rgns_simple, aes(label = BHI_ID)) 
 ```
 
 
@@ -368,10 +405,6 @@ regions <- read_csv(
   file.path(here::here(), "supplement", "lookup_tabs", "ices_to_bhi_lookup.csv"), 
   col_types = cols()) %>% 
   mutate(ices_numeric = ifelse(ices_numeric == 3, 21, ices_numeric)) # 3a.21 overlaps BHI rgn 1 & 2
-
-## areas of BHI regions in km2
-bhi_ices_areas <- regions %>% dplyr::select(region_id, area_km2)
-
 
 ## convert ICES stock assessments to BHI regions
 combined_w_rgns <- combined_rawdata %>% 
@@ -399,27 +432,14 @@ combined_w_rgns <- combined_rawdata %>%
     )
   )) %>% 
   tidyr::unnest(ices_subdiv = SDs) %>% 
-  dplyr::select(-sd_from, -sd_to, -sd_extra, -incl28.1, -incl28.2) %>% 
+  ## NOTE:
+  ## using catches instead of landings, because herring landings were not reported, just catch
+  ## but i dont want to go back through code and change everything to from 'landings' to 'catch'
+  dplyr::select(year, species, stockname, ssb, BMSY, bbmsy, fis_mort, FMSY, ffmsy, landings = catch, ices_subdiv) %>%
   filter(ices_subdiv != 20) %>% # filter because no BHI region assigned to SD 20 and will cause NA means...
   
   ## add BHI regions info using ices_to_bhi_lookup
-  left_join(dplyr::select(regions, region_id, ices_numeric), by = c("ices_subdiv" = "ices_numeric")) %>%
-  
-  ## without better information, assuming landings are uniform across stock assessment area, 
-  ## then landings within BHI rgn are proportional to rgn area fraction of total stock area
-  left_join(bhi_ices_areas, by = "region_id") %>% # area information
-  group_by(stockname, year) %>% 
-  mutate(
-    assessArea = sum(area_km2), # stocks assessment areas
-    landings_rate = landings/assessArea # per unit area
-  ) %>%  
-  group_by(region_id) %>% 
-  mutate(rgn_landings = landings_rate*area_km2) %>% 
-  ungroup() %>% 
-  
-  ## save intermediate dataset
-  rename(stock = stockname, area_rgn_km2 = area_km2) %>% 
-  filter(year < assess_year) # current yr fish. mort. data won't be complete
+  left_join(dplyr::select(regions, region_id, ices_numeric, area_km2), by = c("ices_subdiv" = "ices_numeric"))
 
 ## ICES subdivs 20 and 21 are North Sea and left out of BHI1.0, but herring in 3a.21 for rgn 1 & 2
 # combined_w_rgns <- combined_w_rgns %>% filter(!ices_subdiv %in% c(20, 21))
@@ -427,14 +447,90 @@ combined_w_rgns <- combined_rawdata %>%
 
 <br>
 
-#### 2.2.2 Save to BHI Database
+```{r cod condition ie fultons K from BITS surveys, echo = TRUE}
+surveyBITS_cod <- read_csv(file.path(dir_rawdata, "SMALK_2019-10-22_16_34_01", "SMALK_2019-10-22_16_34_01.csv"))
+# unique(surveyBITS_cod$Country) # no data for Finland, or really any areas north of North Baltic Proper
+
+q4_fultonsK <- surveyBITS_cod %>%
+  mutate(length_cm = LngtClass/10) %>% 
+  dplyr::select(year = Year, ices_subdiv = Area, eez = Country, length_cm, wgt_gram = IndWgt) %>% 
+  mutate(
+    ## revise country EEZ codes to be consistent with codes used elsewhere by BHI
+    eez = ifelse(eez == "GFR", "DEU", ifelse(eez == "DEN", "DNK", ifelse(eez == "LAT", "LVA", eez))),
+    ## calculate fultons K and assign length classes
+    fultonsK = wgt_gram/(length_cm^3)*100,
+    length_group = floor(length_cm/10)
+  ) %>% 
+  filter(!is.na(fultonsK), fultonsK < 2) %>% 
+  ## per Casini et al exclude lengths < 10cm and ≥60cm-- not enough data:
+  filter(length_group %in% 1:5) %>% 
+  mutate(
+    length_group = ifelse(
+      length_group == 1, "10-20cm", ifelse(
+         length_group == 2, "20-30cm", ifelse(
+           length_group == 3, "30-40cm", "40-60cm"
+         )
+      )
+    )
+  ) %>% 
+  ## join BHI regions
+  ## area 28 includes both 28.2 and gulf of Riga 28.1 
+  ## http://www.ices.dk/marine-data/Documents/DATRAS/Survey_Maps_Datras.pdf
+  mutate(ices_subdiv = ifelse(ices_subdiv == 28, list(28.1, 28.2), ices_subdiv)) %>% 
+  tidyr::unnest(ices_subdiv = ices_subdiv) %>% 
+  right_join(
+    regions %>% 
+      dplyr::select(region_id, eez, ices_subdiv = ices_numeric) %>% 
+      filter(ices_subdiv %in% c(unique(surveyBITS_cod$Area), 28.1, 28.2)),
+    by = c("ices_subdiv", "eez")
+  )
+
+# filter(q4_fultonsK, is.na(fultonsK)) # NA check
+q4_fultonsK <- filter(q4_fultonsK, !is.na(fultonsK))
+## will give BHI region 1 have same penalty as 2, BHI 5 same as 6, and BHI 29 same as 26
+## as these regions are small, close, and/or share overlapping ICES areas; see ICES vs BHI regions map above
+```
+
+
+**No cod in Northern part of the Baltic Sea! Filter combined fisheries dataset to reflect this.**
+
+```{r distributions of cod from BITS surveys CPUE, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, out.width = "120%"}
+cpue_sf <- read_csv(file.path(
+  dir_rawdata, 
+  "CPUE_per_length_per_haul_per_hour_2019-11-07_13_36_17", 
+  "CPUE_per_length_per_haul_per_hour_2019-11-07_13_36_17.csv")) %>% 
+  dplyr::select(Year, DateTime, Ship, Gear, ShootLat, ShootLong, rateCPUE = CPUE_number_per_hour) %>% 
+  filter(Year >= 2008) %>% 
+  distinct() %>% 
+  sf::st_as_sf(coords = c("ShootLong", "ShootLat"), crs = 4326)
+
+map_bhi_ices + 
+  geom_sf(aes(size = rateCPUE), color = "royalblue3", alpha = 0.02, shape = 16, data = cpue_sf) + 
+  labs(size = "Number/Hour", x = NULL, y = NULL) +
+  guides(fill = FALSE) + 
+  theme(legend.position = c(0.15, 0.85))
+
+combined_w_rgns <- combined_w_rgns %>% 
+  filter(!(species == "cod" & region_id %in% 27:42))
+```
+<br>
+
+#### 2.2.2 Save Datasets
 
 ```{r save full merged dataset with raw data and calculated MSY ratios, echo = TRUE}
 ## full merged dataset with MSY and raw data, as well as calculated ratios
 ## this will be used for the shiny app among other things!
 write_csv(
-  combined_w_rgns, 
+  combined_w_rgns %>% rename(catch = landings), 
   file.path(here::here(), "data", "FIS", version_year, "intermediate", "fis_full_merged_dataset.csv")
 )
+```
 
+```{r save Eastern cod fultons K dataset, echo = TRUE}
+## full merged dataset with MSY and raw data, as well as calculated ratios
+## this will be used for the shiny app among other things!
+write_csv(
+  q4_fultonsK, 
+  file.path(here::here(), "data", "FIS", version_year, "intermediate", "fis_cod_fultonsK.csv")
+)
 ```

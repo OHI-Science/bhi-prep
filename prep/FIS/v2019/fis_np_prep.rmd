@@ -19,7 +19,7 @@ bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
 data_path <- file.path(here::here(), "data", "FIS", version_year, "fis_np_data.rmd")
 refs_path <- file.path(loc, "fis_references.Rmd")
 
-dir_layer <- file.path(here::here(), "layers")
+stocks_cols <- RColorBrewer::brewer.pal(6, "Paired") %>% str_replace("#1F78B4", "#065BCB") %>% str_replace("#33A02C", "#73BD65")
 ```
 
 <br>
@@ -31,8 +31,23 @@ dir_layer <- file.path(here::here(), "layers")
 
 <br/>
 
-<!-- ## 2. Data --- header in the child  document -->
-```{r data, child = data_path, results = "asis", echo = FALSE}
+## 2. Data
+
+This prep document is used to generate and explore the following data layers: 
+
+- `fis_bbmsy_bhi2019.csv` 
+- `fis_ffmsy_bhi2019.csv` 
+- `fis_landings_bhi2019.csv` 
+- `fis_cod_bbmsy_bhi2019.csv` 
+- `fis_cod_ffmsy_bhi2019.csv` 
+- `fis_cod_landings_bhi2019.csv` 
+- `np_bbmsy_bhi2019.csv` 
+- `np_ffmsy_bhi2019.csv` 
+- `np_landings_bhi2019.csv`
+
+These are saved to the `layers/v2019` folder. Intermediate datasets saved to `data/FIS/v2019/intermediate` include: `fis_full_merged_dataset.csv` and`fis_cod_fultonsK.csv`. All these are derived from or informed by the following raw datasets.
+
+```{r data, child = data_path, results = "asis", echo = FALSE, fig.width = 9.5}
 ```
 
 <br/>
@@ -51,39 +66,58 @@ This section prepares data layers for FIS and NP at the same time, separating th
 
 The F/FMSY, B/BMSY, and landings data are the ICES stock assessment area values, expanded to have all years rows per BHI region within the stock assessment area, and row-bound to include all stocks in one table.
 
-```{r fis_ffmsy_bbmsy and fis_landings plots, out.width = "850px"}
+```{r fis_ffmsy_bbmsy and fis_landings plots, out.width = "850px", fig.height = 7}
 combined_w_rgns <- read_csv(
   file.path(
     here::here(), "data", "FIS", version_year, "intermediate", 
     "fis_full_merged_dataset.csv"
   )
-)
+) %>% 
+  ## NOTE: what is called 'landings' throughout this script is actually catch
+  ## this decision was made late in the analysis; at this time i'm not going back through to change all instances...
+  rename(landings = catch) %>%
+  group_by(stockname, year) %>% 
+  mutate(
+    assessArea = sum(area_km2), # stocks assessment areas
+    landings_rate = landings/assessArea # per unit area
+  ) %>%  
+  group_by(region_id) %>% 
+  ## without better information, assuming landings are uniform across stock assessment area, 
+  ## then landings within BHI rgn are proportional to rgn area fraction of total stock area
+  mutate(rgn_landings = landings_rate*area_km2) %>% 
+  ungroup() %>% 
+  rename(stock = stockname, area_rgn_km2 = area_km2) %>% 
+  filter(year < assess_year) # current yr fish. mort. data won't be complete
+
+combined_w_rgns <- combined_w_rgns %>% filter(species == "cod") # UNCOMMENT FOR SCORES BASED ON ONLY COD STOCKS...
 
 ## full dataset in long format with calculated ratios, for plotting
 plot_format_msy_metrics <- combined_w_rgns %>% 
   dplyr::select(region_id, stock, species, year, bbmsy, ffmsy) %>% 
   tidyr::gather(key = metric, value = value, -year, -stock, -species, -region_id) %>% 
-  filter(year >= 1970)
+  filter(year >= 1970, !str_detect(stock, "spr"))
 
 msy_metrics_plot <- ggplot(data = plot_format_msy_metrics)  +
   geom_abline(slope = 0, intercept = 1, color = "grey40") +
   geom_line(aes(x = year, y = value, color = stock), size = 0.5) +
   scale_color_brewer(palette = "Paired") +
   ylab("value \n")+
-  facet_grid(vars(species), vars(metric)) + 
+  facet_grid(vars(metric), vars(species)) + 
   theme(legend.position = "none")
 
 ## landings data formatted for plotting
 plot_format_landings <- combined_w_rgns %>% 
   dplyr::select(region_id, stock, species,  year, landings, rgn_landings) %>% 
   tidyr::gather(key = "metric", value = "value", -year, -stock, -species, -region_id) %>% 
-  filter(year >= 1970)
+  filter(year >= 1970, !str_detect(stock, "spr"))
 
 landings_plot <- ggplot(filter(plot_format_landings, metric == "landings")) +
   geom_line(aes(x = year, y = value, color = stock), size = 0.5) +
   scale_color_brewer(palette = "Paired") +
   ylab(NULL) +
-  facet_grid(vars(species), vars(metric)) 
+  facet_grid(vars(metric), vars(species)) + 
+  guides(color = guide_legend(nrow = 1)) +
+  theme(legend.position = "top")
 # landings_plot <- ggplot(filter(plot_format_landings, metric == "rgn_landings")) +
 #   geom_point(aes(x = year, y = value, color = stock), size = 2, alpha = 0.1) +
 #   geom_line(
@@ -96,7 +130,7 @@ landings_plot <- ggplot(filter(plot_format_landings, metric == "landings")) +
 
 ## TIMESERIES PLOT
 ## F/FMSY, B/BMSY, and Landings (msy_metrics_plot and landings_plot)
-gridExtra::grid.arrange(msy_metrics_plot, landings_plot, nrow = 1, widths = c(1.1, 1))
+gridExtra::grid.arrange(msy_metrics_plot, landings_plot, nrow = 2, heights = c(1.8, 1.2))
 ```
 
 ```{r create and save FIS and NP layers}
@@ -112,46 +146,52 @@ goal_stocks <- c("FIS", "NP")
 for(g in goal_stocks){
   if(g == "FIS"){
     fis_data <- long_format %>% filter(!str_detect(stock, "spr"))
-    msy_dat <- fis_data %>% filter(metric %in% c("ffmsy", "bbmsy"))
-    landings <- fis_data %>% filter(metric %in% c("landings", "rgn_landings"))
-    
   } else {
     np_data <- long_format %>% filter(str_detect(stock, "spr"))
     msy_dat <- np_data %>% filter(metric %in% c("ffmsy", "bbmsy"))
     landings <- np_data %>% filter(metric %in% c("landings", "rgn_landings"))
   }
   ## filter to save by metric: bbmsy, ffmsy, landings
+  if(g == "FIS"){
+    for(s in c("spr", "her")){
+      fis_data <- fis_data %>% filter(!str_detect(stock, s))
+      g <- ifelse(s == "her", "FIS_COD", "FIS")
+    }
+    msy_dat <- fis_data %>% filter(metric %in% c("ffmsy", "bbmsy"))
+    landings <- fis_data %>% filter(metric %in% c("landings", "rgn_landings"))
+  }
+
   msy_dat %>% 
     filter(metric == "bbmsy") %>% 
     dplyr::select(-metric, -species) %>% 
     write_csv(
-      file.path(dir_layer, sprintf(
-        "%s_bbmsy_bhi%s.csv", 
-        str_to_lower(g), 
-        assess_year
-      ))
+      file.path(
+        dir_layers, 
+        paste0("v", assess_year), 
+        sprintf("%s_bbmsy_bhi%s.csv", str_to_lower(g), assess_year)
+      )
     )
   msy_dat %>% 
     filter(metric == "ffmsy") %>% 
     dplyr::select(-metric, -species) %>% 
     write_csv(
-      file.path(dir_layer, sprintf(
-        "%s_ffmsy_bhi%s.csv", 
-        str_to_lower(g), 
-        assess_year
-      ))
+      file.path(
+        dir_layers, 
+        paste0("v", assess_year), 
+        sprintf("%s_ffmsy_bhi%s.csv", str_to_lower(g), assess_year)
+      )
     )
   landings <- landings %>%
-    filter(metric == "rgn_landings") %>% 
-    # filter(metric == "landings") %>%
+    # filter(metric == "rgn_landings") %>% # should match whats used to calculate wgts below!
+    filter(metric == "landings") %>%
     rename(landings = value) %>% 
     dplyr::select(-metric, -species) %>% 
     write_csv(
-      file.path(dir_layer, sprintf(
-        "%s_landings_bhi%s.csv", 
-        str_to_lower(g), 
-        assess_year 
-      ))
+      file.path(
+        dir_layers, 
+        paste0("v", assess_year), 
+        sprintf("%s_landings_bhi%s.csv", str_to_lower(g), assess_year)
+      )
     )
 }
 ```
@@ -166,14 +206,26 @@ The code below loads FIS layers from current and prior BHI assessments so the ra
 This involves matching current and prior ICES stock assessment areas, joining the datasets, and plotting values of one BHI version against the other, per metric and stock. These plots can be used to e.g. identify outliers. Values for which the ICES areas changed are highlighted so as to effects of this can be visually inspected.
 
 
-```{r compare to data used in last assessment}
+```{r compare to data used in last assessment, fig.height = 3.8}
 
 ## load layers
-fis_bbmsy <- read_csv(file.path(dir_layer, sprintf("fis_bbmsy_bhi%s.csv", assess_year))) %>% 
-  rename(bbmsy = value)
-fis_ffmsy <- read_csv(file.path(dir_layer, sprintf("fis_ffmsy_bhi%s.csv", assess_year))) %>% 
-  rename(ffmsy = value)
-fis_landings <- read_csv(file.path(dir_layer, sprintf("fis_landings_bhi%s.csv", assess_year)))
+fis_bbmsy <- read_csv(file.path(
+  dir_layers, 
+  sprintf("v%s", assess_year), 
+  sprintf("fis_bbmsy_bhi%s.csv", assess_year)
+)) %>% rename(bbmsy = value)
+
+fis_ffmsy <- read_csv(file.path(
+  dir_layers, 
+  sprintf("v%s", assess_year), 
+  sprintf("fis_ffmsy_bhi%s.csv", assess_year)
+)) %>% rename(ffmsy = value)
+
+fis_landings <- read_csv(file.path(
+  dir_layers, 
+  sprintf("v%s", assess_year), 
+  sprintf("fis_landings_bhi%s.csv", assess_year)
+))
 
 ## previous assessment layers
 prev_fis_bbmsy <- read_csv(
@@ -232,7 +284,7 @@ compare_bbmsy_plot <- ggplot(compare_bbmsy) +
   ) + 
   labs(
     shape = "ICES Stocks, \n previous ICES categories", 
-    color = "ICES Stock Areas Changed \n between current and previous assessments",
+    color = "ICES Stock Areas Changed\nbetween current and previous\nassessments",
     x = "B/BMSY from Previous Assessment", 
     y = "B/BMSY from Current Assessment"
   )
@@ -248,7 +300,7 @@ compare_ffmsy_plot <- ggplot(compare_ffmsy) +
   ) + 
   theme(legend.position = "none")
 
-gridExtra::grid.arrange(compare_ffmsy_plot, compare_bbmsy_plot, nrow = 1, widths = c(0.52, 1))
+gridExtra::grid.arrange(compare_ffmsy_plot, compare_bbmsy_plot, nrow = 1, widths = c(0.6, 1))
 ```
 
 <br>
@@ -260,7 +312,7 @@ How have these proportions changed over time?
 
 **Note:** different stocks are assessed in different groupings of ICES areas/subdivisions and do not neatly overlap. Without more information (regardless of how catches may in reality be spatially distributed across the assessment areas and BHI regions), the partitioning of catches by BHI regions assumed uniform catch rate over the area, and thus regional:total catch fraction was assumed to be the same as rgn area:total stock area fraction. 
 
-```{r catch proportions plots}
+```{r catch proportions plots, fig.width = 9.5, fig.height = 7}
 ## proportions of stocks by BHI region and year
 yearly_rgn_props <- combined_w_rgns %>% 
   dplyr::select(region_id, stock, year, landings, rgn_landings, landings_rate, area_rgn_km2) %>%
@@ -271,23 +323,31 @@ yearly_rgn_props <- combined_w_rgns %>%
   ## proportion a given stock makes up of total catch in region, by year
   mutate(rgn_yr_propCatch = rgn_landings/rgn_yr_totCatch)
 
-# ggplot(yearly_rgn_props %>% filter(year >= 2008, region_id %in% c(1, 3, 11, 14, 27, 37))) + 
-#   ## rep. 6 distinct zones created by assessment overlap
-#   geom_area(aes(x = year, y = rgn_yr_propCatch, fill = stock),  position = "stack", alpha =  0.5) +
-#   scale_fill_brewer(palette = "Set3") +
-#   facet_wrap(~region_id, nrow = 2) +
-#   ylab("proportion of stock catch to total catch per BHI region \n") + xlab(NULL)
-ggplot(filter(yearly_rgn_props, year >= 1990)) +
-  geom_area(aes(x = year, y = rgn_yr_totCatch, fill = stock),  position = "stack", alpha =  0.5) +
-  scale_fill_brewer(palette = "Set3") +
+## catch proportions of total landings plots
+## filter e.g. region_id %in% c(1, 3, 11, 14, 27, 37) to rep. 6 distinct zones created by assessment overlap
+ggplot(filter(yearly_rgn_props, year >= 1995)) +
+  geom_area(
+    aes(x = year, y = rgn_yr_propCatch, fill = stock), # y = rgn_yr_totCatch
+    position = "stack", 
+    alpha =  0.5
+  ) +
+  guides(fill = guide_legend(nrow = 1))  +
+  theme(legend.position = "bottom") + 
+  scale_fill_manual(values = stocks_cols) +
   facet_wrap(~region_id, nrow = 6) +
-  ylab("cumulative catches, by region and stock \n") + xlab(NULL)
+  labs(
+    title = "Cumulative Catch with Stock Proportions of Total",
+    x = NULL,
+    y = "Cumulative catches, by region and stock \n", 
+    fill = "Stock"
+  ) +
+  scale_x_continuous(breaks = c(1995, 2005, 2015))
 ```
 
 <br>
 <br>
 
-#### 3.2.3 Regions map for stock proportions of total catch
+#### 3.2.3 Regions map for stock proportions (most recent year) of total catch
 
 These proportions are the weights used for combining statuses of multiple stock into one status value for the region.
 
@@ -306,7 +366,30 @@ map_format_data <- yearly_rgn_props %>%
     by = "region_id"
   ) %>% 
   arrange(region_id)
+## if have NA regions, e.g. when checking with just cod...
+if(any(!1:42 %in% map_format_data$region_id)){
+  na_rgn <- setdiff(1:42, map_format_data$region_id)
+  map_format_data <- rbind(
+    data.frame(
+      region_id = na_rgn,
+      rgn_yr_totCatch = rep(NA, length.out = length(na_rgn)),
+      cod_SDs22_24 = rep(NA, length.out = length(na_rgn)),
+      cod_SDs24_32 = rep(NA, length.out = length(na_rgn))
+    ),
+    map_format_data %>% filter(!region_id %in% na_rgn)
+  ) %>% arrange(region_id)
+}
 
+## need to rerun this bit of code if fis_np_data.rmd wasn't run before...
+## creates BHI spatial objects in environment include simplified polygons for mapping
+if(!exists("bhi_rgns_simple")){
+  if(!exists("BHI_rgns_shp")){
+    source(file.path(here::here(), "R", "spatial.R"))
+    regions_shape() # loads spatial features objects
+  }
+  bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
+    sf::st_as_sf() # also simplify BHI shp for plotting
+}
 bhi_rgns_shp <- bhi_rgns_simple %>% 
   left_join(map_format_data, by = c("BHI_ID" = "region_id")) %>% 
   arrange(BHI_ID)
@@ -316,7 +399,8 @@ piechart_coords <- do.call(rbind, st_geometry(bhi_rgns_shp %>% st_centroid())) %
   as_tibble() %>% setNames(c("long", "lat")) %>% 
   cbind(
     map_format_data %>% 
-      mutate(radius = log(rgn_yr_totCatch)/15) %>% 
+      mutate(radius = log(rgn_yr_totCatch/2000 + 1)) %>% # for when checking results with just cod...
+      # mutate(radius = log(rgn_yr_totCatch/20000 + 1)) %>% # comment out when checking results with just cod...
       dplyr::select(-rgn_yr_totCatch)
   ) %>% 
   mutate_all(coalesce, 0) %>% 
@@ -325,27 +409,30 @@ piechart_coords <- do.call(rbind, st_geometry(bhi_rgns_shp %>% st_centroid())) %
 rgns_sp <- as(bhi_rgns_shp, "Spatial")
 rgns_sp_df <- left_join(
   fortify(rgns_sp, region = "BHI_ID"),
-  rgns_sp@data %>% mutate(BHI_ID  = as.character(BHI_ID)),
+  rgns_sp@data %>% mutate(BHI_ID = as.character(BHI_ID)),
   by = c("id" = "BHI_ID")
 )
 
 ## map with piecharts showing stock catch proportions of total catch by region
 # ggplot2::ggplot(bhi_rgns_shp) + geom_sf(alpha = 0.3, color = "slategray3") +
 ggplot2::ggplot(rgns_sp_df) + 
-  geom_polygon(aes(long, lat, group = group), alpha = 0.2, size = 0.3, color = "slategray") +
+  geom_polygon(aes(long, lat, group = group), alpha = 0.01, size = 0.1, color = "slategray") +
   ## https://www.r-bloggers.com/scatterpie-for-plotting-pies-on-ggplot/
   ## install.packages("scatterpie")
   scatterpie::geom_scatterpie(
+    ## note: radii of piecharts are log transformed total regional catch
     aes(x = long, y = lat, group = region_id, r = radius), 
     data = piechart_coords,
     cols = c(names(piechart_coords)[str_detect(names(piechart_coords), "cod|herring")]),
+    
     legend_name = "Stock",
-    alpha = 0.5, color = NA
+    alpha = 0.6, color = NA
   ) + 
-  scale_fill_manual(values = RColorBrewer::brewer.pal(6, "Set1")) +
-  theme(legend.position = "none") +
+  scale_fill_manual(values = stocks_cols) +
+  theme(legend.position = "top") +  
   theme_bw() +
-  labs(x =  NULL, y = NULL) +
+  labs(x = NULL, y = NULL, subtitle = "Radii represent log-transformed total regional catch.") +
+  theme(legend.position = c(0.15, 0.75), plot.caption = element_text(hjust = 0)) +  
   coord_fixed()
 ```
 
@@ -384,49 +471,13 @@ Within ICES survey areas, country was found to have significant effect on condit
 
 <br>
 
-```{r derive eastern baltic cod penalty factor}
-
-surveyBITS_cod <- read_csv(file.path(dir_rawdata, "SMALK_2019-10-22 16_34_01", "SMALK_2019-10-22 16_34_01.csv"))
-# unique(surveyBITS_cod$Country) # no data for Finland, or really any areas north of North Baltic Proper
-
-q4_fultonsK <- surveyBITS_cod %>%
-  mutate(length_cm = LngtClass/10) %>% 
-  dplyr::select(year = Year, ices_subdiv = Area, eez = Country, length_cm, wgt_gram = IndWgt) %>% 
-  mutate(
-    ## revise country EEZ codes to be consistent with codes used elsewhere by BHI
-    eez = ifelse(eez == "GFR", "DEU", ifelse(eez == "DEN", "DNK", ifelse(eez == "LAT", "LVA", eez))),
-    ## calculate fultons K and assign length classes
-    fultonsK = wgt_gram/(length_cm^3)*100,
-    length_group = floor(length_cm/10)
-  ) %>% 
-  filter(!is.na(fultonsK), fultonsK < 2) %>% 
-  ## per Casini et al exclude lengths < 10cm and ≥60cm-- not enough data:
-  filter(length_group %in% 1:5) %>% 
-  mutate(
-    length_group = ifelse(
-      length_group == 1, "10-20cm", ifelse(
-         length_group == 2, "20-30cm", ifelse(
-           length_group == 3, "30-40cm", "40-60cm"
-         )
-      )
-    )
-  ) %>% 
-  ## join BHI regions
-  ## area 28 includes both 28.2 and gulf of Riga 28.1 
-  ## http://www.ices.dk/marine-data/Documents/DATRAS/Survey_Maps_Datras.pdf
-  mutate(ices_subdiv = ifelse(ices_subdiv == 28, list(28.1, 28.2), ices_subdiv)) %>% 
-  tidyr::unnest(ices_subdiv = ices_subdiv) %>% 
-  right_join(
-    regions %>% 
-      dplyr::select(region_id, eez, ices_subdiv = ices_numeric) %>% 
-      filter(ices_subdiv %in% c(unique(surveyBITS_cod$Area), 28.1, 28.2)),
-    by = c("ices_subdiv", "eez")
+```{r eastern baltic cod penalty factor wrangling, fig.width = 9.5, fig.height = 8.5}
+q4_fultonsK <- read_csv(
+  file.path(
+    here::here(), "data", "FIS", version_year, "intermediate", 
+    "fis_cod_fultonsK.csv"
   )
-
-filter(q4_fultonsK, is.na(fultonsK)) # NA check
-q4_fultonsK <- filter(q4_fultonsK, !is.na(fultonsK))
-## will give BHI region 1 have same penalty as 2, BHI 5 same as 6, and BHI 29 same as 26
-## as these regions are small, close, and/or share overlapping ICES areas; see ICES vs BHI regions map above
+)
 
 ## are K values significantly different within ICES areas by country/eez?
 ## i.e. ok to calculate these penalties by ICES area and assign to BHI regions in the same way as w/ F and B data?
@@ -474,26 +525,6 @@ q4K_wTrends <- q4_fultonsK_avgs %>%
   ungroup()
 q4K_wTrends$length_group <- as.factor(q4K_wTrends$length_group)
 
-## plot of trends by region and length group
-ggplot(data = q4K_wTrends) +
-  geom_abline(aes(slope = yr_coeff, intercept = yr_int, color = length_group), size = 0.2) +
-  geom_point(aes(x = year, y = avg_cond, color = length_group, shape = length_group), size = 1.2, alpha = 0.8) +
-  # geom_line(aes(x = year, y = avg_cond, color = length_group), size = 0.3) +
-  scale_color_manual(values = RColorBrewer::brewer.pal(9, "Spectral")[c(4,5,7,9)]) +
-  geom_abline(slope = 0, intercept = 1, alpha = 0.5) +
-  geom_abline(slope = 0, intercept = 0.8, alpha = 0.5) +
-  facet_wrap(vars(!!spID), nrow = 6) +
-  theme_grey() +
-  labs(
-    title = sprintf(
-      "Condition trends of Eastern Baltic Cod by %s Region", 
-      ifelse(spatial_group == "region_id", "BHI", "ICES")
-    ), 
-    x = NULL, y = "Condition (Fulton's K)\n", 
-    color = "Length Group", shape = "Length Group"
-  )
-
-
 ## all together with yearly average K
 # ggplot(q4K_wTrends, aes(x = year, y = avg_cond)) +
 #   geom_point(size = 2, alpha = 0.5, aes(color = length_group, shape = length_group)) +
@@ -508,25 +539,43 @@ ggplot(data = q4K_wTrends) +
 #     color = "Length Group", shape = "Length Group"
 #   )
 
+## plot of trends by region and length group
+ggplot(data = q4K_wTrends) +
+  geom_abline(aes(slope = yr_coeff, intercept = yr_int, color = length_group), size = 0.2) +
+  geom_point(aes(x = year, y = avg_cond, color = length_group, shape = length_group), size = 1.2, alpha = 0.8) +
+  # geom_line(aes(x = year, y = avg_cond, color = length_group), size = 0.3) +
+  scale_color_manual(values = RColorBrewer::brewer.pal(9, "Spectral")[c(4,5,7,9)]) +
+  geom_abline(slope = 0, intercept = 1, alpha = 0.5) +
+  geom_abline(slope = 0, intercept = 0.8, alpha = 0.5) +
+  facet_wrap(vars(!!spID), nrow = 4) +
+  theme_grey() +
+  labs(
+    title = sprintf(
+      "Condition trends of Eastern Baltic Cod by %s Region", 
+      ifelse(spatial_group == "region_id", "BHI", "ICES")
+    ), 
+    x = NULL, y = "Condition (Fulton's K)\n", 
+    color = "Length Group", shape = "Length Group"
+  )
+```
+
+<br>
+
+**Penalty factor as proportion of fish in class 40-60cm with K > 0.8**
+
+```{r calculate and gapfill eastern baltic cod penalty factor}
 ## penalty factor as proportion of fish in class 40-60cm with K > 0.8
 cod_penalty <- q4_fultonsK %>% 
   filter(length_group != "10-20cm") %>%
   dplyr::select(!!spID, year, fultonsK) %>% 
   group_by(!!spID, year) %>% 
-  summarize(prop_above_pt8 = sum(fultonsK > 0.8)/n(), num_samp = n()) %>% 
+  summarize(
+    prop_above_pt8 = sum(fultonsK > 0.8)/n(), 
+    num_samp = n(),
+    meanK = mean(fultonsK, na.rm = TRUE)) %>% 
   ungroup() %>% 
   mutate(stock = "cod_SDs24_32")
 
-ggplot(cod_penalty) + 
-  geom_line(aes(x = year, y = prop_above_pt8)) + 
-  facet_wrap(vars(!!spID),  nrow = 3) +
-  labs(
-    title = sprintf(
-      "Proportion of Eastern Baltic Cod with K > 0.8 by %s Region",
-      ifelse(spatial_group == "region_id", "BHI", "ICES")
-    ),
-    x = "Year", y = "Proportion in Length Classes 20-60cm with K > 0.8\n"
-  )
 
 ## GAPFILLING ALERT
 ## for completeness, need to assign penalty factors for regions 1, 5, (11?) 29, 30, 32-42
@@ -537,13 +586,14 @@ gapfill_penalty <- function(use_rgns, for_rgns){
     group_by(year) %>% 
     mutate(
       prop_above_pt8 = mean(prop_above_pt8, na.rm = TRUE), 
-      num_samp =  mean(num_samp, na.rm = TRUE), 
-      region_id = list(for_rgns)
+      num_samp = mean(num_samp, na.rm = TRUE), 
+      region_id = list(for_rgns),
+      meanK = mean(meanK, na.rm = TRUE)
     ) %>% 
     tidyr::unnest(region_id = region_id) %>% 
     ungroup() %>% 
     distinct() %>% 
-    dplyr::select(region_id, year, prop_above_pt8, num_samp,  stock)
+    dplyr::select(region_id, year, prop_above_pt8, num_samp, meanK, stock)
   return(gf_rows)
 }
 
@@ -551,9 +601,43 @@ cod_penalty_gf <- cod_penalty %>%
   rbind(
     gapfill_penalty(2, 1),
     gapfill_penalty(6, 5),
-    gapfill_penalty(c(6, 12), 11),
-    gapfill_penalty(c(20, 24:28, 31), c(30, 32:42))
+    gapfill_penalty(26, 29),
+    gapfill_penalty(c(6, 12), 11)
   )
+
+cod_penalty_rollmean <- cod_penalty_gf %>% 
+  arrange(region_id, year) %>% 
+  group_by(region_id) %>% 
+  mutate(ma5 = zoo::rollapply(prop_above_pt8, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+  ungroup() %>% 
+  filter(!is.na(ma5)) 
+
+## this will be another BHI layer
+write_csv(
+  cod_penalty_rollmean %>% 
+    dplyr::filter(num_samp > 3) %>% 
+    dplyr::select(region_id, year, penalty_factor = ma5),
+  file.path(dir_layers, bhi_version, sprintf("fis_cod_penalty_bhi%s.csv", assess_year))
+)
+```
+<br>
+
+```{r cod penalty rolling mean plot, fig.width = 9.5, fig.height = 9}
+## gapfilled for all 42 BHI regions and with 5 year rolling mean
+ggplot(cod_penalty_rollmean) +  
+  geom_line(aes(x = year, y = ma5), color = stocks_cols[2], size = 0.3) + 
+  geom_line(aes(x = year, y = prop_above_pt8), color = stocks_cols[2], size = 2, alpha = 0.1) + 
+  facet_wrap(vars(!!spID), ncol = 5) +
+  labs(
+    title = sprintf(
+      "Proportion Eastern Baltic Cod with K > 0.8 (by %s Region, 5 year Rolling Mean)",
+      ifelse(spatial_group == "region_id", "BHI", "ICES")
+    ),
+    x = NULL, 
+    y = "Proportion in Length Classes 20-60cm with K > 0.8 
+        (yearly data, dark overlying line represents 5yr rolling mean)\n"
+  ) +
+  scale_x_continuous(breaks = c(1995, 2005, 2015))
 ```
 
 <br>
@@ -570,9 +654,10 @@ metric_scores <- left_join(fis_bbmsy, fis_ffmsy,  by = c("region_id", "stock", "
 ## calculate B-scores
 
 ## note: these parameters can be changed!
+## BHI1.0 assessment used values: lowerB = 0.8, upperB1 = 1.5, upperB2 ≈ 3.3
 ## view Bscores plot to evaluate/test different parameter values...
-lowerB <- 0.9
-upperB1 <- 2.5
+lowerB <- 0.95
+upperB1 <- 1.3
 upperB2 <- 5
 
 B_scores <- metric_scores %>%
@@ -597,14 +682,16 @@ B_scores <- metric_scores %>%
     )
   )
 
-ggplot(data = B_scores, aes(bbmsy, score, color = score)) + geom_line() + 
-  labs(title = "B-scores vs. B/BMSY values") + ylab(NULL) + xlab(NULL) +
+B_plot <- ggplot(data = B_scores, aes(bbmsy, score, color = score)) + geom_line(size = 2) + 
+  labs(title = "B-scores vs. B/BMSY values", x = "B/BMSY", y = "B-Score") +
   theme(legend.position = "none")
 ```
 
 <br>
 
 Calculating F-scores is slightly more complicated, using both B/BMSY and F/FMSY ratios:
+
+F-scores are base off both F/FMSY and B/BMSY values. The piecewise function used here is derived so that parameters are bounds on F and B which can be conceptualized/are more intuitive and adjustable. See 3.5 Methods discussion section for more details on this function. The important thing to note here is that these values are adjustable and should be tested and reviewed if necessary during the calculation and comparison to the data.
 
 ```{r calculate score component F}
 ## F-SCORES
@@ -613,11 +700,12 @@ Calculating F-scores is slightly more complicated, using both B/BMSY and F/FMSY 
 ## derived so that parameters are bounds on F and B which can be conceptualized, and adjusted
 
 ## note: these parameters can be adjusted, as can the B-score parameters above 
+## BHI1.0 assessment used values: lowerB = 0.8, lowerF = 0.8, upperF1 = 1.2, upperF2 = 2.5
 ## view Bscores and Fscores plots to evaluate/test different parameter values...
 ## low lowerF ~ tolerance for low catch: doesn't differentiate whether to allow recovery, or despite high effort...
-lowerF <- 0.8
-upperF1 <- 1.1
-upperF2 <- 5
+lowerF <- 0.5
+upperF1 <- 1
+upperF2 <- 4.5
 
 ## make this a function so it's easier to explore parameters...
 calcFscores <- function(input_data, lowB = 0.8, lowF = 0.8, uppF1 = 1.2, uppF2 = 2.5){
@@ -633,7 +721,7 @@ calcFscores <- function(input_data, lowB = 0.8, lowF = 0.8, uppF1 = 1.2, uppF2 =
   )
   
   ## PIECEWISE FORMULA...
-  ## note input_data must have bbmsy and ffmsy columns
+  ## note input_data must have 'bbmsy' and 'ffmsy' columns
   m = (uppF2-1)/lowB
   result <- input_data %>%
     mutate(
@@ -700,7 +788,11 @@ fscore_plot <- ggplot(data = ffmsy_bbmsy_score) +
   theme(legend.position = c(0.8, 0.7))
 ggsave(file.path(loc, "Fscoresformula.png"), fscore_plot)
 
-fscore_plot + geom_point(aes(bbmsy, ffmsy), F_scores, shape = 15, size = 3, alpha = 0.01)
+F_plot <- fscore_plot + 
+  geom_point(aes(bbmsy, ffmsy), F_scores, shape = 15, size = 3, alpha = 0.01) +
+  labs(title = "F-scores vs. B/BMSY and F/FMSY values")
+
+gridExtra::grid.arrange(B_plot, F_plot, nrow = 1)
 ```
 
 <br>
@@ -718,7 +810,7 @@ Use F and B scores to calculate overall `FIS` goal status:
 ## we use the average catch for each stock/region across the last 25 years to obtain weights
 weights <- yearly_rgn_props %>%
   filter(year > max(year) - 26) %>%
-  dplyr::select(region_id, stock, year, landings = rgn_landings) %>% # BHI1.0 used ICES area rather than rgn values
+  dplyr::select(region_id, stock, year, landings) %>% # BHI1.0 used ICES area, alt.: rgn_landings values
   ## each region/stock will have same avg catch across years, timeseries mean
   group_by(region_id, stock) %>% 
   mutate(avgCatch = mean(landings)) %>% 
@@ -734,14 +826,14 @@ weights <- yearly_rgn_props %>%
 # unique(chk$sumProps) # sum of proportions of landings for each region/year sums to one
 
 ## visualize for example region three
-ggplot(filter(weights, region_id == 3)) + 
-  geom_line(aes(x = year, y = avgCatch)) + 
-  geom_line(aes(x = year, y = landings), color = "cadetblue3") +
-  facet_grid(vars(stock))  +
-  labs(
-    x = "Year", y = "Catch (with 25 year average) by Stock\n", 
-    title = "Example catch by Stock w/ time series average"
-  )
+# ggplot(filter(weights, region_id == 3)) + 
+#   geom_line(aes(x = year, y = avgCatch)) + 
+#   geom_line(aes(x = year, y = landings), color = stocks_cols[1]) +
+#   facet_grid(vars(stock))  +
+#   labs(
+#     x = "Year", y = "Catch (with 25 year average) by Stock\n", 
+#     title = "Example catch by Stock w/ time series average"
+#   )
 ```
 
 <br>
@@ -767,11 +859,10 @@ status_with_penalty <- weights %>%
   filter(!is.na(score)) %>% # remove missing data
   
   ## apply penalty because bad cod condition in eastern baltic
-  left_join(cod_penalty_gf, by = c("year", "region_id", "stock")) %>% 
+  left_join(cod_penalty_rollmean, by = c("year", "region_id", "stock")) %>% 
   mutate(penalty = ifelse(
-    is.na(prop_above_pt8), 1, ifelse(
-      num_samp %in% 1:3, NA, prop_above_pt8
-    )
+    is.na(prop_above_pt8) & !str_detect(stock, "cod.*32"), 
+    1, prop_above_pt8
   )) %>% 
   dplyr::select(-prop_above_pt8, -num_samp) %>% 
   mutate(score = penalty*score)
@@ -785,13 +876,18 @@ scores <- status_with_penalty %>%
 
 <br> 
 
-```{r evaluate goal model and data}
+```{r evaluate goal model and data, fig.width = 10, fig.height = 8}
 ## visualize scores/status results
 ggplot(status_with_penalty, aes(x = year)) + 
-  geom_ribbon(aes(ymin = F_score, ymax = B_score, fill = stock), alpha = 0.2) + 
-  geom_line(aes(y = score, color = stock)) +
-  facet_wrap(vars(region_id)) + 
-  labs(x= "Year", y = "Score", color = "Stock", fill = "Stock")
+  geom_ribbon(aes(ymin = F_score, ymax = B_score, fill = stock), alpha = 0.3) + 
+  geom_line(aes(y = score, color = stock), size =  0.4) +
+  facet_wrap(vars(region_id), nrow = 7) + 
+  scale_fill_manual(values = stocks_cols) +
+  scale_color_manual(values = stocks_cols) +
+  # guides(fill = guide_legend(nrow = 1)) +
+  # guides(color = guide_legend(nrow = 1)) +
+  # theme(legend.position = "bottom") +
+  labs(x = "Year", y = "Score", color = "Stock", fill = "Stock")
 ```
 
 
@@ -814,13 +910,14 @@ Source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
 
 #### 3.5.2 Matching ICES stock assessment areas to  BHI Regions
 
-![](../fis-stocks-rgn-props.png)
-
 <br>
 
 #### 3.5.3 Setting F-Score and B-score parameters
 
-![](../fis-fscores-formula.png){width = 300px}
+```{r, out.width = "70%", results = "show", echo = FALSE}
+include_graphics("../fis-fscores-formula.png")
+```
+
 
 ## 4. Visualizing Data Layers
 
@@ -838,8 +935,9 @@ scores_shp <- bhi_rgns_shp %>%
   mutate(Name = paste(rgn_nam, Subbasin, sep = ", "))
 pal <- colorNumeric(
   palette = "RdYlBu", na.color = "#fcfcfd",
-  domain = seq(0.4, 1, 0.005))
+  domain = seq(0.4, 1, 0.005)) # min score across years is 0.16, to visualize need to change scale...
 
+## create map
 leaflet::leaflet(data = scores_shp) %>% 
   addProviderTiles(providers$CartoDB.Positron) %>%
   setView(18, 59, zoom = 5) %>% 
@@ -851,6 +949,8 @@ leaflet::leaflet(data = scores_shp) %>%
     popup = paste(
       "<h5><strong>", "Region:", "</strong>",
       scores_shp$Name, "</h5>",
+      "<h5><strong>", "Region ID:", "</strong>",
+      scores_shp$BHI_ID, "</h5>",
       "<h5><strong>", "Status:", "</strong>",
       round(scores_shp$status_prop, 2), "</h5>", sep = " "
     ),
@@ -862,5 +962,13 @@ leaflet::leaflet(data = scores_shp) %>%
 
 <br>
 
+## 5. Considerations for `BHI3.0`
+
+Implement strong sustainability concept e.g. with a BMSY reference representing 'ideal' (near pristine) environmental conditions (e.g. historic extent of anoxic bottom)
+
+<br>
+
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
+
+<br>
