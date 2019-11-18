@@ -120,9 +120,74 @@ where existing and new marine fish farms should not exceed the annual average of
 per 1kg fish (living weight) produced.
 [The nutrient limit values (P and N) are calculated on the basis that living fish contains 0,4% of phosphorus and 2,75% of nitrogen.]
 
-This recommendation was adopted in 2004, but since there are not updated nutirent limit values, this will be the paramenter used as reference point.
+This recommendation was adopted in 2004, but since there are not updated nutirent limit values, this will be the parameter used as reference point.
 
 ### 2.2 Centralization & Normalization
+
+```{r load raw data, message = FALSE, warning = FALSE, echo = TRUE}
+## root location of the raw data
+dir_rawdata <- file.path(dir_B, "Goals", "FP", "MAR") # list.files(dir_rawdata)
+
+## rainbow trout data
+rbt_de_raw <- read_delim(file.path(dir_rawdata, "rbt_de", "rbt_de.csv"), delim = ";")
+
+rbt_dk_raw <- read_delim(file.path(dir_rawdata, "rbt_dk", "rbt_dk.csv"), delim = ";")
+rbt_dk2005raw <- read_delim(file.path(dir_rawdata, "rbt_dk", "rbt_dk_2005.csv"), delim = ";")
+
+rbt_fi_raw <- read_delim(file.path(dir_rawdata, "rbt_fi", "rbt_fi.csv"), delim = ";")
+rbt_se_raw <- read_delim(file.path(dir_rawdata, "rbt_se", "rbt_se.csv"), delim = ";")
+
+## FAO rainbow trout data
+fao_rbt_raw <- read_delim(file.path(dir_rawdata, "FAO_fishstat", "FAO_fishstat_reformat.csv"), delim = ";")
+
+## HELCOM Finfish mariculture data
+finfish_mariculture_raw <- st_read(file.path(dir_rawdata,
+  "Finfish_mariculture", "Finfish_mariculture.shp")) # load library(sf)
+```
+
+#### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
+
+```{r merge datasets and calculate max nutrient input, echo = TRUE}
+combined_rawdata <- rbind(
+  ## rbt_de
+  rbt_de_raw %>% 
+    dplyr::mutate(productivity = ifelse(
+      !is.na(atlantic_northeast), 
+      kiel_bay 
+    )) %>%
+    dplyr::select(
+      year, de_kiel_bay = kiel_bay, 
+      de_atlantic_northeast = atlantic_northeast,
+      productivity= productivity
+    ),
+  ## rbt_dk 
+  rbt_dk_raw %>% 
+    dplyr::mutate(productivity = tot_wt_ton
+    ) %>%
+    dplyr::select(
+      year, 
+      dk_hovedstaden = "reg1", 
+      dk_sjælland = "reg2",
+      dk_syddanmark = "reg3",
+      dk_midtjylland = "reg4",
+      productivity= productivity
+    ))
+```
+
+Then add the max nutrient input value: 
+- 7g of P (tot-P) 
+- 50g of N (tot-N) 
+per 1kg fish (living weight) produced --> 
+
+--> 7g of P per 1kg fish = 7kg of P per 1ton fish
+--> 50g of N per 1kg fish = 50kg of N per 1ton fish
+
+```{r}
+
+## join with max nutrient input value
+ 
+```
+
 
 #### 2.2.1 Standardize Units
 
