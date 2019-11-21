@@ -3,7 +3,8 @@
 **Rainbow trout production (Denmark, Sweden and Finland) and Finfish (Denmark, Germany, Sweden and Finland)**
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "data.R"))
+source(file.path(here::here(), "R", "setup.R"))
+# source(file.path(here::here(), "R", "data.R"))
 ```
 
 ### 2.1 Datasets with Sources
@@ -15,14 +16,13 @@ source(file.path(here::here(), "R", "data.R"))
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("PDF:", "Vattenbruk 2018"), 
+  c("Location data:", "Page 7, table A")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.se/hitta-statistik/statistik-efter-amne/jord-och-skogsbruk-fiske/vattenbruk/vattenbruk/) <br/> [Jorbruksverket](https://www.scb.se/contentassets/cef2fb103630496bb532e76c98f747e6/jo1201_2018a01_sm_jo60sm1901.pdf) Downloaded 2019-10-09 by Andrea De Cervo")
-# page 7, table A
 ```
 
 <br/>
@@ -32,8 +32,8 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Faste tabeller med akvakulturststistik:", "Produktion af hovedarter fordelt på region"), 
+  c("Rows:", "Regnbueørred, Saltvand")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -48,8 +48,11 @@ knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmar
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Luke statistics database:", "Food fish production by species"), 
+  c("Production:", "Quantity (1 000 kg)"),
+  c("Area:", "Sea"),
+  c("Fish:", "Rainbow trout"),
+  c("Year:", "All")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -64,8 +67,7 @@ knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Location:", "Kiel Bay")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -80,13 +82,13 @@ knitr::kable(tab, caption = "Source: [Email from plant manager](tassilo@jaeger-k
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("HELCOM Map and Data service:", "Pressures and human activities"), 
+  c("Human activities:", "Finfish mariculture")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [HELCOM database](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> Downloaded 2019-10-09 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [HELCOM database](http://maps.helcom.fi/website/mapservice/?datasetID=3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> (http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> Downloaded 2019-10-09 by Andrea De Cervo")
 ```
 
 <br/>
@@ -96,8 +98,8 @@ knitr::kable(tab, caption = "Source: [HELCOM database](http://metadata.helcom.fi
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("FAO FishStatJ:", "Global aquaculture production"), 
+  c("Quantity:", "1950-2017")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -129,6 +131,7 @@ This recommendation was adopted in 2004, but since there are not updated nutiren
 dir_rawdata <- file.path(dir_B, "Goals", "FP", "MAR") # list.files(dir_rawdata)
 
 ## rainbow trout data
+library(readr)
 rbt_de_raw <- read_delim(file.path(dir_rawdata, "rbt_de", "rbt_de.csv"), delim = ";")
 
 rbt_dk_raw <- read_delim(file.path(dir_rawdata, "rbt_dk", "rbt_dk.csv"), delim = ";")
@@ -141,37 +144,65 @@ rbt_se_raw <- read_delim(file.path(dir_rawdata, "rbt_se", "rbt_se.csv"), delim =
 fao_rbt_raw <- read_delim(file.path(dir_rawdata, "FAO_fishstat", "FAO_fishstat_reformat.csv"), delim = ";")
 
 ## HELCOM Finfish mariculture data
-finfish_mariculture_raw <- st_read(file.path(dir_rawdata,
+finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata,
   "Finfish_mariculture", "Finfish_mariculture.shp")) # load library(sf)
 ```
 
 #### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
 
 ```{r merge datasets and calculate max nutrient input, echo = TRUE}
-combined_rawdata <- rbind(
+combined_rawdata <- bind_rows(
   ## rbt_de
   rbt_de_raw %>% 
-    dplyr::mutate(productivity = ifelse(
-      !is.na(atlantic_northeast), 
-      kiel_bay 
-    )) %>%
     dplyr::select(
-      year, de_kiel_bay = kiel_bay, 
-      de_atlantic_northeast = atlantic_northeast,
-      productivity= productivity
+      year = "year", production,
+      de_kiel_bay = "kiel_bay",
+    ),
+  ## rbt_dk2005 
+  rbt_dk2005raw %>% 
+    dplyr::select(
+      year = "year", 
+      dk_arhus_cty = "cty1", 
+      dk_vejle_cty = "cty2",
+      dk_fyns_cty = "cty3",
+      dk_sønderjylland_cty = "cty4",
+      dk_ribe_cty = "cty5",
+      dk_ringkøbing_cty = "cty6",
+      dk_viborg_cty = "cty7",
+      dk_nordjyllands_cty = "cty8",
+      dk_frederiksborg_cty = "cty9",
+      dk_roskilde_cty = "cty10",
+      dk_storstrøms_cty  = "cty11",
+      dk_vestsjællands_cty = "cty12"
     ),
   ## rbt_dk 
   rbt_dk_raw %>% 
-    dplyr::mutate(productivity = tot_wt_ton
-    ) %>%
     dplyr::select(
-      year, 
+      year = "year", production,
       dk_hovedstaden = "reg1", 
       dk_sjælland = "reg2",
       dk_syddanmark = "reg3",
       dk_midtjylland = "reg4",
-      productivity= productivity
+    ),
+   ## rbt_fi
+  rbt_fi_raw %>% 
+    dplyr::select(
+      year = "year", production,
+      fi_tot_prod = tot_wt_tonnes,
+    ),
+  ## rbt_se
+  rbt_se_raw %>% 
+    dplyr::select(
+      year = "year", production,
+      ne_coast, 
+      other_coasts
     ))
+      
+      
+```
+
+```{r}
+
 ```
 
 Then add the max nutrient input value: 
