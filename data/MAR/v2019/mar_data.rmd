@@ -141,68 +141,115 @@ rbt_fi_raw <- read_delim(file.path(dir_rawdata, "rbt_fi", "rbt_fi.csv"), delim =
 rbt_se_raw <- read_delim(file.path(dir_rawdata, "rbt_se", "rbt_se.csv"), delim = ";")
 
 ## FAO rainbow trout data
-fao_rbt_raw <- read_delim(file.path(dir_rawdata, "FAO_fishstat", "FAO_fishstat_reformat.csv"), delim = ";")
-
+fao_rbt_raw <- read_delim(file.path(dir_rawdata, "FAO_fishstat", "FAO_fishstat.csv"), delim = ";")
+  
 ## HELCOM Finfish mariculture data
 finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata,
   "Finfish_mariculture", "Finfish_mariculture.shp")) # load library(sf)
+
+# testing tidy finfish mariculture 
+f <-finfish_mariculture_raw %>% 
+    dplyr::rename(
+    area = SUBBASIN,
+    farm_species = PRODUCTION,
+    country = COUNTRY) %>% 
+    select(COUNTY & country == SE,
+           -NAME, -COMMENTS) %>%
+    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
+    filter(farm_species == "Rainbow trout", 
+         !(environment == "Marine" & area == "Denmark")) %>% 
+
+    
 ```
 
 #### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
 
 ```{r merge datasets and calculate max nutrient input, echo = TRUE}
-combined_rawdata <- bind_rows(
+combined_rawdata2 <- rbind(
   ## rbt_de
   rbt_de_raw %>% 
-    dplyr::select(
-      year = "year", production,
-      de_kiel_bay = "kiel_bay",
+    dplyr::rename(farm_species = production) %>% 
+    tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>%
+    dplyr::mutate(country = "DE") %>%
+    dplyr::mutate(produced_tonnes = as.numeric(produced_tonnes)
     ),
   ## rbt_dk2005 
   rbt_dk2005raw %>% 
-    dplyr::select(
-      year = "year", 
-      dk_arhus_cty = "cty1", 
-      dk_vejle_cty = "cty2",
-      dk_fyns_cty = "cty3",
-      dk_sønderjylland_cty = "cty4",
-      dk_ribe_cty = "cty5",
-      dk_ringkøbing_cty = "cty6",
-      dk_viborg_cty = "cty7",
-      dk_nordjyllands_cty = "cty8",
-      dk_frederiksborg_cty = "cty9",
-      dk_roskilde_cty = "cty10",
-      dk_storstrøms_cty  = "cty11",
-      dk_vestsjællands_cty = "cty12"
-    ),
+    dplyr::select(-tot_wt_ton) %>% 
+    dplyr::rename(
+      farm_species = production,
+      arhus_cty = cty1, 
+      vejle_cty = cty2,
+      fyns_cty = cty3,
+      sønderjylland_cty = cty4,
+      ribe_cty = cty5,
+      ringkøbing_cty = cty6,
+      viborg_cty = cty7,
+      nordjyllands_cty = cty8,
+      frederiksborg_cty = cty9,
+      roskilde_cty = cty10,
+      storstrøms_cty  = cty11,
+      vestsjællands_cty = cty12
+    ) %>% 
+    tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
+    dplyr::mutate(country = "DK"),
   ## rbt_dk 
   rbt_dk_raw %>% 
-    dplyr::select(
-      year = "year", production,
-      dk_hovedstaden = "reg1", 
-      dk_sjælland = "reg2",
-      dk_syddanmark = "reg3",
-      dk_midtjylland = "reg4",
-    ),
+    dplyr::rename(
+      farm_species = production,
+      denmark = tot_wt_ton,
+      hovedstaden = "reg1", 
+      sjælland = "reg2",
+      syddanmark = "reg3",
+      midtjylland = "reg4",
+    ) %>% 
+     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
+    dplyr::mutate(country = "DK"),
    ## rbt_fi
   rbt_fi_raw %>% 
-    dplyr::select(
-      year = "year", production,
-      fi_tot_prod = tot_wt_tonnes,
+    dplyr::mutate(country = "FI", area = "finland") %>%  
+    dplyr::rename(
+      produced_tonnes = tot_wt_tonnes, 
+      farm_species = production
     ),
   ## rbt_se
   rbt_se_raw %>% 
-    dplyr::select(
-      year = "year", production,
-      ne_coast, 
-      other_coasts
-    ))
+    dplyr::rename(
+      farm_species = production,
+      sweden = tot_wt_mtonnes) %>% 
+    select(-ne_farm_no, -other_farm_no) %>%  # don't need these information 
+    tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
+    mutate(country = "SE"),
+  ## fao_rbt
+  fao_rbt_raw %>% 
+    dplyr::rename(
+    area = country,
+    farm_species = species) %>% 
+    filter(farm_species == "Rainbow trout", 
+         !(environment == "Marine" & area == "Denmark")) %>% 
+    select(-aqua_area, -Unit, -environment) %>%
+    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
+    mutate(country = "DK", area = "Denmark",
+           country = "ES", area = "Estonia",
+           country = "FI", area = "Finland",
+           country = "DE", area = "Germany",
+           country = "SE", area = "Sweden"),
+  ## finfish mariculture
+  finfish_mariculture_raw %>% 
+    dplyr::rename(
+    area = SUBBASIN,
+    farm_species = PRODUCTION,
+    country = COUNTRY) %>% 
+    filter(farm_species == "Rainbow trout", 
+         !(environment == "Marine" & area == "Denmark")) %>% 
+    select(-aqua_area, -Unit, -environment) %>%
+    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
+    mutate(country = "DK", area = "Denmark",
+           country = "ES", area = "Estonia",
+           country = "FI", area = "Finland",
+           country = "DE", area = "Germany",
+           country = "SE", area = "Sweden"))
       
-      
-```
-
-```{r}
-
 ```
 
 Then add the max nutrient input value: 
