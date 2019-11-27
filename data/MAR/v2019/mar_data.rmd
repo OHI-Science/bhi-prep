@@ -142,36 +142,61 @@ rbt_se_raw <- read_delim(file.path(dir_rawdata, "rbt_se", "rbt_se.csv"), delim =
 
 ## FAO rainbow trout data
 fao_rbt_raw <- read_delim(file.path(dir_rawdata, "FAO_fishstat", "FAO_fishstat.csv"), delim = ";")
-  
+
+# countrycodes for FAO dataset
+countrycode <- data.frame(
+  area = c("Germany", "Denmark", "Estonia", "Finland","Sweden"),
+  country = c("DE", "DK", "ES", "FI", "SE")
+)
+
 ## HELCOM Finfish mariculture data
 finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata,
   "Finfish_mariculture", "Finfish_mariculture.shp")) # load library(sf)
+    
+## testing tidy finfish mariculture data
 
-# testing tidy finfish mariculture 
-f <-finfish_mariculture_raw %>% 
-    dplyr::rename(
+f1 <- sf::st_drop_geometry(finfish_mariculture_raw) %>% 
+  mutate(SUBBASIN = as.character(SUBBASIN), COUNTY = as.character(COUNTY)) %>% 
+  mutate(SUBBASIN = ifelse(is.na(SUBBASIN), COUNTY, SUBBASIN)) %>% 
+  dplyr::rename(
     area = SUBBASIN,
     farm_species = PRODUCTION,
-    country = COUNTRY) %>% 
-    select(COUNTY & country == SE,
-           -NAME, -COMMENTS) %>%
-    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
-    filter(farm_species == "Rainbow trout", 
-         !(environment == "Marine" & area == "Denmark")) %>% 
+    country = COUNTRY,
+  ) %>% 
+  # remove the facilities on land
+  filter(is.na(AREA) | !str_detect(AREA, "On land")) %>% 
+  filter(is.na(AREA) | !str_detect(AREA, "on land")) %>% 
+  # replace NA value with more general mariculture name (finfish)
+  mutate(farm_species = as.character(farm_species)) %>% 
+  mutate(farm_species = ifelse(is.na(farm_species), "finfish", farm_species)) %>% 
+  # gather the three variables (production, p, n) by year
+  tidyr::gather(PRyear, produced_tonnes, PR2011_TON:PR2015_TON) %>% 
+  mutate(year = str_extract(PRyear, pattern = "[0-9]{4}")) %>% 
+  tidyr::gather(Pyear, p_kg, P_2011_KG:P_2015_KG) %>% 
+  mutate(year = str_extract(Pyear, pattern = "[0-9]{4}")) %>% 
+  tidyr::gather(Nyear, n_kg, N_2011_KG:N_2015_KG) %>% 
+  mutate(year = str_extract(Nyear, pattern = "[0-9]{4}")) %>% 
+  select(country, area, farm_species, year, produced_tonnes, p_kg, n_kg)
 
-    
+class(f1)
 ```
 
 #### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
 
 ```{r merge datasets and calculate max nutrient input, echo = TRUE}
-combined_rawdata2 <- rbind(
+
+library(dplyr)
+library(tidyverse)
+
+combined_rawdata <- rbind(
   ## rbt_de
   rbt_de_raw %>% 
     dplyr::rename(farm_species = production) %>% 
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>%
-    dplyr::mutate(country = "DE") %>%
-    dplyr::mutate(produced_tonnes = as.numeric(produced_tonnes)
+    dplyr::mutate(produced_tonnes = as.numeric(produced_tonnes),
+                  country = "DE",
+                  p_kg = "",
+                  n_kg = ""
     ),
   ## rbt_dk2005 
   rbt_dk2005raw %>% 
@@ -192,7 +217,10 @@ combined_rawdata2 <- rbind(
       vestsjællands_cty = cty12
     ) %>% 
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
-    dplyr::mutate(country = "DK"),
+    dplyr::mutate(country = "DK",
+                  p_kg = "",
+                  n_kg = ""
+    ),
   ## rbt_dk 
   rbt_dk_raw %>% 
     dplyr::rename(
@@ -203,14 +231,19 @@ combined_rawdata2 <- rbind(
       syddanmark = "reg3",
       midtjylland = "reg4",
     ) %>% 
-     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
-    dplyr::mutate(country = "DK"),
-   ## rbt_fi
+    tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
+    dplyr::mutate(country = "DK",
+                  p_kg = "",
+                  n_kg = ""
+    ),
+  ## rbt_fi
   rbt_fi_raw %>% 
-    dplyr::mutate(country = "FI", area = "finland") %>%  
     dplyr::rename(
       produced_tonnes = tot_wt_tonnes, 
-      farm_species = production
+      farm_species = production) %>% 
+    dplyr::mutate(country = "FI", area = "finland",
+                  p_kg = "",
+                  n_kg = ""
     ),
   ## rbt_se
   rbt_se_raw %>% 
@@ -219,36 +252,57 @@ combined_rawdata2 <- rbind(
       sweden = tot_wt_mtonnes) %>% 
     select(-ne_farm_no, -other_farm_no) %>%  # don't need these information 
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
-    mutate(country = "SE"),
+    mutate(country = "SE",
+           p_kg = "",
+           n_kg = ""
+    ),
   ## fao_rbt
   fao_rbt_raw %>% 
     dplyr::rename(
-    area = country,
-    farm_species = species) %>% 
+      area = country,
+      farm_species = species) %>% 
     filter(farm_species == "Rainbow trout", 
-         !(environment == "Marine" & area == "Denmark")) %>% 
-    select(-aqua_area, -Unit, -environment) %>%
+           !(environment == "Marine" & area == "Denmark")) %>% 
+    select(-aqua_area, -Unit, -environment, -("1950":"1971")) %>%
     tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
-    mutate(country = "DK", area = "Denmark",
-           country = "ES", area = "Estonia",
-           country = "FI", area = "Finland",
-           country = "DE", area = "Germany",
-           country = "SE", area = "Sweden"),
+    # remove characters from production
+    mutate(produced_tonnes = str_replace(produced_tonnes,"F"," "),
+           produced_tonnes = as.numeric(produced_tonnes),
+           p_kg = "",
+           n_kg = ""
+    ) %>% 
+    # join with countrycode data
+    left_join(countrycode, by = "area"),
   ## finfish mariculture
-  finfish_mariculture_raw %>% 
+  finfish_mariculture_raw %>%
+    # remove 'geometry' column
+   sf::st_drop_geometry() %>% 
+    mutate(SUBBASIN = as.character(SUBBASIN), COUNTY = as.character(COUNTY)) %>% 
+    mutate(SUBBASIN = ifelse(is.na(SUBBASIN), COUNTY, SUBBASIN)) %>% 
     dplyr::rename(
-    area = SUBBASIN,
-    farm_species = PRODUCTION,
-    country = COUNTRY) %>% 
-    filter(farm_species == "Rainbow trout", 
-         !(environment == "Marine" & area == "Denmark")) %>% 
-    select(-aqua_area, -Unit, -environment) %>%
-    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
-    mutate(country = "DK", area = "Denmark",
-           country = "ES", area = "Estonia",
-           country = "FI", area = "Finland",
-           country = "DE", area = "Germany",
-           country = "SE", area = "Sweden"))
+      area = SUBBASIN,
+      farm_species = PRODUCTION,
+      country = COUNTRY,
+    ) %>% 
+    # remove the facilities on land
+    filter(is.na(AREA) | !str_detect(AREA, "On land")) %>% 
+    filter(is.na(AREA) | !str_detect(AREA, "on land")) %>% 
+    # replace NA value with more general mariculture name (finfish)
+    mutate(farm_species = as.character(farm_species)) %>% 
+    mutate(farm_species = ifelse(is.na(farm_species), "finfish", farm_species)) %>% 
+    # gather the three variables (production, p, n) by year
+    tidyr::gather(PRyear, produced_tonnes, PR2011_TON:PR2015_TON) %>% 
+    mutate(year = str_extract(PRyear, pattern = "[0-9]{4}")) %>% 
+    tidyr::gather(Pyear, p_kg, P_2011_KG:P_2015_KG) %>% 
+    mutate(year = str_extract(Pyear, pattern = "[0-9]{4}")) %>% 
+    tidyr::gather(Nyear, n_kg, N_2011_KG:N_2015_KG) %>% 
+    mutate(year = str_extract(Nyear, pattern = "[0-9]{4}")) %>% 
+   select(-COUNTY, -NAME, -COMMENTS, -AREA, -PR_AV_TON, -PR_SUM_TON, 
+           -P_SUM_TON, -P_AV_TON, -N_SUM_TON, -N_AV_TON, -PRyear, -Pyear, -Nyear
+   ))
+    
+    
+   
       
 ```
 
