@@ -4,7 +4,7 @@
 ## 2. Data
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "data.R"))
+# source(here::here("R", "data.R"))
 ```
 
 ### 2.1 Datasets with Sources
@@ -59,13 +59,13 @@ params:
 ---
 
 ```{r Preamble}
-loc <- file.path(here::here(), "prep", "GOAL", "SUBGOAL")
+loc <- here::here("prep", "GOAL", "SUBGOAL")
 
-source(file.path(here::here(), "R", "setup.R"))
+source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
-bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "GOALCODE.Rmd")
-data_path <- file.path(here::here(), "data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
+bkgd_path <- here::here("supplement", "goal_summaries", "GOALCODE.Rmd")
+data_path <- here::here("data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
 refs_path <- file.path(loc, "GOALCODE_references.Rmd")
 ```
 
