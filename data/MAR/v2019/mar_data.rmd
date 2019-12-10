@@ -6,6 +6,7 @@
 source(file.path(here::here(), "R", "setup.R"))
 library(readr)
 library(sf)
+library(R.utils)
 # source(file.path(here::here(), "R", "data.R"))
 ```
 
@@ -14,7 +15,7 @@ library(sf)
 **Rainbow trouts mariculture**  
 
 - **Sweden**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_swe -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_se -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -30,7 +31,7 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 <br/>
 
 - **Denmark**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_den -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -46,7 +47,7 @@ knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmar
 <br/>
 
 - **Finland**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_fin -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_fi -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -65,7 +66,7 @@ knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http
 <br/>
 
 - **Germany**
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rb_trout/rbt_ger -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_de -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -115,7 +116,7 @@ knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/
 
 In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on "Sustainable aquaculture in the Baltic Sea Region" (http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
 
-However, the only parameter that can be used as reference point for Mariculture subgoal in the Baltic Sea (that can be also found on Finnish Mariculture data provided by HELCOM) is the maximum nutrient discharge for P and N (http://www.helcom.fi/Recommendations/Rec%2025-4.pdf), where existing and new marine fish farms should not exceed the annual average of: 
+However, the only parameter that can be used as reference point for Mariculture subgoal in the Baltic Sea (that can be also found on Finfish Mariculture data provided by HELCOM) is the maximum nutrient discharge for P and N (http://www.helcom.fi/Recommendations/Rec%2025-4.pdf), where existing and new marine fish farms should not exceed the annual average of: 
 - 7g of P (tot-P) 
 - 50g of N (tot-N) 
 per 1kg fish (living weight) produced.
@@ -146,8 +147,8 @@ countrycode <- data.frame(
 )
 
 ## HELCOM Finfish mariculture data
-## this is spatial data so we need to remove the geometry column
-## also need to convert many columns from factor to numeric
+# this is spatial data so we need to remove the geometry column
+# also need to convert many columns from factor to numeric
 finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata, "Finfish_mariculture", "Finfish_mariculture.shp"))
 st_geometry(finfish_mariculture_raw) <- NULL
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
@@ -171,7 +172,9 @@ rbt_raw <- rbind(
       ## join with max nutrient input value
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national"
+      source = "national",
+      area = capitalize(area),
+      area = str_replace(area,"Kiel_bay","Kiel Bay")
     ) %>% 
     select(year, country, area, farm_species, produced_tonnes, p_kg, maxP_kg, n_kg, maxN_kg, source) %>% 
     arrange(country),
@@ -201,7 +204,8 @@ rbt_raw <- rbind(
       n_kg = "",
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national"
+      source = "national",
+      area = capitalize(area)
     ) %>% 
     arrange(country),
   
@@ -222,7 +226,8 @@ rbt_raw <- rbind(
       n_kg = "",
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national"
+      source = "national",
+      area = capitalize(area)
     ) %>% 
     arrange(country),
   
@@ -237,7 +242,8 @@ rbt_raw <- rbind(
       n_kg = "",
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national"
+      source = "national",
+      area = capitalize(area)
     ) %>% 
     arrange(country),
   
@@ -254,7 +260,8 @@ rbt_raw <- rbind(
       n_kg = "",
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national"
+      source = "national",
+      area = capitalize(area)
     ) %>% 
     arrange(country),
   
@@ -277,7 +284,8 @@ rbt_raw <- rbind(
       n_kg = "",
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "fao"
+      source = "fao",
+      area = capitalize(area)
     ) %>% 
     ## join with countrycode data
     left_join(countrycode, by = "area") %>% 
@@ -285,13 +293,17 @@ rbt_raw <- rbind(
 )
 
 ## reassign types
-rbt_raw[, c(1, 5:9)] <- sapply(rbt_raw[, c(1, 5:9)], as.numeric)
+rbt_raw[, c(5:9)] <- sapply(rbt_raw[, c(5:9)], as.numeric)
+str(rbt_raw)
+
 ```
+
+<br/>
 
 ```{r merge finfish rawdata, echo = TRUE}
 
 ## wrangling finfish data so can merge with other datasets
-finfish_raw <- finfish_mariculture_raw %>%
+finfish_raw <- as_tibble(finfish_mariculture_raw) %>% 
   mutate(SUBBASIN = ifelse(is.na(SUBBASIN), COUNTY, SUBBASIN)) %>% 
   dplyr::rename(
     area = SUBBASIN,
@@ -301,12 +313,13 @@ finfish_raw <- finfish_mariculture_raw %>%
   ## remove the facilities on land
   ## these are entries with any of NA, on land, or On land as 'AREA'
   ## are we sure that 'NA' value for AREA means that it is on land? there are so many NAs, leaves only "SE" "DK" "FI" data...
-  filter(!(is.na(AREA)|str_detect(str_to_lower(AREA), "on land"))) %>% 
-  
+  filter(is.na(AREA) |!str_detect(str_to_lower(AREA), "on land"),
+         !(area == "Bay of Mecklenburg")) %>% 
+  tibble::rowid_to_column("ID") %>% 
   ## replace NA value with general mariculture name 'finfish'
   mutate(
     area = str_replace(area,"Sland Sea","Aland Sea"),
-    
+    AREA = str_replace(AREA, ",", "."),
     farm_species = ifelse(
       is.na(farm_species), 
       "finfish",  ifelse(
@@ -314,22 +327,37 @@ finfish_raw <- finfish_mariculture_raw %>%
         "Rainbow trout", farm_species
       )
     )
-  )
+  ) %>% select(-AREA, -NAME, -COMMENTS)
+
+## rename names within AREA without <?> symbols
+arealookup <- data.frame(
+  fix_area = c(
+    "Kalmar lan",
+    "Gavleborgs lan",
+    "Vasternorrlands lan",
+    "Vasternorrlands lan",
+    "Stockholm lan",
+    "Vasterbottens lan",
+    "Norrbottens lan"
+  ),
+  area = unique(finfish_raw$area)[1:7]
+)
+arealookup[,] <- sapply(arealookup[,], as.character)
 
 ## gather production, phosphorus and nitrogen vars by year
-spreadcols <- names(finfish_raw)[1:7]
-gathercols <- names(finfish_raw)[8:28]
+spreadcols <- names(finfish_raw)[1:5]
+gathercols <- names(finfish_raw)[6:26]
 
-finfish_raw <- as_tibble(finfish_raw) %>% 
+finfish_raw2 <- as_tibble(finfish_raw) %>% 
   pivot_longer(cols = gathercols, names_to = "varyear", values_to = "value") %>% 
   mutate(
     year = str_extract(varyear, pattern = "[0-9]{4}"),
     var = str_extract(varyear, pattern = "[A-Z]+")
   ) %>% 
   filter(!is.na(year)) %>%  # filter out na years as these represent aggregated values, but keep NA values
-  
+
   ## re-spread data by the three variables: production (PR), nitrogen (N), and phosphorus (P)
-  tidyr::pivot_wider(id_cols = c(spreadcols, "year"), names_from = var, values_from = value) %>% 
+  tidyr::pivot_wider(id_cols = c(spreadcols, "year", "ID"), names_from = var, values_from = value) %>% 
   rename(
     produced_tonnes = PR,
     n_kg = N,
@@ -338,15 +366,28 @@ finfish_raw <- as_tibble(finfish_raw) %>%
   mutate(
     maxP_kg = 0.007 * (produced_tonnes * 1000),
     maxN_kg = 0.05 * (produced_tonnes * 1000),
-    source = "helcom"
+    source = "helcom",
+    ID = as.factor(ID)
   ) %>% 
   ## keep only necessary columns
-  select(year, country, area, farm_species, produced_tonnes, p_kg, maxP_kg, n_kg, maxN_kg, source)
+  select(year, country, area, farm_species, produced_tonnes, p_kg, maxP_kg, n_kg, maxN_kg, source, ID) %>% 
+ ## join the renamed areas
+  left_join(arealookup, by = "area") %>%
+  mutate(area = ifelse(!is.na(fix_area), fix_area, area)) %>%
+  rename(farm_ID = ID) %>% 
+  select(-fix_area)
+
+str(finfish_raw2)
 ```
 
 ```{r combine into a single harmonized dataset save, echo = TRUE}
-combined_rawdata <- rbind(rbt_raw, finfish_raw)
-combined_rawdata[, c(1, 5:9)] <- sapply(combined_rawdata[, c(1, 5:9)], as.numeric)
+# Remove "farm_ID" column to make the columns no among datasets
+finfish_raw3 <- finfish_raw2 %>% 
+  select(-farm_ID)
+combined_rawdata <- rbind(rbt_raw, finfish_raw3) 
+combined_rawdata[, c(5:9)] <- sapply(combined_rawdata[, c(5:9)], as.numeric) 
+
+
 # readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
 ```
 
@@ -360,6 +401,184 @@ combined_rawdata[, c(1, 5:9)] <- sapply(combined_rawdata[, c(1, 5:9)], as.numeri
 <br/>
 
 ### 2.3 Initial Data Exploration
+
+```{r initial data exploration by national data first}
+## Checking all variables before plotting them
+
+## Germany
+germany <- combined_rawdata %>% 
+  filter(country == "DE",
+         year %in% 1999:2019)
+# str(germany)
+ggplot2::ggplot(germany) +
+  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  labs(title = "German production (tons) 1999-2019")
+```
+
+
+```{r initial data exploration by national data first}
+## Denmark
+denmark <- combined_rawdata %>% 
+  filter(country == "DK", source == "national")
+ggplot2::ggplot(denmark) +
+  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  labs(title = "Danish production (tons) 2005-2017")
+```
+
+
+```{r initial data exploration by national data first}
+## Finland
+finland <- combined_rawdata %>% 
+  filter(country == "FI", source == "national")
+ggplot2::ggplot(finland) +
+  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  coord_flip() +
+   theme(legend.position = "none") +
+  labs(title = "Finnish production (tons) 1978-2018")
+```
+
+
+```{r initial data exploration by national data first}
+## Sweden 
+sweden <- combined_rawdata %>% 
+  filter(country == "SE", source == "national")
+ggplot2::ggplot(sweden) +
+  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  coord_flip() +
+  labs(title = "Swedish production (tons) 2009-2018")
+```
+
+
+```{r initial data exploration by national data first}
+## FAO data
+fao <- combined_rawdata %>% 
+  filter(source == "fao")
+str(fao)
+ggplot2::ggplot(fao) +
+  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge(), width = 2) +
+  labs(title = "FAO Brackish water production (tons) 1972-2017")
+```
+
+
+```{r initial data exploration by national data first}
+## HELCOM data
+helcom <- combined_rawdata %>% 
+  filter(source == "helcom")
+str(helcom)
+ggplot2::ggplot(helcom)+
+  geom_col(aes(year,produced_tonnes, fill = area), position = position_dodge(), width = 1) +
+  facet_grid(~country) +
+  ggtitle("HELCOM Brackish water production (tons) 2011-2015")
+
+helcom1 <- finfish_raw2 %>% 
+  filter(source == "helcom",
+         !(p_kg == 0),
+         !(n_kg == 0))
+ggplot2::ggplot(helcom1)+
+  geom_col(aes(farm_ID,p_kg, fill = country), position = position_dodge(), width = 1) +
+  facet_grid(~year) +
+  ggtitle("HELCOM P discharge (kg) 2011-2015")
+
+ggplot2::ggplot(helcom1)+
+ geom_col(aes(farm_ID,maxP_kg, fill = country), position = position_dodge(), width = 1) +
+  facet_grid(~country) +
+  ggtitle("HELCOM max P discharge (kg) 2011-2015")
+
+ggplot2::ggplot(helcom1)+
+  geom_col(aes(year,n_kg, fill = area), position = position_dodge(), width = 1) +
+  facet_grid(~country) +
+  ggtitle("HELCOM max N discharge (kg) 2011-2015")
+
+ggplot2::ggplot(helcom1)+
+  geom_col(aes(year,maxN_kg, fill = area), position = position_dodge(), width = 1, alpha = 2) +
+  facet_grid(~country) +
+  ggtitle("HELCOM max N discharge (kg) 2011-2015")
+
+```
+
+<br/>
+
+```{r}
+## create datasets for the HELCOM nutrient plots
+str(finfish_raw2)
+
+helcom_nutrients <- finfish_raw2 %>% 
+  mutate(countryarea = paste(country, area, sep = "_")) %>% 
+  filter(
+    !(p_kg == 0),
+    !(n_kg == 0)
+  ) %>% 
+  dplyr::select(-farm_species) %>% 
+  rename(P_KG = p_kg, N_KG = n_kg) %>% 
+  tidyr::pivot_longer(cols = c("P_KG", "N_KG"), names_to = "Input", values_to = "Value")
+
+helcom_nutrients_bounds <- finfish_raw2 %>% 
+  mutate(countryarea = paste(country, area, sep = "_")) %>% 
+  filter(!(p_kg == 0),
+         !(n_kg == 0)
+  ) %>% 
+  dplyr::select(-farm_species, -p_kg, -n_kg) %>% 
+  tidyr::pivot_longer(cols = c("maxP_kg", "maxN_kg"), names_to = "maxInput", values_to = "Value")
+
+## plot format nutrient reference
+nutrients_plot2 <- ggplot(data = helcom_nutrients) +
+  geom_errorbar(
+    data = helcom_nutrients_bounds, 
+    aes(x = year, ymin = Value, ymax = Value, color = maxInput), 
+    alpha = 0.2, 
+    size = 0.5
+  ) +
+  geom_point(
+    aes(x = year, y = Value, color = Input), 
+    alpha = 0.5, size = 2.5, shape = 18) +
+  facet_grid(cols = vars(country), rows = vars(Input)) +
+  scale_color_brewer(palette = "Paired") +
+  ggtitle("HELCOM Brackish water production (tons) 2011-2015")
+
+nutrients_plot2
+
+
+
+ggplot(filter(helcom_nutrients, Input == "P_KG")) + 
+  geom_col(aes(x = year, y = Value, fill = farm_ID), position = position_dodge()) +
+  geom_errorbar(
+    aes(x = year, ymin = 0, ymax = maxP_kg),
+    width = 0.15,
+    alpha = 0.8,
+    position = position_dodge(0.9)
+  ) +
+  facet_grid(cols = vars(country), rows = vars(Input)) +
+  scale_color_brewer(palette = "Set2") +
+  theme(legend.position = "none")
+  
+
+nutrients_plot3 <- ggplot(data = helcom_nutrients) +
+  geom_col(aes(x = year, y = Value, fill = farm_ID), position = position_dodge()) +
+  facet_grid(cols = vars(country), rows = vars(Input)) +
+  scale_color_brewer(palette = "Set2") +
+  theme(legend.position = "none") +
+  
+  geom_errorbar(
+    data = helcom_nutrients_bounds, 
+    aes(x = year, ymin = 0, ymax = Value, color = farm_ID), 
+    position = position_dodge()
+  ) +
+  facet_grid(cols = vars(country), rows = vars(maxInput)) 
+
+nutrients_plot3
+
+## Combined raw data
+str(combined_rawdata)
+combined <- combined_rawdata %>% 
+  filter(year %in% 2010:2019) 
+
+ggplot2::ggplot(combined)+
+  geom_col(aes(year,produced_tonnes, fill = area), position = position_dodge()) +
+  facet_grid(~country) +
+  coord_flip() +
+  ggtitle("Total Brackish water production (tons) 2010-2019")
+```
+
 
 ```{r}
 ## create datasets for the plots
@@ -388,48 +607,11 @@ nutrients_plot <- ggplot(data = plot_nutrients) +
   facet_grid(cols = vars(country), rows = vars(Input)) +
   scale_color_brewer(palette = "Paired") +
   theme(legend.position = "none")
+
+nutrients_plot
 ```
 
-```{r initial data exploration by national data first}
-## Checking all variables before plotting them
-
-## Germany
-germany <- rbt_raw %>% filter(country == "DE")
-# str(germany)
-ggplot2::ggplot(germany) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  coord_flip() +
-  labs(title = "German production (tons) 2009-2019")
-
-## Denmark
-denmark <- rbt_raw %>% filter(country == "DK", source == "national")
-ggplot2::ggplot(denmark) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  coord_flip() +
-  labs(title = "Danish production (tons) 2005-2017")
-  
-## Finland
-finland <- rbt_raw %>% filter(country == "FI", source == "national")
-ggplot2::ggplot(finland) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  coord_flip() +
-  labs(title = "Finnish production (tons) 1978-2018")
-
-## Sweden 
-sweden <- rbt_raw %>% filter(country == "SE", source == "national")
-ggplot2::ggplot(sweden) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  coord_flip() +
-  labs(title = "Swedish production (tons) 2009-2018")
-
-## FAO data
-fao <- rbt_raw %>% filter(source == "fao")
-str(fao)
-ggplot2::ggplot(fao) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge(), width = 2) +
-  labs(title = "FAO Brackish water production (tons) 1972-2017")
-```
-
+<br/>
 
 #### 2.3.1 Compare versus Previous Years Data
 
