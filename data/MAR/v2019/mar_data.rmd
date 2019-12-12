@@ -124,6 +124,10 @@ per 1kg fish (living weight) produced.
 
 This recommendation was adopted in 2004, but since there are not updated nutrient limit values, this will be the parameter used as reference point.
 
+Only data provided by HELCOM on finfish mariculture include nutrient discharge. 
+However, nutrient inputs from fish farms in Denmark were calculated on the basis of production data, and some numbers that were missing on nutrient input in Sweden were calculated by SCB, Statistics Sweden based on average input/ amount produced fish.
+Therefore, estimates for all other datasets will be made.
+
 ### 2.2 Centralization & Normalization
 
 ```{r load raw data, message = FALSE, warning = FALSE, echo = TRUE}
@@ -153,6 +157,14 @@ finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata, "Finfish_maricultu
 st_geometry(finfish_mariculture_raw) <- NULL
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
 finfish_mariculture_raw[, 1:7] <- sapply(finfish_mariculture_raw[, 1:7], as.character)
+
+# bhi regions for combined dataset
+bhiregions <- data.frame(
+  country = c("DE", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE",  "DK", "DK", "DK", "SE", "SE", "SE", "SE", "SE", "SE", "FI", "FI", "FI", "FI", "FI"),
+  area = c("Kiel Bay", "Arhus_cty", "Vejle_cty", "Fyns_cty","Sønderjylland_cty", "Nordjyllands_cty", "Frederiksborg_cty", "Frederiksborg_cty", "Roskilde_cty", "Storstrøms_cty", "Storstrøms_cty", "Storstrøms_cty", "Storstrøms_cty", "Vestsjællands_cty", "Vestsjællands_cty", "Hovedstaden", "Hovedstaden", "Hovedstaden", "Sjælland", "Sjælland", "Sjælland", "Sjælland", "Sjælland", "Syddanmark", "Midtjylland", "Midtjylland", "Ne_coast", "Ne_coast", "Ne_coast", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Kalmar lan", "Gavleborgs lan", "Vasternorrlands lan", "Stockholm lan", "Stockholm lan", "Vasterbottens lan", "Vasterbottens lan", "Norrbottens lan", "Belts Danish coastal waters", "Bornholm Basin", "Arkona Basin", "Aland Sea", "Western Gotland Basin", "Bornholm Basin", "The Sound", "Bothnian Sea", "Bothnian Bay", "Archipelago Sea", "Bothnian Sea", "Gulf of Finland", "Bothnian Bay", "The Quark"),
+  rgn_id = c(8, 3, 3, 3, 3, 2, 2, 6, 12, 3, 7, 9, 12, 2, 3, 2, 12, 15, 2, 3, 7, 9, 12, 3, 2, 3, 37, 39, 41, 29, 35, 37, 26, 14, 11, 5, 1, 26, 37, 37, 35, 29, 41, 39, 41, 3, 15, 12, 35, 26, 14, 5, 37, 41, 36, 38, 32, 42, 40)
+)
+
 ```
 
 #### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
@@ -198,6 +210,10 @@ rbt_raw <- rbind(
       vestsjællands_cty = cty12
     ) %>% 
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
+    # filter out the counties on the Atlantic coasts
+    filter(!(area == "viborg_cty"),
+           !(area == "ringkøbing_cty"),
+           !(area == "ribe_cty")) %>% 
     dplyr::mutate(
       country = "DK",
       p_kg = "",
@@ -293,12 +309,14 @@ rbt_raw <- rbind(
 )
 
 ## reassign types
-rbt_raw[, c(5:9)] <- sapply(rbt_raw[, c(5:9)], as.numeric)
+rbt_raw[, c(5:9)] <- sapply(rbt_raw[, c(5:9)], as.numeric) 
+rbt_raw <- rbt_raw %>% 
+  left_join(bhiregions) %>% 
+  arrange(country) %>% 
+  mutate(rgn_id = as.character(rgn_id)) 
 str(rbt_raw)
 
 ```
-
-<br/>
 
 ```{r merge finfish rawdata, echo = TRUE}
 
@@ -380,19 +398,118 @@ finfish_raw2 <- as_tibble(finfish_raw) %>%
 str(finfish_raw2)
 ```
 
+```{r}
+## create dataset with nutrients ESTIMATES (kg) from HELCOM data
+## use "finfish_raw2" dataset, to keep the farm_ID column
+helcom <- finfish_raw2 %>% 
+  filter(source == "helcom",
+         !is.na(produced_tonnes),
+         !(produced_tonnes == 0)
+         ) %>% 
+  mutate(value_p_kg = p_kg/(produced_tonnes*1000),
+         value_n_kg = n_kg/(produced_tonnes*1000)
+         ) %>% 
+  left_join(bhiregions) %>% 
+    arrange(country) %>% 
+  mutate(rgn_id = as.character(rgn_id))
+## create average values by region_id
+helcom1 <- helcom %>% 
+  group_by(rgn_id) %>%
+  summarize(av_p_kg = mean(value_p_kg, na.rm=TRUE),
+            av_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## create average values by production (for NA values) 
+helcom2 <- helcom %>% 
+  group_by(produced_tonnes) %>%
+  summarize(newav_p_kg = mean(value_p_kg, na.rm=TRUE),
+            newav_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## join both the datasets
+nutrients1 <- helcom %>% 
+  left_join(helcom1, by = "rgn_id") %>% 
+  arrange(country) 
+
+nutrients2 <- nutrients1 %>% 
+  left_join(helcom2, by = "produced_tonnes") %>%
+  arrange(country) 
+
+helcom3 <- as_tibble(nutrients2) %>% 
+  mutate(av_p_kg = ifelse(is.na(av_p_kg), newav_p_kg, av_p_kg),
+         av_n_kg = ifelse(is.na(av_n_kg), newav_n_kg, av_n_kg),
+         value_p_kg = ifelse(is.na(value_p_kg), av_p_kg, value_p_kg),
+         value_n_kg = ifelse(is.na(value_n_kg), av_n_kg, value_n_kg)
+  ) %>% 
+  mutate(new_p_kg = value_p_kg*(produced_tonnes*1000),
+         new_n_kg = value_n_kg*(produced_tonnes*1000)
+  ) %>% 
+  mutate(p_kg = ifelse(is.na(p_kg), new_p_kg, p_kg),
+         n_kg = ifelse(is.na(n_kg), new_n_kg, n_kg)
+  ) %>% 
+  select(-newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
+
+str(helcom3)
+```
+
+
 ```{r combine into a single harmonized dataset save, echo = TRUE}
 # Remove "farm_ID" column to make the columns no among datasets
-finfish_raw3 <- finfish_raw2 %>% 
-  select(-farm_ID)
+finfish_raw3 <- helcom3 %>% 
+  select(-farm_ID) 
 combined_rawdata <- rbind(rbt_raw, finfish_raw3) 
-combined_rawdata[, c(5:9)] <- sapply(combined_rawdata[, c(5:9)], as.numeric) 
 
+combined_rawdata[, c(5:9)] <- sapply(combined_rawdata[, c(5:9)], as.numeric) 
+str(combined_rawdata)
 
 # readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
 ```
 
 
-#### 2.2.1 Standardize Units
+#### 2.2.1 Standardize Units: Match BHI Regions to different areas (counties, regions)
+
+```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
+source(file.path(here::here(), "R", "spatial.R"))
+regions_shape() # loads spatial features objects
+
+## ICES shapefile has crs EPSG:3035
+## https://spatialreference.org/ref/epsg/etrs89-etrs-laea/
+## transform to match BHI crs of EPSG:4326, and simplify
+
+ices_transform <- rmapshaper::ms_simplify(input = ICES_rgns_shp) %>% 
+  sf::st_as_sf() %>% 
+  sf::st_transform(crs = 4326)
+bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
+  sf::st_as_sf() # also simplify BHI shp for plotting
+
+map_bhi_ices <- ggplot2::ggplot() + 
+  ## baltic countries borders
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", 
+    size = 0.1
+  ) +
+  ## ICES areas
+  geom_sf(
+    data = ices_transform, 
+    aes(fill = ICES_area), 
+    color = NA,
+    alpha = 0.5
+  ) +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Set3"))(14)) +
+  # scale_fill_manual(values = as.vector(pals::kelly(n = 14))) + # library(pals)
+  # scale_fill_manual(values = colorRampPalette(beyonce_palette(127))(14)) + # library(beyonce)
+  labs(fill = "ICES Subdivisions", x = NULL, y = NULL) +
+  ## BHI regions with ID numbers
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "grey40") +
+  scale_x_continuous(limit = c(5, 37)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(
+    panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"),
+    legend.position = c(0.9, 0.6)
+  )
+map_bhi_ices + geom_sf_text(data = bhi_rgns_simple, aes(label = BHI_ID)) 
+```
+
 
 #### 2.2.2 Rename Fields/Variables
 
@@ -419,7 +536,9 @@ ggplot2::ggplot(germany) +
 ```{r initial data exploration by national data first}
 ## Denmark
 denmark <- combined_rawdata %>% 
-  filter(country == "DK", source == "national")
+  filter(country == "DK", 
+         source == "national",
+         !is.na(produced_tonnes))
 ggplot2::ggplot(denmark) +
   geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
   labs(title = "Danish production (tons) 2005-2017")
@@ -463,8 +582,9 @@ ggplot2::ggplot(fao) +
 ```{r initial data exploration by national data first}
 ## HELCOM data
 helcom <- combined_rawdata %>% 
-  filter(source == "helcom")
-str(helcom)
+  filter(source == "helcom",
+         !is.na(produced_tonnes),
+         !(produced_tonnes == 0))
 ggplot2::ggplot(helcom)+
   geom_col(aes(year,produced_tonnes, fill = area), position = position_dodge(), width = 1) +
   facet_grid(~country) +
@@ -497,6 +617,58 @@ ggplot2::ggplot(helcom1)+
 ```
 
 <br/>
+
+```{r}
+## create dataset with nutrients ESTIMATES (kg) from HELCOM data
+## use "finfish_raw2" dataset, to keep the farm_ID column
+helcom <- finfish_raw2 %>% 
+  filter(source == "helcom",
+         !is.na(produced_tonnes),
+         !(produced_tonnes == 0)
+         ) %>% 
+  mutate(value_p_kg = p_kg/(produced_tonnes*1000),
+         value_n_kg = n_kg/(produced_tonnes*1000)
+         ) %>% 
+  left_join(bhiregions) %>% 
+    arrange(country) %>% 
+  mutate(rgn_id = as.character(rgn_id))
+## create average values by region_id
+helcom1 <- helcom %>% 
+  group_by(rgn_id) %>%
+  summarize(av_p_kg = mean(value_p_kg, na.rm=TRUE),
+            av_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## create average values by production (for NA values) 
+helcom2 <- helcom %>% 
+  group_by(produced_tonnes) %>%
+  summarize(newav_p_kg = mean(value_p_kg, na.rm=TRUE),
+            newav_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## join both the datasets
+nutrients1 <- helcom %>% 
+  left_join(helcom1, by = "rgn_id") %>% 
+  arrange(country) 
+
+nutrients2 <- nutrients1 %>% 
+  left_join(helcom2, by = "produced_tonnes") %>%
+  arrange(country) 
+
+helcom3 <- as_tibble(nutrients2) %>% 
+  mutate(av_p_kg = ifelse(is.na(av_p_kg), newav_p_kg, av_p_kg),
+         av_n_kg = ifelse(is.na(av_n_kg), newav_n_kg, av_n_kg),
+         value_p_kg = ifelse(is.na(value_p_kg), av_p_kg, value_p_kg),
+         value_n_kg = ifelse(is.na(value_n_kg), av_n_kg, value_n_kg)
+  ) %>% 
+  mutate(new_p_kg = value_p_kg*(produced_tonnes*1000),
+         new_n_kg = value_n_kg*(produced_tonnes*1000)
+  ) %>% 
+  mutate(p_kg = ifelse(is.na(p_kg), new_p_kg, p_kg),
+         n_kg = ifelse(is.na(n_kg), new_n_kg, n_kg)
+  ) %>% 
+  select(-newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
+ 
+```
+
 
 ```{r}
 ## create datasets for the HELCOM nutrient plots
