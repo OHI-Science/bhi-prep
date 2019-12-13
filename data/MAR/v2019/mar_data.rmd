@@ -11,6 +11,7 @@ library(R.utils)
 ```
 
 ### 2.1 Datasets with Sources
+<br/>
 
 **Rainbow trouts mariculture**  
 
@@ -310,11 +311,11 @@ rbt_raw <- rbind(
 
 ## reassign types
 rbt_raw[, c(5:9)] <- sapply(rbt_raw[, c(5:9)], as.numeric) 
-rbt_raw <- rbt_raw %>% 
-  left_join(bhiregions) %>% 
+rbt_raw2 <- rbt_raw %>% 
+   left_join(bhiregions) %>% 
   arrange(country) %>% 
   mutate(rgn_id = as.character(rgn_id)) 
-str(rbt_raw)
+str(rbt_raw2)
 
 ```
 
@@ -398,20 +399,87 @@ finfish_raw2 <- as_tibble(finfish_raw) %>%
 str(finfish_raw2)
 ```
 
+
+```{r combine into a single harmonized dataset save, echo = TRUE}
+# Make the columns no equal among datasets
+finfish_raw3 <- finfish_raw2 %>% 
+  select(-farm_ID) %>% 
+   left_join(bhiregions) %>% 
+  arrange(country) %>% 
+  mutate(rgn_id = as.character(rgn_id)) 
+
+# Combine the datasets and add the ID column
+combined_rawdata <- rbind(rbt_raw2, finfish_raw3) %>% 
+  tibble::rowid_to_column("farm_ID") 
+
+combined_rawdata[, c(6:10)] <- sapply(combined_rawdata[, c(6:10)], as.numeric) 
+str(combined_rawdata)
+
+# readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
+```
+
 ```{r}
-## create dataset with nutrients ESTIMATES (kg) from HELCOM data
-## use "finfish_raw2" dataset, to keep the farm_ID column
-helcom <- finfish_raw2 %>% 
-  filter(source == "helcom",
-         !is.na(produced_tonnes),
-         !(produced_tonnes == 0)
-         ) %>% 
+## create dataset with nutrient ESTIMATES (kg) from COMBINED data
+
+combined_raw <- combined_rawdata  %>% 
   mutate(value_p_kg = p_kg/(produced_tonnes*1000),
          value_n_kg = n_kg/(produced_tonnes*1000)
-         ) %>% 
-  left_join(bhiregions) %>% 
-    arrange(country) %>% 
-  mutate(rgn_id = as.character(rgn_id))
+         ) 
+## create average values by area
+combined_raw1 <- combined_raw %>% 
+  group_by(area) %>%
+  summarize(av_p_kg = mean(value_p_kg, na.rm=TRUE),
+            av_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## create average values by production (for NA values) 
+combined_raw2 <- combined_raw %>% 
+  group_by(produced_tonnes) %>%
+  summarize(newav_p_kg = mean(value_p_kg, na.rm=TRUE),
+            newav_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## create average values by region_id (for NA values) 
+combined_raw3 <- combined_raw %>% 
+  group_by(rgn_id) %>%
+  summarize(new2av_p_kg = mean(value_p_kg, na.rm=TRUE),
+            new2av_n_kg = mean(value_n_kg, na.rm = TRUE))
+
+## join all datasets
+nutrients1 <- combined_raw %>% 
+  left_join(combined_raw1, by = "area") %>% 
+  arrange(country) 
+
+nutrients2 <- nutrients1 %>% 
+  left_join(combined_raw2, by = "produced_tonnes") %>%
+  arrange(country) 
+
+nutrients3 <- nutrients2 %>% 
+  left_join(combined_raw3, by = "rgn_id") %>%
+  arrange(country) 
+
+combined_raw_est <- as_tibble(nutrients3) %>% 
+  mutate(newav_p_kg = ifelse(is.na(newav_p_kg), new2av_p_kg, newav_p_kg),
+         newav_n_kg = ifelse(is.na(newav_n_kg), new2av_n_kg, newav_n_kg),
+         av_p_kg = ifelse(is.na(av_p_kg), newav_p_kg, av_p_kg),
+         av_n_kg = ifelse(is.na(av_n_kg), newav_n_kg, av_n_kg),
+         value_p_kg = ifelse(is.na(value_p_kg), av_p_kg, value_p_kg),
+         value_n_kg = ifelse(is.na(value_n_kg), av_n_kg, value_n_kg)
+  ) %>% 
+  mutate(new_p_kg = value_p_kg*(produced_tonnes*1000),
+         new_n_kg = value_n_kg*(produced_tonnes*1000)
+  ) %>% 
+  mutate(p_kg = ifelse(is.na(p_kg), new_p_kg, p_kg),
+         n_kg = ifelse(is.na(n_kg), new_n_kg, n_kg)
+  ) %>% 
+  select(-new2av_p_kg, -new2av_n_kg, -newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
+```
+
+```{r}
+## create dataset with nutrient ESTIMATES (kg) from HELCOM data
+
+helcom <- finfish_raw3 %>% 
+  mutate(value_p_kg = p_kg/(produced_tonnes*1000),
+         value_n_kg = n_kg/(produced_tonnes*1000)
+         ) 
 ## create average values by region_id
 helcom1 <- helcom %>% 
   group_by(rgn_id) %>%
@@ -451,21 +519,9 @@ str(helcom3)
 ```
 
 
-```{r combine into a single harmonized dataset save, echo = TRUE}
-# Remove "farm_ID" column to make the columns no among datasets
-finfish_raw3 <- helcom3 %>% 
-  select(-farm_ID) 
-combined_rawdata <- rbind(rbt_raw, finfish_raw3) 
-
-combined_rawdata[, c(5:9)] <- sapply(combined_rawdata[, c(5:9)], as.numeric) 
-str(combined_rawdata)
-
-# readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
-```
-
-
 #### 2.2.1 Standardize Units: Match BHI Regions to different areas (counties, regions)
 
+<!-- need to work on this -->
 ```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 source(file.path(here::here(), "R", "spatial.R"))
 regions_shape() # loads spatial features objects
@@ -617,58 +673,6 @@ ggplot2::ggplot(helcom1)+
 ```
 
 <br/>
-
-```{r}
-## create dataset with nutrients ESTIMATES (kg) from HELCOM data
-## use "finfish_raw2" dataset, to keep the farm_ID column
-helcom <- finfish_raw2 %>% 
-  filter(source == "helcom",
-         !is.na(produced_tonnes),
-         !(produced_tonnes == 0)
-         ) %>% 
-  mutate(value_p_kg = p_kg/(produced_tonnes*1000),
-         value_n_kg = n_kg/(produced_tonnes*1000)
-         ) %>% 
-  left_join(bhiregions) %>% 
-    arrange(country) %>% 
-  mutate(rgn_id = as.character(rgn_id))
-## create average values by region_id
-helcom1 <- helcom %>% 
-  group_by(rgn_id) %>%
-  summarize(av_p_kg = mean(value_p_kg, na.rm=TRUE),
-            av_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## create average values by production (for NA values) 
-helcom2 <- helcom %>% 
-  group_by(produced_tonnes) %>%
-  summarize(newav_p_kg = mean(value_p_kg, na.rm=TRUE),
-            newav_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## join both the datasets
-nutrients1 <- helcom %>% 
-  left_join(helcom1, by = "rgn_id") %>% 
-  arrange(country) 
-
-nutrients2 <- nutrients1 %>% 
-  left_join(helcom2, by = "produced_tonnes") %>%
-  arrange(country) 
-
-helcom3 <- as_tibble(nutrients2) %>% 
-  mutate(av_p_kg = ifelse(is.na(av_p_kg), newav_p_kg, av_p_kg),
-         av_n_kg = ifelse(is.na(av_n_kg), newav_n_kg, av_n_kg),
-         value_p_kg = ifelse(is.na(value_p_kg), av_p_kg, value_p_kg),
-         value_n_kg = ifelse(is.na(value_n_kg), av_n_kg, value_n_kg)
-  ) %>% 
-  mutate(new_p_kg = value_p_kg*(produced_tonnes*1000),
-         new_n_kg = value_n_kg*(produced_tonnes*1000)
-  ) %>% 
-  mutate(p_kg = ifelse(is.na(p_kg), new_p_kg, p_kg),
-         n_kg = ifelse(is.na(n_kg), new_n_kg, n_kg)
-  ) %>% 
-  select(-newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
- 
-```
-
 
 ```{r}
 ## create datasets for the HELCOM nutrient plots
