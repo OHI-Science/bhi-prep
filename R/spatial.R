@@ -1,9 +1,11 @@
 ## Libraries
-source(file.path(here::here(), "R", "common.R"))
+source(file.path(here::here(), "R", "setup.R"))
 library(rgdal)
 library(sp)
 library(sf)
 library(raster)
+library(leaflet)
+library(beyonce)
 # library(fasterize)
 # library(rgeos)
 # library(maptools)
@@ -17,26 +19,32 @@ library(raster)
 
 #' create regions shape objects
 #' 
-#' @param sp_dir the file location of the shapefiles folders; the directory should contain afolder for each shapefile
+#' @param sp_dir the file location of the shapefiles folders; the directory should contain a folder for each shapefile
 #' @param foldernames the folders containing respective shapefiles
 #'
 #' @return defines spatial objects: bhi_rgns, helcom_subbasins, nuts2_rgns, ices_rgns, baltic_mpas in the global environment
 
-regions_shape <- function(sp_dir = file.path(dir_B, "Spatial"),
-                          foldernames = c("bhi_shapefile", # "helcom_subbasins_shapefile",
-                                          "nuts2_shapefile", "ices_rgn_shapefile", 
-                                          "mpas_shapefile")){
+regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"),
+                          foldernames = c(
+                            "bhi_shapefile", "helcom_subbasins_shapefile",
+                            "nuts2_shapefile", "ices_rgn_shapefile",
+                            "mpas_shapefile", "BHI_shapefile_25km_buffer",
+                            "HELCOM_subbasins_holasbasins",
+                            "BHI_shapefile", "ICES_areas")){
   
   for(i in foldernames){
     
     if(file.exists(file.path(sp_dir, i))){
       shp_path <- list.files(file.path(sp_dir, i), full.names = TRUE, 
                              pattern = "[A-Za-z0-9_]+.shp$") # assumes 1 shapefile per folder
-      shp <- sf::st_read(dsn = file.path(sp_dir, i), 
-                         layer = str_extract(basename(shp_path), pattern = "[A-Za-z0-9_]+"))
+      shp <- sf::st_read(
+        dsn = file.path(sp_dir, i), 
+        layer = str_extract(basename(shp_path), pattern = "[A-Za-z0-9_]+"),
+        quiet = TRUE
+      )
       
       name_obj <- paste0(str_extract(i, pattern = "[a-zA-Z0-9]+"), "_rgns_shp")
-      cat("creating object in global environment:", name_obj)
+      message("creating object in global environment: ", name_obj, "\n")
       assign(name_obj, shp, envir = .GlobalEnv) # creates object in global environment!
       
     } else {
