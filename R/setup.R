@@ -2,8 +2,6 @@
 library(readr)
 library(dplyr)
 library(stringr)
-# library(tidyr)
-# library(knitr)
 library(ggplot2)
 
 ## Directories ----
