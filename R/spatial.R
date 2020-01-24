@@ -1,19 +1,11 @@
 ## Libraries
-source(file.path(here::here(), "R", "setup.R"))
+source(here::here("R", "setup.R"))
 library(rgdal)
 library(sp)
 library(sf)
 library(raster)
 library(leaflet)
 library(beyonce)
-# library(fasterize)
-# library(rgeos)
-# library(maptools)
-# library(ncdf4)
-# library(colorRamps)
-# library(parallel)
-# library(RQGIS)
-# library(tibble)
 
 ## Functions
 
@@ -26,9 +18,9 @@ library(beyonce)
 
 regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"),
                           foldernames = c(
-                            "bhi_shapefile", "helcom_subbasins_shapefile",
-                            "nuts2_shapefile", "ices_rgn_shapefile",
-                            "mpas_shapefile", "BHI_shapefile_25km_buffer",
+                            # "bhi_shapefile", "helcom_subbasins_shapefile",
+                            # "nuts2_shapefile", "ices_rgn_shapefile",
+                            # "mpas_shapefile", "BHI_shapefile_25km_buffer",
                             "HELCOM_subbasins_holasbasins",
                             "BHI_shapefile", "ICES_areas")){
   
@@ -81,7 +73,7 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
   if(length(lat) == 1 & length(lon) == 1 & !any(is.na(latlon_vars))){
     ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
     data_sf <- st_as_sf(dataset, coords = c(lon, lat), crs = 4326, agr = "constant")
-       
+    
     if(exists("bhi_rgns_shp", envir = .GlobalEnv)){
       data_sf <- st_join(data_sf, bhi_rgns_shp) 
     } else { message("BHI regions w/ HELCOM ID shapefile not in global environment")}
@@ -100,17 +92,12 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
       as_tibble() %>% 
       select(rgn_nam, rgn_key, HELCOM_ID, BHI_ID)
     colnames(bhi_rgns_df) <- stringr::str_to_lower(colnames(bhi_rgns_df))
-
+    
     ## join by helcom_id then use combination of helcom_id and country name/key to determine bhi_id
     data_rgns_joined <- dplyr::left_join(
       dataset, bhi_rgns_df,
       by = c(helcomID_col = "helcom_id", country_col = "rgn_nam"))
   }
-
+  
   return(data_rgns_joined)
 }
-
-
-# calc_means_monthly <- function(){}
-# subset_to_bhi_rgns <- function(){}
-# make_layer_map <- function(){}
