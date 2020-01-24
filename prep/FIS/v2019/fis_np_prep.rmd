@@ -9,14 +9,15 @@ output:
 <br>
 
 ```{r preamble prep, message = FALSE}
-loc <- file.path(here::here(), "prep", "FIS")
+loc <- here::here("prep", "FIS")
 
-source(file.path(here::here(), "R", "setup.R"))
-source(file.path(here::here(), "R", "prep.R"))
+source(here::here("R", "setup.R"))
+source(here::here("R", "prep.R"))
+source(here::here("R", "spatial.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
 
-bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "FIS.Rmd")
-data_path <- file.path(here::here(), "data", "FIS", version_year, "fis_np_data.rmd")
+bkgd_path <- here::here("supplement", "goal_summaries", "FIS.Rmd")
+data_path <- here::here("data", "FIS", version_year, "fis_np_data.rmd")
 refs_path <- file.path(loc, "fis_references.Rmd")
 
 stocks_cols <- RColorBrewer::brewer.pal(6, "Paired") %>% str_replace("#1F78B4", "#065BCB") %>% str_replace("#33A02C", "#73BD65")
@@ -68,11 +69,9 @@ The F/FMSY, B/BMSY, and landings data are the ICES stock assessment area values,
 
 ```{r fis_ffmsy_bbmsy and fis_landings plots, out.width = "850px", fig.height = 7}
 combined_w_rgns <- read_csv(
-  file.path(
-    here::here(), "data", "FIS", version_year, "intermediate", 
-    "fis_full_merged_dataset.csv"
-  )
+  here::here("data", "FIS", version_year, "intermediate", "fis_full_merged_dataset.csv")
 ) %>% 
+  
   ## NOTE: what is called 'landings' throughout this script is actually catch
   ## this decision was made late in the analysis; at this time i'm not going back through to change all instances...
   rename(landings = catch) %>%
@@ -89,7 +88,8 @@ combined_w_rgns <- read_csv(
   rename(stock = stockname, area_rgn_km2 = area_km2) %>% 
   filter(year < assess_year) # current yr fish. mort. data won't be complete
 
-combined_w_rgns <- combined_w_rgns %>% filter(species == "cod") # UNCOMMENT FOR SCORES BASED ON ONLY COD STOCKS...
+## UNCOMMENT LINE BELOW FOR SCORES BASED ON ONLY COD STOCKS...
+# combined_w_rgns <- combined_w_rgns %>% filter(species == "cod") 
 
 ## full dataset in long format with calculated ratios, for plotting
 plot_format_msy_metrics <- combined_w_rgns %>% 
@@ -146,21 +146,18 @@ goal_stocks <- c("FIS", "NP")
 for(g in goal_stocks){
   if(g == "FIS"){
     fis_data <- long_format %>% filter(!str_detect(stock, "spr"))
+    msy_dat <- fis_data %>% filter(metric %in% c("ffmsy", "bbmsy"))
+    landings <- fis_data %>% filter(metric %in% c("landings", "rgn_landings"))
+    
+    ## UNCOMMENT LINE BELOW FOR SCORES BASED ON ONLY COD STOCKS...
+    # g <- "FIS_COD"
+    
   } else {
     np_data <- long_format %>% filter(str_detect(stock, "spr"))
     msy_dat <- np_data %>% filter(metric %in% c("ffmsy", "bbmsy"))
     landings <- np_data %>% filter(metric %in% c("landings", "rgn_landings"))
   }
   ## filter to save by metric: bbmsy, ffmsy, landings
-  if(g == "FIS"){
-    for(s in c("spr", "her")){
-      fis_data <- fis_data %>% filter(!str_detect(stock, s))
-      g <- ifelse(s == "her", "FIS_COD", "FIS")
-    }
-    msy_dat <- fis_data %>% filter(metric %in% c("ffmsy", "bbmsy"))
-    landings <- fis_data %>% filter(metric %in% c("landings", "rgn_landings"))
-  }
-
   msy_dat %>% 
     filter(metric == "bbmsy") %>% 
     dplyr::select(-metric, -species) %>% 
@@ -181,7 +178,7 @@ for(g in goal_stocks){
         sprintf("%s_ffmsy_bhi%s.csv", str_to_lower(g), assess_year)
       )
     )
-  landings <- landings %>%
+  landings %>%
     # filter(metric == "rgn_landings") %>% # should match whats used to calculate wgts below!
     filter(metric == "landings") %>%
     rename(landings = value) %>% 
@@ -362,7 +359,7 @@ map_format_data <- yearly_rgn_props %>%
     yearly_rgn_props %>% 
       filter(year == max(yearly_rgn_props$year)) %>%
       dplyr::select(region_id, stock, rgn_yr_propCatch) %>% 
-      spread(key = "stock", value = "rgn_yr_propCatch"),
+      tidyr::spread(key = "stock", value = "rgn_yr_propCatch"),
     by = "region_id"
   ) %>% 
   arrange(region_id)
@@ -395,7 +392,7 @@ bhi_rgns_shp <- bhi_rgns_simple %>%
   arrange(BHI_ID)
 
 ## extract centroid lat lon from BHI region sf geometries and make table
-piechart_coords <- do.call(rbind, st_geometry(bhi_rgns_shp %>% st_centroid())) %>% 
+piechart_coords <- do.call(rbind, sf::st_geometry(bhi_rgns_shp %>% sf::st_centroid())) %>% 
   as_tibble() %>% setNames(c("long", "lat")) %>% 
   cbind(
     map_format_data %>% 
@@ -414,14 +411,13 @@ rgns_sp_df <- left_join(
 )
 
 ## map with piecharts showing stock catch proportions of total catch by region
-# ggplot2::ggplot(bhi_rgns_shp) + geom_sf(alpha = 0.3, color = "slategray3") +
 ggplot2::ggplot(rgns_sp_df) + 
   geom_polygon(aes(long, lat, group = group), alpha = 0.01, size = 0.1, color = "slategray") +
   ## https://www.r-bloggers.com/scatterpie-for-plotting-pies-on-ggplot/
   ## install.packages("scatterpie")
   scatterpie::geom_scatterpie(
     ## note: radii of piecharts are log transformed total regional catch
-    aes(x = long, y = lat, group = region_id, r = radius), 
+    aes(x = long, y = lat, group = region_id, r = radius/4), 
     data = piechart_coords,
     cols = c(names(piechart_coords)[str_detect(names(piechart_coords), "cod|herring")]),
     
@@ -518,7 +514,7 @@ q4K_wTrends <- q4_fultonsK_avgs %>%
     yr_coeff = lm(avg_cond ~ year, data = .)$coefficients["year"] %>% unlist(),
     yr_int = lm(avg_cond ~ year, data = .)$coefficients["(Intercept)"] %>% unlist()
   ) %>% 
-  unnest(yr_coeff, yr_int) %>% 
+  tidyr::unnest(yr_coeff, yr_int) %>% 
   right_join(q4_fultonsK_avgs, by = c(spatial_group, "length_group")) %>% 
   group_by(year) %>% 
   mutate(mean_yr_condition = mean(avg_cond)) %>% 
@@ -786,7 +782,7 @@ fscore_plot <- ggplot(data = ffmsy_bbmsy_score) +
   geom_tile(aes(bbmsy, ffmsy, fill = score), alpha = 0.8) +
   xlab("B/BMSY") + ylab("F/FMSY") + labs(fill = "F-Score\n") + 
   theme(legend.position = c(0.8, 0.7))
-ggsave(file.path(loc, "Fscoresformula.png"), fscore_plot)
+ggsave(file.path(loc, "Fscoresformula.png"), fscore_plot, dpi = 120, width = 5, height = 4)
 
 F_plot <- fscore_plot + 
   geom_point(aes(bbmsy, ffmsy), F_scores, shape = 15, size = 3, alpha = 0.01) +
@@ -852,7 +848,7 @@ status_with_penalty <- weights %>%
       group_by(region_id, stock, year) %>%
       summarize(score = mean(score, na.rm = TRUE)) %>% # hist(scores$score)
       left_join(
-        spread(rbind(B_scores, F_scores), key = "score_type", value = "score"),
+        tidyr::spread(rbind(B_scores, F_scores), key = "score_type", value = "score"),
         by = c("year", "stock", "region_id")
       ),
     by =  c("region_id", "year", "stock")) %>%
@@ -915,7 +911,7 @@ Source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
 #### 3.5.3 Setting F-Score and B-score parameters
 
 ```{r, out.width = "70%", results = "show", echo = FALSE}
-include_graphics("../fis-fscores-formula.png")
+knitr::include_graphics("../fis-fscores-formula.png")
 ```
 
 
@@ -933,7 +929,7 @@ scores_shp <- bhi_rgns_shp %>%
   dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2) %>% 
   left_join(filter(scores, year == max(scores$year)), by = c("BHI_ID" = "region_id")) %>% 
   mutate(Name = paste(rgn_nam, Subbasin, sep = ", "))
-pal <- colorNumeric(
+pal <- leaflet::colorNumeric(
   palette = "RdYlBu", na.color = "#fcfcfd",
   domain = seq(0.4, 1, 0.005)) # min score across years is 0.16, to visualize need to change scale...
 

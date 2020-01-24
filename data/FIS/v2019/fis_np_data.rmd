@@ -1,6 +1,6 @@
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
+source(here::here("R", "setup.R"))
 # source(file.path(here::here(), "R", "data.R"))
 ```
 
@@ -352,7 +352,7 @@ combined_rawdata <- rbind(
 The map below shows the overlap between ICES subdivisions and the BHI regions:
 
 ```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-source(file.path(here::here(), "R", "spatial.R"))
+source(here::here("R", "spatial.R"))
 regions_shape() # loads spatial features objects
 
 ## ICES shapefile has crs EPSG:3035
@@ -402,7 +402,7 @@ A lookup table derived from the overlap between ICES subdivisions and BHI region
 ## based on 'prep/FIS/raw/DataOrganization.R' by Melanie Frazier March 16 2016, in bhi-1.0-archive
 ## table for matching ICES to BHI regions
 regions <- read_csv(
-  file.path(here::here(), "supplement", "lookup_tabs", "ices_to_bhi_lookup.csv"), 
+  here::here("supplement", "lookup_tabs", "ices_to_bhi_lookup.csv"), 
   col_types = cols()) %>% 
   mutate(ices_numeric = ifelse(ices_numeric == 3, 21, ices_numeric)) # 3a.21 overlaps BHI rgn 1 & 2
 
