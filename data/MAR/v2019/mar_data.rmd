@@ -3,11 +3,10 @@
 **Rainbow trout production (Denmark, Sweden and Finland) and Finfish (Denmark, Germany, Sweden and Finland)**
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "setup.R"))
+source(here::here("R", "setup.R"))
 library(readr)
 library(sf)
 library(R.utils)
-# source(file.path(here::here(), "R", "data.R"))
 ```
 
 ### 2.1 Datasets with Sources
@@ -115,13 +114,13 @@ knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/
 
 #### Reference Point: maximum nutrient discharge (N/P)
 
-In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on "Sustainable aquaculture in the Baltic Sea Region" (http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
+In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on ["Sustainable aquaculture in the Baltic Sea Region"](http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
 
-However, the only parameter that can be used as reference point for Mariculture subgoal in the Baltic Sea (that can be also found on Finfish Mariculture data provided by HELCOM) is the maximum nutrient discharge for P and N (http://www.helcom.fi/Recommendations/Rec%2025-4.pdf), where existing and new marine fish farms should not exceed the annual average of: 
+However, the only parameter that can be used as reference point for Mariculture subgoal in the Baltic Sea (that can be also found on Finfish Mariculture data provided by HELCOM) is the [maximum nutrient discharge for P and N](http://www.helcom.fi/Recommendations/Rec%2025-4.pdf), where existing and new marine fish farms should not exceed the annual average of: 
 - 7g of P (tot-P) 
 - 50g of N (tot-N) 
 per 1kg fish (living weight) produced.
-[The nutrient limit values (P and N) are calculated on the basis that living fish contains 0,4% of phosphorus and 2,75% of nitrogen.]
+(The nutrient limit values (P and N) are calculated on the basis that living fish contains 0,4% of phosphorus and 2,75% of nitrogen.)
 
 This recommendation was adopted in 2004, but since there are not updated nutrient limit values, this will be the parameter used as reference point.
 
@@ -159,13 +158,54 @@ st_geometry(finfish_mariculture_raw) <- NULL
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
 finfish_mariculture_raw[, 1:7] <- sapply(finfish_mariculture_raw[, 1:7], as.character)
 
-# bhi regions for combined dataset
-bhiregions <- data.frame(
-  country = c("DE", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "DK", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE", "SE",  "DK", "DK", "DK", "SE", "SE", "SE", "SE", "SE", "SE", "FI", "FI", "FI", "FI", "FI"),
-  area = c("Kiel Bay", "Arhus_cty", "Vejle_cty", "Fyns_cty","Sønderjylland_cty", "Nordjyllands_cty", "Frederiksborg_cty", "Frederiksborg_cty", "Roskilde_cty", "Storstrøms_cty", "Storstrøms_cty", "Storstrøms_cty", "Storstrøms_cty", "Vestsjællands_cty", "Vestsjællands_cty", "Hovedstaden", "Hovedstaden", "Hovedstaden", "Sjælland", "Sjælland", "Sjælland", "Sjælland", "Sjælland", "Syddanmark", "Midtjylland", "Midtjylland", "Ne_coast", "Ne_coast", "Ne_coast", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Other_coasts", "Kalmar lan", "Gavleborgs lan", "Vasternorrlands lan", "Stockholm lan", "Stockholm lan", "Vasterbottens lan", "Vasterbottens lan", "Norrbottens lan", "Belts Danish coastal waters", "Bornholm Basin", "Arkona Basin", "Aland Sea", "Western Gotland Basin", "Bornholm Basin", "The Sound", "Bothnian Sea", "Bothnian Bay", "Archipelago Sea", "Bothnian Sea", "Gulf of Finland", "Bothnian Bay", "The Quark"),
-  rgn_id = c(8, 3, 3, 3, 3, 2, 2, 6, 12, 3, 7, 9, 12, 2, 3, 2, 12, 15, 2, 3, 7, 9, 12, 3, 2, 3, 37, 39, 41, 29, 35, 37, 26, 14, 11, 5, 1, 26, 37, 37, 35, 29, 41, 39, 41, 3, 15, 12, 35, 26, 14, 5, 37, 41, 36, 38, 32, 42, 40)
+## match areas with bhi regions
+## create lookup tab
+bhiregions <- bind_rows(
+  ## germany
+  c(country = "DE", area = "Kiel Bay", rgn = 8),
+  ## denmark
+  c(country = "DK", area = "Arhus_cty", rgn = 3),
+  c(country = "DK", area = "Vejle_cty", rgn = 3),
+  c(country = "DK", area = "Fyns_cty", rgn = 3),
+  c(country = "DK", area = "Sønderjylland_cty", rgn = 3),
+  c(country = "DK", area = "Nordjyllands_cty", rgn = 2),
+  c(country = "DK", area = "Frederiksborg_cty", rgn = list(2, 6)),
+  c(country = "DK", area = "Roskilde_cty", rgn = 12),
+  c(country = "DK", area = "Storstrøms_cty", rgn = list(3, 7, 9, 12)),
+  c(country = "DK", area = "Vestsjællands_cty", rgn = list(2, 3)),
+  c(country = "DK", area = "Hovedstaden", rgn = list(2, 12, 15)),
+  c(country = "DK", area = "Sjælland", rgn = list(2, 3, 7, 9, 12)),
+  c(country = "DK", area = "Syddanmark", rgn = 3),
+  c(country = "DK", area = "Midtjylland", rgn = list(2, 3)),
+  c(country = "DK", area = "Belts Danish coastal waters", rgn = 3),
+  c(country = "DK", area = "Bornholm Basin", rgn = 15),
+  c(country = "DK", area = "Arkona Basin", rgn = 12),
+  ## sweden
+  c(country = "SE", area = "Ne_coast", rgn = list(37, 39, 41)),
+  c(country = "SE", area = "Other_coasts", rgn = list(29, 35, 37, 26, 14, 11, 5, 1)),
+  c(country = "SE", area = "Kalmar lan", rgn = 26),
+  c(country = "SE", area = "Gavleborgs lan", rgn = 37),
+  c(country = "SE", area = "Vasternorrlands lan", rgn = 37),
+  c(country = "SE", area = "Stockholm lan", rgn = list(35, 29)),
+  c(country = "SE", area = "Vasterbottens lan", rgn = list(41, 39)),
+  c(country = "SE", area = "Norrbottens lan", rgn = 41),
+  c(country = "SE", area = "Aland Sea", rgn = 35),
+  c(country = "SE", area = "Western Gotland Basin", rgn = 26),
+  c(country = "SE", area = "Bornholm Basin", rgn = 14),
+  c(country = "SE", area = "The Sound", rgn = 5),
+  c(country = "SE", area = "Bothnian Sea", rgn = list(37, 41)),
+  ## finland
+  c(country = "FI", area = "Archipelago Sea", rgn = 36),
+  c(country = "FI", area = "Bothnian Sea", rgn = 38),
+  c(country = "FI", area = "Gulf of Finland", rgn = 32),
+  c(country = "FI", area = "Bothnian Bay", rgn = 42),
+  c(country = "FI", area = "The Quark", rgn = 40)
 )
-
+bhiregions[, 3:11] <- sapply(bhiregions[, 3:11], as.numeric)
+bhiregions <- bhiregions %>% 
+  tidyr::pivot_longer(cols = 3:11,  names_to = "num", values_to = "region_id") %>% 
+  filter(!is.na(region_id)) %>% 
+  select(country, area, region_id)
 ```
 
 #### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
@@ -212,9 +252,11 @@ rbt_raw <- rbind(
     ) %>% 
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
     # filter out the counties on the Atlantic coasts
-    filter(!(area == "viborg_cty"),
-           !(area == "ringkøbing_cty"),
-           !(area == "ribe_cty")) %>% 
+    filter(
+      !(area == "viborg_cty"),
+      !(area == "ringkøbing_cty"),
+      !(area == "ribe_cty")
+    ) %>% 
     dplyr::mutate(
       country = "DK",
       p_kg = "",
@@ -252,7 +294,8 @@ rbt_raw <- rbind(
   rbt_fi_raw %>% 
     dplyr::rename(
       produced_tonnes = tot_wt_tonnes, 
-      farm_species = production) %>% 
+      farm_species = production
+    ) %>% 
     dplyr::mutate(
       country = "FI", area = "finland",
       p_kg = "",
@@ -268,7 +311,8 @@ rbt_raw <- rbind(
   rbt_se_raw %>% 
     dplyr::rename(
       farm_species = production,
-      sweden = tot_wt_mtonnes) %>% 
+      sweden = tot_wt_mtonnes
+    ) %>% 
     select(-ne_farm_no, -other_farm_no) %>%  # don't need these information 
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
     mutate(
@@ -286,7 +330,8 @@ rbt_raw <- rbind(
   fao_rbt_raw %>% 
     dplyr::rename(
       area = country,
-      farm_species = species) %>% 
+      farm_species = species
+    ) %>% 
     filter(
       str_detect(str_to_lower(farm_species), "rainbow trout"), 
       !(environment == "Marine" & area == "Denmark")
@@ -295,10 +340,12 @@ rbt_raw <- rbind(
     tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
     ## remove characters from production
     mutate(
-      produced_tonnes = str_replace(produced_tonnes,"F"," "),
+      ## WHAT DOES F STAND FOR? 
+      ## ARE THESE STILL TONNES OR NUMBER OF FISH, OR IS IT A DATA/QUALITY FLAG?
+      produced_tonnes = str_replace(produced_tonnes,"F", " "), 
       produced_tonnes = as.numeric(produced_tonnes),
-      p_kg = "",
-      n_kg = "",
+      p_kg = NA,
+      n_kg = NA,
       maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
       maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
       source = "fao",
@@ -309,18 +356,16 @@ rbt_raw <- rbind(
     arrange(country)
 )
 
-## reassign types
+## reassign types and join bhi region_ids by area
+## use lookup table defined in code chunk above
 rbt_raw[, c(5:9)] <- sapply(rbt_raw[, c(5:9)], as.numeric) 
-rbt_raw2 <- rbt_raw %>% 
-   left_join(bhiregions) %>% 
-  arrange(country) %>% 
-  mutate(rgn_id = as.character(rgn_id)) 
-str(rbt_raw2)
-
+rbt_raw_wRgns <- rbt_raw %>% 
+  left_join(bhiregions, by = c("country", "area")) %>% 
+  arrange(country)
+str(rbt_raw_wRgns)
 ```
 
 ```{r merge finfish rawdata, echo = TRUE}
-
 ## wrangling finfish data so can merge with other datasets
 finfish_raw <- as_tibble(finfish_mariculture_raw) %>% 
   mutate(SUBBASIN = ifelse(is.na(SUBBASIN), COUNTY, SUBBASIN)) %>% 
@@ -367,7 +412,7 @@ arealookup[,] <- sapply(arealookup[,], as.character)
 spreadcols <- names(finfish_raw)[1:5]
 gathercols <- names(finfish_raw)[6:26]
 
-finfish_raw2 <- as_tibble(finfish_raw) %>% 
+finfish_gather_yr <- as_tibble(finfish_raw) %>% 
   pivot_longer(cols = gathercols, names_to = "varyear", values_to = "value") %>% 
   mutate(
     year = str_extract(varyear, pattern = "[0-9]{4}"),
@@ -390,26 +435,25 @@ finfish_raw2 <- as_tibble(finfish_raw) %>%
   ) %>% 
   ## keep only necessary columns
   select(year, country, area, farm_species, produced_tonnes, p_kg, maxP_kg, n_kg, maxN_kg, source, ID) %>% 
- ## join the renamed areas
+  ## join the renamed areas
   left_join(arealookup, by = "area") %>%
   mutate(area = ifelse(!is.na(fix_area), fix_area, area)) %>%
   rename(farm_ID = ID) %>% 
   select(-fix_area)
 
-str(finfish_raw2)
+str(finfish_gather_yr)
 ```
 
 
 ```{r combine into a single harmonized dataset save, echo = TRUE}
 # Make the columns no equal among datasets
-finfish_raw3 <- finfish_raw2 %>% 
+finfish_wRgns <- finfish_gather_yr %>% 
   select(-farm_ID) %>% 
-   left_join(bhiregions) %>% 
-  arrange(country) %>% 
-  mutate(rgn_id = as.character(rgn_id)) 
+  left_join(bhiregions, by = c("country", "area")) %>% 
+  arrange(country)
 
 # Combine the datasets and add the ID column
-combined_rawdata <- rbind(rbt_raw2, finfish_raw3) %>% 
+combined_rawdata <- rbind(rbt_raw_wRgns, finfish_wRgns) %>% 
   tibble::rowid_to_column("farm_ID") 
 
 combined_rawdata[, c(6:10)] <- sapply(combined_rawdata[, c(6:10)], as.numeric) 
@@ -418,26 +462,41 @@ str(combined_rawdata)
 # readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
 ```
 
-```{r}
+```{r investigate nutrient estimates with linear models}
+## check relationships between production and nutrients
+## quite linear, so probably ok to gapfill using this relationship...
+plotdf <- filter(combined_rawdata, !is.na(p_kg) & !is.na(n_kg), produced_tonnes > 0)
+plotly::ggplotly(
+  ggplot(plotdf) + 
+    geom_abline(
+      slope = coef(p_mdl)[["produced_tonnes"]],
+      intercept = coef(p_mdl)[["(Intercept)"]], 
+      color = "grey"
+    ) +
+    geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
+)
+p_mdl <- lm(p_kg ~ produced_tonnes, data = plotdf) # summary(p_mdl)
+n_mdl <- lm(n_kg ~ produced_tonnes, data = plotdf) # summary(n_mdl)
+```
+
+```{r gapfilling nutrient estimates}
 ## create dataset with nutrient ESTIMATES (kg) from COMBINED data
+combined_gf <- combined_rawdata %>% 
+  mutate(gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE)) %>% 
+  ## estimates based on production
+  ## where no production, doesn't make sense to gapfill...
+  cbind(
+    estim_p_kg = predict(p_mdl, combined_rawdata),
+    estim_n_kg = predict(n_mdl, combined_rawdata)
+  ) %>% 
+  ## averaged values by region id
+  # group_by(region_id) %>% 
+  # mutate(
+  #   avg_p_kg = mean(estim_p_kg, na.rm = TRUE),
+  #   avg_n_kg = mean(estim_n_kg, na.rm = TRUE)
+  # )
+  
 
-combined_raw <- combined_rawdata  %>% 
-  mutate(value_p_kg = p_kg/(produced_tonnes*1000),
-         value_n_kg = n_kg/(produced_tonnes*1000)
-         ) 
-## create average values by area
-combined_raw1 <- combined_raw %>% 
-  group_by(area) %>%
-  summarize(av_p_kg = mean(value_p_kg, na.rm=TRUE),
-            av_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## create average values by production (for NA values) 
-combined_raw2 <- combined_raw %>% 
-  group_by(produced_tonnes) %>%
-  summarize(newav_p_kg = mean(value_p_kg, na.rm=TRUE),
-            newav_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## create average values by region_id (for NA values) 
 combined_raw3 <- combined_raw %>% 
   group_by(rgn_id) %>%
   summarize(new2av_p_kg = mean(value_p_kg, na.rm=TRUE),
