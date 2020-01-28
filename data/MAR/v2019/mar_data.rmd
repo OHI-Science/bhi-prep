@@ -494,37 +494,41 @@ plotly::ggplotly(
 p_mdl_small <- lm(p_kg ~ produced_tonnes, data = plotdf_small) # summary(p_mdl_small)
 n_mdl_small <- lm(n_kg ~ produced_tonnes, data = plotdf_small) # summary(n_mdl_small)
 ```
+```{r production estimates with linear models}
+## note: nitrogen is an insignificant predictor for the smaller operations
+prod_mdl <- lm(produced_tonnes ~ n_kg + p_kg, data = plotdf) # summary(prod_mdl)
+prod_mdl_small <- lm(produced_tonnes ~ p_kg, data = plotdf_small) # summary(prod_mdl_small)
+```
 
-```{r gapfilling nutrient estimates}
+```{r gapfilling}
 ## create dataset with nutrient ESTIMATES (kg) from COMBINED data
 combined_gf <- combined_rawdata %>% 
+  
+  ## identify where to gapfill
+  mutate(
+    gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE),
+    gapfill_prod = ifelse(is.na(produced_tonnes), TRUE, FALSE),
+    small_farm = ifelse(produced_tonnes <= 20, TRUE, FALSE)
+  ) %>% 
+  
   ## estimates based on production
   cbind(
     estim_p_kg = predict(p_mdl, combined_rawdata),
     estim_n_kg = predict(n_mdl, combined_rawdata),
     estim_p_small = predict(p_mdl_small, combined_rawdata),
-    estim_n_small = predict(n_mdl_small, combined_rawdata)
+    estim_n_small = predict(n_mdl_small, combined_rawdata),
+    estim_prod = predict(prod_mdl, combined_rawdata),
+    estim_prod_small = predict(prod_mdl_small, combined_rawdata)
   ) %>% 
+  
+  ## gapfilling nutrients based on production and vice versa...
   mutate(
-    gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE),
-    small_farm = ifelse(produced_tonnes <= 20, TRUE, FALSE)
-  ) %>% 
-  mutate(
-    ## gapfill nitrogen
-    gfN = ifelse(
-      !gapfill_nutrients, n_kg,
-      ifelse(small_farm, estim_n_small, estim_n_kg)
-    ),
-    ## gapfill phosphorus
-    gfP = ifelse(
-      !gapfill_nutrients, p_kg,
-      ifelse(small_farm, estim_p_small, estim_p_kg)
-    )
+    gfN = ifelse(gapfill_nutrients, ifelse(small_farm, estim_n_small, estim_n_kg), n_kg),
+    gfP = ifelse(gapfill_nutrients, ifelse(small_farm, estim_p_small, estim_p_kg), p_kg),
+    gfProduction = ifelse(gapfill_prod, ifelse(small_farm, estim_prod_small, estim_prod), produced_tonnes)
   )
-# chkdata <- combined_gf %>% 
-#   select(produced_tonnes,n_kg, gfN) %>% 
-#   tidyr::pivot_longer(cols = c(n_kg, gfN))
-# plotly::ggplotly(ggplot(chkdata) + geom_point(aes(produced_tonnes, value, color = name)))
+
+
 
 ##### END WORK JAN28 2020
 
