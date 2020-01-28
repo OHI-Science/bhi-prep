@@ -465,12 +465,21 @@ str(combined_rawdata)
 ```
 
 ```{r investigate nutrient estimates with linear models}
+plotdf <- combined_rawdata %>% 
+  filter(!is.na(p_kg) & !is.na(n_kg)) %>% 
+  filter(produced_tonnes > 20)
+
+plotdf_small <- combined_rawdata %>% 
+  filter(!is.na(p_kg) & !is.na(n_kg)) %>% 
+  filter(produced_tonnes > 0, produced_tonnes <= 20) %>% 
+  ## eliminate some outliers from linear regression subset...
+  filter(produced_tonnes * 15 > p_kg) 
+
 ## check relationships between production and nutrients
 ## quite linear, so probably ok to gapfill using this relationship...
 p_mdl <- lm(p_kg ~ produced_tonnes, data = plotdf) # summary(p_mdl)
 n_mdl <- lm(n_kg ~ produced_tonnes, data = plotdf) # summary(n_mdl)
 
-plotdf <- filter(combined_rawdata, !is.na(p_kg) & !is.na(n_kg), produced_tonnes > 0)
 plotly::ggplotly(
   ggplot(plotdf) + 
     geom_abline(
@@ -480,18 +489,46 @@ plotly::ggplotly(
     ) +
     geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
 )
+
+## note: for small farms (less than 20 tonnes  produced), relationship looks different...
+p_mdl_small <- lm(p_kg ~ produced_tonnes, data = plotdf_small) # summary(p_mdl_small)
+n_mdl_small <- lm(n_kg ~ produced_tonnes, data = plotdf_small) # summary(n_mdl_small)
 ```
 
 ```{r gapfilling nutrient estimates}
 ## create dataset with nutrient ESTIMATES (kg) from COMBINED data
 combined_gf <- combined_rawdata %>% 
-  mutate(gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE)) %>% 
   ## estimates based on production
-  ## where no production, doesn't make sense to gapfill...
   cbind(
     estim_p_kg = predict(p_mdl, combined_rawdata),
-    estim_n_kg = predict(n_mdl, combined_rawdata)
+    estim_n_kg = predict(n_mdl, combined_rawdata),
+    estim_p_small = predict(p_mdl_small, combined_rawdata),
+    estim_n_small = predict(n_mdl_small, combined_rawdata)
   ) %>% 
+  mutate(
+    gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE),
+    small_farm = ifelse(produced_tonnes <= 20, TRUE, FALSE)
+  ) %>% 
+  mutate(
+    ## gapfill nitrogen
+    gfN = ifelse(
+      !gapfill_nutrients, n_kg,
+      ifelse(small_farm, estim_n_small, estim_n_kg)
+    ),
+    ## gapfill phosphorus
+    gfP = ifelse(
+      !gapfill_nutrients, p_kg,
+      ifelse(small_farm, estim_p_small, estim_p_kg)
+    )
+  )
+# chkdata <- combined_gf %>% 
+#   select(produced_tonnes,n_kg, gfN) %>% 
+#   tidyr::pivot_longer(cols = c(n_kg, gfN))
+# plotly::ggplotly(ggplot(chkdata) + geom_point(aes(produced_tonnes, value, color = name)))
+
+##### END WORK JAN28 2020
+
+
   ## averaged values by region id
   # group_by(region_id) %>% 
   # mutate(
