@@ -508,7 +508,7 @@ combined_gf <- combined_rawdata %>%
   mutate(
     gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE),
     gapfill_prod = ifelse(is.na(produced_tonnes), TRUE, FALSE),
-    small_farm = ifelse(produced_tonnes <= 20, TRUE, FALSE)
+    small_farm = ifelse(produced_tonnes <= 20 | n_kg < 100, TRUE, FALSE)
   ) %>% 
   
   ## estimates based on production
@@ -525,8 +525,25 @@ combined_gf <- combined_rawdata %>%
   mutate(
     gfN = ifelse(gapfill_nutrients, ifelse(small_farm, estim_n_small, estim_n_kg), n_kg),
     gfP = ifelse(gapfill_nutrients, ifelse(small_farm, estim_p_small, estim_p_kg), p_kg),
-    gfProduction = ifelse(gapfill_prod, ifelse(small_farm, estim_prod_small, estim_prod), produced_tonnes)
+    gfProduction = ifelse(
+      gapfill_prod & !is.na(p_kg),
+      ifelse(
+        small_farm, 
+        estim_prod_small, 
+        ifelse(!is.na(n_kg), estim_prod, NA)
+      ),
+      produced_tonnes  
+    )
   )
+
+## save gapfilled dataset and dataset recording where gapfilling occurred
+# mar_datalayer <- combined_gf %>%
+#   select(region_id, year, produced_tonnes, )
+# mar_gapfilling <- combined_gf %>%
+#   
+#   
+# write_csv(mar_datalayer)
+# write_csv(mar_gapfilling)
 
 
 
