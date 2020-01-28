@@ -201,7 +201,9 @@ bhiregions <- bind_rows(
   c(country = "FI", area = "Bothnian Bay", rgn = 42),
   c(country = "FI", area = "The Quark", rgn = 40)
 )
+
 bhiregions[, 3:11] <- sapply(bhiregions[, 3:11], as.numeric)
+# Create a table with bhi regions_id
 bhiregions <- bhiregions %>% 
   tidyr::pivot_longer(cols = 3:11,  names_to = "num", values_to = "region_id") %>% 
   filter(!is.na(region_id)) %>% 
@@ -413,7 +415,7 @@ spreadcols <- names(finfish_raw)[1:5]
 gathercols <- names(finfish_raw)[6:26]
 
 finfish_gather_yr <- as_tibble(finfish_raw) %>% 
-  pivot_longer(cols = gathercols, names_to = "varyear", values_to = "value") %>% 
+  tidyr::pivot_longer(cols = gathercols, names_to = "varyear", values_to = "value") %>% 
   mutate(
     year = str_extract(varyear, pattern = "[0-9]{4}"),
     var = str_extract(varyear, pattern = "[A-Z]+")
@@ -465,6 +467,9 @@ str(combined_rawdata)
 ```{r investigate nutrient estimates with linear models}
 ## check relationships between production and nutrients
 ## quite linear, so probably ok to gapfill using this relationship...
+p_mdl <- lm(p_kg ~ produced_tonnes, data = plotdf) # summary(p_mdl)
+n_mdl <- lm(n_kg ~ produced_tonnes, data = plotdf) # summary(n_mdl)
+
 plotdf <- filter(combined_rawdata, !is.na(p_kg) & !is.na(n_kg), produced_tonnes > 0)
 plotly::ggplotly(
   ggplot(plotdf) + 
@@ -475,8 +480,6 @@ plotly::ggplotly(
     ) +
     geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
 )
-p_mdl <- lm(p_kg ~ produced_tonnes, data = plotdf) # summary(p_mdl)
-n_mdl <- lm(n_kg ~ produced_tonnes, data = plotdf) # summary(n_mdl)
 ```
 
 ```{r gapfilling nutrient estimates}
@@ -582,6 +585,7 @@ str(helcom3)
 
 <!-- need to work on this -->
 ```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
+## devtools::install_github("dill/beyonce")
 source(file.path(here::here(), "R", "spatial.R"))
 regions_shape() # loads spatial features objects
 
