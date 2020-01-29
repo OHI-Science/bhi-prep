@@ -424,7 +424,7 @@ finfish_gather_yr <- as_tibble(finfish_raw) %>%
 
   ## re-spread data by the three variables: production (PR), nitrogen (N), and phosphorus (P)
   tidyr::pivot_wider(id_cols = c(spreadcols, "year", "ID"), names_from = var, values_from = value) %>% 
-  mutate(PR = ifelse(PR == 0 && !is.na(N)|!is.na(P), ifelse(max(c(N, P), na.rm = TRUE) > 20, NA, 0), PR)) %>% 
+  mutate(PR = ifelse(PR == 0 & (!is.na(N)|!is.na(P)), ifelse(max(c(N, P), na.rm = TRUE) > 50, NA, 0), PR)) %>% 
   rename(
     produced_tonnes = PR,
     n_kg = N,
