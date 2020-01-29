@@ -424,6 +424,7 @@ finfish_gather_yr <- as_tibble(finfish_raw) %>%
 
   ## re-spread data by the three variables: production (PR), nitrogen (N), and phosphorus (P)
   tidyr::pivot_wider(id_cols = c(spreadcols, "year", "ID"), names_from = var, values_from = value) %>% 
+  mutate(PR = ifelse(PR == 0 && !is.na(N)|!is.na(P), ifelse(max(c(N, P), na.rm = TRUE) > 20, NA, 0), PR)) %>% 
   rename(
     produced_tonnes = PR,
     n_kg = N,
@@ -480,19 +481,23 @@ plotdf_small <- combined_rawdata %>%
 p_mdl <- lm(p_kg ~ produced_tonnes, data = plotdf) # summary(p_mdl)
 n_mdl <- lm(n_kg ~ produced_tonnes, data = plotdf) # summary(n_mdl)
 
+## note: for small farms (less than 20 tonnes  produced), relationship looks different...
+p_mdl_small <- lm(p_kg ~ produced_tonnes, data = plotdf_small) # summary(p_mdl_small)
+n_mdl_small <- lm(n_kg ~ produced_tonnes, data = plotdf_small) # summary(n_mdl_small)
+
+
 plotly::ggplotly(
-  ggplot(plotdf) + 
+  ggplot(plotdf) +
+  # ggplot(plotdf_small) + 
     geom_abline(
       slope = coef(p_mdl)[["produced_tonnes"]],
       intercept = coef(p_mdl)[["(Intercept)"]], 
+      # slope = coef(p_mdl_small)[["produced_tonnes"]],
+      # intercept = coef(p_mdl_small)[["(Intercept)"]], 
       color = "grey"
     ) +
     geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
 )
-
-## note: for small farms (less than 20 tonnes  produced), relationship looks different...
-p_mdl_small <- lm(p_kg ~ produced_tonnes, data = plotdf_small) # summary(p_mdl_small)
-n_mdl_small <- lm(n_kg ~ produced_tonnes, data = plotdf_small) # summary(n_mdl_small)
 ```
 ```{r production estimates with linear models}
 ## note: nitrogen is an insignificant predictor for the smaller operations
@@ -506,9 +511,9 @@ combined_gf <- combined_rawdata %>%
   
   ## identify where to gapfill
   mutate(
-    gapfill_nutrients = ifelse(is.na(p_kg) & is.na(n_kg), TRUE, FALSE),
-    gapfill_prod = ifelse(is.na(produced_tonnes), TRUE, FALSE),
-    small_farm = ifelse(produced_tonnes <= 20 | n_kg < 100, TRUE, FALSE)
+    gapfill_nutrients = is.na(p_kg) & is.na(n_kg),
+    gapfill_prod = is.na(produced_tonnes),
+    small_farm = produced_tonnes <= 20 | ifelse(is.na(n_kg), FALSE, n_kg < 100)
   ) %>% 
   
   ## estimates based on production
@@ -537,13 +542,20 @@ combined_gf <- combined_rawdata %>%
   )
 
 ## save gapfilled dataset and dataset recording where gapfilling occurred
-# mar_datalayer <- combined_gf %>%
-#   select(region_id, year, produced_tonnes, )
-# mar_gapfilling <- combined_gf %>%
-#   
-#   
-# write_csv(mar_datalayer)
-# write_csv(mar_gapfilling)
+mar_datalayer <- combined_gf %>%
+  mutate(
+    ## calculate ratios of nutrients used to fish produced
+    ## grams per kg fish, unit conversion factors cancel
+    N_prod_ratio = ifelse(gfProduction == 0, 0, gfN/gfProduction),
+    P_prod_ratio = ifelse(gfProduction == 0, 0, gfP/gfProduction),
+    gapfilled = gapfill_nutrients | gapfill_prod
+  )
+  select(region_id, year, produced_tonnes, )
+mar_gapfilling <- combined_gf %>%
+
+
+write_csv(mar_datalayer)
+write_csv(mar_gapfilling)
 
 
 
