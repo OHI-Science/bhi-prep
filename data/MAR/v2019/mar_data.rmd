@@ -457,11 +457,13 @@ finfish_wRgns <- finfish_gather_yr %>%
 # Combine the datasets and add the ID column
 combined_rawdata <- rbind(rbt_raw_wRgns, finfish_wRgns) %>% 
   tibble::rowid_to_column("farm_ID") 
+### NOTE: There will be an issue related to the bhi_regions no and the farm_ID 
+### for big areas, such as "Other_coasts" for Sweden, where multiple bhi_regions are considered 
 
 combined_rawdata[, c(6:10)] <- sapply(combined_rawdata[, c(6:10)], as.numeric) 
 str(combined_rawdata)
 
-# readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
+## readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
 ```
 
 ```{r investigate nutrient estimates with linear models}
@@ -489,10 +491,19 @@ plotly::ggplotly(
     ) +
     geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
 )
-
 ## note: for small farms (less than 20 tonnes  produced), relationship looks different...
 p_mdl_small <- lm(p_kg ~ produced_tonnes, data = plotdf_small) # summary(p_mdl_small)
 n_mdl_small <- lm(n_kg ~ produced_tonnes, data = plotdf_small) # summary(n_mdl_small)
+
+plotly::ggplotly(
+  ggplot(plotdf_small) + 
+    geom_abline(
+      slope = coef(p_mdl_small)[["produced_tonnes"]],
+      intercept = coef(p_mdl_small)[["(Intercept)"]], 
+      color = "grey"
+    ) +
+    geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
+)
 ```
 ```{r production estimates with linear models}
 ## note: nitrogen is an insignificant predictor for the smaller operations
@@ -636,6 +647,35 @@ helcom3 <- as_tibble(nutrients2) %>%
   select(-newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
 
 str(helcom3)
+```
+
+```{r}
+## Check relationships between production and nutrients VS estimated values
+
+## check relationships between production and nutrients
+## quite linear, so probably ok to gapfill using this relationship...
+estim_p_mdl <- lm(estim_p_kg ~ produced_tonnes, data = combined_gf) # summary(estim_p_mdl)
+estim_n_mdl <- lm(estim_n_kg ~ produced_tonnes, data = combined_gf) # summary(estim_n_mdl)
+
+plotly::ggplotly(
+  ggplot(combined_gf) + 
+    geom_abline(
+      slope = coef(estim_p_mdl)[["produced_tonnes"]],
+      intercept = coef(estim_p_mdl)[["(Intercept)"]], 
+      color = "grey"
+    ) +
+    geom_point(aes(x = produced_tonnes, y = estim_p_kg), color = "dark green", alpha = 0.75)
+)
+
+## Check distribution of actual and estimated values
+# actual values
+ggplot(combined_gf, aes(x=p_kg)) + 
+  geom_histogram(color="darkblue", fill="lightblue")
+
+#estimated values
+ggplot(combined_gf, aes(x=estim_p_kg)) + 
+  geom_histogram(color="darkblue", fill="lightblue")
+
 ```
 
 
