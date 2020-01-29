@@ -448,6 +448,8 @@ str(finfish_gather_yr)
 ```
 
 
+**Note: There will be an issue related to the bhi_regions number and the farm_ID for big areas, such as "Other_coasts" for Sweden, where multiple bhi_regions are considered.** Specifically, it cannot be determined in which bhi_region the farm is located, within the larger region. To deal with this spatial resolution issue, we assign the value from the entry to all contained BHI regions. Because we are interested in the ratio and not the absolute values of production and nutrient use, we simply assign the values to all regions (rather than allocating based on e.g. region km2 areas)...
+
 ```{r combine into a single harmonized dataset save, echo = TRUE}
 # Make the columns no equal among datasets
 finfish_wRgns <- finfish_gather_yr %>% 
@@ -455,9 +457,11 @@ finfish_wRgns <- finfish_gather_yr %>%
   left_join(bhiregions, by = c("country", "area")) %>% 
   arrange(country)
 
-# Combine the datasets and add the ID column
+## Combine the datasets and add the ID column
 combined_rawdata <- rbind(rbt_raw_wRgns, finfish_wRgns) %>% 
   tibble::rowid_to_column("farm_ID") 
+## note: issue matching farms to BHI regions when only larger areas are given in dataset
+## see comments above code chunk for explanation
 
 combined_rawdata[, c(6:10)] <- sapply(combined_rawdata[, c(6:10)], as.numeric) 
 str(combined_rawdata)
@@ -499,6 +503,8 @@ plotly::ggplotly(
     geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
 )
 ```
+
+
 ```{r production estimates with linear models}
 ## note: nitrogen is an insignificant predictor for the smaller operations
 prod_mdl <- lm(produced_tonnes ~ n_kg + p_kg, data = plotdf) # summary(prod_mdl)
@@ -648,6 +654,35 @@ helcom3 <- as_tibble(nutrients2) %>%
   select(-newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
 
 str(helcom3)
+```
+
+```{r}
+## Check relationships between production and nutrients VS estimated values
+
+## check relationships between production and nutrients
+## quite linear, so probably ok to gapfill using this relationship...
+estim_p_mdl <- lm(estim_p_kg ~ produced_tonnes, data = combined_gf) # summary(estim_p_mdl)
+estim_n_mdl <- lm(estim_n_kg ~ produced_tonnes, data = combined_gf) # summary(estim_n_mdl)
+
+plotly::ggplotly(
+  ggplot(combined_gf) + 
+    geom_abline(
+      slope = coef(estim_p_mdl)[["produced_tonnes"]],
+      intercept = coef(estim_p_mdl)[["(Intercept)"]], 
+      color = "grey"
+    ) +
+    geom_point(aes(x = produced_tonnes, y = estim_p_kg), color = "dark green", alpha = 0.75)
+)
+
+## Check distribution of actual and estimated values
+# actual values
+ggplot(combined_gf, aes(x=p_kg)) + 
+  geom_histogram(color="darkblue", fill="lightblue")
+
+#estimated values
+ggplot(combined_gf, aes(x=estim_p_kg)) + 
+  geom_histogram(color="darkblue", fill="lightblue")
+
 ```
 
 
