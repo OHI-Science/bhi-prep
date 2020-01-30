@@ -222,7 +222,7 @@ bhiregions[, 3:10] <- sapply(bhiregions[, 3:10], as.numeric)
 bhiregions <- bhiregions %>% 
   tidyr::pivot_longer(cols = 3:10,  names_to = "num", values_to = "region_id") %>% 
   filter(!is.na(region_id)) %>% 
-  select(country, area, region_id)
+  dplyr::select(country, area, region_id)
 ```
 
 
@@ -358,9 +358,9 @@ rbt_raw <- rbind(
     tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
     ## remove characters from production
     mutate(
-      ## WHAT DOES F STAND FOR? 
       ## ARE THESE STILL TONNES OR NUMBER OF FISH, OR IS IT A DATA/QUALITY FLAG?
       produced_tonnes = str_replace(produced_tonnes,"F", " "), 
+      ## "F" stands FAO estimates from available sources of information, so simply remove the letter "F"
       produced_tonnes = as.numeric(produced_tonnes),
       p_kg = NA,
       n_kg = NA,
@@ -656,6 +656,8 @@ germany <- combined_rawdata %>%
 # str(germany)
 ggplot2::ggplot(germany) +
   geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  # facet_grid(. ~ source) +
+  # coord_flip() +
   labs(title = "German production (tons) 1999-2019")
 ```
 
@@ -664,10 +666,11 @@ ggplot2::ggplot(germany) +
 ## Denmark
 denmark <- combined_rawdata %>% 
   filter(country == "DK", 
-         source == "national",
          !is.na(produced_tonnes))
 ggplot2::ggplot(denmark) +
   geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  facet_grid(. ~ source) +
+  coord_flip() +
   labs(title = "Danish production (tons) 2005-2017")
 ```
 
@@ -675,9 +678,10 @@ ggplot2::ggplot(denmark) +
 ```{r initial data exploration by national data first}
 ## Finland
 finland <- combined_rawdata %>% 
-  filter(country == "FI", source == "national")
+  filter(country == "FI")
 ggplot2::ggplot(finland) +
   geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  facet_grid(. ~ source) +
   coord_flip() +
    theme(legend.position = "none") +
   labs(title = "Finnish production (tons) 1978-2018")
@@ -687,9 +691,10 @@ ggplot2::ggplot(finland) +
 ```{r initial data exploration by national data first}
 ## Sweden 
 sweden <- combined_rawdata %>% 
-  filter(country == "SE", source == "national")
+  filter(country == "SE")
 ggplot2::ggplot(sweden) +
   geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
+  facet_grid(. ~ source) +
   coord_flip() +
   labs(title = "Swedish production (tons) 2009-2018")
 ```
