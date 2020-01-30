@@ -112,7 +112,7 @@ knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/
 
 <br/>
 
-#### Reference Point: maximum nutrient discharge (N/P)
+#### Reference Point: maximum nutrient discharge (N and P)
 
 In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on ["Sustainable aquaculture in the Baltic Sea Region"](http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
 
@@ -127,6 +127,7 @@ This recommendation was adopted in 2004, but since there are not updated nutrien
 Only data provided by HELCOM on finfish mariculture include nutrient discharge. 
 However, nutrient inputs from fish farms in Denmark were calculated on the basis of production data, and some numbers that were missing on nutrient input in Sweden were calculated by SCB, Statistics Sweden based on average input/ amount produced fish.
 Therefore, estimates for all other datasets will be made.
+
 
 ### 2.2 Centralization & Normalization
 
@@ -160,7 +161,20 @@ finfish_mariculture_raw[, 1:7] <- sapply(finfish_mariculture_raw[, 1:7], as.char
 
 ## match areas with bhi regions
 ## create lookup tab
+## to avoid double-counting, 
+## where subnational level data exist, those data supercede country-wide data
 bhiregions <- bind_rows(
+  ## country level
+  # c(country = "DE", area = "Germany", rgn = list(16, 13, 10, 8, 4)),
+  # c(country = "DK", area = "Denmark", rgn = list(15, 12, 9, 7, 6, 3, 2)),
+  # c(country = "SE", area = "Sweden", rgn = list(41, 39, 37, 35, 29, 26, 20, 14, 11, 5, 1)),
+  # c(country = "FI", area = "Finland", rgn = list(42, 40, 38, 36, 32, 30)),
+  # c(country = "ES", area = "Estonia", rgn = list(34, 31, 28, 25)),
+  # c(country = "LA", area = "Latvia", rgn = list(27, 24)),
+  # c(country = "LI", area = "Lithuania", rgn = 23),
+  # c(country = "PO", area = "Poland", rgn = list(21, 18, 17)),
+  # c(country = "RU", area = "Russia", rgn = list(33, 22, 19))
+  
   ## germany
   c(country = "DE", area = "Kiel Bay", rgn = 8),
   ## denmark
@@ -181,8 +195,6 @@ bhiregions <- bind_rows(
   c(country = "DK", area = "Bornholm Basin", rgn = 15),
   c(country = "DK", area = "Arkona Basin", rgn = 12),
   ## sweden
-  c(country = "SE", area = "Ne_coast", rgn = list(37, 39, 41)),
-  c(country = "SE", area = "Other_coasts", rgn = list(29, 35, 37, 26, 14, 11, 5, 1)),
   c(country = "SE", area = "Kalmar lan", rgn = 26),
   c(country = "SE", area = "Gavleborgs lan", rgn = 37),
   c(country = "SE", area = "Vasternorrlands lan", rgn = 37),
@@ -194,6 +206,9 @@ bhiregions <- bind_rows(
   c(country = "SE", area = "Bornholm Basin", rgn = 14),
   c(country = "SE", area = "The Sound", rgn = 5),
   c(country = "SE", area = "Bothnian Sea", rgn = list(37, 41)),
+  c(country = "SE", area = "Bothnian Bay", rgn = 41),
+  c(country = "SE", area = "Ne_coast", rgn = list(37, 39, 41)),
+  c(country = "SE", area = "Other_coasts", rgn = list(29, 35, 26, 14, 11, 5, 1)), 
   ## finland
   c(country = "FI", area = "Archipelago Sea", rgn = 36),
   c(country = "FI", area = "Bothnian Sea", rgn = 38),
@@ -202,15 +217,16 @@ bhiregions <- bind_rows(
   c(country = "FI", area = "The Quark", rgn = 40)
 )
 
-bhiregions[, 3:11] <- sapply(bhiregions[, 3:11], as.numeric)
+bhiregions[, 3:10] <- sapply(bhiregions[, 3:10], as.numeric)
 # Create a table with bhi regions_id
 bhiregions <- bhiregions %>% 
-  tidyr::pivot_longer(cols = 3:11,  names_to = "num", values_to = "region_id") %>% 
+  tidyr::pivot_longer(cols = 3:10,  names_to = "num", values_to = "region_id") %>% 
   filter(!is.na(region_id)) %>% 
   select(country, area, region_id)
 ```
 
-#### 2.2.0 Merge datasets and calculate maximum nutrient discharge (N/P) 
+
+#### 2.2.1 Merge datasets and calculate maximum nutrient discharge (N and P) 
 
 ```{r merge rainbow trout rawdata, echo = TRUE}
 rbt_raw <- rbind(
@@ -447,11 +463,12 @@ finfish_gather_yr <- as_tibble(finfish_raw) %>%
 str(finfish_gather_yr)
 ```
 
+#### 2.2.2 Standardize Units: Production regions and BHI Region assignments
 
 **Note: There will be an issue related to the bhi_regions number and the farm_ID for big areas, such as "Other_coasts" for Sweden, where multiple bhi_regions are considered.** Specifically, it cannot be determined in which bhi_region the farm is located, within the larger region. To deal with this spatial resolution issue, we assign the value from the entry to all contained BHI regions. Because we are interested in the ratio and not the absolute values of production and nutrient use, we simply assign the values to all regions (rather than allocating based on e.g. region km2 areas)...
 
 ```{r combine into a single harmonized dataset save, echo = TRUE}
-# Make the columns no equal among datasets
+## Make the columns numbers equal among datasets
 finfish_wRgns <- finfish_gather_yr %>% 
   select(-farm_ID) %>% 
   left_join(bhiregions, by = c("country", "area")) %>% 
@@ -459,15 +476,17 @@ finfish_wRgns <- finfish_gather_yr %>%
 
 ## Combine the datasets and add the ID column
 combined_rawdata <- rbind(rbt_raw_wRgns, finfish_wRgns) %>% 
-  tibble::rowid_to_column("farm_ID") 
+  tibble::rowid_to_column("ID") 
 ## note: issue matching farms to BHI regions when only larger areas are given in dataset
 ## see comments above code chunk for explanation
 
 combined_rawdata[, c(6:10)] <- sapply(combined_rawdata[, c(6:10)], as.numeric) 
 str(combined_rawdata)
 
-# readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "mar_full_nmerged_dataset.csv"))
+readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "intermediate", "mar_full_nmerged_dataset.csv"))
 ```
+
+#### 2.2.3 Imputation/Gapfilling of merged datasets
 
 ```{r investigate nutrient estimates with linear models}
 plotdf <- combined_rawdata %>% 
@@ -511,7 +530,10 @@ prod_mdl <- lm(produced_tonnes ~ n_kg + p_kg, data = plotdf) # summary(prod_mdl)
 prod_mdl_small <- lm(produced_tonnes ~ p_kg, data = plotdf_small) # summary(prod_mdl_small)
 ```
 
-```{r gapfilling}
+
+#### 2.2.4 Save to BHI Database
+
+```{r gapfilling and save datasets}
 ## create dataset with nutrient ESTIMATES (kg) from COMBINED data
 combined_gf <- combined_rawdata %>% 
   
@@ -548,67 +570,31 @@ combined_gf <- combined_rawdata %>%
   )
 
 ## save gapfilled dataset and dataset recording where gapfilling occurred
-mar_datalayer <- combined_gf %>%
+mar_gapfilling <- combined_gf %>%
   mutate(
+    gapfilled = gapfill_nutrients|gapfill_prod,
     ## calculate ratios of nutrients used to fish produced
     ## grams per kg fish, unit conversion factors cancel
     N_prod_ratio = ifelse(gfProduction == 0, 0, gfN/gfProduction),
-    P_prod_ratio = ifelse(gfProduction == 0, 0, gfP/gfProduction),
-    gapfilled = gapfill_nutrients | gapfill_prod
+    P_prod_ratio = ifelse(gfProduction == 0, 0, gfP/gfProduction)
+  ) %>% 
+  mutate(
+    ## NAs where production is gapfilled but nutrient inputs are zero
+    N_prod_ratio = ifelse(gapfill_prod & n_kg == 0, NA, N_prod_ratio),
+    P_prod_ratio = ifelse(gapfill_prod & p_kg == 0, NA, P_prod_ratio)
+  ) %>% 
+  select(
+    region_id, country, year, 
+    gapfilled, gapfill_nutrients, gapfill_prod, small_farm, 
+    produced_tonnes, p_kg, n_kg,
+    estim_p_kg, estim_n_kg, estim_p_small, estim_n_small,
+    estim_prod, estim_prod_small,  gfN, gfP, gfProduction,
+    N_prod_ratio, P_prod_ratio
   )
-  select(region_id, year, produced_tonnes, )
-mar_gapfilling <- combined_gf %>%
+mar_datalayer <- select(mar_gapfilling, region_id, year, N_prod_ratio, P_prod_ratio)
 
-
-write_csv(mar_datalayer)
-write_csv(mar_gapfilling)
-
-
-
-##### END WORK JAN28 2020
-
-
-  ## averaged values by region id
-  # group_by(region_id) %>% 
-  # mutate(
-  #   avg_p_kg = mean(estim_p_kg, na.rm = TRUE),
-  #   avg_n_kg = mean(estim_n_kg, na.rm = TRUE)
-  # )
-  
-
-combined_raw3 <- combined_raw %>% 
-  group_by(rgn_id) %>%
-  summarize(new2av_p_kg = mean(value_p_kg, na.rm=TRUE),
-            new2av_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## join all datasets
-nutrients1 <- combined_raw %>% 
-  left_join(combined_raw1, by = "area") %>% 
-  arrange(country) 
-
-nutrients2 <- nutrients1 %>% 
-  left_join(combined_raw2, by = "produced_tonnes") %>%
-  arrange(country) 
-
-nutrients3 <- nutrients2 %>% 
-  left_join(combined_raw3, by = "rgn_id") %>%
-  arrange(country) 
-
-combined_raw_est <- as_tibble(nutrients3) %>% 
-  mutate(newav_p_kg = ifelse(is.na(newav_p_kg), new2av_p_kg, newav_p_kg),
-         newav_n_kg = ifelse(is.na(newav_n_kg), new2av_n_kg, newav_n_kg),
-         av_p_kg = ifelse(is.na(av_p_kg), newav_p_kg, av_p_kg),
-         av_n_kg = ifelse(is.na(av_n_kg), newav_n_kg, av_n_kg),
-         value_p_kg = ifelse(is.na(value_p_kg), av_p_kg, value_p_kg),
-         value_n_kg = ifelse(is.na(value_n_kg), av_n_kg, value_n_kg)
-  ) %>% 
-  mutate(new_p_kg = value_p_kg*(produced_tonnes*1000),
-         new_n_kg = value_n_kg*(produced_tonnes*1000)
-  ) %>% 
-  mutate(p_kg = ifelse(is.na(p_kg), new_p_kg, p_kg),
-         n_kg = ifelse(is.na(n_kg), new_n_kg, n_kg)
-  ) %>% 
-  select(-new2av_p_kg, -new2av_n_kg, -newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
+write_csv(mar_gapfilling, here::here("data", "MAR", version_year, "intermediate", "mar_gapfilling.csv"))
+write_csv(mar_datalayer, here::here("layers", version_year, "mar_nutrients.csv"))
 ```
 
 ```{r}
@@ -655,89 +641,6 @@ helcom3 <- as_tibble(nutrients2) %>%
 
 str(helcom3)
 ```
-
-```{r}
-## Check relationships between production and nutrients VS estimated values
-
-## check relationships between production and nutrients
-## quite linear, so probably ok to gapfill using this relationship...
-estim_p_mdl <- lm(estim_p_kg ~ produced_tonnes, data = combined_gf) # summary(estim_p_mdl)
-estim_n_mdl <- lm(estim_n_kg ~ produced_tonnes, data = combined_gf) # summary(estim_n_mdl)
-
-plotly::ggplotly(
-  ggplot(combined_gf) + 
-    geom_abline(
-      slope = coef(estim_p_mdl)[["produced_tonnes"]],
-      intercept = coef(estim_p_mdl)[["(Intercept)"]], 
-      color = "grey"
-    ) +
-    geom_point(aes(x = produced_tonnes, y = estim_p_kg), color = "dark green", alpha = 0.75)
-)
-
-## Check distribution of actual and estimated values
-# actual values
-ggplot(combined_gf, aes(x=p_kg)) + 
-  geom_histogram(color="darkblue", fill="lightblue")
-
-#estimated values
-ggplot(combined_gf, aes(x=estim_p_kg)) + 
-  geom_histogram(color="darkblue", fill="lightblue")
-
-```
-
-
-#### 2.2.1 Standardize Units: Match BHI Regions to different areas (counties, regions)
-
-<!-- need to work on this -->
-```{r map how the ICES and BHI regions overlap, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-## devtools::install_github("dill/beyonce")
-source(file.path(here::here(), "R", "spatial.R"))
-regions_shape() # loads spatial features objects
-
-## ICES shapefile has crs EPSG:3035
-## https://spatialreference.org/ref/epsg/etrs89-etrs-laea/
-## transform to match BHI crs of EPSG:4326, and simplify
-
-ices_transform <- rmapshaper::ms_simplify(input = ICES_rgns_shp) %>% 
-  sf::st_as_sf() %>% 
-  sf::st_transform(crs = 4326)
-bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
-  sf::st_as_sf() # also simplify BHI shp for plotting
-
-map_bhi_ices <- ggplot2::ggplot() + 
-  ## baltic countries borders
-  geom_sf(
-    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-      st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", 
-    size = 0.1
-  ) +
-  ## ICES areas
-  geom_sf(
-    data = ices_transform, 
-    aes(fill = ICES_area), 
-    color = NA,
-    alpha = 0.5
-  ) +
-  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(9, "Set3"))(14)) +
-  # scale_fill_manual(values = as.vector(pals::kelly(n = 14))) + # library(pals)
-  # scale_fill_manual(values = colorRampPalette(beyonce_palette(127))(14)) + # library(beyonce)
-  labs(fill = "ICES Subdivisions", x = NULL, y = NULL) +
-  ## BHI regions with ID numbers
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "grey40") +
-  scale_x_continuous(limit = c(5, 37)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(
-    panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"),
-    legend.position = c(0.9, 0.6)
-  )
-map_bhi_ices + geom_sf_text(data = bhi_rgns_simple, aes(label = BHI_ID)) 
-```
-
-
-#### 2.2.2 Rename Fields/Variables
-
-#### 2.2.3 Save to BHI Database
 
 <br/>
 
