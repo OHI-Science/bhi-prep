@@ -187,8 +187,8 @@ bhiregions <- bind_rows(
   c(country = "DK", area = "Roskilde_cty", rgn = 12),
   c(country = "DK", area = "Storstrøms_cty", rgn = list(3, 7, 9, 12)),
   c(country = "DK", area = "Vestsjællands_cty", rgn = list(2, 3)),
-  c(country = "DK", area = "Hovedstaden", rgn = list(2, 12, 15)),
-  c(country = "DK", area = "Sjælland", rgn = list(2, 3, 7, 9, 12)),
+  c(country = "DK", area = "Hovedstaden", rgn = list(2, 6, 12, 15)),
+  c(country = "DK", area = "Sjælland", rgn = list(3, 7, 9, 12)),
   c(country = "DK", area = "Syddanmark", rgn = 3),
   c(country = "DK", area = "Midtjylland", rgn = list(2, 3)),
   c(country = "DK", area = "Belts Danish coastal waters", rgn = 3),
@@ -735,16 +735,6 @@ ggplot2::ggplot(helcom1)+
  geom_col(aes(farm_ID,maxP_kg, fill = country), position = position_dodge(), width = 1) +
   facet_grid(~country) +
   ggtitle("HELCOM max P discharge (kg) 2011-2015")
-
-ggplot2::ggplot(helcom1)+
-  geom_col(aes(year,n_kg, fill = area), position = position_dodge(), width = 1) +
-  facet_grid(~country) +
-  ggtitle("HELCOM max N discharge (kg) 2011-2015")
-
-ggplot2::ggplot(helcom1)+
-  geom_col(aes(year,maxN_kg, fill = area), position = position_dodge(), width = 1, alpha = 2) +
-  facet_grid(~country) +
-  ggtitle("HELCOM max N discharge (kg) 2011-2015")
 
 ```
 
