@@ -156,105 +156,138 @@ countrycode <- data.frame(
 # also need to convert many columns from factor to numeric
 finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata, "Finfish_mariculture", "Finfish_mariculture.shp"))
 st_geometry(finfish_mariculture_raw) <- NULL
+finfish_mariculture_raw[, 1:28] <- sapply(finfish_mariculture_raw[, 1:28], as.character)
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
-finfish_mariculture_raw[, 1:7] <- sapply(finfish_mariculture_raw[, 1:7], as.character)
-
-## match areas with bhi regions
-## create lookup tab
-## to avoid double-counting, 
-## where subnational level data exist, those data supercede country-wide data
-bhiregions <- bind_rows(
-  ## country level
-  # c(country = "DE", area = "Germany", rgn = list(16, 13, 10, 8, 4)),
-  # c(country = "DK", area = "Denmark", rgn = list(15, 12, 9, 7, 6, 3, 2)),
-  # c(country = "SE", area = "Sweden", rgn = list(41, 39, 37, 35, 29, 26, 20, 14, 11, 5, 1)),
-  # c(country = "FI", area = "Finland", rgn = list(42, 40, 38, 36, 32, 30)),
-  # c(country = "ES", area = "Estonia", rgn = list(34, 31, 28, 25)),
-  # c(country = "LA", area = "Latvia", rgn = list(27, 24)),
-  # c(country = "LI", area = "Lithuania", rgn = 23),
-  # c(country = "PO", area = "Poland", rgn = list(21, 18, 17)),
-  # c(country = "RU", area = "Russia", rgn = list(33, 22, 19))
-  
-  ## germany
-  c(country = "DE", area = "Kiel Bay", rgn = 8),
-  ## denmark
-  c(country = "DK", area = "Arhus_cty", rgn = 3),
-  c(country = "DK", area = "Vejle_cty", rgn = 3),
-  c(country = "DK", area = "Fyns_cty", rgn = 3),
-  c(country = "DK", area = "Sønderjylland_cty", rgn = 3),
-  c(country = "DK", area = "Nordjyllands_cty", rgn = 2),
-  c(country = "DK", area = "Frederiksborg_cty", rgn = list(2, 6)),
-  c(country = "DK", area = "Roskilde_cty", rgn = 12),
-  c(country = "DK", area = "Storstrøms_cty", rgn = list(3, 7, 9, 12)),
-  c(country = "DK", area = "Vestsjællands_cty", rgn = list(2, 3)),
-  c(country = "DK", area = "Hovedstaden", rgn = list(2, 12, 15)),
-  c(country = "DK", area = "Sjælland", rgn = list(2, 3, 7, 9, 12)),
-  c(country = "DK", area = "Syddanmark", rgn = 3),
-  c(country = "DK", area = "Midtjylland", rgn = list(2, 3)),
-  c(country = "DK", area = "Belts Danish coastal waters", rgn = 3),
-  c(country = "DK", area = "Bornholm Basin", rgn = 15),
-  c(country = "DK", area = "Arkona Basin", rgn = 12),
-  ## sweden
-  c(country = "SE", area = "Kalmar lan", rgn = 26),
-  c(country = "SE", area = "Gavleborgs lan", rgn = 37),
-  c(country = "SE", area = "Vasternorrlands lan", rgn = 37),
-  c(country = "SE", area = "Stockholm lan", rgn = list(35, 29)),
-  c(country = "SE", area = "Vasterbottens lan", rgn = list(41, 39)),
-  c(country = "SE", area = "Norrbottens lan", rgn = 41),
-  c(country = "SE", area = "Aland Sea", rgn = 35),
-  c(country = "SE", area = "Western Gotland Basin", rgn = 26),
-  c(country = "SE", area = "Bornholm Basin", rgn = 14),
-  c(country = "SE", area = "The Sound", rgn = 5),
-  c(country = "SE", area = "Bothnian Sea", rgn = list(37, 41)),
-  c(country = "SE", area = "Bothnian Bay", rgn = 41),
-  c(country = "SE", area = "Ne_coast", rgn = list(37, 39, 41)),
-  c(country = "SE", area = "Other_coasts", rgn = list(29, 35, 26, 14, 11, 5, 1)), 
-  ## finland
-  c(country = "FI", area = "Archipelago Sea", rgn = 36),
-  c(country = "FI", area = "Bothnian Sea", rgn = 38),
-  c(country = "FI", area = "Gulf of Finland", rgn = 32),
-  c(country = "FI", area = "Bothnian Bay", rgn = 42),
-  c(country = "FI", area = "The Quark", rgn = 40)
-)
-
-bhiregions[, 3:10] <- sapply(bhiregions[, 3:10], as.numeric)
-# Create a table with bhi regions_id
-bhiregions <- bhiregions %>% 
-  tidyr::pivot_longer(cols = 3:10,  names_to = "num", values_to = "region_id") %>% 
-  filter(!is.na(region_id)) %>% 
-  dplyr::select(country, area, region_id)
 ```
 
 
+Create lookup tab for matching areas with bhi regions.   
+To avoid double-counting, need to distinguish national/subnational data.
+
+```{r to match areas with bhi regions}
+bhiregions <- bind_rows(
+  ## germany
+  c(country = "DE", lvl = "subnatl", area = "Kiel Bay", rgn = 8),
+  ## denmark
+  c(country = "DK", lvl = "subnatl", area = "Arhus_cty", rgn = 3),
+  c(country = "DK", lvl = "subnatl", area = "Vejle_cty", rgn = 3),
+  c(country = "DK", lvl = "subnatl", area = "Fyns_cty", rgn = 3),
+  c(country = "DK", lvl = "subnatl", area = "Sønderjylland_cty", rgn = 3),
+  c(country = "DK", lvl = "subnatl", area = "Nordjyllands_cty", rgn = 2),
+  c(country = "DK", lvl = "subnatl", area = "Frederiksborg_cty", rgn = list(2, 6)),
+  c(country = "DK", lvl = "subnatl", area = "Roskilde_cty", rgn = 12),
+  c(country = "DK", lvl = "subnatl", area = "Storstrøms_cty", rgn = list(3, 7, 9, 12)),
+  c(country = "DK", lvl = "subnatl", area = "Vestsjællands_cty", rgn = list(2, 3)),
+  c(country = "DK", lvl = "subnatl", area = "Hovedstaden", rgn = list(2, 12, 15)),
+  c(country = "DK", lvl = "subnatl", area = "Sjælland", rgn = list(2, 3, 7, 9, 12)),
+  c(country = "DK", lvl = "subnatl", area = "Syddanmark", rgn = 3),
+  c(country = "DK", lvl = "subnatl", area = "Midtjylland", rgn = list(2, 3)),
+  c(country = "DK", lvl = "subnatl", area = "Belts Danish coastal waters", rgn = 3),
+  c(country = "DK", lvl = "subnatl", area = "Bornholm Basin", rgn = 15),
+  c(country = "DK", lvl = "subnatl", area = "Arkona Basin", rgn = 12),
+  ## sweden
+  c(country = "SE", lvl = "subnatl", area = "Kalmar lan", rgn = 26),
+  c(country = "SE", lvl = "subnatl", area = "Gavleborgs lan", rgn = 37),
+  c(country = "SE", lvl = "subnatl", area = "Vasternorrlands lan", rgn = 37),
+  c(country = "SE", lvl = "subnatl", area = "Stockholm lan", rgn = list(35, 29)),
+  c(country = "SE", lvl = "subnatl", area = "Vasterbottens lan", rgn = list(41, 39)),
+  c(country = "SE", lvl = "subnatl", area = "Norrbottens lan", rgn = 41),
+  c(country = "SE", lvl = "subnatl", area = "Aland Sea", rgn = 35),
+  c(country = "SE", lvl = "subnatl", area = "Western Gotland Basin", rgn = 26),
+  c(country = "SE", lvl = "subnatl", area = "Bornholm Basin", rgn = 14),
+  c(country = "SE", lvl = "subnatl", area = "The Sound", rgn = 5),
+  c(country = "SE", lvl = "subnatl", area = "Bothnian Sea", rgn = 37),
+  c(country = "SE", lvl = "subnatl", area = "Bothnian Bay", rgn = 41),
+  c(country = "SE", lvl = "subnatl", area = "Ne_coast", rgn = list(37, 39, 41)),
+  c(country = "SE", lvl = "subnatl", area = "Other_coasts", rgn = list(29, 35, 26, 14, 11, 5, 1)), 
+  ## finland
+  c(country = "FI", lvl = "subnatl", area = "Archipelago Sea", rgn = 36),
+  c(country = "FI", lvl = "subnatl", area = "Bothnian Sea", rgn = 38),
+  c(country = "FI", lvl = "subnatl", area = "Gulf of Finland", rgn = 32),
+  c(country = "FI", lvl = "subnatl", area = "Bothnian Bay", rgn = 42),
+  c(country = "FI", lvl = "subnatl", area = "The Quark", rgn = 40),
+  ## countries
+  c(country = "DE", lvl = "natl", area = "Germany", rgn = list(16, 13, 10, 8, 4)),
+  c(country = "DK", lvl = "natl", area = "Denmark", rgn = list(15, 12, 9, 7, 6, 3, 2)),
+  c(country = "SE", lvl = "natl", area = "Sweden", rgn = list(41, 39, 37, 35, 29, 26, 20, 14, 11, 5, 1)),
+  c(country = "FI", lvl = "natl", area = "Finland", rgn = list(42, 40, 38, 36, 32, 30)),
+  c(country = "ES", lvl = "natl", area = "Estonia", rgn = list(34, 31, 28, 25)),
+  c(country = "LA", lvl = "natl", area = "Latvia", rgn = list(27, 24)),
+  c(country = "LI", lvl = "natl", area = "Lithuania", rgn = 23),
+  c(country = "PO", lvl = "natl", area = "Poland", rgn = list(21, 18, 17)),
+  c(country = "RU", lvl = "natl", area = "Russia", rgn = list(33, 22, 19))
+)
+
+bhiregions[, 4:15] <- sapply(bhiregions[, 4:15], as.numeric)
+bhiregions <- bhiregions %>% 
+  tidyr::pivot_longer(cols = 4:15, names_to = "num", values_to = "region_id") %>% 
+  filter(!is.na(region_id)) %>% 
+  dplyr::select(country, area, region_id, level = lvl)
+```
+
+
+```{r map showing datasets overlaps}
+source(here::here("R", "spatial.R"))
+regions_shape() # loads spatial features objects
+
+bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
+  sf::st_as_sf() %>% 
+  dplyr::right_join(
+    dplyr::select(bhiregions, area, BHI_ID = region_id), 
+    by = c("BHI_ID")
+  ) %>% 
+  mutate(areacountry = paste(area, rgn_nam, sep = ", "))
+
+cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(9, "Set1"))
+
+ggplot2::ggplot() + 
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", 
+    size = 0.1
+  ) +
+  geom_sf(
+    data = bhi_rgns_simple, 
+    aes(fill = areacountry),
+    colour = NA,
+    show.legend = FALSE
+  ) +
+  facet_wrap(~area, ncol = 3) +
+  scale_fill_manual(
+    values = colorRampPalette(cols)(45)
+  ) +
+  scale_x_continuous(limit = c(5, 37)) +
+  scale_y_continuous(limit = c(53.5, 66))
+```
+
 #### 2.2.1 Merge datasets and calculate maximum nutrient discharge (N and P) 
 
+**National and FAO datasets**
+
 ```{r merge rainbow trout rawdata, echo = TRUE}
-rbt_raw <- rbind(
+rbt_raw <- bind_rows(
   
   ## rbt_de rainbow trout germany
   rbt_de_raw %>% 
-    dplyr::rename(farm_species = production) %>% 
-    tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>%
+    dplyr::mutate(farm_species = str_to_sentence(production)) %>% 
+    tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species, -production) %>%
     dplyr::mutate(
       produced_tonnes = as.numeric(produced_tonnes),
       country = "DE",
-      p_kg = "",
-      n_kg = "",
-      ## join with max nutrient input value
-      maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
-      maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national",
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
       area = capitalize(area),
-      area = str_replace(area,"Kiel_bay","Kiel Bay")
+      area = str_replace(area, "Kiel_bay", "Kiel Bay")
     ) %>% 
-    select(year, country, area, farm_species, produced_tonnes, p_kg, maxP_kg, n_kg, maxN_kg, source) %>% 
+    select(year, country, area, farm_species, produced_tonnes, p_kg, n_kg) %>% 
     arrange(country),
   
   ## rbt_dk2005 rainbow trout 2005 denmarks
   rbt_dk2005raw %>% 
-    dplyr::select(-tot_wt_ton) %>% 
+    dplyr::mutate(farm_species = str_to_sentence(production)) %>% 
+    dplyr::select(-tot_wt_ton, -production) %>% 
     dplyr::rename(
-      farm_species = production,
       arhus_cty = cty1, 
       vejle_cty = cty2,
       fyns_cty = cty3,
@@ -277,19 +310,18 @@ rbt_raw <- rbind(
     ) %>% 
     dplyr::mutate(
       country = "DK",
-      p_kg = "",
-      n_kg = "",
-      maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
-      maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national",
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
       area = capitalize(area)
     ) %>% 
     arrange(country),
   
   ## rbt_dk rainbow trout denmark
+  ## https://www.was.org/easOnline/AbstractDetail.aspx?i=4377
   rbt_dk_raw %>% 
+    dplyr::mutate(farm_species = str_to_sentence(production)) %>% 
+    dplyr::select(-production) %>% 
     dplyr::rename(
-      farm_species = production,
       denmark = tot_wt_ton,
       hovedstaden = "reg1", 
       sjælland = "reg2",
@@ -299,92 +331,99 @@ rbt_raw <- rbind(
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
     dplyr::mutate(
       country = "DK",
-      p_kg = "",
-      n_kg = "",
-      maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
-      maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national",
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
       area = capitalize(area)
     ) %>% 
     arrange(country),
   
   ## rbt_fi rainbow trout finland
   rbt_fi_raw %>% 
-    dplyr::rename(
-      produced_tonnes = tot_wt_tonnes, 
-      farm_species = production
-    ) %>% 
     dplyr::mutate(
+      farm_species = str_to_sentence(production),
+      produced_tonnes = tot_wt_tonnes,
       country = "FI", area = "finland",
-      p_kg = "",
-      n_kg = "",
-      maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
-      maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national",
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
       area = capitalize(area)
     ) %>% 
+    dplyr::select(-production, -tot_wt_tonnes) %>% 
     arrange(country),
   
   ## rbt_se rainbow trout sweden
   rbt_se_raw %>% 
-    dplyr::rename(
-      farm_species = production,
+    dplyr::mutate(
+      farm_species = str_to_sentence(production),
       sweden = tot_wt_mtonnes
     ) %>% 
-    select(-ne_farm_no, -other_farm_no) %>%  # don't need these information 
+    select(-ne_farm_no, -other_farm_no, -production, -tot_wt_mtonnes) %>%
     tidyr::gather(key = "area", value = "produced_tonnes", -year, -farm_species) %>% 
     mutate(
       country = "SE",
-      p_kg = "",
-      n_kg = "",
-      maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
-      maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "national",
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
       area = capitalize(area)
     ) %>% 
-    arrange(country),
-  
-  ## fao_rbt fao data on rainbow trout
-  fao_rbt_raw %>% 
-    dplyr::rename(
-      area = country,
-      farm_species = species
-    ) %>% 
-    filter(
-      str_detect(str_to_lower(farm_species), "rainbow trout"), 
-      !(environment == "Marine" & area == "Denmark")
-    ) %>% 
-    select(-aqua_area, -Unit, -environment, -("1950":"1971")) %>%
-    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
-    ## remove characters from production
-    mutate(
-      ## ARE THESE STILL TONNES OR NUMBER OF FISH, OR IS IT A DATA/QUALITY FLAG?
-      produced_tonnes = str_replace(produced_tonnes,"F", " "), 
-      ## "F" stands FAO estimates from available sources of information, so simply remove the letter "F"
-      produced_tonnes = as.numeric(produced_tonnes),
-      p_kg = NA,
-      n_kg = NA,
-      maxP_kg = 0.007*(as.numeric(produced_tonnes)*1000), 
-      maxN_kg = 0.05*(as.numeric(produced_tonnes)*1000),
-      source = "fao",
-      area = capitalize(area)
-    ) %>% 
-    ## join with countrycode data
-    left_join(countrycode, by = "area") %>% 
     arrange(country)
-)
+  
+) %>% mutate(source = "national")
+
+rbt_raw <- bind_rows(
+  rbt_raw, 
+    ## fao_rbt fao data on rainbow trout
+    fao_rbt_raw %>% 
+      dplyr::mutate(
+        area = country,
+        farm_species = str_to_sentence(species)
+      ) %>% 
+      filter(
+        ## aqua area atlantic NE, so maybe keep marine?
+        # !(environment == "Marine" & area == "Denmark"), 
+        str_detect(farm_species, "Rainbow trout")
+      ) %>% 
+      select(-aqua_area, -Unit, -environment, -("1950":"1971"), -country, -species) %>%
+      tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
+    
+      ## remove characters from production numeric values
+      ## "F" stands FAO estimates from available sources of information
+      mutate(
+        year = as.numeric(year),
+        produced_tonnes = str_replace(produced_tonnes, "F", " "), 
+        produced_tonnes = as.numeric(produced_tonnes),
+        p_kg = as.numeric(NA),
+        n_kg = as.numeric(NA),
+        area = capitalize(area)
+      ) %>% 
+      group_by(area, year) %>% 
+      mutate(
+        produced_tonnes = sum(produced_tonnes),
+        p_kg = sum(p_kg),
+        n_kg = sum(n_kg)
+      ) %>% 
+      distinct() %>% 
+      filter(!is.na(produced_tonnes)) %>% 
+      
+      ## join with countrycode data
+      left_join(countrycode, by = "area") %>% 
+      mutate(source = "fao") %>% 
+      select(year, country, area, farm_species, produced_tonnes, p_kg, n_kg, source) %>% 
+      
+      filter(area != "Finland") %>% # remove finland fao data-- exact duplicates of national data
+      filter(!(year %in% 2006:2017 & area == "Denmark")) %>% # use Denmark national data instead here...
+      filter(!(year %in% 2009:2018 & area == "Sweden")) # sweden natl data matches fao, but includes 2009-2018
+  )
 
 ## reassign types and join bhi region_ids by area
 ## use lookup table defined in code chunk above
-rbt_raw[, c(5:9)] <- sapply(rbt_raw[, c(5:9)], as.numeric) 
-rbt_raw_wRgns <- rbt_raw %>% 
-  left_join(bhiregions, by = c("country", "area")) %>% 
-  arrange(country)
-str(rbt_raw_wRgns)
+rbt_raw[, c(5:7)] <- sapply(rbt_raw[, c(5:7)], as.numeric) 
 ```
+
 
 ```{r merge finfish rawdata, echo = TRUE}
 ## wrangling finfish data so can merge with other datasets
+## source of this dataset is helcom
+## spatial file located here:
+## http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0
 finfish_raw <- as_tibble(finfish_mariculture_raw) %>% 
   mutate(SUBBASIN = ifelse(is.na(SUBBASIN), COUNTY, SUBBASIN)) %>% 
   dplyr::rename(
@@ -397,15 +436,16 @@ finfish_raw <- as_tibble(finfish_mariculture_raw) %>%
   ## are we sure that 'NA' value for AREA means that it is on land? there are so many NAs, leaves only "SE" "DK" "FI" data...
   filter(is.na(AREA) |!str_detect(str_to_lower(AREA), "on land"),
          !(area == "Bay of Mecklenburg")) %>% 
-  tibble::rowid_to_column("ID") %>% 
+  tibble::rowid_to_column("farm_ID") %>% 
+  mutate(farm_ID = as.factor(farm_ID)) %>% 
   ## replace NA value with general mariculture name 'finfish'
   mutate(
     area = str_replace(area,"Sland Sea","Aland Sea"),
     AREA = str_replace(AREA, ",", "."),
     farm_species = ifelse(
       is.na(farm_species), 
-      "finfish",  ifelse(
-        str_detect(farm_species, "Rainbow trout"),
+      "Finfish", ifelse(
+        str_detect(farm_species, "Rainbow trout|rainbow trout"),
         "Rainbow trout", farm_species
       )
     )
@@ -430,6 +470,8 @@ arealookup[,] <- sapply(arealookup[,], as.character)
 spreadcols <- names(finfish_raw)[1:5]
 gathercols <- names(finfish_raw)[6:26]
 
+## reshape to have year and 3 variable cols: 
+## production (PR), nitrogen (N), and phosphorus (P)
 finfish_gather_yr <- as_tibble(finfish_raw) %>% 
   tidyr::pivot_longer(cols = gathercols, names_to = "varyear", values_to = "value") %>% 
   mutate(
@@ -437,97 +479,110 @@ finfish_gather_yr <- as_tibble(finfish_raw) %>%
     var = str_extract(varyear, pattern = "[A-Z]+")
   ) %>% 
   filter(!is.na(year)) %>%  # filter out na years as these represent aggregated values, but keep NA values
-
-  ## re-spread data by the three variables: production (PR), nitrogen (N), and phosphorus (P)
-  tidyr::pivot_wider(id_cols = c(spreadcols, "year", "ID"), names_from = var, values_from = value) %>% 
-  mutate(PR = ifelse(PR == 0 & (!is.na(N)|!is.na(P)), ifelse(max(c(N, P), na.rm = TRUE) > 50, NA, 0), PR)) %>% 
-  rename(
-    produced_tonnes = PR,
-    n_kg = N,
-    p_kg = P
-  ) %>% 
-  mutate(
-    maxP_kg = 0.007 * (produced_tonnes * 1000),
-    maxN_kg = 0.05 * (produced_tonnes * 1000),
-    source = "helcom",
-    ID = as.factor(ID)
-  ) %>% 
-  ## keep only necessary columns
-  select(year, country, area, farm_species, produced_tonnes, p_kg, maxP_kg, n_kg, maxN_kg, source, ID) %>% 
-  ## join the renamed areas
+  tidyr::pivot_wider(id_cols = c(spreadcols, "year", "farm_ID"), names_from = var, values_from = value) %>% 
+  ## where production is zero and nutrients aren't close to zero, assume production should be NA...
+  rowwise() %>% 
+  dplyr::mutate(PR = ifelse(PR < 1 & (!is.na(N)|!is.na(P)), ifelse(any(c(N,P) < 10), PR, NA), PR)) %>% 
+  ungroup() %>%
+  ## keep only necessary columns and join with renamed areas
+  select(year, country, area, farm_species, produced_tonnes = PR, p_kg = P, n_kg = N, farm_ID) %>% 
   left_join(arealookup, by = "area") %>%
-  mutate(area = ifelse(!is.na(fix_area), fix_area, area)) %>%
-  rename(farm_ID = ID) %>% 
-  select(-fix_area)
-
-str(finfish_gather_yr)
+  mutate(area = ifelse(!is.na(fix_area), fix_area, area), source = "helcom") %>%
+  select(-fix_area, -farm_ID)
 ```
+
 
 #### 2.2.2 Standardize Units: Production regions and BHI Region assignments
 
-**Note: There will be an issue related to the bhi_regions number and the farm_ID for big areas, such as "Other_coasts" for Sweden, where multiple bhi_regions are considered.** Specifically, it cannot be determined in which bhi_region the farm is located, within the larger region. To deal with this spatial resolution issue, we assign the value from the entry to all contained BHI regions. Because we are interested in the ratio and not the absolute values of production and nutrient use, we simply assign the values to all regions (rather than allocating based on e.g. region km2 areas)...
+**Note: where multiple BHI regions exist within the areas reported for mariculture data (e.g. "Ne_coast" for Sweden contains BHI regions 37, 39, and 41), the data values are split among the regions based on region sizes, i.e. with the assumption that each unit area is equally likely to contain the given mariculture farm...** For future assessments, if adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles).  
+
 
 ```{r combine into a single harmonized dataset save, echo = TRUE}
-## Make the columns numbers equal among datasets
-finfish_wRgns <- finfish_gather_yr %>% 
-  select(-farm_ID) %>% 
+## join spatial area information to bhiregions lookup table
+st_geometry(bhi_rgns_simple) <- NULL
+bhiregions <- bhi_rgns_simple %>% 
+  dplyr::select(region_id = BHI_ID, Area_km2) %>% 
+  distinct() %>%
+  right_join(bhiregions, by = "region_id") %>% 
+  mutate(level = as.numeric(ifelse(level == "natl", "1", "2")))
+
+## combine the datasets and add the ID column, then deal with overlapping data
+## overlap here due to nesting of different spatial resolutions, not duplicate entries
+
+combined_rawdata <- rbind(rbt_raw, finfish_gather_yr) %>%
   left_join(bhiregions, by = c("country", "area")) %>% 
-  arrange(country)
+  ## in the case where theres no subnational data, use national
+  mutate(level = ifelse(level == 2 & is.na(produced_tonnes) & is.na(p_kg)& is.na(n_kg), 0, level)) %>% 
+  group_by(year, country, region_id, farm_species) %>% 
+  ## top_n function will select uppermost available level within grouping
+  top_n(1, level) %>% 
+  ungroup()
 
-## Combine the datasets and add the ID column
-combined_rawdata <- rbind(rbt_raw_wRgns, finfish_wRgns) %>% 
-  tibble::rowid_to_column("ID") 
-## note: issue matching farms to BHI regions when only larger areas are given in dataset
-## see comments above code chunk for explanation
+level_area <- combined_rawdata %>%
+  group_by(year, country, level, area, farm_species) %>%
+  summarize(level_area_km2 = sum(Area_km2)) %>%
+  ungroup()
 
-combined_rawdata[, c(6:10)] <- sapply(combined_rawdata[, c(6:10)], as.numeric) 
-str(combined_rawdata)
+combined_rawdata <- combined_rawdata %>%
+  left_join(level_area, by = c("year", "country", "level", "area", "farm_species")) %>%
+  mutate(area_frac = Area_km2/level_area_km2) %>% 
+  group_by(year, country, level, area, farm_species, region_id) %>% 
+  mutate(area_frac = sum(area_frac)) %>%  # if there are multiple points per group, should keep unique
+  ungroup() %>% 
+  mutate(
+    rgn_production = ifelse(level == 2, produced_tonnes*area_frac, NA),
+    rgn_N = ifelse(level == 2, n_kg*area_frac, NA),
+    rgn_P = ifelse(level == 2, p_kg*area_frac, NA)
+  ) %>%
+  group_by(year, country, farm_species) %>% 
+  mutate(
+    subnatl_prod = sum(ifelse(source == "national", rgn_production, 0), na.rm = TRUE),
+    subnatl_N = sum(ifelse(source == "national", rgn_N, 0), na.rm = TRUE),
+    subnatl_P = sum(ifelse(source == "national", rgn_P, 0), na.rm = TRUE)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    rgn_production = ifelse(level == 1, (produced_tonnes-subnatl_prod)*area_frac, rgn_production),
+    rgn_N = ifelse(level == 1, (n_kg-subnatl_N)*area_frac, rgn_N),
+    rgn_P = ifelse(level == 1, (p_kg-subnatl_P)*area_frac, rgn_P)
+  ) %>% 
+  select(
+    year, country, source, area, level, region_id, farm_species,
+    produced_tonnes, n_kg, p_kg, 
+    rgn_area_km2 = Area_km2, area_fraction = area_frac,
+    rgn_production, rgn_production, rgn_N, rgn_P
+  )
 
+## save the full merged data with assigned BHI regions
 readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "intermediate", "mar_full_nmerged_dataset.csv"))
 ```
 
 #### 2.2.3 Imputation/Gapfilling of merged datasets
 
 ```{r investigate nutrient estimates with linear models}
-plotdf <- combined_rawdata %>% 
+## gapfill using raw merged data, 
+## not data split and assigned to BHI regions!
+plotdf <- rbind(rbt_raw, finfish_gather_yr) %>% 
   filter(!is.na(p_kg) & !is.na(n_kg)) %>% 
   filter(produced_tonnes > 20)
-
-plotdf_small <- combined_rawdata %>% 
-  filter(!is.na(p_kg) & !is.na(n_kg)) %>% 
-  filter(produced_tonnes > 0, produced_tonnes <= 20) %>% 
-  ## eliminate some outliers from linear regression subset...
-  filter(produced_tonnes * 15 > p_kg) 
 
 ## check relationships between production and nutrients
 ## quite linear, so probably ok to gapfill using this relationship...
 p_mdl <- lm(p_kg ~ produced_tonnes, data = plotdf) # summary(p_mdl)
 n_mdl <- lm(n_kg ~ produced_tonnes, data = plotdf) # summary(n_mdl)
 
-## note: for small farms (less than 20 tonnes  produced), relationship looks different...
-p_mdl_small <- lm(p_kg ~ produced_tonnes, data = plotdf_small) # summary(p_mdl_small)
-n_mdl_small <- lm(n_kg ~ produced_tonnes, data = plotdf_small) # summary(n_mdl_small)
-
-
 plotly::ggplotly(
   ggplot(plotdf) +
-  # ggplot(plotdf_small) + 
     geom_abline(
       slope = coef(p_mdl)[["produced_tonnes"]],
       intercept = coef(p_mdl)[["(Intercept)"]], 
-      # slope = coef(p_mdl_small)[["produced_tonnes"]],
-      # intercept = coef(p_mdl_small)[["(Intercept)"]], 
       color = "grey"
     ) +
     geom_point(aes(x = produced_tonnes, y = p_kg), color = "blue", alpha = 0.75)
 )
-```
 
-
-```{r production estimates with linear models}
-## note: nitrogen is an insignificant predictor for the smaller operations
+## production estimates with linear models
 prod_mdl <- lm(produced_tonnes ~ n_kg + p_kg, data = plotdf) # summary(prod_mdl)
-prod_mdl_small <- lm(produced_tonnes ~ p_kg, data = plotdf_small) # summary(prod_mdl_small)
 ```
 
 
