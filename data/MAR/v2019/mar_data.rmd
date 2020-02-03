@@ -179,7 +179,7 @@ bhiregions <- bind_rows(
   c(country = "DK", lvl = "subnatl", area = "Storstrøms_cty", rgn = list(3, 7, 9, 12)),
   c(country = "DK", lvl = "subnatl", area = "Vestsjællands_cty", rgn = list(2, 3)),
   c(country = "DK", lvl = "subnatl", area = "Hovedstaden", rgn = list(2, 6, 12, 15)),
-  c(country = "DK", lvl = "subnatl", area = "Sjælland", rgn = list(2, 3, 7, 9, 12)),
+  c(country = "DK", lvl = "subnatl", area = "Sjælland", rgn = list(3, 7, 9, 12)),
   c(country = "DK", lvl = "subnatl", area = "Syddanmark", rgn = 3),
   c(country = "DK", lvl = "subnatl", area = "Midtjylland", rgn = list(2, 3)),
   c(country = "DK", lvl = "subnatl", area = "Belts Danish coastal waters", rgn = 3),
@@ -530,27 +530,27 @@ combined_rawdata <- combined_rawdata %>%
   mutate(area_frac = sum(area_frac)) %>%  # if there are multiple points per group, should keep unique
   ungroup() %>% 
   mutate(
-    rgn_production = ifelse(level == 2, produced_tonnes*area_frac, NA),
-    rgn_N = ifelse(level == 2, n_kg*area_frac, NA),
-    rgn_P = ifelse(level == 2, p_kg*area_frac, NA)
+    split_production = ifelse(level == 2, produced_tonnes*area_frac, NA),
+    split_N = ifelse(level == 2, n_kg*area_frac, NA),
+    split_P = ifelse(level == 2, p_kg*area_frac, NA)
   ) %>%
   group_by(year, country, farm_species) %>% 
   mutate(
-    subnatl_prod = sum(ifelse(source == "national", rgn_production, 0), na.rm = TRUE),
-    subnatl_N = sum(ifelse(source == "national", rgn_N, 0), na.rm = TRUE),
-    subnatl_P = sum(ifelse(source == "national", rgn_P, 0), na.rm = TRUE)
+    subnatl_prod = sum(ifelse(source == "national", split_production, 0), na.rm = TRUE),
+    subnatl_N = sum(ifelse(source == "national", split_N, 0), na.rm = TRUE),
+    subnatl_P = sum(ifelse(source == "national", split_P, 0), na.rm = TRUE)
   ) %>% 
   ungroup() %>% 
   mutate(
-    rgn_production = ifelse(level == 1, (produced_tonnes-subnatl_prod)*area_frac, rgn_production),
-    rgn_N = ifelse(level == 1, (n_kg-subnatl_N)*area_frac, rgn_N),
-    rgn_P = ifelse(level == 1, (p_kg-subnatl_P)*area_frac, rgn_P)
+    split_production = ifelse(level == 1, (produced_tonnes-subnatl_prod)*area_frac, split_production),
+    split_N = ifelse(level == 1, (n_kg-subnatl_N)*area_frac, split_N),
+    split_P = ifelse(level == 1, (p_kg-subnatl_P)*area_frac, split_P)
   ) %>% 
   select(
     year, country, source, area, level, region_id, farm_species,
     produced_tonnes, n_kg, p_kg, 
     rgn_area_km2 = Area_km2, area_fraction = area_frac,
-    rgn_production, rgn_production, rgn_N, rgn_P
+    split_production, split_N, split_P
   )
 
 ## save the full merged data with assigned BHI regions
@@ -565,28 +565,29 @@ readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "inte
 plotdf <- rbind(rbt_raw, finfish_gather_yr) %>% 
   filter(!is.na(p_kg) & !is.na(n_kg)) %>% 
   filter(produced_tonnes > 20) %>% 
-  ## to use predict function later based on lm obj, need rgn names in models
-  dplyr::rename(rgn_production = produced_tonnes, rgn_N = n_kg, rgn_P = p_kg)
+  ## to use predict function later based on lm obj, need these names in models
+  dplyr::rename(split_production = produced_tonnes, split_N = n_kg, split_P = p_kg)
 
 ## check relationships between production and nutrients
 ## quite linear, so probably ok to gapfill using this relationship...
-p_mdl <- lm(rgn_P ~ 0 + rgn_production, data = plotdf) # summary(p_mdl)
-n_mdl <- lm(rgn_N ~ 0 + rgn_production, data = plotdf) # summary(n_mdl)
+## note: remember 'split' values here are actually original data renamed!
+p_mdl <- lm(split_P ~ 0 + split_production, data = plotdf) # summary(p_mdl)
+n_mdl <- lm(split_N ~ 0 + split_production, data = plotdf) # summary(n_mdl)
 
 plotly::ggplotly(
   ggplot(plotdf) +
-    geom_abline(slope = coef(p_mdl)[["rgn_production"]], intercept = 0, color = "grey") +
-    geom_point(aes(x = rgn_production, y = rgn_P), color = "blue", alpha = 0.75)
+    geom_abline(slope = coef(p_mdl)[["split_production"]], intercept = 0, color = "grey") +
+    geom_point(aes(x = split_production, y = split_P), color = "blue", alpha = 0.75)
 )
 
 ## production estimates with linear models
 ## strange things happen when including phosphorus (negative coefficient...)
-prod_mdl <- lm(rgn_production ~ 0 + rgn_N, data = plotdf) # summary(prod_mdl)
+prod_mdl <- lm(split_production ~ 0 + split_N, data = plotdf) # summary(prod_mdl)
 
 plotly::ggplotly(
   ggplot(plotdf) +
-    geom_abline(slope = coef(prod_mdl)[["rgn_N"]], intercept = 0, color = "grey") +
-    geom_point(aes(x = rgn_N, y = rgn_production), color = "blue", alpha = 0.75)
+    geom_abline(slope = coef(prod_mdl)[["split_N"]], intercept = 0, color = "grey") +
+    geom_point(aes(x = split_N, y = split_production), color = "blue", alpha = 0.75)
 )
 ```
 
@@ -599,8 +600,8 @@ mar_gapfilling <- combined_rawdata %>%
 
   ## identify where to gapfill
   mutate(
-    gapfill_nutrients = (is.na(rgn_P)|is.na(rgn_N)) & !is.na(rgn_production),
-    gapfill_prod = is.na(rgn_production) & !is.na(rgn_N) & !is.na(rgn_P)
+    gapfill_nutrients = (is.na(split_P)|is.na(split_N)) & !is.na(split_production),
+    gapfill_prod = is.na(split_production) & !is.na(split_N) & !is.na(split_P)
   ) %>% 
   
   ## estimates based on production
@@ -613,9 +614,9 @@ mar_gapfilling <- combined_rawdata %>%
   ## gapfilling nutrients based on production and vice versa...
   ## production from regression w N and P, so cannot gapfill if either are NA
   mutate(
-    rgn_N = ifelse(is.na(rgn_N), estim_n_kg, rgn_N),
-    rgn_P = ifelse(is.na(rgn_P), estim_p_kg, rgn_P),
-    rgn_production = ifelse(gapfill_prod, estim_prod, rgn_production)
+    split_N_gf = ifelse(is.na(split_N), estim_n_kg, split_N),
+    split_P_gf = ifelse(is.na(split_P), estim_p_kg, split_P),
+    split_prod_gf = ifelse(gapfill_prod, estim_prod, split_production)
   ) %>%
 
   ## nutrient ratios
@@ -623,8 +624,8 @@ mar_gapfilling <- combined_rawdata %>%
     gapfilled = gapfill_nutrients|gapfill_prod,
     ## calculate ratios of nutrients used to fish produced
     ## grams per kg fish, unit conversion factors cancel
-    N_prod_ratio = ifelse(rgn_production == 0, 0, rgn_N/rgn_production),
-    P_prod_ratio = ifelse(rgn_production == 0, 0, rgn_P/rgn_production)
+    N_prod_ratio = ifelse(split_prod_gf == 0, 0, split_N_gf/split_prod_gf),
+    P_prod_ratio = ifelse(split_prod_gf == 0, 0, split_P_gf/split_prod_gf)
   ) %>% 
   mutate(
     ## NAs where production is gapfilled but nutrient inputs are zero
@@ -632,23 +633,29 @@ mar_gapfilling <- combined_rawdata %>%
     P_prod_ratio = ifelse(gapfill_prod & p_kg == 0, NA, P_prod_ratio)
   ) %>% 
   select(
-    year, region_id, farm_species, 
-    gapfilled, gapfill_nutrients, gapfill_prod, 
+    year, country, region_id, farm_species, 
+    gapfilled, gapfill_nutrients, gapfill_prod, gapfill_nutrients,
     estim_n_kg, estim_p_kg, estim_prod, 
-    rgn_N, rgn_P, rgn_production,
+    split_N_gf, split_P_gf, split_prod_gf,
     N_prod_ratio, P_prod_ratio
   )
 
 mar_datalayers <- mar_gapfilling %>% 
   group_by(year, region_id) %>% 
+  ## get summarized values by BHI region
   summarize(
-    n_kg = sum(rgn_N, na.rm = TRUE),
-    p_kg = sum(rgn_P, na.rm = TRUE),
-    produced_tonnes = sum(rgn_production, na.rm = TRUE),
+    n_kg = sum(split_N_gf, na.rm = TRUE),
+    p_kg = sum(split_P_gf, na.rm = TRUE),
+    produced_tonnes = sum(split_prod_gf, na.rm = TRUE),
     n_ratio = mean(N_prod_ratio, na.rm = TRUE),
     p_ratio = mean(P_prod_ratio, na.rm = TRUE),
-    percent_gf = sum(gapfilled)/n()
-  )
+    pct_gf = sum(gapfilled)/n(),
+    pct_prod_gf = sum(gapfill_prod)/n(),
+    pct_nutrient_gf = sum(gapfill_nutrients)/n()
+  ) %>% 
+  ungroup() %>% 
+  mutate(year = as.character(year)) %>% 
+  mutate(year = as.numeric(year))
 
 ## save gapfilled dataset and dataset recording where gapfilling occurred
 write_csv(mar_gapfilling, here::here("data", "MAR", version_year, "intermediate", "mar_gapfilling.csv"))
@@ -662,229 +669,93 @@ write_csv(mar_harvest, here::here("layers", version_year, "mar_harvest.csv"))
 write_csv(mar_nutrients, here::here("layers", version_year, "mar_nutrients.csv"))
 ```
 
-```{r}
-## create dataset with nutrient ESTIMATES (kg) from HELCOM data
-
-helcom <- finfish_raw3 %>% 
-  mutate(value_p_kg = p_kg/(produced_tonnes*1000),
-         value_n_kg = n_kg/(produced_tonnes*1000)
-         ) 
-## create average values by region_id
-helcom1 <- helcom %>% 
-  group_by(rgn_id) %>%
-  summarize(av_p_kg = mean(value_p_kg, na.rm=TRUE),
-            av_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## create average values by production (for NA values) 
-helcom2 <- helcom %>% 
-  group_by(produced_tonnes) %>%
-  summarize(newav_p_kg = mean(value_p_kg, na.rm=TRUE),
-            newav_n_kg = mean(value_n_kg, na.rm = TRUE))
-
-## join both the datasets
-nutrients1 <- helcom %>% 
-  left_join(helcom1, by = "rgn_id") %>% 
-  arrange(country) 
-
-nutrients2 <- nutrients1 %>% 
-  left_join(helcom2, by = "produced_tonnes") %>%
-  arrange(country) 
-
-helcom3 <- as_tibble(nutrients2) %>% 
-  mutate(av_p_kg = ifelse(is.na(av_p_kg), newav_p_kg, av_p_kg),
-         av_n_kg = ifelse(is.na(av_n_kg), newav_n_kg, av_n_kg),
-         value_p_kg = ifelse(is.na(value_p_kg), av_p_kg, value_p_kg),
-         value_n_kg = ifelse(is.na(value_n_kg), av_n_kg, value_n_kg)
-  ) %>% 
-  mutate(new_p_kg = value_p_kg*(produced_tonnes*1000),
-         new_n_kg = value_n_kg*(produced_tonnes*1000)
-  ) %>% 
-  mutate(p_kg = ifelse(is.na(p_kg), new_p_kg, p_kg),
-         n_kg = ifelse(is.na(n_kg), new_n_kg, n_kg)
-  ) %>% 
-  select(-newav_p_kg, -newav_n_kg, -av_p_kg, -av_n_kg, -value_p_kg, -value_n_kg, -new_p_kg, -new_n_kg)
-
-str(helcom3)
-```
-
 <br/>
 
 ### 2.3 Initial Data Exploration
 
-```{r initial data exploration by national data first}
-## Checking all variables before plotting them
-
-## Germany
-germany <- combined_rawdata %>% 
-  filter(country == "DE",
-         year %in% 1999:2019)
-# str(germany)
-ggplot2::ggplot(germany) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  # facet_grid(. ~ source) +
-  # coord_flip() +
-  labs(title = "German production (tons) 1999-2019")
+```{r explore raw data by source and country}
+datasources <- ggplot(
+  combined_rawdata %>% 
+    mutate(region_id = as.factor(region_id)) %>% 
+    mutate(year = as.numeric(year)) %>% 
+    mutate(source = ifelse(source == "fao", "FAO", str_to_title(source))),
+  aes(x = year, y = split_production, color = source)
+)
+datasources + 
+  geom_point(alpha =  0.5) + 
+  facet_wrap(~ country, ncol = 1) + 
+  labs(x = "Year", y = "Production, split over BHI Regions\n", color = "Data Source")
 ```
 
+```{r explore gapfilled data by country}
+plotdf <- mar_datalayers %>% 
+  left_join(
+    bhiregions %>% 
+      select(region_id, country) %>% 
+      distinct(),
+    by = "region_id"
+  ) %>% 
+  mutate(region_id = as.factor(region_id)) %>% 
+  rename(Nitrogen = n_kg, Phosphorus = p_kg, Production = produced_tonnes) %>% 
+  mutate(Nmax = 50*Production, Pmax = 7*Production) %>% 
+  group_by(year, country) %>% 
+  mutate(Nmax = sum(Nmax, na.rm = TRUE), Pmax = sum(Pmax, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  tidyr::pivot_longer(cols = c(Nitrogen, Phosphorus, Nmax, Pmax, Production))
 
-```{r initial data exploration by national data first}
-## Denmark
-denmark <- combined_rawdata %>% 
-  filter(country == "DK", 
-         !is.na(produced_tonnes))
-ggplot2::ggplot(denmark) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  facet_grid(. ~ source) +
-  coord_flip() +
-  labs(title = "Danish production (tons) 2005-2017")
+
+ggplot(
+  filter(plotdf, name == "Production"),
+  aes(x = year, y = value, fill = region_id)
+  ) +
+  geom_area(position = "stack", alpha =  0.5, show.legend = FALSE) + 
+  facet_wrap(~ country, ncol = 1, scales = "free_y") + 
+  labs(x = "Year", y = "Mariculture production (tonnes, gapfilled)\n")
+
+  
+ggplot() +
+  geom_area(
+    mapping = aes(x = year, y = value, fill = region_id),
+    data = plotdf %>% 
+      filter(name %in% c("Nitrogen", "Phosphorus")),
+    position = "stack", 
+    alpha =  0.5, 
+    show.legend = FALSE
+  ) + 
+  geom_line(
+    mapping = aes(x = year, y = value), # color = region_id
+    data = plotdf %>% 
+      filter(name %in% c("Nmax", "Pmax")) %>% 
+      mutate(name = ifelse(name == "Nmax", "Nitrogen", "Phosphorus")),
+    inherit.aes = FALSE,
+    size = 0.4,
+    show.legend = FALSE
+  ) + 
+  facet_grid(rows = vars(country), cols = vars(name), scales = "free_y") + 
+  labs(x = "Year", y = "Nutrient Use (kg, gapfilled)\n")
 ```
 
-
-```{r initial data exploration by national data first}
-## Finland
-finland <- combined_rawdata %>% 
-  filter(country == "FI")
-ggplot2::ggplot(finland) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  facet_grid(. ~ source) +
-  coord_flip() +
-   theme(legend.position = "none") +
-  labs(title = "Finnish production (tons) 1978-2018")
-```
-
-
-```{r initial data exploration by national data first}
-## Sweden 
-sweden <- combined_rawdata %>% 
-  filter(country == "SE")
-ggplot2::ggplot(sweden) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge()) +
-  facet_grid(. ~ source) +
-  coord_flip() +
-  labs(title = "Swedish production (tons) 2009-2018")
-```
-
-
-```{r initial data exploration by national data first}
-## FAO data
-fao <- combined_rawdata %>% 
-  filter(source == "fao")
-str(fao)
-ggplot2::ggplot(fao) +
-  geom_col(aes(year, produced_tonnes, fill = area), position = position_dodge(), width = 2) +
-  labs(title = "FAO Brackish water production (tons) 1972-2017")
-```
-
-
-```{r initial data exploration by national data first}
-## HELCOM data
-helcom <- combined_rawdata %>% 
-  filter(source == "helcom",
-         !is.na(produced_tonnes),
-         !(produced_tonnes == 0))
-ggplot2::ggplot(helcom)+
-  geom_col(aes(year,produced_tonnes, fill = area), position = position_dodge(), width = 1) +
-  facet_grid(~country) +
-  ggtitle("HELCOM Brackish water production (tons) 2011-2015")
-
-helcom1 <- finfish_raw2 %>% 
-  filter(source == "helcom",
-         !(p_kg == 0),
-         !(n_kg == 0))
-ggplot2::ggplot(helcom1)+
-  geom_col(aes(farm_ID,p_kg, fill = country), position = position_dodge(), width = 1) +
-  facet_grid(~year) +
-  ggtitle("HELCOM P discharge (kg) 2011-2015")
-
-ggplot2::ggplot(helcom1)+
- geom_col(aes(farm_ID,maxP_kg, fill = country), position = position_dodge(), width = 1) +
-  facet_grid(~country) +
-  ggtitle("HELCOM max P discharge (kg) 2011-2015")
-
+```{r gapfilled percentages by country and region id}
+percentagegf <- ggplot(
+  mar_datalayers %>% 
+    left_join(
+      bhiregions %>% 
+        select(region_id, country) %>% 
+        distinct(),
+      by = "region_id"
+    ) %>% 
+    filter(year > 2008) %>% 
+    mutate(region_id = as.factor(region_id)) %>% 
+    mutate(year = as.character(year)),
+  aes(fill = region_id, x = year, y = pct_nutrient_gf) # also visualize: pct_gf, pct_prod_gf
+)
+percentagegf +
+  geom_col(position = position_dodge(), alpha = 0.5, show.legend = FALSE) + 
+  facet_wrap(~ country, ncol = 1) + 
+  labs(x = "Year", y = "Percentage gapfilled\n", fill = "BHI Region ID")
 ```
 
 <br/>
-
-```{r}
-## create datasets for the HELCOM nutrient plots
-str(finfish_raw2)
-
-helcom_nutrients <- finfish_raw2 %>% 
-  mutate(countryarea = paste(country, area, sep = "_")) %>% 
-  filter(
-    !(p_kg == 0),
-    !(n_kg == 0)
-  ) %>% 
-  dplyr::select(-farm_species) %>% 
-  rename(P_KG = p_kg, N_KG = n_kg) %>% 
-  tidyr::pivot_longer(cols = c("P_KG", "N_KG"), names_to = "Input", values_to = "Value")
-
-helcom_nutrients_bounds <- finfish_raw2 %>% 
-  mutate(countryarea = paste(country, area, sep = "_")) %>% 
-  filter(!(p_kg == 0),
-         !(n_kg == 0)
-  ) %>% 
-  dplyr::select(-farm_species, -p_kg, -n_kg) %>% 
-  tidyr::pivot_longer(cols = c("maxP_kg", "maxN_kg"), names_to = "maxInput", values_to = "Value")
-
-## plot format nutrient reference
-nutrients_plot2 <- ggplot(data = helcom_nutrients) +
-  geom_errorbar(
-    data = helcom_nutrients_bounds, 
-    aes(x = year, ymin = Value, ymax = Value, color = maxInput), 
-    alpha = 0.2, 
-    size = 0.5
-  ) +
-  geom_point(
-    aes(x = year, y = Value, color = Input), 
-    alpha = 0.5, size = 2.5, shape = 18) +
-  facet_grid(cols = vars(country), rows = vars(Input)) +
-  scale_color_brewer(palette = "Paired") +
-  ggtitle("HELCOM Brackish water production (tons) 2011-2015")
-
-nutrients_plot2
-
-
-
-ggplot(filter(helcom_nutrients, Input == "P_KG")) + 
-  geom_col(aes(x = year, y = Value, fill = farm_ID), position = position_dodge()) +
-  geom_errorbar(
-    aes(x = year, ymin = 0, ymax = maxP_kg),
-    width = 0.15,
-    alpha = 0.8,
-    position = position_dodge(0.9)
-  ) +
-  facet_grid(cols = vars(country), rows = vars(Input)) +
-  scale_color_brewer(palette = "Set2") +
-  theme(legend.position = "none")
-  
-
-nutrients_plot3 <- ggplot(data = helcom_nutrients) +
-  geom_col(aes(x = year, y = Value, fill = farm_ID), position = position_dodge()) +
-  facet_grid(cols = vars(country), rows = vars(Input)) +
-  scale_color_brewer(palette = "Set2") +
-  theme(legend.position = "none") +
-  
-  geom_errorbar(
-    data = helcom_nutrients_bounds, 
-    aes(x = year, ymin = 0, ymax = Value, color = farm_ID), 
-    position = position_dodge()
-  ) +
-  facet_grid(cols = vars(country), rows = vars(maxInput)) 
-
-nutrients_plot3
-
-## Combined raw data
-str(combined_rawdata)
-combined <- combined_rawdata %>% 
-  filter(year %in% 2010:2019) 
-
-ggplot2::ggplot(combined)+
-  geom_col(aes(year,produced_tonnes, fill = area), position = position_dodge()) +
-  facet_grid(~country) +
-  coord_flip() +
-  ggtitle("Total Brackish water production (tons) 2010-2019")
-```
 
 
 ```{r}
