@@ -156,8 +156,9 @@ countrycode <- data.frame(
 # also need to convert many columns from factor to numeric
 finfish_mariculture_raw <- sf::st_read(file.path(dir_rawdata, "Finfish_mariculture", "Finfish_mariculture.shp"))
 st_geometry(finfish_mariculture_raw) <- NULL
+finfish_mariculture_raw[, 1:28] <- sapply(finfish_mariculture_raw[, 1:28], as.character)
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
-finfish_mariculture_raw[, 1:7] <- sapply(finfish_mariculture_raw[, 1:7], as.character)
+
 
 ## match areas with bhi regions
 ## create lookup tab
