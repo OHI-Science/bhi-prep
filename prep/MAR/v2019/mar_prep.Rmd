@@ -1,22 +1,21 @@
 ---
-title: "Mariculture - Food Provision Subgoal data prep"
+title: "Mariculture - Food Provision Subgoal"
 output:
-  github_document:
+  html_document:
     toc: true
     toc_depth: 4
-params: 
-    datasource: csv
 ---
 
-```{r Preamble}
-loc <- file.path(here::here(), "prep", "MAR")
 
-source(file.path(here::here(), "R", "setup.R"))
-source(file.path(here::here(), "R", "prep.R"))
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
+```{r preamble prep, message = FALSE}
+loc <- here::here("prep", "MAR")
 
-bkgd_path <- file.path(here::here(), "supplement", "goal_summaries", "MAR.Rmd")
-data_path <- file.path(here::here(), "data", "MAR", v2019, "mar_data.rmd")
+source(here::here("R", "setup.R"))
+source(here::here("R", "prep.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
+
+bkgd_path <- here::here("supplement", "goal_summaries", "MAR.Rmd")
+data_path <- here::here("data", "MAR", version_year, "mar_data.rmd")
 refs_path <- file.path(loc, "mar_references.Rmd")
 ```
 
@@ -26,6 +25,20 @@ refs_path <- file.path(loc, "mar_references.Rmd")
 ```
 
 <br/>
+
+## 2. Data
+
+**Rainbow trout production (Denmark, Sweden and Finland) and Finfish (Denmark, Germany, Sweden and Finland)**
+
+This prep document is used to generate and explore the following data layers:
+
+- `mar_harvest_bhi2019.csv` 
+- `mar_harvest_bhi2019.csv` 
+- `fis_ffmsy_bhi2019.csv` 
+
+These are saved to the `layers/v2019` folder. Saved to `data/MAR/v2019/intermediate` is two intermediate datasets: `mar_full_merged_dataset.csv` and `mar_gapfilling.csv`. All these are derived from or informed by the raw datasets from HELCOM, national databases, and FAO.
+
+<br>
 
 <!-- ## 2. Data --- header in the child  document -->
 ```{r Data, child = data_path, results = "asis", echo = FALSE}
@@ -45,31 +58,6 @@ This section prepares production and spatial data for MAR.
 
 <!-- Swedish aquaculture facilities --> 
 
-```{r}
-library(sf)
-shape1 <- read_sf(dsn = ".", layer = "AF_Vattenbruk")
-
-plot(shape1)
-```
-
-<!-- Finfish mariculture - HELCOM --> 
-```{r}
-library(sf)
-shape2 <- read_sf(dsn = ".", layer = "Finfish_mariculture") # OR
-getwd()
-setwd(dir = "/Volumes/BHI_share/BHI 2.0/Goals/FP/MAR")
-finfish_mariculture <- st_read(
-  "Finfish_mariculture/Finfish_mariculture.shp")
-st_geometry_type(finfish_mariculture) 
-
-ggplot() +
-  geom_sf(data = finfish_mariculture, size = 3, color = "black", fill = "cyan1") +
-  ggtitle("Finfish Mariculture") +
-  coord_sf()
-
-plot(shape2)
-
-```
 
 ## 4. Visualizing Data Layers
 
