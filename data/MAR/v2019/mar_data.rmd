@@ -833,9 +833,14 @@ plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>%
       select(region_id, produced_tonnes, n_ratio, p_ratio, pct_prod_gf, pct_nutrient_gf),
     by = "region_id"
   ) %>% 
+  ## because production data were split among regions
+  ## based on the assumption that each unit area was equally likely to contain given mariculture facility
+  ## should present this data as average production per area...
+  mutate(produced_tonnes = produced_tonnes/Area_km2) %>% 
   mutate(Name = paste(Subbasin, rgn_nam, sep = ", "))
+
 ## create palettes based on min max of data values
-palProd <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 10, 0.1))*10000, "#fcfcfd", reverse = TRUE)
+palProd <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
 palN <- leaflet::colorNumeric("RdYlBu", seq(0, 55, 0.5), "#fcfcfd", reverse = TRUE)
 palP <- leaflet::colorNumeric("RdYlBu", seq(0, 7.7, 0.05), "#fcfcfd", reverse = TRUE)
 pal_gf <- leaflet::colorNumeric("Greys", seq(0, 1, 0.01))
@@ -880,7 +885,7 @@ leaflet(data = plotshp) %>%
   ## layers controls, popup layer, and formatting
   addLayersControl(
     baseGroups = c(
-      "Production (tonnes)", 
+      "Production (tonnes/per km2)", 
       "Nitrogen use ratio (grams/kg fish)", 
       "Phosphorus use ratio (grams/kg fish)"
       # "Production data gapfilled (proportion)",
