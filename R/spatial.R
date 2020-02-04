@@ -1,10 +1,6 @@
 ## Libraries
 source(here::here("R", "setup.R"))
-library(rgdal)
-library(sp)
 library(sf)
-library(raster)
-library(leaflet)
 library(beyonce)
 
 ## Functions
@@ -12,17 +8,24 @@ library(beyonce)
 #' create regions shape objects
 #' 
 #' @param sp_dir the file location of the shapefiles folders; the directory should contain a folder for each shapefile
-#' @param foldernames the folders containing respective shapefiles
+#' @param foldernames folders containing respective shapefiles, besides the standard BHI, ICES, HELCOM subbasins, etc
 #'
 #' @return defines spatial objects: bhi_rgns, helcom_subbasins, nuts2_rgns, ices_rgns, baltic_mpas in the global environment
 
-regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"),
-                          foldernames = c(
-                            # "bhi_shapefile", "helcom_subbasins_shapefile",
-                            # "nuts2_shapefile", "ices_rgn_shapefile",
-                            # "mpas_shapefile", "BHI_shapefile_25km_buffer",
-                            "HELCOM_subbasins_holasbasins",
-                            "BHI_shapefile", "ICES_areas")){
+regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), foldernames = NULL){
+  
+  foldernames <- c(
+    foldernames,
+    # "bhi_shapefile", 
+    # "helcom_subbasins_shapefile",
+    # "nuts2_shapefile",
+    # "ices_rgn_shapefile",
+    # "mpas_shapefile", 
+    # "BHI_shapefile_25km_buffer",
+    "HELCOM_subbasins_holasbasins",
+    "BHI_shapefile", 
+    "ICES_areas"
+  )
   
   for(i in foldernames){
     
