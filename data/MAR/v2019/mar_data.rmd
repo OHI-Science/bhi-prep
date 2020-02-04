@@ -841,8 +841,8 @@ plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>%
 
 ## create palettes based on min max of data values
 palProd <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
-palN <- leaflet::colorNumeric("RdYlBu", seq(0, 55, 0.5), "#fcfcfd", reverse = TRUE)
-palP <- leaflet::colorNumeric("RdYlBu", seq(0, 7.7, 0.05), "#fcfcfd", reverse = TRUE)
+palN <- leaflet::colorNumeric("RdYlBu", seq(0, 60, 0.5), "#fcfcfd", reverse = TRUE)
+palP <- leaflet::colorNumeric("RdYlBu", seq(0, 8.4, 0.05), "#fcfcfd", reverse = TRUE)
 pal_gf <- leaflet::colorNumeric("Greys", seq(0, 1, 0.01))
 
 ## create map
@@ -853,19 +853,19 @@ leaflet(data = plotshp) %>%
   
   ## production data
   addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.7,
+    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
     fillColor = ~palProd(produced_tonnes),
     group = "Production (tonnes)"
   ) %>% 
   
   ## nutrients use data
   addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.7,
+    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
     fillColor = ~palN(n_ratio),
     group = "Nitrogen use ratio (grams/kg fish)"
   ) %>% 
   addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.7,
+    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
     fillColor = ~palP(p_ratio),
     group = "Phosphorus use ratio (grams/kg fish)"
   ) %>% 
