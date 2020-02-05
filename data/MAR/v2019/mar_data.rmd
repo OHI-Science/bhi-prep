@@ -11,7 +11,7 @@ library(R.utils)
 
 
 #### 2.1.1 Sweden: rainbow trout mariculture
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_se -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_se/rbt_se.csv -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -27,7 +27,8 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 <br/>
 
 #### 2.1.2 Denmark: rainbow trout mariculture
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk/rbt_dk.csv -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk/rbt_dk_2005.csv -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -40,14 +41,15 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmark database](https://fiskeristyrelsen.dk/fiskeristatistik/akvakulturstatistik/) <br/> Downloaded 2019-10-11 by Andrea De Cervo")
 ```
 
+
 <br/>
 
-#### 2.1.3 Finland: rainbow trout mariculture
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_fi -->
+#### 2.1.3A Finland: rainbow trout mariculture 
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_fi/rbt_fi.csv -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c("Luke statistics database:", "Food fish production by species"), 
+  c("Luke statistics database:", "Food fish production by species (1 000 kg, million e)"), 
   c("Production:", "Quantity (1 000 kg)"),
   c("Area:", "Sea"),
   c("Fish:", "Rainbow trout"),
@@ -59,10 +61,28 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2019-10-10 by Andrea De Cervo")
 ```
 
+<br>
+
+#### 2.1.3B Finland: total mariculture by area
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/mar_fi/mar_by_area.csv -->
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Luke statistics database:", "Food fish production (1 000 kg ungutted fish) by area"), 
+  c("ELY-centre:", "All"),
+  c("Year:", "All"),
+  c("Area:", "Sea")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2020-1-20 by Andrea De Cervo")
+```
+
 <br/>
 
 #### 2.1.4 Germany: rainbow trout mariculture
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_de -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_de/rbt_de.csv -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -77,7 +97,7 @@ knitr::kable(tab, caption = "Source: [Email from plant manager](tassilo@jaeger-k
 <br/>
 
 #### 2.1.5 Finfish Mariculture
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Finfish_mariculture -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Finfish_mariculture/Finfish_mariculture.shp -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -93,7 +113,7 @@ knitr::kable(tab, caption = "Source: [HELCOM database](http://maps.helcom.fi/web
 <br/>
 
 #### 2.1.6 All Baltic countries, Aquaculture Production (FAO)
-<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/FAO_fishstat -->
+<!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/FAO_fishstat/FAO_fishstat.csv -->
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -139,6 +159,9 @@ rbt_dk_raw <- read_delim(file.path(dir_rawdata, "rbt_dk", "rbt_dk.csv"), delim =
 rbt_dk2005raw <- read_delim(file.path(dir_rawdata, "rbt_dk", "rbt_dk_2005.csv"), delim = ";")
 rbt_fi_raw <- read_delim(file.path(dir_rawdata, "rbt_fi", "rbt_fi.csv"), delim = ";")
 rbt_se_raw <- read_delim(file.path(dir_rawdata, "rbt_se", "rbt_se.csv"), delim = ";")
+
+## finland mariculture data by area and year
+mar_fi_raw <- read_csv(file.path(dir_rawdata, "mar_fi", "mar_by_area.csv"))
 
 ## FAO rainbow trout data
 fao_rbt_raw <- read_delim(file.path(dir_rawdata, "FAO_fishstat", "FAO_fishstat.csv"), delim = ";")
@@ -207,6 +230,13 @@ bhiregions <- bind_rows(
   c(country = "FI", lvl = "subnatl", area = "Gulf of Finland", rgn = 32),
   c(country = "FI", lvl = "subnatl", area = "Bothnian Bay", rgn = 42),
   c(country = "FI", lvl = "subnatl", area = "The Quark", rgn = 40),
+  c(country = "FI", lvl = "subnatl", area = "Aland", rgn = 36),
+  c(country = "FI", lvl = "subnatl", area = "Kainuu", rgn = 42),
+  c(country = "FI", lvl = "subnatl", area = "Ostrobothnia", rgn = list(38, 40, 42)),
+  c(country = "FI", lvl = "subnatl", area = "Kaakkois_Suomi", rgn = 32),
+  c(country = "FI", lvl = "subnatl", area = "Uusimaa", rgn = 32),
+  c(country = "FI", lvl = "subnatl", area = "Varsinais_Suomi", rgn = list(36, 38)),
+  
   ## countries
   c(country = "DE", lvl = "natl", area = "Germany", rgn = list(16, 13, 10, 8, 4)),
   c(country = "DK", lvl = "natl", area = "Denmark", rgn = list(15, 12, 9, 7, 6, 3, 2)),
@@ -257,7 +287,7 @@ areasMap <- ggplot2::ggplot() +
   ) +
   facet_wrap(~area, ncol = 6) +
   scale_fill_manual(
-    values = colorRampPalette(cols)(45)
+    values = colorRampPalette(cols)(51)
   ) +
   scale_x_continuous(limit = c(5, 37)) +
   scale_y_continuous(limit = c(53.5, 66)) +
@@ -273,10 +303,122 @@ knitr::include_graphics(file.path(MARareasMap, "mar_areas_maps.png"))
 
 #### 2.2.1 Merge datasets
 
+**Finish datasets: use total-mariculture-by-region to downscale Rainbow Trout data**
+
+Data were available both as total marine production by region within Finlnd, and also as total production nation-wide per fish species. Rainbow trout dominated the total fish production (over 90%). Following Ginnette's approach from the first assessment, we convert the total production by region to rainbow trout production by region by using the country wide percent rainbow trout of the marine production in each year. Other minor contributions to total production were European whitefish, Trout, other species, Roe of rainbow trout, roe of european whitefish.
+
+
+```{r merge two finish datasets, echo = TRUE}
+## two datasets:
+## one on rainbow trout production at national level,
+## the other with total mariculture production by region
+
+mar_finland <- bind_rows(
+  ## rainbow trout production in finland
+  rbt_fi_raw %>% 
+    dplyr::mutate(
+      farm_species = str_to_sentence(production),
+      produced_tonnes = tot_wt_tonnes,
+      area = "Finland"
+    ) %>% 
+    dplyr::select(-production, -tot_wt_tonnes) %>% 
+    filter(year >= 1997),
+  ## total mariculture production by area in finland
+  mar_fi_raw %>% 
+    mutate(
+      area = str_replace(area, "\x81land", "Aland"),
+      area = str_replace(area, "Etel\x8a-Savo", "Etel-Savo"),
+      area = str_replace(area, "H\x8ame", "Hame"),
+      area = str_replace(area, "TOTAL", "Finland Total")
+    ) %>% 
+    filter(
+      # !area == "TOTAL",
+      ## no/very little coastline associated with these areas
+      !area %in% c("Hame", "North Karelia", "Central Finland", "Etel-Savo", "Pohjois-Savo", "Lapland")
+    ) %>% 
+    tidyr::gather(key = "year", value = "produced_tonnes", -area) %>% 
+    mutate(year = as.numeric(year)) %>% 
+    dplyr::mutate(farm_species = "All mariculture")
+)
+## plot production to compare across years and areas
+## substitute data = mar_finland_totals to see just national totals trout vs. all species
+ggplot(mapping = aes(year, produced_tonnes, fill = area), data = mar_finland) +
+  geom_col(position = position_dodge(), width = 0.8, color = "grey60", alpha = 0.8) +
+  ggtitle("Finnish mariculture production (tonnes) 1997-2018") +
+  labs(x = "Year", y = "Production (tonnes)", fill = "Area")
+
+
+## comparison of 'all mariculture' data totals and national level species-specific data
+## sub-dataset with only total mariculture for Finland and/or national level species-specific prduction data
+mar_finland_totals <- filter(mar_finland, str_detect(area, "^Finland"))
+
+ggplot(mar_finland_totals, aes(produced_tonnes)) +
+  geom_histogram(binwidth = 400, fill = "blue", alpha = 0.5, color = "grey") +
+  facet_wrap( ~ area, nrow = 2)
+
+boxplot(produced_tonnes ~ area, mar_finland_totals)
+t.test(produced_tonnes ~ area, mar_finland_totals)
+wilcox.test(produced_tonnes ~ area, mar_finland_totals)  
+## p ≈ 0.17 so don't reject null that true location shift is equal to 0
+
+
+## calculate percentage from the total to the species-specific prduction data
+rbt_percent <- mar_finland_totals %>%
+  dplyr::select(-farm_species) %>% 
+  tidyr::pivot_wider(names_from = area, values_from = produced_tonnes) %>% 
+  dplyr::rename(
+    tot_rainbow_trout = Finland,
+    total = `Finland Total`
+  ) %>% 
+  mutate(rbt_percent = (tot_rainbow_trout/total))
+
+
+rbt_fi_area <- mar_finland %>% 
+  filter(area != "Finland", area != "Finland Total") %>% 
+  select(-farm_species) %>%
+  tidyr::pivot_wider(names_from = area, values_from = produced_tonnes) %>% 
+  ## regional 'produced tonnes' values are total mariculture
+  rename(
+    Varsinais_Suomi = `Varsinais-Suomi`,
+    Kaakkois_Suomi = `Southeastern Finland`
+  ) %>% 
+  left_join(rbt_percent, by = "year") %>% 
+  tidyr::pivot_longer(cols = 2:7) %>% 
+  mutate(
+    country = "FI",
+    area = name,
+    farm_species = "Rainbow trout",
+    produced_tonnes = value*rbt_percent,
+    p_kg = as.numeric(NA),
+    n_kg = as.numeric(NA)
+  ) %>% 
+  select(-tot_rainbow_trout, -total, -rbt_percent, -name, -value)
+  
+## rainbow trout finland, add back years where don't have area specific data
+rbt_fi_area <- bind_rows(
+  rbt_fi_area,
+  rbt_fi_raw %>% 
+    dplyr::mutate(
+      farm_species = str_to_sentence(production),
+      produced_tonnes = tot_wt_tonnes,
+      country = "FI", area = "finland",
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
+      area = capitalize(area)
+    ) %>% 
+    dplyr::select(-production, -tot_wt_tonnes) %>% 
+    filter(year < 1997)
+)
+```
+
+
 **National and FAO datasets**
 
 ```{r merge rainbow trout rawdata, echo = TRUE}
 rbt_raw <- bind_rows(
+  
+  ## finland rainbow trout data by area calculated
+  rbt_fi_area,
   
   ## rbt_de rainbow trout germany
   rbt_de_raw %>% 
@@ -347,19 +489,6 @@ rbt_raw <- bind_rows(
     ) %>% 
     arrange(country),
   
-  ## rbt_fi rainbow trout finland
-  rbt_fi_raw %>% 
-    dplyr::mutate(
-      farm_species = str_to_sentence(production),
-      produced_tonnes = tot_wt_tonnes,
-      country = "FI", area = "finland",
-      p_kg = as.numeric(NA),
-      n_kg = as.numeric(NA),
-      area = capitalize(area)
-    ) %>% 
-    dplyr::select(-production, -tot_wt_tonnes) %>% 
-    arrange(country),
-  
   ## rbt_se rainbow trout sweden
   rbt_se_raw %>% 
     dplyr::mutate(
@@ -380,48 +509,48 @@ rbt_raw <- bind_rows(
 
 rbt_raw <- bind_rows(
   rbt_raw, 
-    ## fao_rbt fao data on rainbow trout
-    fao_rbt_raw %>% 
-      dplyr::mutate(
-        area = country,
-        farm_species = str_to_sentence(species)
-      ) %>% 
-      filter(
-        ## aqua area atlantic NE, so maybe keep marine?
-        # !(environment == "Marine" & area == "Denmark"), 
-        str_detect(farm_species, "Rainbow trout")
-      ) %>% 
-      select(-aqua_area, -Unit, -environment, -("1950":"1971"), -country, -species) %>%
-      tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
+  ## fao_rbt fao data on rainbow trout
+  fao_rbt_raw %>% 
+    dplyr::mutate(
+      area = country,
+      farm_species = str_to_sentence(species)
+    ) %>% 
+    filter(
+      ## aqua area atlantic NE, so maybe keep marine?
+      # !(environment == "Marine" & area == "Denmark"), 
+      str_detect(farm_species, "Rainbow trout")
+    ) %>% 
+    select(-aqua_area, -Unit, -environment, -("1950":"1971"), -country, -species) %>%
+    tidyr::gather(key = "year", value = "produced_tonnes", -area, -farm_species) %>% 
     
-      ## remove characters from production numeric values
-      ## "F" stands FAO estimates from available sources of information
-      mutate(
-        year = as.numeric(year),
-        produced_tonnes = str_replace(produced_tonnes, "F", " "), 
-        produced_tonnes = as.numeric(produced_tonnes),
-        p_kg = as.numeric(NA),
-        n_kg = as.numeric(NA),
-        area = capitalize(area)
-      ) %>% 
-      group_by(area, year) %>% 
-      mutate(
-        produced_tonnes = sum(produced_tonnes),
-        p_kg = sum(p_kg),
-        n_kg = sum(n_kg)
-      ) %>% 
-      distinct() %>% 
-      filter(!is.na(produced_tonnes)) %>% 
-      
-      ## join with countrycode data
-      left_join(countrycode, by = "area") %>% 
-      mutate(source = "fao") %>% 
-      select(year, country, area, farm_species, produced_tonnes, p_kg, n_kg, source) %>% 
-      
-      filter(area != "Finland") %>% # remove finland fao data-- exact duplicates of national data
-      filter(!(year %in% 2006:2017 & area == "Denmark")) %>% # use Denmark national data instead here...
-      filter(!(year %in% 2009:2018 & area == "Sweden")) # sweden natl data matches fao, but includes 2009-2018
-  )
+    ## remove characters from production numeric values
+    ## "F" stands FAO estimates from available sources of information
+    mutate(
+      year = as.numeric(year),
+      produced_tonnes = str_replace(produced_tonnes, "F", " "), 
+      produced_tonnes = as.numeric(produced_tonnes),
+      p_kg = as.numeric(NA),
+      n_kg = as.numeric(NA),
+      area = capitalize(area)
+    ) %>% 
+    group_by(area, year) %>% 
+    mutate(
+      produced_tonnes = sum(produced_tonnes),
+      p_kg = sum(p_kg),
+      n_kg = sum(n_kg)
+    ) %>% 
+    distinct() %>% 
+    filter(!is.na(produced_tonnes)) %>% 
+    
+    ## join with countrycode data
+    left_join(countrycode, by = "area") %>% 
+    mutate(source = "fao") %>% 
+    select(year, country, area, farm_species, produced_tonnes, p_kg, n_kg, source) %>% 
+    
+    filter(area != "Finland") %>% # remove finland fao data-- duplicates or superceded by rbt_fi_area calculation 
+    filter(!(year %in% 2006:2017 & area == "Denmark")) %>% # use Denmark national data instead here...
+    filter(!(year %in% 2009:2018 & area == "Sweden")) # sweden natl data matches fao, but includes 2009-2018
+)
 
 ## reassign types and join bhi region_ids by area
 ## use lookup table defined in code chunk above
@@ -900,7 +1029,7 @@ leaflet(data = plotshp) %>%
       "<h5><strong>", "BHI Region ID:", "</strong>",
       plotshp$region_id, "</h5>",
       "<h5><strong>", "Production:", "</strong>",
-      round(plotshp$produced_tonnes, 0), "</h5>",
+      round(plotshp$produced_tonnes, 3), "</h5>",
       "<h5><strong>", "Nitrogen:", "</strong>",
       round(plotshp$n_ratio, 2), "</h5>",
       "<h5><strong>", "Phosphorus:", "</strong>",
