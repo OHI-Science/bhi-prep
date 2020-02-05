@@ -63,7 +63,11 @@ This section prepares production and spatial data for MAR.
 
 <br/>
 
-## 5. References
+## 5. Considerations for `BHI3.0`
+
+If more adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles). In particular, regarding Sweden, there are reports (e.g. page 8, table 9 https://www.scb.se/contentassets/8964475d3a8b4aa88af32e4fcbc248eb/jo1201_2014a01_sm_jo60sm1501.pdf) where information about rainbow trout production in "other coasts" is split into two areas: sounth-eastern coast and south-western coast. However, these data are only available until 2014.  
+
+## 6. References
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
