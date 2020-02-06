@@ -185,7 +185,7 @@ finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.nu
 
 <br>
 
-### 2.2.1 Spatial regions of the Data
+#### 2.2.1 Spatial regions of the Data
 
 **Create lookup tab for matching areas with bhi regions.**   
 May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data. 
