@@ -10,7 +10,7 @@ library(R.utils)
 <br/>
 
 
-#### 2.1.1 Sweden: rainbow trout mariculture
+#### 2.1.1 Rainbow trout mariculture Sweden
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_se/rbt_se.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -26,7 +26,7 @@ knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.s
 
 <br/>
 
-#### 2.1.2 Denmark: rainbow trout mariculture
+#### 2.1.2 Rainbow trout mariculture Denmark
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk/rbt_dk.csv -->
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk/rbt_dk_2005.csv -->
 
@@ -44,7 +44,9 @@ knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmar
 
 <br/>
 
-#### 2.1.3A Finland: rainbow trout mariculture 
+#### 2.1.3 Mariculture in Finland
+
+**Mariculture by Species (Rainbow Trout)**
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_fi/rbt_fi.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -63,7 +65,7 @@ knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http
 
 <br>
 
-#### 2.1.3B Finland: total mariculture by area
+**Total mariculture by Area**
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/mar_fi/mar_by_area.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -81,7 +83,7 @@ knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http
 
 <br/>
 
-#### 2.1.4 Germany: rainbow trout mariculture
+#### 2.1.4 Rainbow trout mariculture Germany
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_de/rbt_de.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -128,7 +130,7 @@ knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/
 
 <br/>
 
-#### Reference Point: maximum nutrient discharge (N and P)
+#### 2.1.7 Reference Point: maximum nutrient discharge (N and P)
 
 In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on ["Sustainable aquaculture in the Baltic Sea Region"](http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
 
@@ -146,10 +148,9 @@ Therefore, estimates for all other datasets will be made.
 
 <br>
 
-
 ### 2.2 Centralization & Normalization
 
-```{r load raw data, results = "show", message = FALSE, echo = TRUE, warning = FALSE}
+```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "FP", "MAR") # list.files(dir_rawdata)
 
@@ -180,11 +181,14 @@ st_geometry(finfish_mariculture_raw) <- NULL
 finfish_mariculture_raw[, 1:28] <- sapply(finfish_mariculture_raw[, 1:28], as.character)
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
 ```
+--- 
 
 <br>
 
+### 2.2.1 Spatial regions of the Data
+
 **Create lookup tab for matching areas with bhi regions.**   
-To avoid double-counting, need to distinguish national/subnational data.
+May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data. 
 
 
 ```{r to match areas with bhi regions, echo = TRUE}
@@ -229,7 +233,7 @@ bhiregions <- bind_rows(
   c(country = "FI", lvl = "subnatl", area = "Gulf of Finland", rgn = 32),
   c(country = "FI", lvl = "subnatl", area = "Bothnian Bay", rgn = 42),
   c(country = "FI", lvl = "subnatl", area = "The Quark", rgn = 40),
-  c(country = "FI", lvl = "subnatl", area = "Aland Sea", rgn = 36),
+  c(country = "FI", lvl = "subnatl", area = "Aland", rgn = 36),
   c(country = "FI", lvl = "subnatl", area = "Kainuu", rgn = 42),
   c(country = "FI", lvl = "subnatl", area = "Ostrobothnia", rgn = list(38, 40, 42)),
   c(country = "FI", lvl = "subnatl", area = "Kaakkois_Suomi", rgn = 32),
@@ -294,21 +298,23 @@ areasMap <- ggplot2::ggplot() +
   ) +
   scale_x_continuous(limit = c(5, 37)) +
   scale_y_continuous(limit = c(53.5, 66)) +
-  theme(plot.margin = grid::unit(c(2, 2, 2, 2), "mm"))
+  theme(
+    plot.margin = grid::unit(c(2, 2, 2, 2), "mm"),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
 
 MARareasMap <- here::here("data", "MAR", version_year, "intermediate")
-ggsave("mar_areas_maps.png", areasMap, "png", MARareasMap, width = 14, height = 14.6, units = c("in"), dpi = 250)
+ggsave("mar_areas_maps.png", areasMap, "png", MARareasMap, width = 14, height = 15.5, units = c("in"), dpi = 250)
 
 knitr::include_graphics(file.path(MARareasMap, "mar_areas_maps.png"))
 ```
 
 <br>
 
-#### 2.2.1 Merge datasets
-
-<br>
-
-**Finish datasets: use total-mariculture-by-region to downscale Rainbow Trout data**
+#### 2.2.2 Finish datasets: use total-mariculture-by-region to downscale Rainbow Trout data
 
 Data were available both as total marine production by region within Finlnd, and also as total production nation-wide per fish species. Rainbow trout dominated the total fish production (over 90%). Following Ginnette's approach from the first assessment, we convert the total production by region to rainbow trout production by region by using the country wide percent rainbow trout of the marine production in each year. Other minor contributions to total production were European whitefish, Trout, other species, Roe of rainbow trout, roe of european whitefish.
 
@@ -426,6 +432,8 @@ gridExtra::grid.arrange(hist_finland, boxplot_finland, nrow = 1, widths = c(2, 1
 ---
 
 <br>
+
+#### 2.2.3 Merge datasets
 
 **National and FAO datasets**
 
@@ -654,14 +662,19 @@ finfish_gather_yr <- as_tibble(finfish_raw) %>%
 
 ```{r merge all raw data together, echo = TRUE}
 combined_rawdata <- rbind(rbt_raw, finfish_gather_yr)
+
+readr::write_csv(
+  combined_rawdata, 
+  here::here("data", "MAR", version_year, "intermediate", "mar_merged_rawdata.csv")
+)
 ```
 
 ---
 
 <br>
 
-#### 2.2.2 Standardize Units: Production regions and BHI Region assignments
-
+#### 2.2.4 Standardize Units: Production regions and BHI Region assignments
+s
 Note: where multiple BHI regions exist within the areas reported for mariculture data (e.g. "Ne_coast" for Sweden contains BHI regions 37, 39, and 41), the data values are split among the regions based on region sizes, i.e. with the assumption that each unit area is equally likely to contain the given mariculture farm... For future assessments, if adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles).  
 
 
@@ -677,7 +690,7 @@ bhiregions <- bhi_rgns_simple %>%
 ## combine the datasets and add the ID column, then deal with overlapping data
 ## overlap here due to nesting of different spatial resolutions, not duplicate entries
 
-combined_rawdata <- combined_rawdata %>%
+combined_w_rgns <- combined_rawdata %>%
   left_join(bhiregions, by = c("country", "area")) %>% 
   ## in the case where theres no subnational data, use national
   mutate(level = ifelse(level == 2 & is.na(produced_tonnes) & is.na(p_kg)& is.na(n_kg), 0, level)) %>% 
@@ -686,12 +699,12 @@ combined_rawdata <- combined_rawdata %>%
   top_n(1, level) %>% 
   ungroup()
 
-level_area <- combined_rawdata %>%
+level_area <- combined_w_rgns %>%
   group_by(year, country, level, area, farm_species) %>%
   summarize(level_area_km2 = sum(Area_km2)) %>%
   ungroup()
 
-combined_rawdata <- combined_rawdata %>%
+combined_w_rgns <- combined_w_rgns %>%
   left_join(level_area, by = c("year", "country", "level", "area", "farm_species")) %>%
   mutate(area_frac = Area_km2/level_area_km2) %>% 
   group_by(year, country, level, area, farm_species, region_id) %>% 
@@ -731,123 +744,9 @@ combined_rawdata <- combined_rawdata %>%
   )
 
 ## save the full merged data with assigned BHI regions
-readr::write_csv(combined_rawdata, here::here("data", "MAR", version_year, "intermediate", "mar_full_merged_dataset.csv"))
-```
-
-<br>
-
-#### 2.2.3 Imputation/Gapfilling of merged datasets
-
-```{r investigate nutrient estimates with linear models, echo = TRUE}
-## gapfill using raw merged data, 
-## not data split and assigned to BHI regions!
-plotdf <- rbind(rbt_raw, finfish_gather_yr) %>% 
-  filter(!is.na(p_kg) & !is.na(n_kg)) %>% 
-  filter(produced_tonnes > 20) %>% 
-  ## to use predict function later based on lm obj, need these names in models
-  dplyr::rename(split_production = produced_tonnes, split_N = n_kg, split_P = p_kg)
-
-## check relationships between production and nutrients
-## quite linear, so probably ok to gapfill using this relationship...
-## note: remember 'split' values here are actually original data renamed!
-p_mdl <- lm(split_P ~ 0 + split_production, data = plotdf)
-n_mdl <- lm(split_N ~ 0 + split_production, data = plotdf) 
-# summary(p_mdl)
-# summary(n_mdl)
-
-## production estimates with linear models
-## better without phosphorus, among other things because of negative coefficient...
-prod_mdl <- lm(split_production ~ 0 + split_N, data = plotdf) 
-# summary(prod_mdl)
-```
-
-```{r nutrient and production estimates, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
-plotly::ggplotly(
-  ggplot(plotdf) +
-    geom_abline(slope = coef(p_mdl)[["split_production"]], intercept = 0, color = "grey") +
-    geom_point(aes(x = split_production, y = split_P), color = "blue", alpha = 0.75) +
-    labs(x = "Production", y = "Phosphorus Use\n")
-)
-plotly::ggplotly(
-  ggplot(plotdf) +
-    geom_abline(slope = coef(prod_mdl)[["split_N"]], intercept = 0, color = "grey") +
-    geom_point(aes(x = split_N, y = split_production), color = "blue", alpha = 0.75) +
-    labs(x = "Nitrogen Use\n", y = "Production")
-)
-```
-
----
-
-<br>
-
-#### 2.2.4 Save selected MAR layers to BHI Database
-
-```{r gapfilling and save datasets, echo = TRUE}
-## create dataset with nutrient ESTIMATES (kg) from COMBINED data
-mar_gapfilling <- combined_rawdata %>% 
-
-  ## identify where to gapfill
-  mutate(
-    gapfill_nutrients = (is.na(split_P)|is.na(split_N)) & !is.na(split_production),
-    gapfill_prod = is.na(split_production) & !is.na(split_N) & !is.na(split_P)
-  ) %>% 
-  
-  ## estimates based on production or nutrient use
-  cbind(
-    estim_p_kg = predict(p_mdl, combined_rawdata),
-    estim_n_kg = predict(n_mdl, combined_rawdata),
-    estim_prod = predict(prod_mdl, combined_rawdata)
-  ) %>% 
-  
-  ## gapfilling nutrients based on production and vice versa...
-  ## production from regression w N and P, so cannot gapfill if either are NA
-  mutate(
-    split_N_gf = ifelse(is.na(split_N), estim_n_kg, split_N),
-    split_P_gf = ifelse(is.na(split_P), estim_p_kg, split_P),
-    split_prod_gf = ifelse(gapfill_prod, estim_prod, split_production),
-    gapfilled = gapfill_nutrients|gapfill_prod
-  ) %>%
-  select(
-    year, country, region_id, farm_species, 
-    gapfilled, gapfill_nutrients, gapfill_prod, gapfill_nutrients,
-    estim_n_kg, estim_p_kg, estim_prod, 
-    split_N_gf, split_P_gf, split_prod_gf
-  ) %>% 
-  mutate(year = as.character(year)) %>% 
-  mutate(year = as.numeric(year))
-
-mar_datalayers <- mar_gapfilling %>% 
-  ## get summarized values by BHI region
-  group_by(year, region_id) %>% 
-  summarize(
-    n_kg = sum(split_N_gf, na.rm = TRUE),
-    p_kg = sum(split_P_gf, na.rm = TRUE),
-    produced_tonnes = sum(split_prod_gf, na.rm = TRUE),
-    pct_prod_gf = sum(gapfill_prod)/n(),
-    pct_nutrient_gf = sum(gapfill_nutrients)/n(),
-    pct_gf = sum(gapfilled)/n()
-  ) %>% 
-  ungroup() %>% 
-  ## nutrient ratios
-  mutate(
-    ## calculate ratios of nutrients used to fish produced
-    ## grams per kg fish, unit conversion factors cancel
-    n_ratio = ifelse(produced_tonnes == 0, 0, n_kg/produced_tonnes),
-    p_ratio = ifelse(produced_tonnes == 0, 0, p_kg/produced_tonnes)
-  )
-
-## save gapfilled dataset and dataset recording where gapfilling occurred
-write_csv(mar_gapfilling, here::here("data", "MAR", version_year, "intermediate", "mar_gapfilling.csv"))
-
-write_csv(
-  mar_datalayers %>% 
-    select(year, region_id, produced_tonnes),
-  file.path(dir_layers, version_year, sprintf("mar_harvest_bhi%s.csv", assess_year))
-)
-write_csv(
-  mar_datalayers %>% 
-    select(year, region_id, n_kg, p_kg, n_ratio, p_ratio),
-  file.path(dir_layers, version_year, sprintf("mar_nutrients_bhi%s.csv", assess_year))
+readr::write_csv(
+  combined_w_rgns, 
+  here::here("data", "MAR", version_year, "intermediate", "mar_combined_w_rgns.csv")
 )
 ```
 
@@ -861,7 +760,7 @@ write_csv(
 
 ```{r explore raw data by source and country, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 8}
 datasources <- ggplot(
-  combined_rawdata %>% 
+  combined_w_rgns %>% 
     mutate(region_id = as.factor(region_id)) %>% 
     mutate(year = as.numeric(year)) %>% 
     mutate(source = ifelse(source == "fao", "FAO", str_to_title(source))),
@@ -872,245 +771,6 @@ datasources +
   facet_wrap(~ country, ncol = 1) + 
   labs(x = "Year", y = "Production, split over BHI Regions\n", color = "Data Source") +
   theme(legend.position = "bottom")
-```
-
-<br>
-
-**Nutrient Use**
-
-As noted above, the HELCOM recommnedation is 50gN and 7kgP per kg of fish. The plots below explore differences between recorded and recommended nutrient use. The histogram plots show the distributions of differences with max allowable nutrients minus actual or estimated, so negative values are in excess of the recommendation.
-
-```{r nutrients allowances minus nutrients values, echo = TRUE}
-## using gapfilled data
-plotdf <- mar_datalayers %>% 
-  left_join(
-    bhiregions %>% 
-      select(region_id, country) %>% 
-      distinct(),
-    by = "region_id"
-  ) %>% 
-  mutate(
-    region_id = as.factor(region_id), 
-    diffsN = 50*produced_tonnes - n_kg, 
-    diffsP = 7*produced_tonnes - p_kg,
-    diffsN_Ratio = 50 - n_ratio, 
-    diffsP_Ratio = 7 - p_ratio
-  ) %>% 
-  rename(Year = year, Production = produced_tonnes)
-  
-histdf <- plotdf %>% 
-  select(Year, country, region_id, diffsN, diffsP, diffsN_Ratio, diffsP_Ratio, Production) %>% 
-  tidyr::pivot_longer(cols = c(diffsN, diffsP))
-
-## distributions differences: max allowable nutrients minus actual or estimated
-## negative values are in excess of the allowance
-hist_all <- ggplot(histdf) +
-  geom_histogram(aes(value), color = "blue", fill = NA, binwidth = 800) +
-  facet_wrap(~ name, nrow = 2) +
-  labs(x = NULL, y = NULL)
-
-hist_lessthan0 <- ggplot(filter(histdf, value < 0)) +
-  geom_histogram(aes(value), color = "blue", fill = NA) +
-  facet_wrap(~ name, nrow = 2) +
-  labs(x = NULL, y = NULL)
-
-## siginificant difference between more recent and older N and P values?
-# wilcox.test(value ~ timegroup, diffs_timewise)
-
-histN_yrs <- ggplot(histdf %>% 
-    filter(name == "diffsN", value < 5000) %>% 
-    mutate(timegroup = ifelse(Year < 2008, "N before 2008", "N after 2008"))) + 
-  geom_histogram(aes(value), color = "blue", fill = NA, binwidth = 50) +
-  facet_wrap(~ timegroup, nrow = 2, scales = "free_y") +
-  labs(x = NULL, y = NULL)
-
-histP_yrs <- ggplot(histdf %>% 
-    filter(name == "diffsP", value < 5000) %>% 
-    mutate(timegroup = ifelse(Year < 2016, "P before 2008", "P after 2008"))) + 
-  geom_histogram(aes(value), color = "blue", fill = NA, binwidth = 50) +
-  facet_wrap(~ timegroup, nrow = 2, scales = "free_y") +
-  labs(x = NULL, y = NULL)
-```
-
-**Nutrient Use: Recommended minus Reported Use (g/kg Fish)**
-
-```{r nutrients histograms, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
-gridExtra::grid.arrange(hist_all, hist_lessthan0, histN_yrs, histP_yrs, nrow = 1)
-```
-
----
-
-<br>
-
-#### 2.3.1 Compare versus Previous Years Data
-
-<br>
-
-#### 2.3.2 Timeseries Plots
-
-```{r explore data by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-## time series of production and nutrient use by country
-timeseriesdf <- plotdf %>% 
-  group_by(Year, country) %>% 
-  mutate(
-    Nmax = sum(50*Production, na.rm = TRUE), 
-    Pmax = sum(7*Production, na.rm = TRUE)
-  ) %>% 
-  ungroup() %>% 
-  rename(Nitrogen = n_kg, Phosphorus = p_kg)
-
-ggplot(timeseriesdf, aes(Year, Production, fill = region_id)) +
-  geom_area(position = "stack", alpha =  0.5, show.legend = FALSE) + 
-  facet_wrap(~ country, ncol = 1, scales = "free_y") + 
-  labs(y = "Mariculture production (tonnes, gapfilled)\n")
-
-nutrientTimeseries <- ggplot() +
-  geom_area(
-    mapping = aes(x = Year, y = Value, fill = RegionID),
-    data = timeseriesdf %>% 
-      tidyr::pivot_longer(cols = c(Nitrogen, Phosphorus, Nmax, Pmax, Production)) %>% 
-      mutate(Value = round(value), RegionID = region_id) %>% 
-      filter(name %in% c("Nitrogen", "Phosphorus"), Year > 1975),
-    position = "stack", 
-    alpha =  0.5, 
-    show.legend = FALSE
-  ) + 
-  geom_line(
-    mapping = aes(x = Year, y = Value),
-    data = timeseriesdf %>% 
-      tidyr::pivot_longer(cols = c(Nitrogen, Phosphorus, Nmax, Pmax, Production)) %>% 
-      mutate(Value = round(value)) %>% 
-      filter(name %in% c("Nmax", "Pmax"), Year > 1975) %>% 
-      mutate(name = ifelse(name == "Nmax", "Nitrogen", "Phosphorus")),
-    inherit.aes = FALSE,
-    size = 0.4,
-    color = "grey",
-    show.legend = FALSE
-  ) + 
-  facet_grid(rows = vars(country), cols = vars(name), scales = "free_y") + 
-  labs(y = "Nutrient Use (kg, gapfilled)\n")
-# nutrientTimeseries_plotly <- plotly::ggplotly(nutrientTimeseries)
-# nutrientTimeseries_plotly$x$layout$showlegend <- FALSE
-# nutrientTimeseries_plotly
-nutrientTimeseries
-```
-
----
-
-<br/>
-
-## 4. Visualizing Data Layers
-
-### 4.1 MAR Data Map
-
-Below is a map with the `MAR` goal data. Included in the map are data on production (tonnes), nutrient use (grams per kg fish produced), percentage of data gapfilled for (1) production and (2) nutrient use.
-
-```{r mar data map, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-library(leaflet)
-
-## join mar datalayers with simplified spatial data for mapping
-plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
-  sf::st_as_sf() %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, region_id = BHI_ID, Area_km2) %>% 
-  left_join(
-    mar_datalayers %>%
-      filter(year == 2017) %>% 
-      select(region_id, produced_tonnes, n_ratio, p_ratio, pct_prod_gf, pct_nutrient_gf),
-    by = "region_id"
-  ) %>% 
-  ## because production data were split among regions
-  ## based on the assumption that each unit area was equally likely to contain given mariculture facility
-  ## should present this data as average production per area...
-  mutate(produced_tonnes = produced_tonnes/Area_km2) %>% 
-  mutate(Name = paste(Subbasin, rgn_nam, sep = ", "))
-
-## create palettes based on min max of data values
-palProd <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
-palN <- leaflet::colorNumeric("RdYlBu", seq(0, 60, 0.5), "#fcfcfd", reverse = TRUE)
-palP <- leaflet::colorNumeric("RdYlBu", seq(0, 8.4, 0.05), "#fcfcfd", reverse = TRUE)
-pal_gf <- leaflet::colorNumeric("Greys", seq(0, 1, 0.01))
-
-## create map
-leaflet(data = plotshp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5) %>% 
-  addMapPane("popup", zIndex = 450) %>% 
-  
-  ## production data
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palProd(produced_tonnes),
-    group = "Production (tonnes)"
-  ) %>% 
-  
-  ## nutrients use data
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palN(n_ratio),
-    group = "Nitrogen use ratio (grams/kg fish)"
-  ) %>% 
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palP(p_ratio),
-    group = "Phosphorus use ratio (grams/kg fish)"
-  ) %>% 
-  
-  ## layers controls, popup layer, and formatting
-  addLayersControl(
-    baseGroups = c(
-      "Production (tonnes/per km2)", 
-      "Nitrogen use ratio (grams/kg fish)", 
-      "Phosphorus use ratio (grams/kg fish)"
-      # "Production data gapfilled (proportion)",
-      # "Nutrient data gapfilled (proportion)"
-    ),
-    options = layersControlOptions(collapsed = FALSE)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      plotshp$Name, "</h5>",
-      "<h5><strong>", "BHI Region ID:", "</strong>",
-      plotshp$region_id, "</h5>",
-      "<h5><strong>", "Production:", "</strong>",
-      round(plotshp$produced_tonnes, 5), "</h5>",
-      "<h5><strong>", "Nitrogen:", "</strong>",
-      round(plotshp$n_ratio, 2), "</h5>",
-      "<h5><strong>", "Phosphorus:", "</strong>",
-      round(plotshp$p_ratio, 2), "</h5>",
-      "<h5><strong>", "Gapfill Prop., Nutrients:", "</strong>",
-      plotshp$pct_nutrient_gf, "</h5>",
-      "<h5><strong>", "Gapfill Prop., Production:", "</strong>",
-      plotshp$pct_prod_gf, "</h5>"
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    options = pathOptions(pane = "popup")
-  )
-```
-
-<br>
-
-### 4.2 Gapfilling percentages by Country and Region
-
-```{r gapfilled percentages by country and region id, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
-percentagegf <- ggplot(
-  mar_datalayers %>% 
-    left_join(
-      bhiregions %>% 
-        select(region_id, country) %>% 
-        distinct(),
-      by = "region_id"
-    ) %>% 
-    filter(year > 2008) %>% 
-    mutate(region_id = as.factor(region_id)) %>% 
-    mutate(year = as.character(year)),
-  aes(fill = region_id, x = year, y = pct_prod_gf) # also visualize: pct_gf, pct_nutrient_gf
-)
-percentagegf +
-  geom_col(position = position_dodge(), alpha = 0.5, show.legend = FALSE) + 
-  facet_wrap(~ country) + 
-  labs(x = "Year", y = "Percentage gapfilled production data\n", fill = "BHI Region ID")
 ```
 
 <br>

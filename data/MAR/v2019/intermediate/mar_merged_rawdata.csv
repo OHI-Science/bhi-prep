@@ -1,0 +1,1931 @@
+year,country,area,farm_species,produced_tonnes,p_kg,n_kg,source
+1997,FI,Uusimaa,Rainbow trout,294.04743599600215,NA,NA,national
+1997,FI,Varsinais_Suomi,Rainbow trout,5029.706311985854,NA,NA,national
+1997,FI,Kaakkois_Suomi,Rainbow trout,529.2853847928038,NA,NA,national
+1997,FI,Ostrobothnia,Rainbow trout,1328.6957023141385,NA,NA,national
+1997,FI,Kainuu,Rainbow trout,218.29284231567618,NA,NA,national
+1997,FI,Aland,Rainbow trout,5563.9755516260475,NA,NA,national
+1998,FI,Uusimaa,Rainbow trout,139.82048383450146,NA,NA,national
+1998,FI,Varsinais_Suomi,Rainbow trout,5244.7555957494915,NA,NA,national
+1998,FI,Kaakkois_Suomi,Rainbow trout,585.0644359032331,NA,NA,national
+1998,FI,Ostrobothnia,Rainbow trout,1236.5683924937825,NA,NA,national
+1998,FI,Kainuu,Rainbow trout,219.15125480443137,NA,NA,national
+1998,FI,Aland,Rainbow trout,5732.63983721456,NA,NA,national
+1999,FI,Uusimaa,Rainbow trout,169.30775254502743,NA,NA,national
+1999,FI,Varsinais_Suomi,Rainbow trout,4856.144714173845,NA,NA,national
+1999,FI,Kaakkois_Suomi,Rainbow trout,747.9418950665623,NA,NA,national
+1999,FI,Ostrobothnia,Rainbow trout,1295.7022709475334,NA,NA,national
+1999,FI,Kainuu,Rainbow trout,258.94126859827725,NA,NA,national
+1999,FI,Aland,Rainbow trout,5390.958026624902,NA,NA,national
+2000,FI,Uusimaa,Rainbow trout,232.78409518789064,NA,NA,national
+2000,FI,Varsinais_Suomi,Rainbow trout,5721.116800963928,NA,NA,national
+2000,FI,Kaakkois_Suomi,Rainbow trout,538.1888696437985,NA,NA,national
+2000,FI,Ostrobothnia,Rainbow trout,1309.1618344754875,NA,NA,national
+2000,FI,Kainuu,Rainbow trout,218.85684162964077,NA,NA,national
+2000,FI,Aland,Rainbow trout,5189.891558099254,NA,NA,national
+2001,FI,Uusimaa,Rainbow trout,166.98840030326005,NA,NA,national
+2001,FI,Varsinais_Suomi,Rainbow trout,5667.724639878696,NA,NA,national
+2001,FI,Kaakkois_Suomi,Rainbow trout,736.1322971948446,NA,NA,national
+2001,FI,Ostrobothnia,Rainbow trout,1203.5021986353297,NA,NA,national
+2001,FI,Kainuu,Rainbow trout,283.5838514025777,NA,NA,national
+2001,FI,Aland,Rainbow trout,4975.068612585292,NA,NA,national
+2002,FI,Uusimaa,Rainbow trout,201.33256578947368,NA,NA,national
+2002,FI,Varsinais_Suomi,Rainbow trout,5227.738240131579,NA,NA,national
+2002,FI,Kaakkois_Suomi,Rainbow trout,691.8339638157895,NA,NA,national
+2002,FI,Ostrobothnia,Rainbow trout,973.1074013157895,NA,NA,national
+2002,FI,Kainuu,Rainbow trout,437.2074835526316,NA,NA,national
+2002,FI,Aland,Rainbow trout,4469.780345394737,NA,NA,national
+2003,FI,Uusimaa,Rainbow trout,250.9782462865357,NA,NA,national
+2003,FI,Varsinais_Suomi,Rainbow trout,4206.317585050311,NA,NA,national
+2003,FI,Kaakkois_Suomi,Rainbow trout,854.1042644944896,NA,NA,national
+2003,FI,Ostrobothnia,Rainbow trout,945.5459511260182,NA,NA,national
+2003,FI,Kainuu,Rainbow trout,155.64542405366555,NA,NA,national
+2003,FI,Aland,Rainbow trout,3738.408528988979,NA,NA,national
+2004,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2004,FI,Varsinais_Suomi,Rainbow trout,4708.6419910657305,NA,NA,national
+2004,FI,Kaakkois_Suomi,Rainbow trout,623.4438873188076,NA,NA,national
+2004,FI,Ostrobothnia,Rainbow trout,1060.6266751754947,NA,NA,national
+2004,FI,Kainuu,Rainbow trout,255.74710547907742,NA,NA,national
+2004,FI,Aland,Rainbow trout,3736.8029902452367,NA,NA,national
+2005,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2005,FI,Varsinais_Suomi,Rainbow trout,3984.350136127382,NA,NA,national
+2005,FI,Kaakkois_Suomi,Rainbow trout,760.6573715040013,NA,NA,national
+2005,FI,Ostrobothnia,Rainbow trout,1095.9597392954377,NA,NA,national
+2005,FI,Kainuu,Rainbow trout,657.1926408712152,NA,NA,national
+2005,FI,Aland,Rainbow trout,5000.795313917994,NA,NA,national
+2006,FI,Uusimaa,Rainbow trout,97.49576547231271,NA,NA,national
+2006,FI,Varsinais_Suomi,Rainbow trout,3678.5902280130294,NA,NA,national
+2006,FI,Kaakkois_Suomi,Rainbow trout,465.91726384364824,NA,NA,national
+2006,FI,Ostrobothnia,Rainbow trout,575.6,NA,NA,national
+2006,FI,Kainuu,Rainbow trout,404.9824104234528,NA,NA,national
+2006,FI,Aland,Rainbow trout,4850.4143322475575,NA,NA,national
+2007,FI,Uusimaa,Rainbow trout,153.2508794667654,NA,NA,national
+2007,FI,Varsinais_Suomi,Rainbow trout,3415.438807628217,NA,NA,national
+2007,FI,Kaakkois_Suomi,Rainbow trout,436.3912238474357,NA,NA,national
+2007,FI,Ostrobothnia,Rainbow trout,654.1196074800963,NA,NA,national
+2007,FI,Kainuu,Rainbow trout,381.2582855026847,NA,NA,national
+2007,FI,Aland,Rainbow trout,5053.5411960748015,NA,NA,national
+2008,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2008,FI,Varsinais_Suomi,Rainbow trout,3655.1851063829786,NA,NA,national
+2008,FI,Kaakkois_Suomi,Rainbow trout,410.2468085106383,NA,NA,national
+2008,FI,Ostrobothnia,Rainbow trout,762.5652482269503,NA,NA,national
+2008,FI,Kainuu,Rainbow trout,330.4765957446808,NA,NA,national
+2008,FI,Aland,Rainbow trout,5377.8418439716315,NA,NA,national
+2009,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2009,FI,Varsinais_Suomi,Rainbow trout,3359.269749865035,NA,NA,national
+2009,FI,Kaakkois_Suomi,Rainbow trout,388.5898866294763,NA,NA,national
+2009,FI,Ostrobothnia,Rainbow trout,740.3062803671045,NA,NA,national
+2009,FI,Kainuu,Rainbow trout,185.31293863595465,NA,NA,national
+2009,FI,Aland,Rainbow trout,5652.044628396617,NA,NA,national
+2010,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2010,FI,Varsinais_Suomi,Rainbow trout,2766.767316676823,NA,NA,national
+2010,FI,Kaakkois_Suomi,Rainbow trout,209.93164736949015,NA,NA,national
+2010,FI,Ostrobothnia,Rainbow trout,682.5132033313021,NA,NA,national
+2010,FI,Kainuu,Rainbow trout,369.9692260816575,NA,NA,national
+2010,FI,Aland,Rainbow trout,5006.35202112533,NA,NA,national
+2011,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2011,FI,Varsinais_Suomi,Rainbow trout,3054.6182985553774,NA,NA,national
+2011,FI,Kaakkois_Suomi,Rainbow trout,397.0645264847512,NA,NA,national
+2011,FI,Ostrobothnia,Rainbow trout,635.4825040128411,NA,NA,national
+2011,FI,Kainuu,Rainbow trout,178.3653290529695,NA,NA,national
+2011,FI,Aland,Rainbow trout,3963.4747993579454,NA,NA,national
+2012,FI,Uusimaa,Rainbow trout,0,NA,NA,national
+2012,FI,Varsinais_Suomi,Rainbow trout,3235.47932618683,NA,NA,national
+2012,FI,Kaakkois_Suomi,Rainbow trout,419.78177641653906,NA,NA,national
+2012,FI,Ostrobothnia,Rainbow trout,428.8093415007657,NA,NA,national
+2012,FI,Kainuu,Rainbow trout,188.6761102603369,NA,NA,national
+2012,FI,Aland,Rainbow trout,5159.253445635529,NA,NA,national
+2013,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2013,FI,Varsinais_Suomi,Rainbow trout,3953.095250544662,NA,NA,national
+2013,FI,Kaakkois_Suomi,Rainbow trout,179.02187363834423,NA,NA,national
+2013,FI,Ostrobothnia,Rainbow trout,491.39677559912855,NA,NA,national
+2013,FI,Kainuu,Rainbow trout,NA,NA,NA,national
+2013,FI,Aland,Rainbow trout,5581.646274509804,NA,NA,national
+2014,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2014,FI,Varsinais_Suomi,Rainbow trout,3646.3434132777197,NA,NA,national
+2014,FI,Kaakkois_Suomi,Rainbow trout,382.35314563781714,NA,NA,national
+2014,FI,Ostrobothnia,Rainbow trout,254.5912408759124,NA,NA,national
+2014,FI,Kainuu,Rainbow trout,NA,NA,NA,national
+2014,FI,Aland,Rainbow trout,6033.719151894335,NA,NA,national
+2015,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2015,FI,Varsinais_Suomi,Rainbow trout,4518.964485074023,NA,NA,national
+2015,FI,Kaakkois_Suomi,Rainbow trout,351.4116980826794,NA,NA,national
+2015,FI,Ostrobothnia,Rainbow trout,377.0552544292533,NA,NA,national
+2015,FI,Kainuu,Rainbow trout,NA,NA,NA,national
+2015,FI,Aland,Rainbow trout,6087.970228945878,NA,NA,national
+2016,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2016,FI,Varsinais_Suomi,Rainbow trout,3862.351802403204,NA,NA,national
+2016,FI,Kaakkois_Suomi,Rainbow trout,401.22171228304404,NA,NA,national
+2016,FI,Ostrobothnia,Rainbow trout,403.1187416555407,NA,NA,national
+2016,FI,Kainuu,Rainbow trout,NA,NA,NA,national
+2016,FI,Aland,Rainbow trout,6369.276118157543,NA,NA,national
+2017,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2017,FI,Varsinais_Suomi,Rainbow trout,3675.8278317152103,NA,NA,national
+2017,FI,Kaakkois_Suomi,Rainbow trout,334.68478964401294,NA,NA,national
+2017,FI,Ostrobothnia,Rainbow trout,374.6187702265372,NA,NA,national
+2017,FI,Kainuu,Rainbow trout,NA,NA,NA,national
+2017,FI,Aland,Rainbow trout,6857.234951456311,NA,NA,national
+2018,FI,Uusimaa,Rainbow trout,NA,NA,NA,national
+2018,FI,Varsinais_Suomi,Rainbow trout,3655.625566560349,NA,NA,national
+2018,FI,Kaakkois_Suomi,Rainbow trout,337.8443847574282,NA,NA,national
+2018,FI,Ostrobothnia,Rainbow trout,405.97322477757257,NA,NA,national
+2018,FI,Kainuu,Rainbow trout,NA,NA,NA,national
+2018,FI,Aland,Rainbow trout,6495.571596441161,NA,NA,national
+1978,FI,Finland,Rainbow trout,809,NA,NA,national
+1979,FI,Finland,Rainbow trout,794,NA,NA,national
+1980,FI,Finland,Rainbow trout,1958,NA,NA,national
+1981,FI,Finland,Rainbow trout,2211,NA,NA,national
+1982,FI,Finland,Rainbow trout,3226,NA,NA,national
+1983,FI,Finland,Rainbow trout,3910,NA,NA,national
+1984,FI,Finland,Rainbow trout,5381,NA,NA,national
+1985,FI,Finland,Rainbow trout,6647,NA,NA,national
+1986,FI,Finland,Rainbow trout,7140,NA,NA,national
+1987,FI,Finland,Rainbow trout,8784,NA,NA,national
+1988,FI,Finland,Rainbow trout,12749,NA,NA,national
+1989,FI,Finland,Rainbow trout,13388,NA,NA,national
+1990,FI,Finland,Rainbow trout,13024,NA,NA,national
+1991,FI,Finland,Rainbow trout,15055,NA,NA,national
+1992,FI,Finland,Rainbow trout,14588,NA,NA,national
+1993,FI,Finland,Rainbow trout,13687,NA,NA,national
+1994,FI,Finland,Rainbow trout,13315,NA,NA,national
+1995,FI,Finland,Rainbow trout,13882,NA,NA,national
+1996,FI,Finland,Rainbow trout,14618,NA,NA,national
+2009,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2010,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2011,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2012,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2013,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2014,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2015,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2016,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2017,DE,Kiel Bay,Rainbow trout,13.5,NA,NA,national
+2018,DE,Kiel Bay,Rainbow trout,18,NA,NA,national
+2019,DE,Kiel Bay,Rainbow trout,20,NA,NA,national
+2005,DK,Arhus_cty,Rainbow trout,301,NA,NA,national
+2005,DK,Vejle_cty,Rainbow trout,1900,NA,NA,national
+2005,DK,Fyns_cty,Rainbow trout,191,NA,NA,national
+2005,DK,Sønderjylland_cty,Rainbow trout,659,NA,NA,national
+2005,DK,Nordjyllands_cty,Rainbow trout,NA,NA,NA,national
+2005,DK,Frederiksborg_cty,Rainbow trout,NA,NA,NA,national
+2005,DK,Roskilde_cty,Rainbow trout,NA,NA,NA,national
+2005,DK,Storstrøms_cty,Rainbow trout,2537,NA,NA,national
+2005,DK,Vestsjællands_cty,Rainbow trout,2162,NA,NA,national
+2006,DK,Hovedstaden,Rainbow trout,2071,NA,NA,national
+2007,DK,Hovedstaden,Rainbow trout,2364,NA,NA,national
+2008,DK,Hovedstaden,Rainbow trout,2288,NA,NA,national
+2009,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2010,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2011,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2012,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2013,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2014,DK,Hovedstaden,Rainbow trout,80,NA,NA,national
+2015,DK,Hovedstaden,Rainbow trout,250,NA,NA,national
+2016,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2017,DK,Hovedstaden,Rainbow trout,NA,NA,NA,national
+2006,DK,Sjælland,Rainbow trout,2829,NA,NA,national
+2007,DK,Sjælland,Rainbow trout,3806,NA,NA,national
+2008,DK,Sjælland,Rainbow trout,3987,NA,NA,national
+2009,DK,Sjælland,Rainbow trout,7187,NA,NA,national
+2010,DK,Sjælland,Rainbow trout,6709,NA,NA,national
+2011,DK,Sjælland,Rainbow trout,7531,NA,NA,national
+2012,DK,Sjælland,Rainbow trout,7243,NA,NA,national
+2013,DK,Sjælland,Rainbow trout,7447,NA,NA,national
+2014,DK,Sjælland,Rainbow trout,7845,NA,NA,national
+2015,DK,Sjælland,Rainbow trout,8649,NA,NA,national
+2016,DK,Sjælland,Rainbow trout,7621,NA,NA,national
+2017,DK,Sjælland,Rainbow trout,8454,NA,NA,national
+2006,DK,Syddanmark,Rainbow trout,881,NA,NA,national
+2007,DK,Syddanmark,Rainbow trout,542,NA,NA,national
+2008,DK,Syddanmark,Rainbow trout,1510,NA,NA,national
+2009,DK,Syddanmark,Rainbow trout,1520,NA,NA,national
+2010,DK,Syddanmark,Rainbow trout,1335,NA,NA,national
+2011,DK,Syddanmark,Rainbow trout,1400,NA,NA,national
+2012,DK,Syddanmark,Rainbow trout,1435,NA,NA,national
+2013,DK,Syddanmark,Rainbow trout,1383,NA,NA,national
+2014,DK,Syddanmark,Rainbow trout,1477,NA,NA,national
+2015,DK,Syddanmark,Rainbow trout,1390,NA,NA,national
+2016,DK,Syddanmark,Rainbow trout,992,NA,NA,national
+2017,DK,Syddanmark,Rainbow trout,1420,NA,NA,national
+2006,DK,Midtjylland,Rainbow trout,1742,NA,NA,national
+2007,DK,Midtjylland,Rainbow trout,733,NA,NA,national
+2008,DK,Midtjylland,Rainbow trout,1841,NA,NA,national
+2009,DK,Midtjylland,Rainbow trout,1432,NA,NA,national
+2010,DK,Midtjylland,Rainbow trout,1788,NA,NA,national
+2011,DK,Midtjylland,Rainbow trout,1922,NA,NA,national
+2012,DK,Midtjylland,Rainbow trout,1814,NA,NA,national
+2013,DK,Midtjylland,Rainbow trout,1834,NA,NA,national
+2014,DK,Midtjylland,Rainbow trout,1970,NA,NA,national
+2015,DK,Midtjylland,Rainbow trout,1767,NA,NA,national
+2016,DK,Midtjylland,Rainbow trout,1695,NA,NA,national
+2017,DK,Midtjylland,Rainbow trout,1683,NA,NA,national
+2006,DK,Denmark,Rainbow trout,7523,NA,NA,national
+2007,DK,Denmark,Rainbow trout,7445,NA,NA,national
+2008,DK,Denmark,Rainbow trout,9626,NA,NA,national
+2009,DK,Denmark,Rainbow trout,10139,NA,NA,national
+2010,DK,Denmark,Rainbow trout,9832,NA,NA,national
+2011,DK,Denmark,Rainbow trout,10854,NA,NA,national
+2012,DK,Denmark,Rainbow trout,10491,NA,NA,national
+2013,DK,Denmark,Rainbow trout,10664,NA,NA,national
+2014,DK,Denmark,Rainbow trout,11372,NA,NA,national
+2015,DK,Denmark,Rainbow trout,12056,NA,NA,national
+2016,DK,Denmark,Rainbow trout,10308,NA,NA,national
+2017,DK,Denmark,Rainbow trout,11557,NA,NA,national
+2009,SE,Ne_coast,Rainbow trout,2065,NA,NA,national
+2010,SE,Ne_coast,Rainbow trout,1998,NA,NA,national
+2011,SE,Ne_coast,Rainbow trout,2998,NA,NA,national
+2012,SE,Ne_coast,Rainbow trout,2838,NA,NA,national
+2013,SE,Ne_coast,Rainbow trout,2954,NA,NA,national
+2014,SE,Ne_coast,Rainbow trout,2259,NA,NA,national
+2015,SE,Ne_coast,Rainbow trout,1819,NA,NA,national
+2016,SE,Ne_coast,Rainbow trout,2352,NA,NA,national
+2017,SE,Ne_coast,Rainbow trout,2740,NA,NA,national
+2018,SE,Ne_coast,Rainbow trout,2754,NA,NA,national
+2009,SE,Other_coasts,Rainbow trout,366,NA,NA,national
+2010,SE,Other_coasts,Rainbow trout,285,NA,NA,national
+2011,SE,Other_coasts,Rainbow trout,257,NA,NA,national
+2012,SE,Other_coasts,Rainbow trout,213,NA,NA,national
+2013,SE,Other_coasts,Rainbow trout,162,NA,NA,national
+2014,SE,Other_coasts,Rainbow trout,226,NA,NA,national
+2015,SE,Other_coasts,Rainbow trout,100,NA,NA,national
+2016,SE,Other_coasts,Rainbow trout,72,NA,NA,national
+2017,SE,Other_coasts,Rainbow trout,116,NA,NA,national
+2018,SE,Other_coasts,Rainbow trout,116,NA,NA,national
+2009,SE,Sweden,Rainbow trout,2431,NA,NA,national
+2010,SE,Sweden,Rainbow trout,2283,NA,NA,national
+2011,SE,Sweden,Rainbow trout,3255,NA,NA,national
+2012,SE,Sweden,Rainbow trout,3051,NA,NA,national
+2013,SE,Sweden,Rainbow trout,3116,NA,NA,national
+2014,SE,Sweden,Rainbow trout,2485,NA,NA,national
+2015,SE,Sweden,Rainbow trout,1919,NA,NA,national
+2016,SE,Sweden,Rainbow trout,2424,NA,NA,national
+2017,SE,Sweden,Rainbow trout,2856,NA,NA,national
+2018,SE,Sweden,Rainbow trout,2870,NA,NA,national
+1972,DE,Germany,Rainbow trout,2,NA,NA,fao
+1973,DE,Germany,Rainbow trout,10,NA,NA,fao
+1974,DE,Germany,Rainbow trout,50,NA,NA,fao
+1975,DE,Germany,Rainbow trout,120,NA,NA,fao
+1976,DE,Germany,Rainbow trout,160,NA,NA,fao
+1977,DE,Germany,Rainbow trout,200,NA,NA,fao
+1978,DE,Germany,Rainbow trout,250,NA,NA,fao
+1979,DE,Germany,Rainbow trout,320,NA,NA,fao
+1980,DE,Germany,Rainbow trout,400,NA,NA,fao
+1981,DE,Germany,Rainbow trout,450,NA,NA,fao
+1982,DE,Germany,Rainbow trout,504,NA,NA,fao
+1983,DE,Germany,Rainbow trout,485,NA,NA,fao
+1983,SE,Sweden,Rainbow trout,670,NA,NA,fao
+1984,DE,Germany,Rainbow trout,571,NA,NA,fao
+1984,SE,Sweden,Rainbow trout,916,NA,NA,fao
+1985,DE,Germany,Rainbow trout,651,NA,NA,fao
+1985,SE,Sweden,Rainbow trout,1772,NA,NA,fao
+1986,DE,Germany,Rainbow trout,703,NA,NA,fao
+1986,SE,Sweden,Rainbow trout,2668,NA,NA,fao
+1987,DE,Germany,Rainbow trout,786,NA,NA,fao
+1987,SE,Sweden,Rainbow trout,2834,NA,NA,fao
+1988,DE,Germany,Rainbow trout,786,NA,NA,fao
+1988,SE,Sweden,Rainbow trout,4051,NA,NA,fao
+1989,DE,Germany,Rainbow trout,584,NA,NA,fao
+1989,SE,Sweden,Rainbow trout,3565,NA,NA,fao
+1990,ES,Estonia,Rainbow trout,87,NA,NA,fao
+1990,DE,Germany,Rainbow trout,566,NA,NA,fao
+1990,SE,Sweden,Rainbow trout,3526,NA,NA,fao
+1991,ES,Estonia,Rainbow trout,270,NA,NA,fao
+1991,DE,Germany,Rainbow trout,15,NA,NA,fao
+1991,SE,Sweden,Rainbow trout,2708,NA,NA,fao
+1992,ES,Estonia,Rainbow trout,160,NA,NA,fao
+1992,DE,Germany,Rainbow trout,13,NA,NA,fao
+1992,SE,Sweden,Rainbow trout,2154,NA,NA,fao
+1993,ES,Estonia,Rainbow trout,166,NA,NA,fao
+1993,DE,Germany,Rainbow trout,150,NA,NA,fao
+1993,SE,Sweden,Rainbow trout,2256,NA,NA,fao
+1994,ES,Estonia,Rainbow trout,156,NA,NA,fao
+1994,DE,Germany,Rainbow trout,100,NA,NA,fao
+1994,SE,Sweden,Rainbow trout,2378,NA,NA,fao
+1995,ES,Estonia,Rainbow trout,150,NA,NA,fao
+1995,DE,Germany,Rainbow trout,50,NA,NA,fao
+1995,SE,Sweden,Rainbow trout,2923,NA,NA,fao
+1996,DE,Germany,Rainbow trout,24,NA,NA,fao
+1996,SE,Sweden,Rainbow trout,3239,NA,NA,fao
+1997,DE,Germany,Rainbow trout,28,NA,NA,fao
+1997,SE,Sweden,Rainbow trout,2166,NA,NA,fao
+1998,DE,Germany,Rainbow trout,30,NA,NA,fao
+1998,SE,Sweden,Rainbow trout,2026,NA,NA,fao
+1999,DE,Germany,Rainbow trout,27,NA,NA,fao
+1999,SE,Sweden,Rainbow trout,1963,NA,NA,fao
+2000,DE,Germany,Rainbow trout,27,NA,NA,fao
+2000,SE,Sweden,Rainbow trout,1579,NA,NA,fao
+2001,DE,Germany,Rainbow trout,26,NA,NA,fao
+2001,SE,Sweden,Rainbow trout,1932,NA,NA,fao
+2002,DK,Denmark,Rainbow trout,3189,NA,NA,fao
+2002,DE,Germany,Rainbow trout,23,NA,NA,fao
+2002,SE,Sweden,Rainbow trout,1606,NA,NA,fao
+2003,DK,Denmark,Rainbow trout,7944,NA,NA,fao
+2003,DE,Germany,Rainbow trout,19,NA,NA,fao
+2003,SE,Sweden,Rainbow trout,1060,NA,NA,fao
+2004,DK,Denmark,Rainbow trout,9078,NA,NA,fao
+2004,DE,Germany,Rainbow trout,19,NA,NA,fao
+2004,SE,Sweden,Rainbow trout,1316,NA,NA,fao
+2005,DK,Denmark,Rainbow trout,8538,NA,NA,fao
+2005,DE,Germany,Rainbow trout,21,NA,NA,fao
+2005,SE,Sweden,Rainbow trout,1475,NA,NA,fao
+2006,DE,Germany,Rainbow trout,20,NA,NA,fao
+2006,SE,Sweden,Rainbow trout,1503,NA,NA,fao
+2007,DE,Germany,Rainbow trout,20,NA,NA,fao
+2007,SE,Sweden,Rainbow trout,1480,NA,NA,fao
+2008,DE,Germany,Rainbow trout,22,NA,NA,fao
+2008,SE,Sweden,Rainbow trout,1668,NA,NA,fao
+2009,DE,Germany,Rainbow trout,14,NA,NA,fao
+2010,DE,Germany,Rainbow trout,14,NA,NA,fao
+2011,DE,Germany,Rainbow trout,26,NA,NA,fao
+2012,DE,Germany,Rainbow trout,30,NA,NA,fao
+2013,DE,Germany,Rainbow trout,22,NA,NA,fao
+2014,DE,Germany,Rainbow trout,20,NA,NA,fao
+2011,SE,Kalmar lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Kalmar lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Kalmar lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Kalmar lan,Rainbow trout,0,0,0,helcom
+2015,SE,Kalmar lan,Rainbow trout,50,NA,NA,helcom
+2011,SE,Gavleborgs lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Gavleborgs lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Gavleborgs lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Gavleborgs lan,Rainbow trout,0,0,0,helcom
+2015,SE,Gavleborgs lan,Rainbow trout,0,NA,NA,helcom
+2011,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Vasternorrlands lan,Rainbow trout,0,0,0,helcom
+2015,SE,Vasternorrlands lan,Rainbow trout,900,NA,NA,helcom
+2011,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Vasternorrlands lan,Rainbow trout,0,0,0,helcom
+2015,SE,Vasternorrlands lan,Rainbow trout,1800,NA,NA,helcom
+2011,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Vasternorrlands lan,Rainbow trout,0,0,0,helcom
+2015,SE,Vasternorrlands lan,Rainbow trout,0,NA,NA,helcom
+2011,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Vasternorrlands lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Vasternorrlands lan,Rainbow trout,0,0,0,helcom
+2015,SE,Vasternorrlands lan,Rainbow trout,1800,NA,NA,helcom
+2011,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Stockholm lan,Rainbow trout,0,0,0,helcom
+2015,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2011,SE,Vasterbottens lan,"Perch (perca fluviatilis), European crayfish (Astacus astacus), Pike (Esox lucius)",NA,NA,NA,helcom
+2012,SE,Vasterbottens lan,"Perch (perca fluviatilis), European crayfish (Astacus astacus), Pike (Esox lucius)",NA,NA,NA,helcom
+2013,SE,Vasterbottens lan,"Perch (perca fluviatilis), European crayfish (Astacus astacus), Pike (Esox lucius)",NA,NA,NA,helcom
+2014,SE,Vasterbottens lan,"Perch (perca fluviatilis), European crayfish (Astacus astacus), Pike (Esox lucius)",0,0,0,helcom
+2015,SE,Vasterbottens lan,"Perch (perca fluviatilis), European crayfish (Astacus astacus), Pike (Esox lucius)",0,NA,NA,helcom
+2011,SE,Norrbottens lan,Unknown,NA,NA,NA,helcom
+2012,SE,Norrbottens lan,Unknown,NA,NA,NA,helcom
+2013,SE,Norrbottens lan,Unknown,NA,NA,NA,helcom
+2014,SE,Norrbottens lan,Unknown,0,0,0,helcom
+2015,SE,Norrbottens lan,Unknown,0,NA,NA,helcom
+2011,SE,Norrbottens lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Norrbottens lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Norrbottens lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Norrbottens lan,Rainbow trout,0,0,0,helcom
+2015,SE,Norrbottens lan,Rainbow trout,55,NA,NA,helcom
+2011,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Stockholm lan,Rainbow trout,0,0,0,helcom
+2015,SE,Stockholm lan,Rainbow trout,0,NA,NA,helcom
+2011,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2012,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2013,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2014,SE,Stockholm lan,Rainbow trout,0,0,0,helcom
+2015,SE,Stockholm lan,Rainbow trout,NA,NA,NA,helcom
+2011,SE,Norrbottens lan,Unknown,NA,NA,NA,helcom
+2012,SE,Norrbottens lan,Unknown,NA,NA,NA,helcom
+2013,SE,Norrbottens lan,Unknown,NA,NA,NA,helcom
+2014,SE,Norrbottens lan,Unknown,0,0,0,helcom
+2015,SE,Norrbottens lan,Unknown,0,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,170.043,1091,7684,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,209.784,783,7710,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,162.162,662,6396,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,223.508,1500,12800,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Bornholm Basin,Finfish,NA,NA,NA,helcom
+2012,DK,Bornholm Basin,Finfish,NA,NA,NA,helcom
+2013,DK,Bornholm Basin,Finfish,NA,NA,NA,helcom
+2014,DK,Bornholm Basin,Finfish,62.078,330,3320,helcom
+2015,DK,Bornholm Basin,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,168.142,695,6661,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,180.952,664,6476,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,181.818,696,6753,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,98.687,160,3600,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,279.165,1060,10670,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,165.138,620,6047,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2012,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2013,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2014,DK,Arkona Basin,Finfish,760.66,3210,30630,helcom
+2015,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,220.6,872,8422,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,252.73,1036,9938,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2012,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2013,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2014,DK,Arkona Basin,Finfish,357.519,1652,15487,helcom
+2015,DK,Arkona Basin,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,2479.662,9600,90200,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,556.18,2700,24300,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,229.358,853,8319,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,354.56,1450,14320,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,439.241,1770,17570,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,529.76,2110,20990,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2012,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2013,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2014,DK,Belts Danish coastal waters,Finfish,712.631,2556,25164,helcom
+2015,DK,Belts Danish coastal waters,Finfish,NA,NA,NA,helcom
+2011,SE,Aland Sea,Rainbow trout,43,265,2097,helcom
+2012,SE,Aland Sea,Rainbow trout,44,269,2132,helcom
+2013,SE,Aland Sea,Rainbow trout,47,289,2294,helcom
+2014,SE,Aland Sea,Rainbow trout,45,277,2251,helcom
+2015,SE,Aland Sea,Rainbow trout,5,NA,NA,helcom
+2011,SE,Western Gotland Basin,Finfish,NA,84,864,helcom
+2012,SE,Western Gotland Basin,Finfish,NA,56,558,helcom
+2013,SE,Western Gotland Basin,Finfish,NA,40,410,helcom
+2014,SE,Western Gotland Basin,Finfish,0,0,0,helcom
+2015,SE,Western Gotland Basin,Finfish,NA,NA,NA,helcom
+2011,SE,Bornholm Basin,Finfish,109,436,3271,helcom
+2012,SE,Bornholm Basin,Finfish,NA,423,3896,helcom
+2013,SE,Bornholm Basin,Finfish,77,293,2695,helcom
+2014,SE,Bornholm Basin,Finfish,58.64,223,2051,helcom
+2015,SE,Bornholm Basin,Finfish,NA,NA,NA,helcom
+2011,SE,Bornholm Basin,Rainbow trout,NA,NA,3264,helcom
+2012,SE,Bornholm Basin,Rainbow trout,NA,438,3168,helcom
+2013,SE,Bornholm Basin,Rainbow trout,NA,443,3201,helcom
+2014,SE,Bornholm Basin,Rainbow trout,50,180,2208,helcom
+2015,SE,Bornholm Basin,Rainbow trout,0,NA,NA,helcom
+2011,SE,The Sound,Finfish,94,880,5242,helcom
+2012,SE,The Sound,Finfish,101,744,6104,helcom
+2013,SE,The Sound,Finfish,108,1021,6387,helcom
+2014,SE,The Sound,Finfish,80,1110,6150,helcom
+2015,SE,The Sound,Finfish,NA,NA,NA,helcom
+2011,SE,Bothnian Sea,Rainbow trout,NA,267,3135,helcom
+2012,SE,Bothnian Sea,Rainbow trout,NA,126,1478,helcom
+2013,SE,Bothnian Sea,Rainbow trout,NA,237,2781,helcom
+2014,SE,Bothnian Sea,Rainbow trout,76.4,306,3591,helcom
+2015,SE,Bothnian Sea,Rainbow trout,NA,NA,NA,helcom
+2011,SE,Bothnian Sea,Rainbow trout,0,0,0,helcom
+2012,SE,Bothnian Sea,Rainbow trout,30,178,1361,helcom
+2013,SE,Bothnian Sea,Rainbow trout,29,166,1288,helcom
+2014,SE,Bothnian Sea,Rainbow trout,30,163,1436,helcom
+2015,SE,Bothnian Sea,Rainbow trout,33,NA,NA,helcom
+2011,SE,Bothnian Sea,Finfish,422,2180,17060,helcom
+2012,SE,Bothnian Sea,Finfish,401,1834,16364,helcom
+2013,SE,Bothnian Sea,Finfish,392,1672,16312,helcom
+2014,SE,Bothnian Sea,Finfish,180,1048,9202,helcom
+2015,SE,Bothnian Sea,Finfish,NA,NA,NA,helcom
+2011,SE,Bothnian Sea,Finfish,407,1984,18582,helcom
+2012,SE,Bothnian Sea,Finfish,596,3087,24251,helcom
+2013,SE,Bothnian Sea,Finfish,599,3034,24119,helcom
+2014,SE,Bothnian Sea,Finfish,407,1984,18584,helcom
+2015,SE,Bothnian Sea,Finfish,NA,NA,NA,helcom
+2011,SE,Bothnian Sea,Finfish,402,2120,16556,helcom
+2012,SE,Bothnian Sea,Finfish,581,3015,23726,helcom
+2013,SE,Bothnian Sea,Finfish,597,3098,24381,helcom
+2014,SE,Bothnian Sea,Finfish,341,1611,15615,helcom
+2015,SE,Bothnian Sea,Finfish,NA,NA,NA,helcom
+2011,SE,Bothnian Sea,Finfish,594,3174,24785,helcom
+2012,SE,Bothnian Sea,Finfish,584,3318,25880,helcom
+2013,SE,Bothnian Sea,Finfish,594,3362,26155,helcom
+2014,SE,Bothnian Sea,Finfish,518,2922,27787,helcom
+2015,SE,Bothnian Sea,Finfish,NA,NA,NA,helcom
+2011,SE,Bothnian Sea,Finfish,32,NA,NA,helcom
+2012,SE,Bothnian Sea,Finfish,30,NA,NA,helcom
+2013,SE,Bothnian Sea,Finfish,33,NA,NA,helcom
+2014,SE,Bothnian Sea,Finfish,28.5,156.270742,1408.243678,helcom
+2015,SE,Bothnian Sea,Finfish,0,NA,NA,helcom
+2011,SE,Bothnian Bay,Finfish,295,NA,NA,helcom
+2012,SE,Bothnian Bay,Finfish,275,NA,NA,helcom
+2013,SE,Bothnian Bay,Finfish,190,NA,NA,helcom
+2014,SE,Bothnian Bay,Finfish,210,1151.468624,10376.532368,helcom
+2015,SE,Bothnian Bay,Finfish,NA,NA,NA,helcom
+2011,SE,Bothnian Bay,Finfish,0,0,0,helcom
+2012,SE,Bothnian Bay,Finfish,25,NA,NA,helcom
+2013,SE,Bothnian Bay,Finfish,25,NA,NA,helcom
+2014,SE,Bothnian Bay,Finfish,25,137.079598,1235.301472,helcom
+2015,SE,Bothnian Bay,Finfish,NA,NA,NA,helcom
+2011,FI,Bothnian Sea,Finfish,NA,440,3800,helcom
+2012,FI,Bothnian Sea,Finfish,NA,370,3300,helcom
+2013,FI,Bothnian Sea,Finfish,NA,420,3900,helcom
+2014,FI,Bothnian Sea,Finfish,NA,440,4200,helcom
+2015,FI,Bothnian Sea,Finfish,NA,610,5600,helcom
+2011,FI,Archipelago Sea,Finfish,NA,110,830,helcom
+2012,FI,Archipelago Sea,Finfish,NA,620,4500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,410,3900,helcom
+2014,FI,Archipelago Sea,Finfish,NA,560,4800,helcom
+2015,FI,Archipelago Sea,Finfish,NA,520,5200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,160,990,helcom
+2012,FI,Archipelago Sea,Finfish,NA,120,790,helcom
+2013,FI,Archipelago Sea,Finfish,NA,150,1200,helcom
+2014,FI,Archipelago Sea,Finfish,NA,140,1100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,130,1000,helcom
+2011,FI,Archipelago Sea,Finfish,NA,220,1600,helcom
+2012,FI,Archipelago Sea,Finfish,NA,170,1100,helcom
+2013,FI,Archipelago Sea,Finfish,NA,210,1700,helcom
+2014,FI,Archipelago Sea,Finfish,NA,200,1600,helcom
+2015,FI,Archipelago Sea,Finfish,NA,180,1400,helcom
+2011,FI,Archipelago Sea,Finfish,NA,410,3800,helcom
+2012,FI,Archipelago Sea,Finfish,NA,420,3900,helcom
+2013,FI,Archipelago Sea,Finfish,NA,400,3800,helcom
+2014,FI,Archipelago Sea,Finfish,NA,390,3800,helcom
+2015,FI,Archipelago Sea,Finfish,NA,380,3700,helcom
+2011,FI,Archipelago Sea,Finfish,NA,330,2900,helcom
+2012,FI,Archipelago Sea,Finfish,NA,280,2800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,270,2600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,330,3100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,250,3200,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,270,2300,helcom
+2012,FI,Gulf of Finland,Finfish,NA,280,2400,helcom
+2013,FI,Gulf of Finland,Finfish,NA,500,3900,helcom
+2014,FI,Gulf of Finland,Finfish,NA,390,3900,helcom
+2015,FI,Gulf of Finland,Finfish,NA,430,4400,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,460,4000,helcom
+2012,FI,Archipelago Sea,Finfish,NA,390,3600,helcom
+2013,FI,Archipelago Sea,Finfish,NA,330,3100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,330,3100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,300,3500,helcom
+2011,FI,Archipelago Sea,Finfish,NA,430,3100,helcom
+2012,FI,Archipelago Sea,Finfish,NA,370,3500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,280,2800,helcom
+2014,FI,Archipelago Sea,Finfish,NA,290,2800,helcom
+2015,FI,Archipelago Sea,Finfish,NA,260,2600,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,330,3100,helcom
+2012,FI,Bothnian Sea,Finfish,NA,360,3400,helcom
+2013,FI,Bothnian Sea,Finfish,NA,350,3300,helcom
+2014,FI,Bothnian Sea,Finfish,NA,320,3100,helcom
+2015,FI,Bothnian Sea,Finfish,NA,310,3100,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,1,9,helcom
+2012,FI,Bothnian Bay,Finfish,NA,2,19,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,460,3000,helcom
+2012,FI,Archipelago Sea,Finfish,NA,520,3900,helcom
+2013,FI,Archipelago Sea,Finfish,NA,140,1100,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,260,2100,helcom
+2012,FI,Bothnian Sea,Finfish,NA,170,1900,helcom
+2013,FI,Bothnian Sea,Finfish,NA,120,1100,helcom
+2014,FI,Bothnian Sea,Finfish,NA,260,2300,helcom
+2015,FI,Bothnian Sea,Finfish,NA,260,2700,helcom
+2011,FI,Archipelago Sea,Finfish,NA,180,1700,helcom
+2012,FI,Archipelago Sea,Finfish,NA,160,1400,helcom
+2013,FI,Archipelago Sea,Finfish,NA,160,1300,helcom
+2014,FI,Archipelago Sea,Finfish,NA,190,1700,helcom
+2015,FI,Archipelago Sea,Finfish,NA,160,1400,helcom
+2011,FI,Archipelago Sea,Finfish,NA,250,2000,helcom
+2012,FI,Archipelago Sea,Finfish,NA,210,1600,helcom
+2013,FI,Archipelago Sea,Finfish,NA,270,2200,helcom
+2014,FI,Archipelago Sea,Finfish,NA,220,2200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,120,1200,helcom
+2011,FI,Gulf of Finland,Finfish,NA,200,550,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,590,4700,helcom
+2012,FI,Bothnian Sea,Finfish,NA,600,4800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,680,6000,helcom
+2014,FI,Bothnian Sea,Finfish,NA,670,5700,helcom
+2015,FI,Bothnian Sea,Finfish,NA,530,5200,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,75,710,helcom
+2012,FI,Bothnian Sea,Finfish,NA,81,710,helcom
+2013,FI,Bothnian Sea,Finfish,NA,110,880,helcom
+2014,FI,Bothnian Sea,Finfish,NA,110,890,helcom
+2015,FI,Bothnian Sea,Finfish,NA,110,950,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,100,750,helcom
+2012,FI,Archipelago Sea,Finfish,NA,110,940,helcom
+2013,FI,Archipelago Sea,Finfish,NA,90,910,helcom
+2014,FI,Archipelago Sea,Finfish,NA,100,1000,helcom
+2015,FI,Archipelago Sea,Finfish,NA,90,900,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,310,2400,helcom
+2012,FI,Archipelago Sea,Finfish,NA,310,2400,helcom
+2013,FI,Archipelago Sea,Finfish,NA,300,2500,helcom
+2014,FI,Archipelago Sea,Finfish,NA,270,2600,helcom
+2015,FI,Archipelago Sea,Finfish,NA,250,2400,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,210,1600,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,190,1500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,180,1500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,160,1300,helcom
+2014,FI,Archipelago Sea,Finfish,NA,210,1700,helcom
+2015,FI,Archipelago Sea,Finfish,NA,120,1100,helcom
+2011,FI,Archipelago Sea,Finfish,NA,210,1600,helcom
+2012,FI,Archipelago Sea,Finfish,NA,210,1600,helcom
+2013,FI,Archipelago Sea,Finfish,NA,200,1600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,140,1400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,120,1200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,180,1400,helcom
+2012,FI,Archipelago Sea,Finfish,NA,200,1700,helcom
+2013,FI,Archipelago Sea,Finfish,NA,210,1700,helcom
+2014,FI,Archipelago Sea,Finfish,NA,190,1500,helcom
+2015,FI,Archipelago Sea,Finfish,NA,140,1600,helcom
+2011,FI,Archipelago Sea,Finfish,NA,180,1500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,160,1300,helcom
+2013,FI,Archipelago Sea,Finfish,NA,130,1100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,140,1400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,140,1300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,290,2300,helcom
+2012,FI,Archipelago Sea,Finfish,NA,280,2200,helcom
+2013,FI,Archipelago Sea,Finfish,NA,270,2300,helcom
+2014,FI,Archipelago Sea,Finfish,NA,230,2300,helcom
+2015,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,17,130,helcom
+2012,FI,Archipelago Sea,Finfish,NA,16,130,helcom
+2013,FI,Archipelago Sea,Finfish,NA,16,130,helcom
+2014,FI,Archipelago Sea,Finfish,NA,16,170,helcom
+2015,FI,Archipelago Sea,Finfish,NA,16,170,helcom
+2011,FI,Archipelago Sea,Finfish,NA,170,1400,helcom
+2012,FI,Archipelago Sea,Finfish,NA,160,1400,helcom
+2013,FI,Archipelago Sea,Finfish,NA,140,1100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,150,1400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,150,1200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,29,250,helcom
+2012,FI,Archipelago Sea,Finfish,NA,26,250,helcom
+2013,FI,Archipelago Sea,Finfish,NA,28,270,helcom
+2014,FI,Archipelago Sea,Finfish,NA,26,260,helcom
+2015,FI,Archipelago Sea,Finfish,NA,26,240,helcom
+2011,FI,Archipelago Sea,Finfish,NA,320,2500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,310,2500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,280,2300,helcom
+2014,FI,Archipelago Sea,Finfish,NA,250,2500,helcom
+2015,FI,Archipelago Sea,Finfish,NA,200,2000,helcom
+2011,FI,Archipelago Sea,Finfish,NA,310,2800,helcom
+2012,FI,Archipelago Sea,Finfish,NA,470,4100,helcom
+2013,FI,Archipelago Sea,Finfish,NA,470,3700,helcom
+2014,FI,Archipelago Sea,Finfish,NA,420,4000,helcom
+2015,FI,Archipelago Sea,Finfish,NA,1300,13000,helcom
+2011,FI,Archipelago Sea,Finfish,NA,320,2800,helcom
+2012,FI,Archipelago Sea,Finfish,NA,450,3900,helcom
+2013,FI,Archipelago Sea,Finfish,NA,490,3800,helcom
+2014,FI,Archipelago Sea,Finfish,NA,400,3900,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,240,2300,helcom
+2014,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,210,2100,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,18,140,helcom
+2012,FI,Archipelago Sea,Finfish,NA,24,180,helcom
+2013,FI,Archipelago Sea,Finfish,NA,34,280,helcom
+2014,FI,Archipelago Sea,Finfish,NA,39,340,helcom
+2015,FI,Archipelago Sea,Finfish,NA,51,430,helcom
+2011,FI,Archipelago Sea,Finfish,NA,690,4900,helcom
+2012,FI,Archipelago Sea,Finfish,NA,660,5500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,600,4900,helcom
+2014,FI,Archipelago Sea,Finfish,NA,590,4900,helcom
+2015,FI,Archipelago Sea,Finfish,NA,320,2500,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,990,10000,helcom
+2011,FI,Archipelago Sea,Finfish,NA,560,4800,helcom
+2012,FI,Archipelago Sea,Finfish,NA,550,4700,helcom
+2013,FI,Archipelago Sea,Finfish,NA,520,4300,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,290,2100,helcom
+2012,FI,Archipelago Sea,Finfish,NA,340,2800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,320,2600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,200,1900,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,240,1800,helcom
+2014,FI,Archipelago Sea,Finfish,NA,250,2500,helcom
+2015,FI,Archipelago Sea,Finfish,NA,250,2200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,410,3500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,430,3800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,460,3600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,420,4000,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,730,5300,helcom
+2012,FI,Archipelago Sea,Finfish,NA,770,5700,helcom
+2013,FI,Archipelago Sea,Finfish,NA,620,5100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,610,5200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,520,5600,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,11,87,helcom
+2014,FI,Archipelago Sea,Finfish,NA,26,210,helcom
+2015,FI,Archipelago Sea,Finfish,NA,42,320,helcom
+2011,FI,Archipelago Sea,Finfish,NA,140,1200,helcom
+2012,FI,Archipelago Sea,Finfish,NA,320,2800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,340,2700,helcom
+2014,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,9,85,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,400,3500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,350,3300,helcom
+2013,FI,Archipelago Sea,Finfish,NA,300,2900,helcom
+2014,FI,Archipelago Sea,Finfish,NA,320,3200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,310,3400,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,190,1500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,200,1800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,200,1600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,260,2000,helcom
+2015,FI,Archipelago Sea,Finfish,NA,310,2500,helcom
+2011,FI,Archipelago Sea,Finfish,NA,250,2000,helcom
+2012,FI,Archipelago Sea,Finfish,NA,520,4200,helcom
+2013,FI,Archipelago Sea,Finfish,NA,360,2900,helcom
+2014,FI,Archipelago Sea,Finfish,NA,760,5900,helcom
+2015,FI,Archipelago Sea,Finfish,NA,510,4000,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,300,2200,helcom
+2012,FI,Bothnian Sea,Finfish,NA,320,2400,helcom
+2013,FI,Bothnian Sea,Finfish,NA,310,2600,helcom
+2014,FI,Bothnian Sea,Finfish,NA,310,2600,helcom
+2015,FI,Bothnian Sea,Finfish,NA,300,2700,helcom
+2011,FI,Bothnian Sea,Finfish,NA,26,210,helcom
+2012,FI,Bothnian Sea,Finfish,NA,32,240,helcom
+2013,FI,Bothnian Sea,Finfish,NA,34,280,helcom
+2014,FI,Bothnian Sea,Finfish,NA,31,250,helcom
+2015,FI,Bothnian Sea,Finfish,NA,31,280,helcom
+2011,FI,Bothnian Sea,Finfish,NA,240,1900,helcom
+2012,FI,Bothnian Sea,Finfish,NA,300,2200,helcom
+2013,FI,Bothnian Sea,Finfish,NA,240,2000,helcom
+2014,FI,Bothnian Sea,Finfish,NA,230,1900,helcom
+2015,FI,Bothnian Sea,Finfish,NA,210,1800,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,510,4000,helcom
+2012,FI,Gulf of Finland,Finfish,NA,240,2100,helcom
+2013,FI,Gulf of Finland,Finfish,NA,260,2200,helcom
+2014,FI,Gulf of Finland,Finfish,NA,300,2400,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,290,2300,helcom
+2012,FI,Archipelago Sea,Finfish,NA,300,2400,helcom
+2013,FI,Archipelago Sea,Finfish,NA,300,2600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,280,2400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,260,2300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,NA,1000,10400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,980,9300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,220,1800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,400,3600,helcom
+2014,FI,Archipelago Sea,Finfish,NA,370,3200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,400,3600,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,150,1200,helcom
+2012,FI,Archipelago Sea,Finfish,NA,130,1100,helcom
+2013,FI,Archipelago Sea,Finfish,NA,120,1100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,110,1100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,99,1300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,300,2500,helcom
+2012,FI,Bothnian Sea,Finfish,NA,340,2800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,310,2900,helcom
+2014,FI,Bothnian Sea,Finfish,NA,280,2800,helcom
+2015,FI,Bothnian Sea,Finfish,NA,260,2700,helcom
+2011,FI,Bothnian Sea,Finfish,NA,230,1900,helcom
+2012,FI,Bothnian Sea,Finfish,NA,240,1900,helcom
+2013,FI,Bothnian Sea,Finfish,NA,240,1900,helcom
+2014,FI,Bothnian Sea,Finfish,NA,180,1800,helcom
+2015,FI,Bothnian Sea,Finfish,NA,180,1900,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,400,3400,helcom
+2012,FI,Bothnian Bay,Finfish,NA,280,2200,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,NA,440,3400,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,17,140,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,NA,180,1400,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,160,1400,helcom
+2012,FI,Bothnian Bay,Finfish,NA,200,1600,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,460,3800,helcom
+2012,FI,Bothnian Bay,Finfish,NA,47,520,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,1,11,helcom
+2012,FI,Bothnian Bay,Finfish,NA,6,48,helcom
+2013,FI,Bothnian Bay,Finfish,NA,17,130,helcom
+2014,FI,Bothnian Bay,Finfish,NA,10,75,helcom
+2015,FI,Bothnian Bay,Finfish,NA,13,100,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,400,3200,helcom
+2012,FI,Archipelago Sea,Finfish,NA,290,2400,helcom
+2013,FI,Archipelago Sea,Finfish,NA,490,4100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,420,3400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,390,3500,helcom
+2011,FI,Bothnian Sea,Finfish,NA,180,1700,helcom
+2012,FI,Bothnian Sea,Finfish,NA,200,1800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,190,1800,helcom
+2014,FI,Bothnian Sea,Finfish,NA,180,1700,helcom
+2015,FI,Bothnian Sea,Finfish,NA,200,1800,helcom
+2011,FI,Bothnian Sea,Finfish,NA,34,260,helcom
+2012,FI,Bothnian Sea,Finfish,NA,35,270,helcom
+2013,FI,Bothnian Sea,Finfish,NA,33,250,helcom
+2014,FI,Bothnian Sea,Finfish,NA,27,240,helcom
+2015,FI,Bothnian Sea,Finfish,NA,24,220,helcom
+2011,FI,Bothnian Sea,Finfish,NA,680,5400,helcom
+2012,FI,Bothnian Sea,Finfish,NA,710,5700,helcom
+2013,FI,Bothnian Sea,Finfish,NA,650,5300,helcom
+2014,FI,Bothnian Sea,Finfish,NA,510,5100,helcom
+2015,FI,Bothnian Sea,Finfish,NA,490,4900,helcom
+2011,FI,Bothnian Sea,Finfish,NA,340,3200,helcom
+2012,FI,Bothnian Sea,Finfish,NA,340,3300,helcom
+2013,FI,Bothnian Sea,Finfish,NA,350,3300,helcom
+2014,FI,Bothnian Sea,Finfish,NA,300,3000,helcom
+2015,FI,Bothnian Sea,Finfish,NA,280,2700,helcom
+2011,FI,Bothnian Sea,Finfish,NA,98,920,helcom
+2012,FI,Bothnian Sea,Finfish,NA,110,1000,helcom
+2013,FI,Bothnian Sea,Finfish,NA,110,990,helcom
+2014,FI,Bothnian Sea,Finfish,NA,88,890,helcom
+2015,FI,Bothnian Sea,Finfish,NA,92,910,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,350,2700,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,450,3500,helcom
+2012,FI,Gulf of Finland,Finfish,NA,280,2100,helcom
+2013,FI,Gulf of Finland,Finfish,NA,220,2100,helcom
+2014,FI,Gulf of Finland,Finfish,NA,220,2100,helcom
+2015,FI,Gulf of Finland,Finfish,NA,220,2100,helcom
+2011,FI,Gulf of Finland,Finfish,NA,350,2700,helcom
+2012,FI,Gulf of Finland,Finfish,NA,290,2300,helcom
+2013,FI,Gulf of Finland,Finfish,NA,220,1600,helcom
+2014,FI,Gulf of Finland,Finfish,NA,180,1700,helcom
+2015,FI,Gulf of Finland,Finfish,NA,160,1500,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,280,2100,helcom
+2012,FI,Gulf of Finland,Finfish,NA,270,2100,helcom
+2013,FI,Gulf of Finland,Finfish,NA,150,1500,helcom
+2014,FI,Gulf of Finland,Finfish,NA,160,1500,helcom
+2015,FI,Gulf of Finland,Finfish,NA,150,1400,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,490,4200,helcom
+2012,FI,Archipelago Sea,Finfish,NA,510,4500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,430,4100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,520,5100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,520,5300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,380,3000,helcom
+2012,FI,Archipelago Sea,Finfish,NA,460,3700,helcom
+2013,FI,Archipelago Sea,Finfish,NA,440,4000,helcom
+2014,FI,Archipelago Sea,Finfish,NA,420,3700,helcom
+2015,FI,Archipelago Sea,Finfish,NA,450,4300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,510,4100,helcom
+2012,FI,Archipelago Sea,Finfish,NA,500,4500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,450,4200,helcom
+2014,FI,Archipelago Sea,Finfish,NA,470,4500,helcom
+2015,FI,Archipelago Sea,Finfish,NA,440,4800,helcom
+2011,FI,Bothnian Sea,Finfish,NA,260,2200,helcom
+2012,FI,Bothnian Sea,Finfish,NA,210,1800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,220,2000,helcom
+2014,FI,Bothnian Sea,Finfish,NA,180,1900,helcom
+2015,FI,Bothnian Sea,Finfish,NA,200,2000,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,310,2500,helcom
+2012,FI,Archipelago Sea,Finfish,NA,320,2500,helcom
+2013,FI,Archipelago Sea,Finfish,NA,290,2500,helcom
+2014,FI,Archipelago Sea,Finfish,NA,240,2400,helcom
+2015,FI,Archipelago Sea,Finfish,NA,240,2600,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,240,2100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,240,2100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,230,2000,helcom
+2011,FI,Archipelago Sea,Finfish,NA,450,3700,helcom
+2012,FI,Archipelago Sea,Finfish,NA,480,3900,helcom
+2013,FI,Archipelago Sea,Finfish,NA,430,3700,helcom
+2014,FI,Archipelago Sea,Finfish,NA,380,3300,helcom
+2015,FI,Archipelago Sea,Finfish,NA,400,3600,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,240,2100,helcom
+2012,FI,Bothnian Sea,Finfish,NA,250,2200,helcom
+2013,FI,Bothnian Sea,Finfish,NA,240,2200,helcom
+2014,FI,Bothnian Sea,Finfish,NA,220,2000,helcom
+2015,FI,Bothnian Sea,Finfish,NA,180,1900,helcom
+2011,FI,Bothnian Sea,Finfish,NA,180,1600,helcom
+2012,FI,Bothnian Sea,Finfish,NA,200,1800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,200,1800,helcom
+2014,FI,Bothnian Sea,Finfish,NA,210,1900,helcom
+2015,FI,Bothnian Sea,Finfish,NA,200,2100,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,110,830,helcom
+2012,FI,Archipelago Sea,Finfish,NA,150,1300,helcom
+2013,FI,Archipelago Sea,Finfish,NA,120,1100,helcom
+2014,FI,Archipelago Sea,Finfish,NA,120,1200,helcom
+2015,FI,Archipelago Sea,Finfish,NA,84,910,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,60,480,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,240,2000,helcom
+2014,FI,Bothnian Sea,Finfish,NA,200,2000,helcom
+2015,FI,Bothnian Sea,Finfish,NA,240,2400,helcom
+2011,FI,Bothnian Sea,Finfish,NA,270,2100,helcom
+2012,FI,Bothnian Sea,Finfish,NA,290,2300,helcom
+2013,FI,Bothnian Sea,Finfish,NA,240,2100,helcom
+2014,FI,Bothnian Sea,Finfish,NA,180,1800,helcom
+2015,FI,Bothnian Sea,Finfish,NA,220,2400,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,140,1100,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,25,210,helcom
+2012,FI,Archipelago Sea,Finfish,NA,78,600,helcom
+2013,FI,Archipelago Sea,Finfish,NA,44,380,helcom
+2014,FI,Archipelago Sea,Finfish,NA,34,310,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,420,3500,helcom
+2012,FI,Bothnian Sea,Finfish,NA,460,3800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,410,3600,helcom
+2014,FI,Bothnian Sea,Finfish,NA,400,3600,helcom
+2015,FI,Bothnian Sea,Finfish,NA,450,4000,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,280,2500,helcom
+2012,FI,Gulf of Finland,Finfish,NA,300,2600,helcom
+2013,FI,Gulf of Finland,Finfish,NA,150,1300,helcom
+2014,FI,Gulf of Finland,Finfish,NA,260,2300,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,360,3300,helcom
+2012,FI,Gulf of Finland,Finfish,NA,370,3300,helcom
+2013,FI,Gulf of Finland,Finfish,NA,300,2700,helcom
+2014,FI,Gulf of Finland,Finfish,NA,340,3000,helcom
+2015,FI,Gulf of Finland,Finfish,NA,260,3100,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,150,1300,helcom
+2012,FI,Gulf of Finland,Finfish,NA,22,180,helcom
+2013,FI,Gulf of Finland,Finfish,NA,130,1100,helcom
+2014,FI,Gulf of Finland,Finfish,NA,150,1500,helcom
+2015,FI,Gulf of Finland,Finfish,NA,180,1600,helcom
+2011,FI,Gulf of Finland,Finfish,NA,3,23,helcom
+2012,FI,Gulf of Finland,Finfish,NA,20,100,helcom
+2013,FI,Gulf of Finland,Finfish,NA,6,40,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,220,1900,helcom
+2012,FI,Gulf of Finland,Finfish,NA,180,1600,helcom
+2013,FI,Gulf of Finland,Finfish,NA,200,1700,helcom
+2014,FI,Gulf of Finland,Finfish,NA,210,2000,helcom
+2015,FI,Gulf of Finland,Finfish,NA,180,1800,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,140,1200,helcom
+2012,FI,Bothnian Sea,Finfish,NA,230,1800,helcom
+2013,FI,Bothnian Sea,Finfish,NA,190,1700,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,220,1900,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,210,1800,helcom
+2012,FI,Archipelago Sea,Finfish,NA,220,1800,helcom
+2013,FI,Archipelago Sea,Finfish,NA,230,1900,helcom
+2014,FI,Archipelago Sea,Finfish,NA,190,1600,helcom
+2015,FI,Archipelago Sea,Finfish,NA,210,1800,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,The Quark,Finfish,NA,0,0,helcom
+2012,FI,The Quark,Finfish,NA,0,0,helcom
+2013,FI,The Quark,Finfish,NA,0,0,helcom
+2014,FI,The Quark,Finfish,0,0,0,helcom
+2015,FI,The Quark,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2012,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2013,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2014,FI,Gulf of Finland,Finfish,0,0,0,helcom
+2015,FI,Gulf of Finland,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,260,2200,helcom
+2012,FI,Archipelago Sea,Finfish,NA,230,2000,helcom
+2013,FI,Archipelago Sea,Finfish,NA,210,2000,helcom
+2014,FI,Archipelago Sea,Finfish,NA,210,1900,helcom
+2015,FI,Archipelago Sea,Finfish,NA,230,2100,helcom
+2011,FI,Archipelago Sea,Finfish,NA,390,3300,helcom
+2012,FI,Archipelago Sea,Finfish,NA,360,3200,helcom
+2013,FI,Archipelago Sea,Finfish,NA,350,3300,helcom
+2014,FI,Archipelago Sea,Finfish,NA,340,3100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,350,3300,helcom
+2011,FI,Archipelago Sea,Finfish,NA,260,2200,helcom
+2012,FI,Archipelago Sea,Finfish,NA,240,2100,helcom
+2013,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2014,FI,Archipelago Sea,Finfish,NA,210,2000,helcom
+2015,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,260,2300,helcom
+2012,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2013,FI,Archipelago Sea,Finfish,NA,230,2200,helcom
+2014,FI,Archipelago Sea,Finfish,NA,240,2100,helcom
+2015,FI,Archipelago Sea,Finfish,NA,240,2200,helcom
+2011,FI,Archipelago Sea,Finfish,NA,220,1900,helcom
+2012,FI,Archipelago Sea,Finfish,NA,210,1900,helcom
+2013,FI,Archipelago Sea,Finfish,NA,190,1800,helcom
+2014,FI,Archipelago Sea,Finfish,NA,190,1800,helcom
+2015,FI,Archipelago Sea,Finfish,NA,190,1800,helcom
+2011,FI,Archipelago Sea,Finfish,NA,330,2800,helcom
+2012,FI,Archipelago Sea,Finfish,NA,350,3100,helcom
+2013,FI,Archipelago Sea,Finfish,NA,350,3200,helcom
+2014,FI,Archipelago Sea,Finfish,NA,290,2700,helcom
+2015,FI,Archipelago Sea,Finfish,NA,470,4500,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,35,260,helcom
+2012,FI,Gulf of Finland,Finfish,NA,36,260,helcom
+2013,FI,Gulf of Finland,Finfish,NA,40,310,helcom
+2014,FI,Gulf of Finland,Finfish,NA,42,330,helcom
+2015,FI,Gulf of Finland,Finfish,NA,27,220,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Gulf of Finland,Finfish,NA,530,4100,helcom
+2012,FI,Gulf of Finland,Finfish,NA,310,2600,helcom
+2013,FI,Gulf of Finland,Finfish,NA,280,2400,helcom
+2014,FI,Gulf of Finland,Finfish,NA,340,2700,helcom
+2015,FI,Gulf of Finland,Finfish,NA,200,2400,helcom
+2011,FI,Bothnian Bay,Finfish,NA,300,2300,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,430,2900,helcom
+2012,FI,Bothnian Bay,Finfish,NA,250,1700,helcom
+2013,FI,Bothnian Bay,Finfish,NA,320,3000,helcom
+2014,FI,Bothnian Bay,Finfish,NA,150,1600,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,32,210,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,290,1900,helcom
+2012,FI,Bothnian Bay,Finfish,NA,67,450,helcom
+2013,FI,Bothnian Bay,Finfish,NA,210,2000,helcom
+2014,FI,Bothnian Bay,Finfish,NA,150,1600,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,74,550,helcom
+2012,FI,Archipelago Sea,Finfish,NA,100,890,helcom
+2013,FI,Archipelago Sea,Finfish,NA,120,1000,helcom
+2014,FI,Archipelago Sea,Finfish,NA,110,1000,helcom
+2015,FI,Archipelago Sea,Finfish,NA,90,900,helcom
+2011,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Sea,Finfish,0,0,0,helcom
+2015,FI,Bothnian Sea,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2012,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2013,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2014,FI,Bothnian Bay,Finfish,0,0,0,helcom
+2015,FI,Bothnian Bay,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2012,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2013,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2014,FI,Archipelago Sea,Finfish,0,0,0,helcom
+2015,FI,Archipelago Sea,Finfish,NA,0,0,helcom
+2011,DE,Kiel Bay,Finfish,NA,NA,NA,helcom
+2012,DE,Kiel Bay,Finfish,NA,NA,NA,helcom
+2013,DE,Kiel Bay,Finfish,NA,NA,NA,helcom
+2014,DE,Kiel Bay,Finfish,0,0,0,helcom
+2015,DE,Kiel Bay,Finfish,5,NA,NA,helcom
