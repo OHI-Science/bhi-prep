@@ -60,7 +60,7 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
 #' @return
 
 join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "country",
-                           latlon_vars = c("^lat", "^lon"), 
+                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
                            rgn_shps_loc = file.path(dir_B, "Spatial")){
   
   colnames(dataset) <- stringr::str_to_lower(names(dataset))
@@ -70,28 +70,30 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
   message(sprintf("using latitude longitude colnames identified: '%s' and '%s' respectively", lat, lon))
   
   ## call regions_shape function also in this script, to define shapefiles needed in global env
-  regions_shape(sp_dir = rgn_shps_loc, foldernames = c("bhi_shapefile", "ices_rgn_shapefile"))
-  
+  if(!exists("BHI_rgns_shp", .GlobalEnv)|!exists("ICES_rgns_shp", .GlobalEnv)){
+    message("loading BHI regions w/ HELCOM ID, and ICES shapefiles to global environment")
+    regions_shape(sp_dir = rgn_shps_loc)
+  }
+  if(st_crs(ICES_rgns_shp)$epsg != 4326){
+    ICES_rgns_shp <- st_transform(ICES_rgns_shp, 4326)
+  }
   
   if(length(lat) == 1 & length(lon) == 1 & !any(is.na(latlon_vars))){
     ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
     data_sf <- st_as_sf(dataset, coords = c(lon, lat), crs = 4326, agr = "constant")
+    data_sf <- st_join(data_sf, rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) 
+    data_sf <- st_join(data_sf, rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) 
     
-    if(exists("bhi_rgns_shp", envir = .GlobalEnv)){
-      data_sf <- st_join(data_sf, bhi_rgns_shp) 
-    } else { message("BHI regions w/ HELCOM ID shapefile not in global environment")}
+    if(!return_spatial){
+      data_rgns_joined <- data_sf %>% 
+        as_tibble() %>% 
+        select(-geometry, -Area_km2_BHI, -Area_km2_ICES) 
+    } else {data_rgns_joined <- data_sf}
     
-    if(exists("ices_rgns_shp", envir = .GlobalEnv)){
-      data_sf <- st_join(data_sf, ices_rgns_shp)
-    } else { message("ICES regions shapefile not in global environment")}
-    
-    data_rgns_joined <- data_sf %>% 
-      as_tibble() %>% 
-      select(-geometry, -Area_km2)
-    
+  
   } else {
     ## if no lat lon, need to use country or subbasin or other information... 
-    bhi_rgns_df <- bhi_rgns_shp %>% 
+    bhi_rgns_df <- BHI_rgns_shp %>% 
       as_tibble() %>% 
       select(rgn_nam, rgn_key, HELCOM_ID, BHI_ID)
     colnames(bhi_rgns_df) <- stringr::str_to_lower(colnames(bhi_rgns_df))
