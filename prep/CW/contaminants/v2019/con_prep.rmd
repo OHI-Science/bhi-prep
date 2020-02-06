@@ -9,12 +9,12 @@ params:
 ---
 
 ```{r Preamble}
-loc <- file.path(here::here(), "prep", "CW", "contaminants")
+loc <- here::here("prep", "CW", "contaminants")
 
-source(file.path(here::here(), "R", "common.R"))
+source(here::here("R", "setup.R"))
 
-bkgd_path <- file.path(here::here(), "ref", "goal_summaries", "CON.Rmd")
-data_path <- file.path(here::here(), "data", "CW", "contaminants", assessment_yr, "con_data.rmd")
+bkgd_path <- here::here("supplement", "goal_summaries", "CON.Rmd")
+data_path <- here::here("data", "CW", "contaminants", version_year, "con_data.rmd")
 refs_path <- file.path(loc, "con_references.Rmd")
 ```
 
@@ -34,22 +34,107 @@ refs_path <- file.path(loc, "con_references.Rmd")
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
+```{r load datasets created from con_data.rmd steps, echo = TRUE, results = "hide"}
+source(here::here("R", "spatial.R"))
+regions_shape()
+```
+
+
 ### 3.1 PCB Indicator
 #### 3.1.1 Reorganizing/wrangling
-#### 3.1.2 Evaluate flagged data & sampling patterns
+
+**Use Lat/Long to Match BHI Regions**
+
+```{r assign BHI regions to PCB data, echo = TRUE}
+## use 'join_rgns_info' helper function defined in R/spatial.R
+pcb_bio_sf <- join_rgns_info(
+  read_csv(file.path(dirname(data_path), "intermediate", "pcb_biota_cleaned.csv")), 
+  latlon_vars = c("latitude", "longitude"),
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
+  return_spatial = TRUE
+) 
+pcb_sed_sf <- join_rgns_info(
+  read_csv(file.path(dirname(data_path), "intermediate", "pcb_sediment_cleaned.csv")), 
+  latlon_vars = c("latitude", "longitude"),
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
+  return_spatial = TRUE
+) 
+pcb_bio <- tibble::as_tibble(pcb_bio_sf)
+pcb_sed <- tibble::as_tibble(pcb_sed_sf)
+```
+
+
+#### 3.1.2 Evaluate flagged data, Station Impact, & sampling patterns
+
+**Station Impact Codes**
+
+Some sites have had the site type recorded in the ICES station dictionary ([see ICES vocabulary reference for codes](https://vocab.ices.dk/?ref=177). It is important to know which sites are catagorized as:  
+
+1. **RH** = WFD R(HZ) - Representative of general conditions in terms of hazardous substances  
+2. **B** = WFD B - Baseline/Reference station  
+3. **Any of the codes containing "I"** (IH, IH-A, IH-C, IH-D, IH-E, IH-F, IH-H, IH-I, IH-M, IH-O, IH-P, IH-S, IH-W, IP, IP-B, IP-N, IP-T) which refers to a specific type of impact at the site.  
+
+It appears that only Swedish sites have this information entered. Most are RH (19), while B accounts for 4 and RP 1. RP = WFD R(PHY) Representative of general conditions for nutrients/organic matter. Given only Swedish sites have this information recorded, it seems difficult to use this information to include or exclude sites.  
+
+From the station dictionary definitions:
+
+- All_Biota_Data: Data type (DTYPE) CF - all parameters - contaminants and biological effects of contaminants including disease in biota
+- Contaminant_parameters_in_biota: Data type (DTYPE) CF - Contaminant parameter groups
+
+<br>
+
 #### 3.1.3 Status and trend options and calculation
 #### 3.1.4 Gapfilling
 #### 3.1.5 Methods discussion
 
-### 3.2 Dioxin Indicator
+**Only herring (not other species) used as biota because mnost equally spatially spaced across the  baltic sea, others mostly in south**
+
+---
+
+<br>
+
+### 3.2 PFOS Indicator
 #### 3.2.1 Reorganizing/wrangling
+
+**Use Lat/Long to Match BHI Regions**
+
+```{r assign BHI regions to PFOS data, echo = TRUE}
+## use 'join_rgns_info' helper function defined in spatial.R
+pfos_bio_sf <- join_rgns_info(
+  read_csv(file.path(dirname(data_path), "intermediate", "pfos_biota_cleaned.csv")), 
+  latlon_vars = c("latitude", "longitude"),
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
+  return_spatial = TRUE
+) 
+pfos_bio <- tibble::as_tibble(pfos_bio_sf)
+```
+
+
 #### 3.2.2 Evaluate flagged data & sampling patterns
 #### 3.2.3 Status and trend options and calculation
 #### 3.2.4 Gapfilling
 #### 3.2.5 Methods discussion
 
-### 3.3 PFOS Indicator
+---
+
+<br>
+
+### 3.3 Dioxin Indicator
 #### 3.3.1 Reorganizing/wrangling
+
+**Use Lat/Long to Match BHI Regions**
+
+```{r assign BHI regions to PCB data, echo = TRUE}
+## use 'join_rgns_info' helper function defined in spatial.R
+dioxin_bio_sf <- join_rgns_info(
+  read_csv(file.path(dirname(data_path), "intermediate", "dioxin_biota_cleaned.csv")), 
+  latlon_vars = c("latitude", "longitude"),
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
+  return_spatial = TRUE
+)
+dioxin_bio <- tibble::as_tibble(dioxin_bio_sf)
+```
+
 #### 3.3.2 Evaluate flagged data & sampling patterns
 #### 3.3.3 Status and trend options and calculation
 #### 3.3.4 Gapfilling
@@ -59,15 +144,43 @@ refs_path <- file.path(loc, "con_references.Rmd")
 
 ## 4. Visualizing Data Layers
 
+
+### 4.1 Timeseries Plots
+
+```{r }
+
+```
+
+<br>
+
+### 4.2 Map of Contaminants Datasets
+
+```{r}
+
+```
+
 <br/>
 
-## 5. References
+---
+
+<br>
+
+## 5. Considerations for `BHI3.0`
+
+---
+
+<br>
+
+## 6. References
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
 
 
+<br>
 
+
+---
 
 
 
