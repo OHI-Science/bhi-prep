@@ -319,7 +319,7 @@ knitr::include_graphics(file.path(MARareasMap, "mar_areas_maps.png"))
 Data were available both as total marine production by region within Finlnd, and also as total production nation-wide per fish species. Rainbow trout dominated the total fish production (over 90%). Following Ginnette's approach from the first assessment, we convert the total production by region to rainbow trout production by region by using the country wide percent rainbow trout of the marine production in each year. Other minor contributions to total production were European whitefish, Trout, other species, Roe of rainbow trout, roe of european whitefish.
 
 
-```{r merge two finish datasets, , results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
+```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 ## two datasets:
 ## one on rainbow trout production at national level,
 ## the other with total mariculture production by region
@@ -674,7 +674,7 @@ readr::write_csv(
 <br>
 
 #### 2.2.4 Standardize Units: Production regions and BHI Region assignments
-s
+
 Note: where multiple BHI regions exist within the areas reported for mariculture data (e.g. "Ne_coast" for Sweden contains BHI regions 37, 39, and 41), the data values are split among the regions based on region sizes, i.e. with the assumption that each unit area is equally likely to contain the given mariculture farm... For future assessments, if adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles).  
 
 
