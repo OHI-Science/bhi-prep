@@ -464,29 +464,58 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
     select(
       station, latitude, longitude, date, year,
       sub_samp_id, 
-      sub_samp_ref, samp_ref, measurement_ref,
+      sub_samp_ref, samp_ref, 
       species, matrix_analyzed, basis_determination,
       variable, unit, value
     )
+  
+  ## if there are cm, convert to mm
+  df_bbio <- df_bbio %>% 
+    left_join(
+      read_csv(
+        here::here("supplement", "lookup_tabs", "unit_conversion.csv"),
+        col_types = cols()
+      ) %>% filter(ConvertUnit == "mm"),
+      by = c("unit" = "OriginalUnit")
+    ) %>% 
+    mutate(
+      value = ifelse(is.na(ConvertUnit), value, value*ConvertFactor),
+      unit = ifelse(is.na(ConvertUnit), unit, "mm")
+    ) %>% 
+    select(-ConvertUnit, -ConvertFactor)
+  
+  ## confirm that units of bbio, are one-to-one
+  chk_bbio_units <- df_bbio %>% 
+    select(variable, unit) %>% 
+    distinct()
+  
+  df_bbio <- select(df_bbio, -unit)
+
+  
+  chk_num_bbio_dup <- nrow(df_bbio) - nrow(distinct(df_bbio %>% select(-value)))
   
   ## BBIO DUPLICATES
   ## identify, explore, handle bbio duplicates ----
   ## group to identify duplicates; for a given sub_samp_ref only some variables may have duplicates
   grpvars <- c(
-    "station", "date", "species", "variable", "matrix_analyzed", "sub_samp_ref",
-    "latitude", "longitude", "year", "unit", "basis_determination", "samp_ref"
+    "sub_samp_id", "samp_ref", "sub_samp_ref", "date", "variable",
+    "longitude", "latitude", "station", "year", "species",
+    "basis_determination", "matrix_analyzed"
   )
-  chk_bbio_dup <- c()
-  for(i in 7:length(grpvars)){
+  chk <- c()
+  for(i in 8:length(grpvars)){
     bbio_duplicates <- df_bbio %>% 
-      group_by(!!!syms(grpvars[1:6]), !!!syms(grpvars[7:i])) %>%
+      group_by(!!!syms(c(grpvars[1:7], grpvars[8:i]))) %>%
       summarise(n = n()) %>% 
-      ungroup() %>% 
-      filter(n > 1)
-    chk_bbio_dup <- c(chk_bbio_dup, nrow(bbio_duplicates))
+      filter(n > 1) %>% 
+      ungroup()
+    chk <- c(chk, nrow(filter(bbio_duplicates, n > 1)))
   }
-  if(var(chk_bbio_dup) != 0){
-    warning("issue with bbio duplicates: dataframe dims vary unexpectedly with ID variables")
+  if(var(chk) != 0){
+    message(sprintf(
+      "bbio duplicates dataframe dims vary with ID variables, investigate in grpvars: %s",
+      paste(grpvars[which(chk == boxplot(chk, plot = FALSE)$out)+7], collapse = ", ")
+    ))
   }
   
   ## join duplicate table by grouped vars to locate within full bbio dataset
@@ -496,17 +525,12 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
   df_bbio <- bind_rows(
     ## averages of duplicates
     df_bbio %>% 
-      filter(!is.na(n)) %>% 
-      group_by(!!!syms(grpvars[1:6])) %>% 
-      mutate(value = mean(value)) %>% 
-      ungroup() %>% 
-      select(-measurement_ref, -n) %>% 
-      distinct(),
-    
+      filter(n > 1) %>% 
+      group_by(!!!syms(grpvars)) %>% 
+      summarize(value = mean(value)) %>% 
+      ungroup(),
     ## rows of bbio data with no duplicates
-    df_bbio %>% 
-      filter(is.na(n)) %>% 
-      select(-measurement_ref, -n)
+    df_bbio %>% filter(is.na(n)) %>% select(-n)
   )
   
   ## check for unique variables and matrix_analyzed, per species
@@ -519,74 +543,54 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
           df_bbio %>% 
             filter(species == x) %>%
             select(matrix_analyzed, basis_determination, variable) %>% 
-            distinct() %>% 
-            arrange(variable),
+            distinct(),
           species = x
         )
       }
     )
   )
-  chk_bbio_units <- df_bbio %>% 
-    select(variable, unit) %>% 
-    distinct()
-  
-  chk_exlip_matrix <- summary(as.factor(filter(df_bbio, variable == "EXLIP%")$matrix_analyzed))
-  chk_exlip_basis <- summary(as.factor(filter(df_bbio, variable == "EXLIP%")$basis_determination))
   
   ## WIDE BBIO DATA
   ## bbio data wide format ----
-  df_bbio_wide <- df_bbio %>%
-    select(-unit) %>%
-    tidyr::pivot_wider(names_from = variable, values_from = value)
+  df_bbio_wide <- tidyr::pivot_wider(df_bbio, names_from = variable, values_from = value)
   
   ## which columns are needed to uniquely identify and later rejoin with congener conc. data
-  ## i.e. at this stage, which give groupings such that n are greater than one?
-  grpvars <- c(
-    "sub_samp_ref", "sub_samp_id", "samp_ref", "date", 
-    "longitude", "latitude", "station", "year", "species",
-    "basis_determination", "matrix_analyzed"
-  )
+  ## i.e. at this stage, which subset of grpvars gives groupings such that all n are one?
   # for(i in grpvars){print(paste(i, length(unique(df_bbio_wide[[i]]))))}
-  ## sub_samp_id and samp_ref together are as unique as sub_samp_ref
-  # nrow(select(df_bbio_wide, sub_samp_ref) %>% distinct())
-  # nrow(select(df_bbio_wide, sub_samp_id, samp_ref) %>% distinct())
-  
-  chk_bbio_wide_ids <- grpvars
-  for(i in 1:length(grpvars)){
+  chkgrpvars <- intersect(grpvars, names(df_bbio_wide))
+  chk <- chkgrpvars
+  for(i in 1:length(chkgrpvars)){
     bbio_wide_duplicates <- df_bbio_wide %>% 
-      group_by(!!!syms(setdiff(chk_bbio_wide_ids, grpvars[i]))) %>%
+      group_by(!!!syms(setdiff(chk, chkgrpvars[i]))) %>%
       summarise(n = n()) %>% 
       ungroup() %>% 
       filter(n > 1)
     if(nrow(bbio_wide_duplicates) == 0){
-      chk_bbio_wide_ids <- setdiff(chk_bbio_wide_ids, grpvars[i])
+      chk <- setdiff(chk, chkgrpvars[i])
     }
   }
   message(paste(
-    "ID variables for later rejoining uniquely with congener data:", 
-    paste(chk_bbio_wide_ids, collapse = ", ")
+    "minimum group ID variables for later rejoining uniquely with congener data:\n", 
+    paste(chk, collapse = ", ")
   ))
+  chk_bbio_wide_ids <- chk
+  ## sub_samp_id and samp_ref together are as unique as sub_samp_ref
+  # nrow(select(df_bbio_wide, sub_samp_ref) %>% distinct())
+  # nrow(select(df_bbio_wide, sub_samp_id, samp_ref) %>% distinct())
   
   
   ## CONGENER CONCENTRATIONS DATA
   ## check congener concentration data, units and duplicates ----
-  
-  contam_param <- substr(contam_param, str_length(contam_param) - 1, str_length(contam_param))
+  contam_param <- substr(contam_param, str_length(contam_param)-1, str_length(contam_param))
   
   df_conc <- df %>%
     filter(str_detect(param_group, pattern = contam_param)) %>%
     select(
       station, latitude, longitude, date, year, 
-      sub_samp_ref, sub_samp_id, samp_ref, measurement_ref,
+      sub_samp_ref, sub_samp_id, samp_ref,
       species, matrix_analyzed, basis_determination,
       variable, unit, value, detect_lim, quant_lim
     )
-  
-  ## check whether variables vs units relationship is one-to-one
-  chk_conc_units <- df_conc %>% 
-    select(variable, unit) %>% 
-    distinct() %>% 
-    arrange(variable)
   
   ## convert congener concentration units all to ug/kg
   df_conc <- df_conc %>%
@@ -599,72 +603,104 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
     ) %>% 
     mutate(
       value = value*ConvertFactor, 
-      unit = "ug/kg",
-      detect_lim = detect_lim*ConvertFactor
+      detect_lim = detect_lim*ConvertFactor,
+      unit = "ug/kg"
     ) %>% 
-    select(-ConvertUnit, -ConvertFactor, -unit)
+    select(-ConvertUnit, -ConvertFactor)
+  
+  ## check whether variables vs units relationship is one-to-one
+  chk_conc_units <- df_conc %>% 
+    select(variable, unit) %>% 
+    distinct() %>%
+    arrange(variable)
+  
+  df_conc <- select(df_conc, -unit)
+  
   
   ## take averages for congener conc. variable x sample duplicates ----
   
-  idvars <- "list of id vars..."
+  ## identify duplicates
+  ## group to identify duplicates, 
+  ## for a given sub_samp_ref only some vars/congeners may have duplicates
+  chk_num_conc_dup <- nrow(df_conc) - nrow(distinct(df_conc %>% select(-value, -detect_lim, -quant_lim)))
+  
+  conc_duplicates <- df_conc %>% 
+    group_by(!!!syms(grpvars)) %>%
+    summarise(n = n()) %>% 
+    filter(n > 1) %>% 
+    ungroup()
+  
+  ## join duplicates tables by grouped vars to locate them in original dataset
+  df_conc <- left_join(df_conc, conc_duplicates, by = grpvars)
+  chk_conc_dup <- filter(df_conc, !is.na(n))
+  
+  df_conc <- bind_rows(
+    ## averages of duplicates
+    df_conc %>% 
+      filter(n > 1) %>%
+      group_by(!!!syms(grpvars)) %>% 
+      summarize(
+        value = mean(value), 
+        detect_lim = mean(detect_lim, na.rm = TRUE), 
+        ## how best to handle quant lim?
+        ## what if duplicates average to over/under lim...
+        quant_lim = any(quant_lim) 
+      ) %>% 
+      ungroup(),
+    ## rows of conc data with no duplicates
+    df_conc %>% filter(is.na(n)) %>% select(-n)
+  )
   
   ## separate detect and quantification limit variables before next steps
-  detect_quant_lims <- select(df_conc, idvars, detect_lim, quant_lim)
+  detect_quant_lims <- select(df_conc, grpvars, detect_lim, quant_lim)
+  chk_lims_ids <- nrow(detect_quant_lims) == nrow(distinct(select(detect_quant_lims, grpvars)))
 
   ## spread df_conc data to wide format
   ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
   df_conc_wide <- df_conc %>%
-    select(-unit, -detect_lim, -quant_lim) %>%
-    group_by(!!!syms(idvars)) %>%
-    tidyr::pivot_wider(names_from = variable, values_from = value) %>%
-    dplyr::rename(param_occb = param_group) %>%
+    select(-detect_lim, -quant_lim) %>% 
+    tidyr::pivot_wider(names_from = variable, values_from = value)
+  
+  ## remaining duplicates are due to dual wet/lipid weight records:
+  ## of these, keep wet weight records
+  chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
+  chk_conc_wide_id <- df_conc_wide %>%
+    group_by(!!!syms(chk)) %>%
+    mutate(n = n()) %>%
+    filter(n > 1) %>% 
     ungroup()
+  chk_conc_wide_id <- unique(chk_conc_wide_id$sub_samp_ref)
   
-## remaining duplicates are due to dual wet/lipid weight records:
-## of these, keep lipid weight records
-pcb_bio_occb_duplicates3 <- pcb_bio_occb_wide %>% 
-  group_by(station, date, species, sub_samp_ref) %>%
-  summarise(n = n()) %>% 
-  ungroup() %>% 
-  filter(n > 1)
-pcb_bio_occb_wide %>% filter(sub_samp_ref %in% pcb_bio_occb_duplicates3$sub_samp_ref)
-
-pcb_bio_occb_wide <- pcb_bio_occb_wide %>% 
-  select(-param_occb) %>% 
-  filter(
-    !(sub_samp_ref %in% pcb_bio_occb_duplicates3$sub_samp_ref & 
-        basis_determination == "lipid weight")
-  )
-  
-  
+  df_conc_wide <- df_conc_wide %>%
+    filter(!(sub_samp_ref %in% chk_conc_wide_id & basis_determination == "lipid weight"))
   
   ## check one row for every unique sub_samp_ref
-  chk_conc_sub_samp <- length(unique(df_conc$sub_samp_ref)) == nrow(df_conc_wide %>% distinct())
+  chk_conc_sub_samp <- length(unique(df_conc$sub_samp_ref)) == nrow(distinct(df_conc_wide))
   
   
   ## convert lipid weight measurements to wet weight ----
   ## use the df_bbio_wide datatable to convert values in df_conc_wide table
   df_final <- df_conc_wide %>% 
-    left_join(df_bbio_wide, by = chk_bbio_wide_ids) %>% 
+    mutate(sub_samp_id = as.numeric(sub_samp_id)) %>% 
+    left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
     tidyr::pivot_longer(
-      cols = starts_with(contam_param), 
+      cols = tidyselect::one_of(unique(df_conc$variable)), 
       names_to = "variable", 
       values_to = "value"
     ) %>% 
-    left_join(detect_quant_lims, by = idvars) %>% 
+    left_join(detect_quant_lims, by = grpvars) %>% 
     ## if value is not wet weight convert, otherwise keep value
     mutate(
-      value_converted_ww = ifelse(
+      value_wet_weight = ifelse(
         basis_determination == "lipid weight", 
         value*(`EXLIP%`/100),
         ifelse(
           basis_determination == "dry weight",
-          value*(`DRYWT%`),
+          value*(`DRYWT%`/100),
           value
         )
       )
     )
-  
   
   ## rejoin with meta information ----
   ## rejoin with info on country and monitoring program info, qflaugs, etc
@@ -672,102 +708,33 @@ pcb_bio_occb_wide <- pcb_bio_occb_wide %>%
     filter(str_detect(param_group, pattern = contam_param)) %>%
     select(
       country, monit_program, monit_purpose, 
-      report_institute, station, 
-      latitude, longitude, 
-      date, monit_year, date_ices, day, month,
-      species, num_indiv_subsample, 
-      qflag, detect_lim, quant_lim, 
-      uncert_val, method_uncert, 
-      bulk_id, sub_samp_ref
+      report_institute, 
+      monit_year, date_ices, day, month,
+      num_indiv_subsample, 
+      qflag, uncert_val, method_uncert, bulk_id, grpvars
     ) %>% 
-  right_join(df_final, by = chk_bbio_wide_ids) %>% 
+  right_join(df_final, by = grpvars) %>% 
   mutate(qflagged = ifelse(is.na(qflag), FALSE, TRUE))
-  
   
   ## return wrangled data and checks ----
   
   ## list of checks as part of result
   chks <- list(
     chk_params, chk_ids, 
-    chk_bbio_vars, chk_bbio_units, 
-    chk_exlip_matrix, chk_exlip_basis,
-    chk_conc_units, chk_conc_sub_samp
+    chk_bbio_units, chk_num_bbio_dup, chk_bbio_vars,
+    chk_conc_units, chk_num_conc_dup, chk_conc_dup,
+    chk_lims_ids, chk_conc_sub_samp
   )
   
   df_final <- filter(df_final, !is.na(value))
-  return(list(df_final, chks))
+  return(list(
+    df_final = df_final, 
+    df_conc_wide = df_conc_wide, 
+    df_bbio_wide = df_bbio_wide, 
+    checks = chks
+  ))
 }
 ```
-
-**START ORIGINAL PCB ANALYSIS...**
-
-
-```{r PCBs biota - wrangle occb congener concentration data, echo = TRUE}
-## OCCB DUPLICATES
-## identify, explore, handle duplicates....
-## group to identify duplicates, for a given sub_samp_ref only some vars/congeners may have duplicates
-pcb_bio_occb_duplicates1 <- pcb_bio_occb %>% 
-  group_by(station, date, species, variable, basis_determination, sub_samp_ref) %>%
-  ## group includ. latitude, longitude, year, unit, matrix_analyzed, samp_id gives same
-  summarise(n = n()) %>% 
-  ungroup() %>% 
-  filter(n > 1) # length(pcb_bio_occb_duplicates1$sub_samp_ref)
-pcb_bio_occb_duplicates2 <- pcb_bio_occb %>% 
-  group_by(station, date, species, variable, sub_samp_ref) %>%
-  ## excluding basis_determination gives different result...
-  summarise(n = n()) %>% 
-  ungroup() %>% 
-  filter(n > 1) # length(pcb_bio_occb_duplicates2$sub_samp_ref)
-pcb_bio_occb_duplicates2 %>% 
-  ## has both wet and lipid wgt for sub_samp_ref 3771406, 3771418, 3771427 CB118 & CB180
-  filter(
-    sub_samp_ref %in% setdiff(
-      pcb_bio_occb_duplicates2$sub_samp_ref, 
-      pcb_bio_occb_duplicates1$sub_samp_ref
-  )) %>% 
-  select(variable, sub_samp_ref) %>% 
-  distinct()
-
-pcb_bio_occb <- pcb_bio_occb %>% # join duplicate table by grouped vars to locate within full occb dataset
-  left_join(
-    pcb_bio_occb_duplicates1, 
-    by = c("station", "date", "species", "variable", "basis_determination", "sub_samp_ref")
-  )
-tmp <- pcb_bio_occb %>%
-  filter(!is.na(n)) %>% # filter and check the result
-  arrange(date, sub_samp_ref, variable, measurement_ref)
-
-## take averages for variable/sample duplicates
-idvars <- c("station", "date", "species", "variable", "basis_determination", "matrix_analyzed", "sub_samp_ref")
-
-pcb_bio_occb <- rbind(
-  ## averages of duplicates
-  pcb_bio_occb %>% 
-      filter(!is.na(n)) %>%
-      group_by(!!!syms(idvars)) %>% 
-      mutate(
-        value = mean(value), 
-        detect_lim = mean(detect_lim, na.rm = TRUE), 
-        quant_lim = any(quant_lim) # what if duplicates average to over/under quant lim?...
-      ) %>% 
-      ungroup() %>% 
-      ## to keep only distinct rows, must deselect unique measurement_refs
-      select(-measurement_ref) %>%
-      distinct(),
-  ## no-duplicates rows of occb data
-  pcb_bio_occb %>% 
-    filter(is.na(n)) %>% 
-    select(-measurement_ref)
-) %>% select(-n) 
-
-```
-
-<br>
-
-**END ORIGINAL PCBs ANALYSIS**
-
-
-
 
 
 ```{r apply standardize function to datasets}
@@ -779,7 +746,7 @@ pcb_bio_lst <- biota_standardize(
   ## OC-CB variable codes: vocab.ices.dk/?CodeID=26983
   rm_vars = c("PCB", "SCB", "SCB7")
 )
-pcb_bio <- pcb_bio_lst$df
+pcb_bio <- pcb_bio_lst$df_final
 
 ## wrangle dioxin dataset
 dioxin_bio_lst <- biota_standardize(
