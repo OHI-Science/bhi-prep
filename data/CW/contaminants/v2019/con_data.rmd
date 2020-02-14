@@ -262,21 +262,33 @@ EQS are derived from ecotoxicological studies to protect freshwater and marine e
 <!-- station_attribute_prep.R, congener_description.R -->
 
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE}
-
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "CON")
 
-## PCBs data from ICES
-pcb_rawdata_bio <- read_csv(
-  file.path(dir_rawdata, "ContaminantsBiota_PCBs", "ContaminantsBiota_PCBs.csv"),
-  col_types = cols(SUBNO = col_character(), DETLI = col_number(), LMQNT = col_number(), BULKID = col_integer())
-)
-pcb_rawdata_sed <- read_csv(
-  file.path(dir_rawdata, "ContaminantsSediment_PCBs", "ContaminantsSediment_PCBs.csv"),
-  col_types = cols(SUBNO = col_character(), DETLI = col_number(), LMQNT = col_number(), BULKID = col_integer())
+lapply(
+  list(
+    c("ContaminantsBiota_PCBs", "pcb_rawdata_bio"),
+    c("ContaminantsSediment_PCBs", "pcb_rawdata_sed"),
+    c("ContaminantsBiota_PFOS", "pfos_rawdata_bio"),
+    c("ContaminantsBiota_Dioxins", "dioxin_rawdata_bio"),
+    c("ContaminantsSediment_Dioxins", "dioxin_rawdata_sed")
+  ),
+  function(x){
+    read_csv(
+      file.path(dir_rawdata, x[1], paste(x[1], "csv", sep = ".")),
+      ## some columns need types specified so aren't read incorrectly...
+      col_types = cols(
+        SUBNO = col_character(), 
+        DETLI = col_number(), 
+        LMQNT = col_number(), 
+        BULKID = col_integer(), 
+        PURPM = col_character()
+      )
+    ) %>% assign(x = x[2], envir = .GlobalEnv)
+  }
 )
 
-## check number of dates and years sample by country
+## check number of dates and years sample by country, PCBs data from ICES
 ## Denmark doesn't have herring data...
 do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(x){
   cbind(
@@ -290,24 +302,6 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(x){
     Country = x
   )
 })) %>% DT::datatable()
-
-
-## PFOS data from ICES
-## no sediment data with PFOS 
-pfos_rawdata_bio <- read_csv(
-  file.path(dir_rawdata, "ContaminantsBiota_PFOS", "ContaminantsBiota_PFOS.csv"),
-  col_types = cols(SUBNO = col_character(), DETLI = col_number(), LMQNT = col_number(), BULKID = col_integer())
-)
-
-## Dioxin data from ICES
-dioxin_rawdata_bio <- read_csv(
-  file.path(dir_rawdata, "ContaminantsBiota_Dioxins", "ContaminantsBiota_Dioxins.csv"),
-  col_types = cols(SUBNO = col_character())
-)
-dioxin_rawdata_sed <- read_csv(
-  file.path(dir_rawdata, "ContaminantsSediment_Dioxins", "ContaminantsSediment_Dioxins.csv"),
-  col_types = cols(SUBNO = col_character(), DETLI = col_number(), LMQNT = col_number(), BULKID = col_integer())
-)
 ```
 
 <br>
@@ -409,35 +403,35 @@ lapply(
 
 <br>
 
-#### 2.2.2 Standardize Units for Biota Data: PCB, Dioxin, PFOS
+#### 2.2.2 Standardize Units for Data: PCB, Dioxin, PFOS
 
-The main objective of the code below is to clean the biota datases set so the contain only values based on wet weight, in standardized units of ug/kg.
+The main objective of the code below is to clean the contaminants datases set so they contain only values based on wet weight for biota or dry weight for sediment-matrix measurements, in standardized units of ug/kg.
 This includes the following pre-processing steps:
 - remove flagged and deprecated data entries  
 - separate 'b-bio' data from the other param group data ('oc-cb', 'oc-dx', or 'o-fl' for PCB, Dioxin, PFOS resp.) for use in lipid basis to wet weight conversion
-- take averages where there are duplicate data samples, based on the sub_samp_ref value groupings  
-- convert all congener concentration data to ug/kg and to wet weight 
+- take averages where there are duplicate data samples, based on the sub_samp_ref value groupings for biota or samp_ref value groupings for sediment-matrix measurements
+- convert all congener concentration data to ug/kg and to wet weight for biota
 - if data were presented in lipid weight, they were converted to wet weight by: $(\mbox{EXLIP%}/100)*(\mbox{CB conc. lipid weight})$
 
-The datasets each contain two main categories (param_groups) one of which is BBIO. BBIO consists of variables with information about the sample like dry/lipid/wet weight percentage, age, weight and length. The second category contains the congeners concentration information. In stages, these are each manipulated separately and later rejoined by the measurement reference (measurement_ref) and and sub-sample (sub_samp_ref) ID numbers.
+The datasets each contain two main categories (param_groups) one of which is BBIO. BBIO consists of variables with information about the sample like dry/lipid/wet weight percentage, age, weight and length. The second category contains the congeners concentration information. In stages, these are each manipulated and later rejoined by the sample (samp_ref or sub_samp_ref) ID numbers.
 
 <br>
 
 <!-- the following code chunks are modified from raw_data_prep.r scripts in bhi-1.0-archive/baltic2015/prep/CW/contaminants -->
 ```{r standardize units in biota datasets, echo = TRUE}
 
-biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
+contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
   
   ## what are the specific parameters?
   ## unique parameter groups and associated variables:
-  chk_params <- biotadf %>% 
+  chk_params <- data_renamed %>% 
     select(param_group, variable) %>% 
     distinct() %>% 
     arrange(param_group, variable)
  
   ## filter and/or remove unneeded variables from data ----
-  message("STEP 1: filter and/or unselect unneeded variables and congeners from dataset")
-  df <- biotadf %>% 
+  message("STEP 1: filter and/or unselect unneeded variables and congeners from dataset\n")
+  df <- data_renamed %>% 
     ## remove 'suspect' and other non-'acceptable': https://vocab.ices.dk/?ref=58
     filter(!vflag %in% c("S", "C")) %>% 
     ## remove samples for liver tissue, keep muscle, and whole organism for length x weight
@@ -445,22 +439,24 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
     ## remove certain variables-- summarized data or depreciated codes
     filter(!variable %in% rm_vars)
   
-  ## align all measurements with sub_samp_ref (most unique besides measurement_ref)
-  ## there are more unique measurement_ref but these are for different vars w/in sub_samp_id
-  chk_ids <- lapply(
-    list(
-      df$bulk_id, 
-      df$sub_samp_id, 
-      df$samp_ref, 
-      df$sub_samp_ref,
-      df$measurement_ref
-    ), 
-    function(x){length(unique(x))}
-  )
-  ## check if any observations do not have sub_samp_ref
-  if(nrow(df %>% filter(is.na(sub_samp_ref))) != 0){
-    warning("there are observations without sub_samp_ref in the dataset")
+  
+  ## sediment versus biota datasets, different sample/id variables
+  sampvars <- c("sub_samp_ref", "samp_ref", "sub_samp_id")
+  if(!matrix_biota){
+    sampvars <- setdiff(sampvars, "sub_samp_ref")
   }
+  ## check alignment of all measurements with sub_samp_ref for biota, samp_ref for sediment
+  ## (most unique besides measurement_ref)
+  ## there are more unique measurement_ref but these are for different vars w/in sub_samp_id
+  chk_ids <- c()
+  for(i in c(sampvars, "measurement_ref")){
+    chk_ids <- c(chk_ids, sprintf("%s: %s", i, length(unique(df[[i]]))))
+  }
+  if(nrow(df %>% filter(is.na(sampvars[1]))) != 0){
+    warning(sprintf("there are observations without %s in the dataset", sampvars[1]))
+  }
+  message(sprintf("NOTE will align by %s when grouping to identify duplicates\n", sampvars[1]))
+  
   
   ## BBIO DATA
   
@@ -472,9 +468,7 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
   df_bbio <- df  %>% 
     filter(param_group == "B-BIO") %>%
     select(
-      station, latitude, longitude, date, year,
-      sub_samp_id, 
-      sub_samp_ref, samp_ref, 
+      station, latitude, longitude, date, year, sampvars, 
       species, matrix_analyzed, basis_determination,
       variable, unit, value
     )
@@ -508,7 +502,7 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
   ## identify, explore, handle bbio duplicates ----
   ## group to identify duplicates; for a given sub_samp_ref only some variables may have duplicates
   grpvars <- c(
-    "sub_samp_id", "samp_ref", "sub_samp_ref", "date", "variable",
+    sampvars, "date", "variable",
     "longitude", "latitude", "station", "year", "species",
     "basis_determination", "matrix_analyzed"
   )
@@ -544,21 +538,24 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
   )
   
   ## check for unique variables and matrix_analyzed, per species
-  chk_bbio_vars <- do.call(
-    rbind, 
-    lapply(
-      as.list(unique(df_bbio$species)), 
-      function(x){
-        cbind(
-          df_bbio %>% 
-            filter(species == x) %>%
-            select(matrix_analyzed, basis_determination, variable) %>% 
-            distinct(),
-          species = x
-        )
-      }
+  chk_bbio_vars <- NULL
+  if(matrix_biota){
+    chk_bbio_vars <- do.call(
+      rbind, 
+      lapply(
+        as.list(unique(df_bbio$species)), 
+        function(x){
+          cbind(
+            df_bbio %>% 
+              filter(species == x) %>%
+              select(matrix_analyzed, basis_determination, variable) %>% 
+              distinct(),
+            species = x
+          )
+        }
+      )
     )
-  )
+  }
   
   ## WIDE BBIO DATA
   ## bbio data wide format ----
@@ -596,8 +593,7 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
   df_conc <- df %>%
     filter(str_detect(param_group, pattern = contam_param)) %>%
     select(
-      station, latitude, longitude, date, year, 
-      sub_samp_ref, sub_samp_id, samp_ref,
+      station, latitude, longitude, date, year, sampvars,
       species, matrix_analyzed, basis_determination,
       variable, unit, value, detect_lim, quant_lim
     )
@@ -671,47 +667,52 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
     select(-detect_lim, -quant_lim) %>% 
     tidyr::pivot_wider(names_from = variable, values_from = value)
   
-  ## remaining duplicates are due to dual wet/lipid weight records:
+  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records:
   ## of these, keep wet weight records
-  chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
-  chk_conc_wide_id <- df_conc_wide %>%
-    group_by(!!!syms(chk)) %>%
-    mutate(n = n()) %>%
-    filter(n > 1) %>% 
-    ungroup()
-  chk_conc_wide_id <- unique(chk_conc_wide_id$sub_samp_ref)
+  if(matrix_biota){
+    chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
+    chk_conc_wide_id <- df_conc_wide %>%
+      group_by(!!!syms(chk)) %>%
+      mutate(n = n()) %>%
+      filter(n > 1) %>% 
+      ungroup()
+    chk_conc_wide_id <- unique(chk_conc_wide_id[[sampvars[1]]])
+    df_conc_wide <- df_conc_wide %>%
+      filter(!(sampvars[1] %in% chk_conc_wide_id & basis_determination == "lipid weight"))
+  }
   
-  df_conc_wide <- df_conc_wide %>%
-    filter(!(sub_samp_ref %in% chk_conc_wide_id & basis_determination == "lipid weight"))
-  
-  ## check one row for every unique sub_samp_ref
-  chk_conc_sub_samp <- length(unique(df_conc$sub_samp_ref)) == nrow(distinct(df_conc_wide))
+  ## check one row for every unique sub_samp_ref for biota, samp_ref for sediment
+  chk_conc_sub_samp <- length(unique(df_conc[[sampvars[1]]])) == nrow(distinct(df_conc_wide))
   
   
-  ## convert lipid weight measurements to wet weight ----
+  ## for biota convert lipid weight measurements to wet weight ----
   ## use the df_bbio_wide datatable to convert values in df_conc_wide table
-  message("STEP 5: converting congener concentrations observations all to wet weight")
   df_final <- df_conc_wide %>% 
-    left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
-    tidyr::pivot_longer(
-      cols = tidyselect::one_of(unique(df_conc$variable)), 
-      names_to = "variable", 
-      values_to = "value"
-    ) %>% 
-    left_join(detect_quant_lims, by = grpvars) %>% 
-    ## if value is not wet weight convert, otherwise keep value
-    mutate_at(
-      vars(c("value", "detect_lim", "quant_lim")), 
-      list(wet_wgt = ~ case_when(
-        basis_determination == "lipid weight" ~ .*(`EXLIP%`/100),
-        basis_determination == "dry weight" ~ .*(`DRYWT%`/100),
-        basis_determination == "wet weight" ~ .
-      )
-    ))
+      left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
+      tidyr::pivot_longer(
+        cols = tidyselect::one_of(unique(df_conc$variable)), 
+        names_to = "variable", 
+        values_to = "value"
+      ) %>% 
+      left_join(detect_quant_lims, by = grpvars) 
+  
+  if(matrix_biota){
+    message("STEP 5: converting congener concentrations observations all to wet weight")
+    df_final <- df_final %>% 
+      ## if value is not wet weight convert, otherwise keep value
+      mutate_at(
+        vars(c("value", "detect_lim", "quant_lim")), 
+        list(wet_wgt = ~ case_when(
+          basis_determination == "lipid weight" ~ .*(`EXLIP%`/100),
+          basis_determination == "dry weight" ~ .*(`DRYWT%`/100),
+          basis_determination == "wet weight" ~ .
+        )
+        ))
+  }
   
   ## rejoin with meta information ----
   ## rejoin with info on country and monitoring program info, qflaugs, etc
-  message("STEP 6: rejoining with meta information, finalizing\n")
+  message("FINAL STEP: rejoining with meta information\n")
   df_final <- df %>% 
     filter(str_detect(param_group, pattern = contam_param)) %>%
     select(
@@ -723,6 +724,7 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
     ) %>% 
   right_join(df_final, by = grpvars) %>% 
   mutate(qflagged = ifelse(is.na(qflag), FALSE, TRUE))
+  
   
   ## return wrangled data and checks ----
   
@@ -754,40 +756,36 @@ biota_standardize <- function(biotadf, contam_param, rm_vars = NULL){
 #### 2.2.4 Save all Wrangled Data
 
 ```{r save cleaned datasets, echo = TRUE}
-
 dir_interm <- here::here("data", "CW", "contaminants", version_year, "intermediate")
 
-## wrangle PCBs dataset
-pcb_bio_lst <- biota_standardize(
-  pcb_bio, 
-  contam_param = "OC-CB",
-  ## remove PCB, SCB, SCB7 - these are summarized data or depreciated codes
-  ## OC-CB variable codes: vocab.ices.dk/?CodeID=26983
-  rm_vars = c("PCB", "SCB", "SCB7")
-)
-write_csv(
-  pcb_bio_lst$df_final, 
-  here::here(dir_interm, "pcb_biota_cleaned.csv")
-)
+lapply(
+  list(
+    ## PCB datasets
+    ## remove PCB, SCB, SCB7 - these are summarized data or depreciated codes
+    ## OC-CB variable codes: vocab.ices.dk/?CodeID=26983
+    list("pcb_bio", TRUE, "OC-CB", c("PCB", "SCB", "SCB7")),
+    list("pcb_sed", FALSE, "OC-CB", c("PCB", "SCB", "SCB7")),
+    
+    ## Dioxin datasets
+    list("dioxin_bio", TRUE, "OC-DX", NULL),
+    list("dioxin_sed", FALSE, "OC-DX", NULL),
 
-## wrangle dioxin dataset
-dioxin_bio_lst <- biota_standardize(
-  dioxin_bio, 
-  contam_param = "OC-DX"
-)
-write_csv(
-  dioxin_bio_lst$df_final, 
-  here::here(dir_interm, "dioxin_biota_cleaned.csv")
-)
-
-## wrangle pfos dataset
-pfos_bio_lst <- biota_standardize(
-  pfos_bio, 
-  contam_param = "O-FL"
-)
-write_csv(
-  pfos_bio_lst$df_final,
-  here::here(dir_interm, "pfos_biota_cleaned.csv")
+    ## PFOS dataset
+    list("pfos_bio", TRUE, "O-FL", NULL)
+  ),
+  
+  function(dat){
+    dat_final <- contam_standardize_data(get(dat[[1]]), dat[[2]], dat[[3]], dat[[4]]) 
+    assign(
+      x = paste(dat[[1]], "cleaned", sep = "_"), 
+      value = dat_final, 
+      envir = .GlobalEnv
+    )
+    write_csv(
+      dat_final[["df_final"]], 
+      file.path(dir_interm, paste(dat[[1]], "cleaned.csv", sep = "_"))
+    )
+  }
 )
 ```
 
