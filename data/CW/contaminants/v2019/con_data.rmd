@@ -745,15 +745,12 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   ))
 }
 ```
-<br>
-
-#### 2.2.3 Standardize Units for Sediment Data: PCB, Dioxin
-
 
 ---
+
 <br>
 
-#### 2.2.4 Save all Wrangled Data
+#### 2.2.3 Save all Wrangled Data
 
 ```{r save cleaned datasets, echo = TRUE}
 dir_interm <- here::here("data", "CW", "contaminants", version_year, "intermediate")
@@ -801,12 +798,15 @@ lapply(
 
 #### 2.3.1 Plots by Congener
 
-```{r PCB biota dataset, echo = TRUE}
+```{r plots by congener, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 ## reshape for plotting
-plotdf <- pcb_bio_lst$df_final %>% 
+plotdf <- pcb_bio_cleaned$df_final %>% # try also with pfos_bio_cleaned$df_final etc...
   group_by(variable, month, year, country) %>% 
   summarize(Value = mean(value, na.rm = TRUE) %>% round(3)) %>% 
   ungroup() %>% 
+  group_by(variable, year, country) %>%
+  mutate(yearlyMean = mean(Value, na.rm = TRUE) %>% round(3)) %>% 
+  ungroup %>% 
   filter(year > 2000) %>% 
   rename(Congener = variable, Year = year) %>% 
   mutate(Date = as.Date(paste("1", month, Year, sep = "-"), tryFormats = "%d-%m-%Y"))
@@ -818,6 +818,7 @@ cols <- c(
 )
 cols <- colorRampPalette(cols)(42)[sample(1:42)]
 
+## monthly plots
 plotly::ggplotly(
   ggplot(plotdf, aes(Date, Value, fill = Congener)) +
     geom_col(position = "stack", show.legend = FALSE) +
@@ -830,33 +831,22 @@ plotly::ggplotly(
     theme(axis.text.x = element_text(angle = 45, size = 6)) +
     facet_wrap(~country, scales = "free_y", ncol = 1) 
 )
-```
-
-```{r PCB sediment dataset}
-
-```
-
-```{r PFOS biota dataset}
-
-```
-
-```{r PFOS sediment dataset}
-
-```
-
-```{r Dioxin biota dataset}
-
-```
-
-```{r Dioxin sediment dataset}
-
+## yearly plots
+plotly::ggplotly(
+  ggplot(plotdf, aes(Year, yearlyMean, fill = Congener)) +
+    geom_col(position = "stack", show.legend = FALSE) +
+    scale_fill_manual(values = cols) +
+    labs(x = NULL, y = NULL) +
+    theme(axis.text.x = element_text(angle = 45, size = 6)) +
+    facet_wrap(~country, scales = "free_y", ncol = 1) 
+)
 ```
 
 <br> 
 
 #### 2.3.2 Spatial Sampling Densities Map
 
-```{r sampling maps}
+```{r sampling maps, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.7, out.width = "120%"}
 ## basemap with baltic countries borders and BHI regions with ID numbers
 bhi_rgns_simple <- rmapshaper::ms_simplify(
   input =  sf::st_read(
@@ -883,7 +873,7 @@ basemap <- ggplot2::ggplot() +
 make_mapdf <- function(x, y){
   cbind(
     get(x) %>% 
-      filter(year > y) %>%
+      filter(year %in% y) %>%
       group_by(month, latitude, longitude) %>%
       summarize(
         count_obs = n(), 
@@ -898,15 +888,15 @@ make_mapdf <- function(x, y){
       sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "identity"),
     source = x)
 }
-mapdf_biota <- do.call(rbind, lapply(list("pcb_bio", "pfos_bio", "dioxin_bio"), function(x) make_mapdf(x, 2015)))
-mapdf_sediment <- do.call(rbind, lapply(list("pcb_sed", "dioxin_sed"), function(x) make_mapdf(x, 2013)))
+mapdf_biota <- do.call(rbind, lapply(list("pcb_bio", "pfos_bio", "dioxin_bio"), function(x) make_mapdf(x, 2015:2019)))
+mapdf_sediment <- do.call(rbind, lapply(list("pcb_sed", "dioxin_sed"), function(x) make_mapdf(x, 2013:2019)))
 
 
 ## contaminants datasets overlaying basemap
 basemap + 
   geom_sf(
     aes(size = value, color = month), 
-    alpha = 0.6, 
+    alpha = 0.5, 
     shape = 19, 
     data = mapdf_biota %>% mutate(month = as.factor(month)),
     show.legend = FALSE
@@ -916,12 +906,46 @@ basemap +
 basemap + 
   geom_sf(
     aes(size = value, color = month), 
-    alpha = 0.6, 
+    alpha = 0.5, 
     shape = 19, 
     data = mapdf_sediment %>% mutate(month = as.factor(month)),
     show.legend = FALSE
   ) +
   facet_grid(rows = vars(source), cols = vars(metric))
+```
+
+<br>
+
+#### 2.3.3 Contaminants in Biota vs Sediments
+
+```{r contaminants in biota vs sediment histograms, echo = TRUE, fig.width = 8, fig.height = 5, fig.width = 100%}
+sf::st_geometry(mapdf_sediment) <- NULL
+sf::st_geometry(mapdf_biota) <- NULL
+
+boxdf <- bind_rows(
+  mutate(
+    mapdf_sediment, 
+    matrix = "sediment",
+    source = str_remove(source, "_[a-z]+")
+  ),
+  mutate(
+    mapdf_biota, 
+    matrix = "biota",
+    source = str_remove(source, "_[a-z]+")
+  )
+) %>% filter(metric == "mean_val")
+
+ggplot(boxdf, aes(x = source, y = value, color = matrix)) + 
+  geom_boxplot(outlier.shape = NA) + 
+  scale_y_continuous(limits = quantile(boxdf$value, c(0.1, 0.9))) + 
+  coord_flip() + 
+  labs(
+    y = "\nMean value Congener Concentrations \n(ug/kg, without outliers)", 
+    x = NULL, 
+    color = "Contaminant, Matrix"
+  ) + 
+  theme(legend.position = c(0.9, 0.8)) +
+  scale_color_manual(values = RColorBrewer::brewer.pal(5, "Paired"))
 ```
 
 <br>
