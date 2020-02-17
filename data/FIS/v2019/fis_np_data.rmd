@@ -522,7 +522,7 @@ combined_w_rgns <- combined_w_rgns %>%
 ## this will be used for the shiny app among other things!
 write_csv(
   combined_w_rgns %>% rename(catch = landings), 
-  file.path(here::here(), "data", "FIS", version_year, "intermediate", "fis_full_merged_dataset.csv")
+  here::here("data", "FIS", version_year, "intermediate", "fis_full_merged_dataset.csv")
 )
 ```
 
