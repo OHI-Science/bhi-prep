@@ -228,7 +228,7 @@ knitr::kable(tab, caption = "Source: [ICES vocabulary](https://vocab.ices.dk/?re
 <br/>
 
 
-#### 2.1.5 TEQ values for dioxin-like PCBs and Dioxins
+#### 2.1.5 TEQ values for dioxin-like PCBs and Dioxins in Biota
 
 Dioxin and dioxin-like compounds. Target is set at 0.0065 TEQ ug/kg ww fish, crustaceans or molluscs (source of target: EQS biota human health). Secondary GES boundary: CB-118 24 ug/kg lw fish liver or muscle (source: EAC).  
 
@@ -240,7 +240,7 @@ TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/ass
 
 <br/>
 
-#### 2.1.6 PFOS Indicator
+#### 2.1.6 PFOS Indicator in Biota
 
 According to [HELCOM PFOS core indicator document, p.3](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf), the "GES boundary is set to 9.1 μg/kg wet weight (or 9.1 ng/g ww) with the protection goal of human health".
 
@@ -249,6 +249,24 @@ According to [HELCOM PFOS core indicator document, p.3](http://www.helcom.fi/Cor
 EQS are derived from ecotoxicological studies to protect freshwater and marine ecosystems from potential adverse effects of chemicals, as well as adverse effects on human health via drinking water and food from aquatic environments. Quality Standards (QS) are derived for different protection goals, i.e.: pelagic and benthic communities, top-predators in these ecosystems, and human health. The most stringent of these QS is the basis for the EQS. The EQS boundary for PFOS is based on the QS set for biota to protect human health (9.1 μg/ kg fish ww), defined for edible parts in fish. For harmonization purposes the EC Guidance Document No. 32 on biota monitoring (the implementation of EQS biota) under the WFD was developed (European Commission 2014). This guidance document recommends that the results from the monitoring should be standardized to represent fish at a trophic level of 4, which is an estimate of the general trophic level in commercial fish in Europe. The recommendation to obtain PFOS data in fish at a trophic level of 4 is to adjust the values from monitoring in accordance with trophic magnification factors and trophic level."[HELCOM PFOS core indicator document, p.8](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)  
 
 **HELCOM core indicator report uses liver PFOS concentrations converted to muscle equivalent values** as in [Faxneld et al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).  
+
+<br/>
+
+#### 2.1.7 TEQ values for PCBs in Sediment
+
+Only a few environmental quality standards (EQS) are to date defined in the Baltic Sea for marine surface sediments. The Norwegian threshold values are often used when a comparison with ecotoxicological effects is needed. In particular, the [Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf) has defined EQS in sediment for 28 EU priority substances.
+
+PCB7 (sum PCB 28, 52, 101, 118, 138, 153, and 180): Target is set at 4.1 TS ug/kg dw. [Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
+
+**Recommended threshold values are given only for total PCB7, and not for each individual congener. This is because toxicity data are available for only a minority of congeners.**
+
+<br/>
+
+#### 2.1.8 TEQ values for Dioxins in Sediment
+
+Dioxin and dioxin-like compounds. Target is set at 0.00086 TEQ ug/kg dw (Total TEQ).
+[Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
+TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)  
 
 <br/>
 
