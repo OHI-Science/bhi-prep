@@ -13,3 +13,7 @@
 Mammalian Toxic Equivalency Factors for Dioxins and Dioxin-like Compounds.
 
 [HELCOM PFOS core indicator document](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)
+
+[Norwegian environment agency, PCBs and Dioxins indicator in sediment](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
+
+[Norwegian Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
