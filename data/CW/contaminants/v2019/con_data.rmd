@@ -261,6 +261,24 @@ According to [HELCOM PFOS core indicator document, p.3](http://www.helcom.fi/Cor
 
 <br/>
 
+#### 2.1.7 TEQ values for PCBs in Sediment
+
+Only a few environmental quality standards (EQS) are to date defined in the Baltic Sea for marine surface sediments. The Norwegian threshold values are often used when a comparison with ecotoxicological effects is needed. In particular, the [Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf) has defined EQS in sediment for 28 EU priority substances.
+
+PCB7 (sum PCB 28, 52, 101, 118, 138, 153, and 180): Target is set at 4.1 TS ug/kg dw. [Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
+
+**Recommended threshold values are given only for total PCB7, and not for each individual congener. This is because toxicity data are available for only a minority of congeners.**
+
+<br/>
+
+#### 2.1.8 TEQ values for Dioxins in Sediment
+
+Dioxin and dioxin-like compounds. Target is set at 0.00086 TEQ ug/kg dw (Total TEQ).
+[Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
+TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)  
+
+<br/>
+
 ---
 
 <br/>
