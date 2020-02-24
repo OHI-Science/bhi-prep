@@ -61,7 +61,7 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
 
 join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "country",
                            latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
-                           rgn_shps_loc = file.path(dir_B, "Spatial")){
+                           rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL){
   
   colnames(dataset) <- stringr::str_to_lower(names(dataset))
   
@@ -80,10 +80,45 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
   
   if(length(lat) == 1 & length(lon) == 1 & !any(is.na(latlon_vars))){
     ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
-    data_sf <- st_as_sf(dataset, coords = c(lon, lat), crs = 4326, agr = "constant")
-    data_sf <- st_join(data_sf, rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) 
-    data_sf <- st_join(data_sf, rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) 
+    data_sf0 <- st_as_sf(dataset, coords = c(lon, lat), crs = 4326, agr = "constant")
     
+    data_sf <- data_sf0 %>% 
+      st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
+      st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
+      filter(!is.na(BHI_ID)) %>% 
+      mutate(in_25km_buffer = FALSE)
+    
+    if(!is.null(buffer_shp)){
+      data_buff_sf <- data_sf0 %>% 
+        st_join(select(buffer_shp, BHI_ID)) %>% 
+        filter(!is.na(BHI_ID)) %>%
+        left_join(st_drop_geometry(BHI_rgns_shp), by = "BHI_ID") %>% 
+        mutate(ICES_area = NA, Area_km2_ICES = NA, in_25km_buffer = TRUE) %>% 
+        rename(Area_km2_BHI = Area_km2)
+    }
+    
+    ## check if any points are not matched with a BHI id
+    if(!is.null(buffer_shp)){
+      test <- data_sf0 %>% 
+        st_join(select(buffer_shp, BHI_ID)) %>% 
+        select(country, monit_program, monit_purpose, year, bhi_id_buff = BHI_ID)
+    }
+    test <- test %>% 
+      st_join(select(BHI_rgns_shp, bhi_id_water = BHI_ID)) %>% 
+      filter(is.na(bhi_id_buff) & is.na(bhi_id_water))
+    
+    if(nrow(test) != 0){
+      test_result <- sprintf(
+        "%s data points (in countries: %s) have not been",
+        nrow(test),
+        paste(unique(test$country), collapse = ", ")
+      )
+    } else {test_result <- "all data points are"}
+    message(paste(test_result, "assigned corresponding BHI IDs"))
+    
+    
+    ## return spatial object sf or just dataframe
+    data_sf <- rbind(data_sf, data_buff_sf)
     if(!return_spatial){
       data_rgns_joined <- data_sf %>% 
         as_tibble() %>% 
