@@ -31,26 +31,24 @@ library(data.table)
 #' 
 #' @return
 #' 
-get_nest_data <- function(date_range, months = 1:12,
-                          latlon_ranges = c(53.6016, 65.9071, 9.42077, 30.3471), 
-                          param_codes){
+get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12, 
+                          lat_range = c(11.3500, 65.9200), lon_range = c(10.6400, 30.3200),
+                          param_codes = c("")){
   
-  result <- data.frame()
-  i <- 1
-  
+  ## check dates input
   date_begin <- lubridate::ymd(date_range[1])
   date_end <- lubridate::ymd(date_range[2])
   if(is.na(date_begin)|is.na(date_end)){
     stop("issue with dates, check date_range was given in YYYYMMDD format")
   }
-  yrs <- seq(year(date_begin), year(date_end))
-  months <- stringr::str_pad(months, width = 2, side = "left", pad = "0")
   
-  ## construct dates sequence, to download data only associated w selected months
+  ## construct dates sequence, to download data only associated w selected months ----
   dates_seq <- seq(date_begin, date_end, by = "months") %>% 
     grep(pattern = paste0("-", months, "-", collapse = "|"), value = TRUE)
+  
   dates_lst <- list()
   j <- 1
+  i <- 1
   for(i in 2:length(dates_seq)){
     if(!(lubridate::month(dates_seq[i-1])==lubridate::month(dates_seq[i])-1|
          (lubridate::month(dates_seq[i-1])==12&lubridate::month(dates_seq[i])==1))){
@@ -61,30 +59,60 @@ get_nest_data <- function(date_range, months = 1:12,
     dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
   }
   
-  ## construct and open urls, bind results
-  for(d in 1:length(dates_lst)){
-    full_url <- sprintf(
-      "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
-      "http://nest.su.se/dataPortal/getStations",
-      latlon_ranges[1], latlon_ranges[2], latlon_ranges[3], latlon_ranges[4],
-      dates_lst[[d]][1], dates_lst[[d]][2]
-    )
-    tmp <- readr::read_csv(full_url)
-    if(nrow(tmp) == 0){
-      message(sprintf("no rows of data found for %s to %s...", dates_lst[[d]][1], dates_lst[[d]][2]))
+  ## construct lat+lon sequence, to batch download
+  latitudes <- c(seq(lat_range[1], lat_range[2], 2.5), lat_range[2]) %>% 
+    stringr::str_pad(width = 7, side = "right", pad = "0")
+  longitudes <- c(seq(lon_range[1], lon_range[2], 2.5), lon_range[2]) %>% 
+    stringr::str_pad(width = 7, side = "right", pad = "0")
+  
+  
+  ## initialize results dataframe
+  result <- data.frame()
+  
+  ## loop through dates, lat+long ranges ----
+  for(dat in 1:length(dates_lst)){
+    
+    for(lat in 2:length(latitudes)){
+      for(lon in 2:3){
+        
+        ## construct and open urls
+        full_url <- sprintf(
+          "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
+          "http://nest.su.se/dataPortal/getStations",
+          latitudes[[lat-1]], latitudes[[lat]],
+          longitudes[[lon-1]], longitudes[[lon]],
+          dates_lst[[dat]][1], dates_lst[[dat]][2]
+        )
+        
+        ## query nest.su.se/dataPortal to get the data
+        tmp <- readr::read_csv(full_url, col_types = cols()) %>% 
+          select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "OBSDEP", param_codes)
+        
+        ## filter to include only measurements with nutrient info
+        ## if no data returned, show message
+        if(nrow(tmp) == 0){
+          message(sprintf(
+            "no rows of data found for:\n %s", 
+            full_url %>% stringr::str_replace_all("&", ", ") %>% stringr::str_extract("latBegin.*$")
+          ))
+          
+        } else {
+          tmp <- tmp %>% 
+            rowwise() %>% 
+            mutate(chk = sum(!!!syms(grep("Q[A-Z0-9]+", param_codes, value = TRUE, invert = TRUE)))) %>% 
+            filter(chk != 0) %>% 
+            ungroup() 
+        }
+        
+        ## bind results
+        result <- rbind(result, tmp)
+        closeAllConnections()
+      }
     }
-    result <- rbind(result, tmp)
-    closeAllConnections()
   }
-  
-  result <- result %>% 
-    select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "OBSDEP", param_codes) %>% 
-    filter()
-  
-  ## write data to bhi database...
-  
   return(result)
 }
+
 
 #' get data from SMHI
 #' 
