@@ -32,8 +32,8 @@ library(data.table)
 #' @return
 #' 
 get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12, 
-                          lat_range = c(11.3500, 65.9200), lon_range = c(10.6400, 30.3200),
-                          param_codes = c("")){
+                          param_codes = c("PO4P", "TOTP", "SIO4", "NO3N", "NO2N", "NO23N", "NH4N", "TOTN", "CHL")){
+  
   
   ## check dates input
   date_begin <- lubridate::ymd(date_range[1])
@@ -43,6 +43,7 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
   }
   
   ## construct dates sequence, to download data only associated w selected months ----
+  months <- stringr::str_pad(months, width = 2, side = "left", pad = "0")
   dates_seq <- seq(date_begin, date_end, by = "months") %>% 
     grep(pattern = paste0("-", months, "-", collapse = "|"), value = TRUE)
   
@@ -52,62 +53,125 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
   for(i in 2:length(dates_seq)){
     if(!(lubridate::month(dates_seq[i-1])==lubridate::month(dates_seq[i])-1|
          (lubridate::month(dates_seq[i-1])==12&lubridate::month(dates_seq[i])==1))){
-      dates_lst <- c(dates_lst, list(dates_seq[c(j, (i-1))])); j <- i
-    }; i <- i + 1
+      dates_lst <- c(dates_lst, list(dates_seq[c(j, (i-1))]))
+      j <- i
+    }
+    i <- i + 1
   }
   if(length(dates_lst) == 0){
     dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
   }
   
-  ## construct lat+lon sequence, to batch download
-  latitudes <- c(seq(lat_range[1], lat_range[2], 2.5), lat_range[2]) %>% 
-    stringr::str_pad(width = 7, side = "right", pad = "0")
-  longitudes <- c(seq(lon_range[1], lon_range[2], 2.5), lon_range[2]) %>% 
-    stringr::str_pad(width = 7, side = "right", pad = "0")
-  
-  
+  ## spatial polygons/boxes to batch download ----
+  latlon <- tibble::tibble(
+    box1 = c(53.6021, 56.0021, 10.0000, 11.8208), 
+    box2 = c(53.6021, 56.0021, 11.8208, 14.2208), 
+    box3 = c(53.6021, 56.0021, 14.2208, 16.6208), 
+    box4 = c(53.6021, 56.0021, 16.6208, 19.0208), 
+    box5 = c(53.6021, 56.0021, 19.0208, 21.4208), 
+    box6 = c(65.6021, 68.0021, 21.4208, 23.8208), 
+    box7 = c(65.6021, 68.0021, 23.8208, 26.2208), 
+    box8 = c(56.0021, 58.4021, 10.1008, 12.5008), 
+    box9 = c(56.0021, 58.4021, 12.5008, 14.9008), 
+    box10 = c(56.0021, 58.4021, 14.9008, 17.3008), 
+    box11 = c(56.0021, 58.4021, 17.3008, 19.7008), 
+    box12 = c(56.0021, 58.4021, 19.7008, 22.1008), 
+    box13 = c(56.0021, 58.4021, 22.1008, 24.5008), 
+    box14 = c(58.4021, 60.8021, 16.1208, 18.5208), 
+    box15 = c(58.4021, 60.8021, 18.5208, 20.9208), 
+    box16 = c(58.4021, 60.8021, 20.9208, 23.3208), 
+    box17 = c(58.4021, 60.8021, 23.3208, 25.7208), 
+    box18 = c(58.4021, 60.8021, 25.7208, 28.1208), 
+    box19 = c(58.4021, 60.8021, 28.1208, 30.5208), 
+    box20 = c(60.8021, 63.2021, 16.9708, 19.3708), 
+    box21 = c(60.8021, 63.2021, 19.3708, 21.7708), 
+    box22 = c(63.2021, 65.6021, 18.4708, 20.8708), 
+    box23 = c(63.2021, 65.6021, 20.8708, 23.2708), 
+    box24 = c(63.2021, 65.6021, 23.2708, 25.6708)
+  )
+ 
   ## initialize results dataframe
   result <- data.frame()
   
-  ## loop through dates, lat+long ranges ----
+  ## loop through spatial grid boxes and dates ----
   for(dat in 1:length(dates_lst)){
-    
-    for(lat in 2:length(latitudes)){
-      for(lon in 2:3){
+    for(box in 1:ncol(latlon)){
+      
+      ## construct and open urls
+      full_url <- sprintf(
+        "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
+        "http://nest.su.se/dataPortal/getStations",
+        latlon[[1, box]], latlon[[2, box]], latlon[[3, box]], latlon[[4, box]], 
+        dates_lst[[dat]][1], dates_lst[[dat]][2]
+      )
+      
+      ## error handling...
+      tmp <- try(
         
-        ## construct and open urls
-        full_url <- sprintf(
-          "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
-          "http://nest.su.se/dataPortal/getStations",
-          latitudes[[lat-1]], latitudes[[lat]],
-          longitudes[[lon-1]], longitudes[[lon]],
-          dates_lst[[dat]][1], dates_lst[[dat]][2]
-        )
+        ## query nest.su.se/dataPortal to get the data ----
+        readr::read_csv(
+          
+          full_url,
+          progress = show_progress(), 
+          
+          col_types = cols(
+            SERVER_ID = col_integer(), ID = col_integer(),
+            LATITUDE = col_number(), LONGITUDE = col_number(),
+            OBSDATE = col_date(format = ""),
+            OBSTIME = col_time(format = ""),
+            SHIP = col_character(),
+            
+            OBSDEP = col_number(),
+            TEMP = col_number(), QTEMP = col_number(),
+            SALIN = col_number(), QSALIN = col_number(),
+            TOTOXY = col_number(), QTOTOXY = col_number(),
+            
+            PO4P = col_number(), QPO4P = col_number(),
+            TOTP = col_number(), QTOTP = col_number(),
+            
+            SIO4 = col_number(), QSIO4 = col_number(),
+            
+            NO3N = col_number(), QNO3N = col_number(),
+            NO2N = col_number(), QNO2N = col_number(),
+            NO23N = col_number(), QNO23N = col_number(),
+            NH4N = col_number(), QNH4N = col_number(),
+            TOTN = col_number(), QTOTN = col_number(),
+            
+            CHL = col_number(), QCHL = readr::col_number()
+          )
+        ) %>% select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "SHIP", "OBSDEP", param_codes),
         
-        ## query nest.su.se/dataPortal to get the data
-        tmp <- readr::read_csv(full_url, col_types = cols()) %>% 
-          select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "OBSDEP", param_codes)
-        
-        ## filter to include only measurements with nutrient info
-        ## if no data returned, show message
+        silent = TRUE
+      )
+      ## if error in search, show warning with query
+      if("try-error" %in% class(tmp)){
+        warning(sprintf(
+          "ERROR in retrieving data with query: ?%s", 
+          full_url %>% stringr::str_extract("latBegin.*$")
+        ))
+
+      } else {
+        ## message if no rows data returned for query
         if(nrow(tmp) == 0){
           message(sprintf(
-            "no rows of data found for:\n %s", 
-            full_url %>% stringr::str_replace_all("&", ", ") %>% stringr::str_extract("latBegin.*$")
+            "no rows of data found for: ?%s", 
+            full_url %>% stringr::str_extract("latBegin.*$")
           ))
           
         } else {
+          ## filter to include only measurements with nutrient info
           tmp <- tmp %>% 
             rowwise() %>% 
             mutate(chk = sum(!!!syms(grep("Q[A-Z0-9]+", param_codes, value = TRUE, invert = TRUE)))) %>% 
             filter(chk != 0) %>% 
-            ungroup() 
+            ungroup() %>% 
+            select(-chk)
+
+          ## bind results
+          result <- rbind(result, tmp)
         }
-        
-        ## bind results
-        result <- rbind(result, tmp)
-        closeAllConnections()
       }
+      closeAllConnections()
     }
   }
   return(result)
