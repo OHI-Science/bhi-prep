@@ -42,20 +42,21 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
   }
   
   ## construct dates sequence, to download data only associated w selected months ----
+  ## note: only works if more than one yr, otherwise will have only one entry in dates_lst
   months <- stringr::str_pad(months, width = 2, side = "left", pad = "0")
   dates_seq <- seq(date_begin, date_end, by = "months") %>% 
     grep(pattern = paste0("-", months, "-", collapse = "|"), value = TRUE)
   
   dates_lst <- list()
   j <- 1
-  i <- 1
   for(i in 2:length(dates_seq)){
-    if(!(lubridate::month(dates_seq[i-1])==lubridate::month(dates_seq[i])-1|
-         (lubridate::month(dates_seq[i-1])==12&lubridate::month(dates_seq[i])==1))){
+    ## trying to keep only months of interest, not data in between...
+    midyrmonthapart <- lubridate::month(dates_seq[i-1])==lubridate::month(dates_seq[i])-1
+    dectojan <- lubridate::month(dates_seq[i-1])==12 & lubridate::month(dates_seq[i])==1
+    if(!(midyrmonthapart|dectojan)){
       dates_lst <- c(dates_lst, list(dates_seq[c(j, (i-1))]))
       j <- i
     }
-    i <- i + 1
   }
   if(length(dates_lst) == 0){
     dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
@@ -89,16 +90,70 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
     box24 = c(63.2021, 65.6021, 23.2708, 25.6708)
   )
  
-  ## initialize results dataframe
-  result <- data.frame()
+  ## function to query nest.su.se/dataPortal for data ----
+  try_query <- function(queryurl){
+    
+    ## with error handling...
+    tab <- try(
+      readr::read_csv(
+        queryurl,
+        progress = show_progress(), 
+        
+        col_types = cols(
+          SERVER_ID = col_integer(), ID = col_integer(),
+          LATITUDE = col_number(), LONGITUDE = col_number(),
+          OBSDATE = col_date(format = ""),
+          OBSTIME = col_time(format = ""),
+          SHIP = col_character(),
+          
+          OBSDEP = col_number(),
+          TEMP = col_number(), QTEMP = col_number(),
+          SALIN = col_number(), QSALIN = col_number(),
+          TOTOXY = col_number(), QTOTOXY = col_number(),
+          
+          PO4P = col_number(), QPO4P = col_number(),
+          TOTP = col_number(), QTOTP = col_number(),
+          SIO4 = col_number(), QSIO4 = col_number(),
+          NO3N = col_number(), QNO3N = col_number(),
+          NO2N = col_number(), QNO2N = col_number(),
+          NO23N = col_number(), QNO23N = col_number(),
+          NH4N = col_number(), QNH4N = col_number(),
+          TOTN = col_number(), QTOTN = col_number(),
+          CHL = col_number(), QCHL = readr::col_number()
+        )
+      ) %>% select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "SHIP", "OBSDEP", param_codes) %>% 
+        rowwise() %>% 
+        ## filter to include only measurements with nutrient info
+        mutate(chk = sum(!!!syms(grep("Q[A-Z0-9]+", param_codes, value = TRUE, invert = TRUE)))) %>% 
+        filter(chk != 0) %>% 
+        ungroup() %>% 
+        select(-chk),
+      
+      silent = TRUE
+    )
+    return(tab)
+    closeAllConnections()
+  }
   
   ## loop through spatial grid boxes and dates ----
   cl <- parallel::makeCluster(3)
   doParallel::registerDoParallel(cl)
   
   # for(box in 1:ncol(latlon)){
-  result <- foreach::foreach(box = 1:ncol(latlon), .packages= c("stringr", "readr", "dplyr"), .combine = rbind) %dopar% {
+  # result <- foreach::foreach(box = 1:ncol(latlon), .packages= c("stringr", "readr", "dplyr"), .combine = rbind) %dopar% {
+  #   for(dat in 1:length(dates_lst)){
+  
+  starttime <- Sys.time()
+  # result <- foreach::foreach(box = 1:2, .packages= c("stringr", "readr", "dplyr"), .combine = rbind) %dopar% {
+  
+
+  for(box in 1:2){
+    
+    ## initialize results dataframe
+    resultpar <- data.frame()
+    
     for(dat in 1:length(dates_lst)){
+      
       
       ## construct and open urls
       full_url <- sprintf(
@@ -107,49 +162,6 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
         latlon[[1, box]], latlon[[2, box]], latlon[[3, box]], latlon[[4, box]], 
         dates_lst[[dat]][1], dates_lst[[dat]][2]
       )
-      
-      ## function to query nest.su.se/dataPortal for data ----
-      try_query <- function(queryurl){
-        
-        ## with error handling...
-        tab <- try(
-          readr::read_csv(
-            queryurl,
-            progress = show_progress(), 
-            
-            col_types = cols(
-              SERVER_ID = col_integer(), ID = col_integer(),
-              LATITUDE = col_number(), LONGITUDE = col_number(),
-              OBSDATE = col_date(format = ""),
-              OBSTIME = col_time(format = ""),
-              SHIP = col_character(),
-              
-              OBSDEP = col_number(),
-              TEMP = col_number(), QTEMP = col_number(),
-              SALIN = col_number(), QSALIN = col_number(),
-              TOTOXY = col_number(), QTOTOXY = col_number(),
-              
-              PO4P = col_number(), QPO4P = col_number(),
-              TOTP = col_number(), QTOTP = col_number(),
-              SIO4 = col_number(), QSIO4 = col_number(),
-              NO3N = col_number(), QNO3N = col_number(),
-              NO2N = col_number(), QNO2N = col_number(),
-              NO23N = col_number(), QNO23N = col_number(),
-              NH4N = col_number(), QNH4N = col_number(),
-              TOTN = col_number(), QTOTN = col_number(),
-              CHL = col_number(), QCHL = readr::col_number()
-            )
-          ) %>% select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "SHIP", "OBSDEP", param_codes) %>% 
-            rowwise() %>% 
-            ## filter to include only measurements with nutrient info
-            mutate(chk = sum(!!!syms(grep("Q[A-Z0-9]+", param_codes, value = TRUE, invert = TRUE)))) %>% 
-            filter(chk != 0) %>% 
-            ungroup() %>% 
-            select(-chk),
-          
-          silent = TRUE
-        )
-      }
       
       ## GET THE DATA ----
       ## if error in search, split and try again, show warning with query
@@ -176,7 +188,7 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
               url1 %>% stringr::str_extract("latBegin.*$")
             ))
             
-          } else {result <- rbind(result, tmp1)}
+          } else {resultpar <- rbind(resultpar, tmp1)}
         }
         
         url2 <- str_replace(
@@ -198,7 +210,7 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
               url2 %>% stringr::str_extract("latBegin.*$")
             ))
             
-          } else {result <- rbind(result, tmp2)}
+          } else {resultpar <- rbind(resultpar, tmp2)}
         }
         
       } else {
@@ -210,10 +222,14 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
             full_url %>% stringr::str_extract("latBegin.*$")
           ))
           
-        } else {result <- rbind(result, tmp)}
+        } else {resultpar <- rbind(resultpar, tmp)}
       }
     }
+    result <- resultpar
   }
+  Sys.time()- starttime
+  
+  
   stopCluster(cl)
   closeAllConnections()
   return(result)
