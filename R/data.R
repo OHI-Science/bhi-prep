@@ -25,8 +25,7 @@ library(foreach)
 #' 
 #' @param date_range list or vector with two values given in YYYYMMDD format
 #' @param months values 1 through 12 corresponding to months to obtain data for
-#' @param latlon_ranges four-element vector or list in order: min lat, max lat, min lon, max lon.
-#' @param param_codes baltic nest code options: OBSDEP,TEMP,QTEMP,SALIN,QSALIN,TOTOXY,QTOTOXY,PO4P,QPO4P,TOTP,
+#' @param param_codes baltic nest code options: TEMP,QTEMP,SALIN,QSALIN,TOTOXY,QTOTOXY,PO4P,QPO4P,TOTP,
 #' QTOTP,SIO4,QSIO4,NO3N,QNO3N,NO2N,QNO2N,NO23N,QNO23N,NH4N,QNH4N,TOTN,QTOTN,CHL,QCHL
 #' 
 #' @return
