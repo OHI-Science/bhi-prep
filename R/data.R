@@ -95,33 +95,9 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
     
     ## with error handling...
     tab <- try(
-      readr::read_csv(
-        queryurl,
-        progress = show_progress(), 
-        
-        col_types = cols(
-          SERVER_ID = col_integer(), ID = col_integer(),
-          LATITUDE = col_number(), LONGITUDE = col_number(),
-          OBSDATE = col_date(format = ""),
-          OBSTIME = col_time(format = ""),
-          SHIP = col_character(),
-          
-          OBSDEP = col_number(),
-          TEMP = col_number(), QTEMP = col_number(),
-          SALIN = col_number(), QSALIN = col_number(),
-          TOTOXY = col_number(), QTOTOXY = col_number(),
-          
-          PO4P = col_number(), QPO4P = col_number(),
-          TOTP = col_number(), QTOTP = col_number(),
-          SIO4 = col_number(), QSIO4 = col_number(),
-          NO3N = col_number(), QNO3N = col_number(),
-          NO2N = col_number(), QNO2N = col_number(),
-          NO23N = col_number(), QNO23N = col_number(),
-          NH4N = col_number(), QNH4N = col_number(),
-          TOTN = col_number(), QTOTN = col_number(),
-          CHL = col_number(), QCHL = readr::col_number()
-        )
-      ) %>% select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "SHIP", "OBSDEP", param_codes) %>% 
+      ## https://csgillespie.github.io/efficientR/5-3-importing-data.html#fast-data-reading
+      data.table::fread(queryurl) %>% 
+        select("ID", "LATITUDE", "LONGITUDE", "OBSDATE", "OBSTIME", "SHIP", "OBSDEP", param_codes) %>% 
         rowwise() %>% 
         ## filter to include only measurements with nutrient info
         mutate(chk = sum(!!!syms(grep("Q[A-Z0-9]+", param_codes, value = TRUE, invert = TRUE)))) %>% 
