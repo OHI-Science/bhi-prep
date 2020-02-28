@@ -2,7 +2,8 @@
 ## 2. Data
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "data.R"))
+source(here::here(), "R", "data.R")
+source(here::here(), "R", "setup.R")
 ```
 
 
@@ -10,6 +11,7 @@ source(file.path(here::here(), "R", "data.R"))
 <br/>
 
 **Secchi Depth, ICES**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/ -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Dataset set:", "Oceanographic (per Parameter)"), 
@@ -23,7 +25,7 @@ knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ice
 <br/>
 
 **Secchi Depth, SMHI**  
-
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_SMHI -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Datatype:", "Physical and Chemical"), 
@@ -41,23 +43,24 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 ```
 <br/>
 
-**Chlorophyll A**
+**Chlorophyll A and Nutrients, Baltic Nest**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/NestData/nestdata_nutrients_chlora.csv -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c(":", ""), 
-  c(":", "")))
+  c("Latitude/Longitude Begin/End:", "Baltic Sea"), 
+  c("Dates Begin/End:", "Jan 1, 2005 to Dec 31, 2019"), 
+  c("Parameters:", "PO4P, TOTP, SIO4, NO3N, NO2N, NO23N, NH4N, TOTN, CHL")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Baltic Nest database]() <br/> Downloaded 24 May 2019 by Ellie Campbell")
-
-## using data.R 'get_input_data' function
-months <- c(11, 12, 1, 2, 3)
-
-
+knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/dataPortal/getStations) <br/> Downloaded 28 February 2020 by Ellie Campbell. See data.R/get_nest_data function for more detailed info.")
 ```
 
+```{r using get_nest_data function to download data, eval = FALSE}
+get_nest_data(date_range = c(20050101, 20191231), months = c(11, 12, 1, 2, 3)) %>% 
+    readr::write_csv(file.path(dir_B, "Goals", "EUT", "NestData", "nestdata_nutrients_chlora.csv"))
+```
 
 
 ### 2.2 Centralization & Normalization
