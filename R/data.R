@@ -138,16 +138,7 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
   ## loop through spatial grid boxes and dates ----
   cl <- parallel::makeCluster(3)
   doParallel::registerDoParallel(cl)
-  
-  # for(box in 1:ncol(latlon)){
-  # result <- foreach::foreach(box = 1:ncol(latlon), .packages= c("stringr", "readr", "dplyr"), .combine = rbind) %dopar% {
-  #   for(dat in 1:length(dates_lst)){
-  
-  starttime <- Sys.time()
-  # result <- foreach::foreach(box = 1:2, .packages= c("stringr", "readr", "dplyr"), .combine = rbind) %dopar% {
-  
-
-  for(box in 1:2){
+  result <- foreach::foreach(1:ncol(latlon), .packages= c("stringr", "readr", "dplyr"), .combine = rbind) %dopar% {
     
     ## initialize results dataframe
     resultpar <- data.frame()
@@ -227,9 +218,6 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
     }
     result <- resultpar
   }
-  Sys.time()- starttime
-  
-  
   stopCluster(cl)
   closeAllConnections()
   return(result)
