@@ -6,12 +6,24 @@ source(here::here(), "R", "data.R")
 source(here::here(), "R", "setup.R")
 ```
 
+For the Eutrophication sub-goal five indicators were included:
+
+-   winter (December-February) dissolved inorganic nitrogen (DIN) concentrations in the surface layer (0 - 10 m depth)
+-   winter (December-February) dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth)
+-   summer (June-September) chlorophyll a concentration in the surface layer (0 - 10 m depth)
+-   summer (June-September) Secchi depth,
+-   oxygen debt (hypoxic area below the halocline).
 
 ### 2.1 Datasets with Sources
 <br/>
 
+#### 2.1.1. Secchi Depth data
+
 **Secchi Depth, ICES**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/ -->
+
+Extraction from ICES database is classified into HELCOM Assessment Units – HELCOM sub basins with coastal WFD water bodies or water types
+
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Dataset set:", "Oceanographic (per Parameter)"), 
@@ -20,8 +32,10 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ices.dk/inventory/Index.aspx?) <br/> Requested 23 May 2019 by Ellie Campbell; must request all records as web download limited to max 10000 records per layer")
+knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ices.dk/inventory/Index.aspx?) <br/> Requested 24 Feb 2020 by Andrea De Cervo and received 24 Feb 2020 by Else Juul Green") 
 ```
+*must request all records as web download limited to max 10000 records per layer*
+
 <br/>
 
 **Secchi Depth, SMHI**  
@@ -43,6 +57,26 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 ```
 <br/>
 
+#### 2.1.2. Oxygen debt
+
+**Oxygen debt**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/??? -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Period:", "2010-2020"), 
+  c("Parameter:", "Oxygen"),
+  c("Country:", "(choose each Baltic country at a time)"),
+  c("Ship:", "Any")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 27 February 2020 by Andrea De Cervo")
+```
+<br/>
+
+#### 2.1.3. Chlorophyll A, and Nutrients (DIN and DIP)
+
 **Chlorophyll A and Nutrients, Baltic Nest**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/NestData/nestdata_nutrients_chlora.csv -->
 ```{r echo = FALSE, results = "asis"}
@@ -62,11 +96,32 @@ get_nest_data(date_range = c(20050101, 20191231), months = c(11, 12, 1, 2, 3)) %
     readr::write_csv(file.path(dir_B, "Goals", "EUT", "NestData", "nestdata_nutrients_chlora.csv"))
 ```
 
-
-### 2.2 Centralization & Normalization
 <br/>
 
-```{r}
+#### 2.1.5. Threshold values
+
+The threshold values have been agreed on by HELCOM and by Heads of Delegation (HOD) and the applied threshold values for core and pre-core indicators in the HELCOM open sea assessment units are presented in the [Baltic Sea Environment Proceedings no.156](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2019/09/BSEP156-Eutrophication.pdf) (p.10, Table 2).
+
+
+### 2.2 Centralization & Normalization
+
+**Read Secchi data**
+```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+
+## root location of the raw data
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
+
+## read in secchi data
+secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), sep = ";")
+secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
+
+# Data overview
+colnames(secchi_raw_ices)
+str(secchi_raw_ices)
+
+colnames(secchi_raw_smhi)
+str(secchi_raw_smhi)
 ```
 
 
