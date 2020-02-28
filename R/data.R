@@ -1,5 +1,5 @@
 ## Libraries
-source(file.path(here::here(), "R", "setup.R"))
+source(here::here("R", "setup.R"))
 library(httr)
 library(jsonlite)
 library(xml2)
@@ -223,23 +223,6 @@ get_nest_data <- function(date_range = c(20050101, 20191231), months = 1:12,
   return(result)
 }
 
-
-#' get data from SMHI
-#' 
-#' for more information the SMHI API see [here](http://opendata.smhi.se/apidocs/ocobs/index.html)
-
-get_smhi_data <- function(){
-  
-}
-#' get data from ICES
-#' 
-#' for more about ICES data portal web services see [here](http://ecosystemdata.ices.dk/WebServices/index.aspx)
-.
-get_ices_data <- function(){
-  
-}
-
-
 #' get data from one of our primary sources
 #' 
 #' for more information the SMHI API see [here](http://opendata.smhi.se/apidocs/ocobs/index.html)
@@ -295,46 +278,7 @@ get_input_data <- function(data_source, date_range, months = 1:12,
   
   ## BY DATA SOURCE
   
-  if(data_source %in% c("nest", "baltic nest")){
-    ## baltic nest data portal ----
-    
-    ## construct dates sequence, to download data only associated w selected months
-    dates_seq <- seq(date_begin, date_end, by = "months") %>% 
-      grep(pattern = paste0("-", months, "-", collapse = "|"), value = TRUE)
-    dates_lst <- list()
-    j <- 1
-    for(i in 2:length(dates_seq)){
-      if(!(lubridate::month(dates_seq[i-1])==lubridate::month(dates_seq[i])-1|
-         (lubridate::month(dates_seq[i-1])==12&lubridate::month(dates_seq[i])==1))){
-        dates_lst <- c(dates_lst, list(dates_seq[c(j, (i-1))])); j <- i
-      }; i <- i + 1
-    }
-    if(length(dates_lst) == 0){
-      dates_lst <- list(c(dates_seq[1], dates_seq[length(dates_seq)]))
-    }
-
-    ## construct and open urls, bind results
-    for(d in 1:length(dates_lst)){
-      full_url <- sprintf(
-        "%s?latBegin=%s&latEnd=%s&lonBegin=%s&lonEnd=%s&dateBegin=%s&dateEnd=%s",
-        "http://nest.su.se/dataPortal/getStations",
-        latlon_ranges[1], latlon_ranges[2], latlon_ranges[3], latlon_ranges[4],
-        dates_lst[[d]][1], dates_lst[[d]][2]
-      )
-      tmp <- readr::read_csv(full_url)
-      if(nrow(tmp) == 0){
-        message(sprintf("no rows of data found for %s to %s...", dates_lst[[d]][1], dates_lst[[d]][2]))
-      }
-      result <- rbind(result, tmp)
-    }
-    closeAllConnections()
-    
-  } else if(data_source == "smhi"){
-    ## smhi open data oceanographical observations ----
-
-    url_base <- "https://opendata-download-ocobs.smhi.se/api"
-    
-  } else if(data_source == "ices"){
+  if(data_source == "ices"){
     ## ices data center ----
     
     ## two different web services offered
