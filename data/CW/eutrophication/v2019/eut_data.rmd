@@ -19,7 +19,7 @@ For the Eutrophication sub-goal five indicators were included:
 #### 2.1.1. Secchi Depth data
 
 **Secchi Depth, ICES**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/ -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_ICES -->
 
 Extraction from ICES database is classified into HELCOM Assessment Units – HELCOM sub basins with coastal WFD water bodies or water types
 
@@ -44,7 +44,7 @@ tab <- t(data.frame(
   c("Datatype:", "Physical and Chemical"), 
   c("Parameter:", "secchi depth"),
   c("Months:", "All"),
-  c("Years:", "1893-2019 (all listed; though goes back only to 1967 in downloaded dataset)"),
+  c("Years:", "1893-2020"),
   c("Decimal/fält-avgränsare (decimal/delimiter):", "punkt/semikolon (period/semicolon)"),
   c("Teckenkodning:", "UTF-8"),
   c("Rubrikrad:", "Englelska (English)")))
@@ -52,14 +52,14 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) <br/> Downloaded 6 March 2020 by Andrea De Cervo")
 ```
 <br/>
 
 #### 2.1.2. Oxygen debt
 
 **Oxygen debt**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/??? -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Period:", "2010-2020"), 
@@ -71,12 +71,13 @@ colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 27 February 2020 by Andrea De Cervo")
+# each dataset has been extracted by country and Denmark split into two because too big
 ```
 <br/>
 
-#### 2.1.3. Chlorophyll A, and Nutrients (DIN and DIP)
+#### 2.1.3. Chlorophyll a, and Nutrients (DIN and DIP)
 
-**Chlorophyll A and Nutrients, Baltic Nest**
+**Chlorophyll a, and Nutrients, Baltic Nest**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/NestData/nestdata_winter_nutrients.csv -->
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/NestData/nestdata_summer_chlorophyl.csv -->
 ```{r echo = FALSE, results = "asis"}
@@ -91,27 +92,40 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/dataPortal/getStations) <br/> Downloaded 28 February 2020 by Ellie Campbell. See data.R/get_nest_data function for more detailed info.")
 ```
 
+**Nutrients, Baltic Nest**
 ```{r using get_nest_data function to download winter nutrient data, eval = FALSE}
 get_nest_data(date_range = c(20050101,20191231), months = c(11,12,1:3), param_codes = c("NO3N","NO2N","NO23N","NH4N","TOTN","PO4P")) %>% 
     readr::write_csv(file.path(dir_B, "Goals", "EUT", "NestData", "nestdata_winter_nutrients.csv"))
 ```
 
+**Chlorophyll a, Baltic Nest**
 ```{r using get_nest_data function to download summer chlorophyl A data, eval = FALSE}
 get_nest_data(date_range = c(20050101, 20191231), months = 5:10, param_codes = c("CHL")) %>% 
     readr::write_csv(file.path(dir_B, "Goals", "EUT", "NestData", "nestdata_summer_chlorophyl.csv"))
 ```
 
-
 <br/>
 
-#### 2.1.5. Threshold values
+#### 2.1.4. Threshold values
 
 The threshold values have been agreed on by HELCOM and by Heads of Delegation (HOD) and the applied threshold values for core and pre-core indicators in the HELCOM open sea assessment units are presented in the [Baltic Sea Environment Proceedings no.156](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2019/09/BSEP156-Eutrophication.pdf) (p.10, Table 2).
+
+#### 2.1.5 HELCOM HOLAS Basin
+These basins are the relevant physical units.  
+Secchi data will be first assessed at this level and then assigned to BHI region. EEZ divisions may result in some BHI regions that have no data but they are physically the same basin as a BHI region with data.
+
+```{r basin lookup}
+dir_lookup <- file.path(dir_prep, "supplement", "lookup_tabs")
+basin_lookup <-  read.csv(file.path(dir_lookup, "bhi_basin_country_lookup.csv"), sep=";")
+basin_lookup <- basin_lookup %>% 
+  dplyr::select(bhi_id = BHI_ID, basin_name=Subbasin)
+## TO-DO: INCORPORATE IT TO SECCHI DATA
+```
 
 
 ### 2.2 Centralization & Normalization
 
-**Read Secchi data**
+**Secchi data**
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 
 ## root location of the raw data
@@ -121,6 +135,36 @@ dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
 ## read in secchi data
 secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), sep = ";")
 secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
+```
+<br/>
+
+**Oxygen**
+```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+oxden1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmark1ox", "denmark1ox.csv"), sep = ",")
+oxden2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmark2ox", "denmark2ox.csv"), sep = ",")
+oxest <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "estoniaox", "estoniaox.csv"), sep = ",")
+oxfin <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "finlandox", "finlandox.csv"), sep = ",")
+oxger <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "germanyox", "germanyox.csv"), sep = ",")
+oxlat <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "latviaox", "latviaox.csv"), sep = ",")
+oxlit <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "lithuaniaox", "lithuaniaox.csv"), sep = ",")
+oxpol <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "polandox", "polandox.csv"), sep = ",")
+oxrus <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "russiaox", "russiaox.csv"), sep = ",")
+oxswe <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "swedenox", "swedenox.csv"), sep = ",")
+```
+<br/>
+
+**Chlorophyll a and Nutrients**
+```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+chlorophyll <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_summer_chlorophyl.csv"), sep = ",")
+nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutrients.csv"), sep = ",")
+```
+<br/>
+
+
+#### 2.2.1. Merging datasets
+
+**Secchi datasets**
+```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
 # Data overview
 colnames(secchi_raw_ices)
@@ -128,8 +172,176 @@ str(secchi_raw_ices)
 
 colnames(secchi_raw_smhi)
 str(secchi_raw_smhi)
-```
 
+## Merging the two datasets
+secchi <- bind_rows( 
+   # smhi
+  secchi_raw_smhi %>% 
+    rename(secchi = Value, date = Sampling.date, year = Year, 
+         # use the decimal degrees for lat and lon (as for ICES)
+         lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
+         # don't find the "cruise" variable?? (Station.ID..VISS. as example)
+         cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
+  mutate(date =  as.Date(date), month = format(date, "%m"),
+         secchi = as.numeric(secchi), year = as.character(year),
+         supplier = 'smhi') %>% 
+    ## REMOVE OSPAR ROWS (TO-DO)
+  dplyr::select(cruise, station, date, year, month,
+                lat, lon, secchi, bottom_m, supplier),
+    # ices
+    secchi_raw_ices %>% 
+  rename(secchi = Secchi.Depth..m.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         bottom_m = as.numeric(bottom_m), 
+         supplier = 'ices'))
+
+## CHECK FOR DUPLICATES (TO-DO)   
+str(secchi)
+
+```
+<br/>
+
+**Oxygen data**
+```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
+
+# Data overview
+colnames(oxden1)
+str(oxden1)
+
+colnames(secchi_raw_smhi)
+str(oxswe)
+
+oxygen <- bind_rows(
+  oxden1 %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         bottom_m = as.numeric(bottom_m),
+         country = "denmark"),
+  oxden2 %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         station = as.character(station),
+         bottom_m = as.numeric(bottom_m),
+         country = "denmark"),
+  oxest %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         bottom_m = as.numeric(bottom_m),
+         country = "estonia"),
+  oxfin %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+         bottom_m = as.numeric(bottom_m),
+         country = "finland"),
+  oxger %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+         bottom_m = as.numeric(bottom_m),
+         country = "germany"),
+  oxlat %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         bottom_m = as.numeric(bottom_m),
+         country = "latvia"),
+  oxlit %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         bottom_m = as.numeric(bottom_m),
+         country = "lithuania"),
+  oxpol %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         country = "poland"),
+  oxrus %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         station = as.character(station),
+         country = "russia"),    
+  oxswe %>% 
+  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"),
+         station = as.character(station),
+         oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+         bottom_m = as.numeric(bottom_m),
+         country = "sweden"))
+
+str(oxygen)
+```
+<br/>
+
+**Chlorophyll a and Nutrients data**
+```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
+
+# Data overview
+colnames(chlorophyll)
+str(chlorophyll)
+
+colnames(nutrient)
+str(nutrient)
+
+chla <- chlorophyll %>% 
+  rename(chl = CHL,  date = OBSDATE, 
+                lat = LATITUDE, lon = LONGITUDE, 
+                cruise = SHIP, id = ID) %>%
+  select(-OBSTIME, -OBSDEP) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"))
+
+nutrients <- nutrient %>% 
+  rename(no3 = NO3N,  no2 = NO2N, nh4 = NH4N, po4 = PO4P, date = OBSDATE, 
+                lat = LATITUDE, lon = LONGITUDE, 
+                cruise = SHIP, id = ID) %>%
+  select(-OBSTIME, -OBSDEP, -NO23N, -TOTN) %>% 
+  mutate(date =  as.Date(date), year = format(date, "%Y"), 
+         date =  as.Date(date), month = format(date, "%m"))
+
+```
 
 
 ### 2.3 Initial Data Exploration
