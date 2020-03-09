@@ -63,6 +63,7 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
                            latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
                            rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL){
   
+  
   colnames(dataset) <- stringr::str_to_lower(names(dataset))
   
   lat <- grep(colnames(dataset), pattern = latlon_vars[1], value = TRUE)
@@ -74,20 +75,16 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     message("loading BHI regions w/ HELCOM ID, and ICES shapefiles to global environment")
     regions_shape(sp_dir = rgn_shps_loc)
   }
-  if(st_crs(ICES_rgns_shp)$epsg != 4326){
+  if(is.na(st_crs(ICES_rgns_shp)$epsg) || st_crs(ICES_rgns_shp)$epsg != 4326){
     ICES_rgns_shp <- st_transform(ICES_rgns_shp, 4326)
   }
   
+  ## latitude/longitude approach ----
+  ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
   if(length(lat) == 1 & length(lon) == 1 & !any(is.na(latlon_vars))){
-    ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
     data_sf0 <- st_as_sf(dataset, coords = c(lon, lat), crs = 4326, agr = "constant")
     
-    data_sf <- data_sf0 %>% 
-      st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
-      st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
-      filter(!is.na(BHI_ID)) %>% 
-      mutate(in_25km_buffer = FALSE)
-    
+    ## points in the BHI regions 10km buffer zone ----
     if(!is.null(buffer_shp)){
       data_buff_sf <- data_sf0 %>% 
         st_join(select(buffer_shp, BHI_ID)) %>% 
@@ -97,37 +94,55 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
         rename(Area_km2_BHI = Area_km2)
     }
     
-    ## check if any points are not matched with a BHI id
+    ## check if any points are not matched with a BHI id ----
     if(!is.null(buffer_shp)){
       test <- data_sf0 %>% 
-        st_join(select(buffer_shp, BHI_ID)) %>% 
-        select(country, monit_program, monit_purpose, year, bhi_id_buff = BHI_ID)
+        st_join(select(buffer_shp, bhi_id_buff = BHI_ID))
+    } else {
+      test <- data_sf0 %>% 
+        mutate(bhi_id_buff = NA)
     }
     test <- test %>% 
+      select(zn = one_of("country", "helcom_id"), yr = starts_with("year"), bhi_id_buff) %>% 
       st_join(select(BHI_rgns_shp, bhi_id_water = BHI_ID)) %>% 
       filter(is.na(bhi_id_buff) & is.na(bhi_id_water))
     
     if(nrow(test) != 0){
       test_result <- sprintf(
-        "%s data points (in countries: %s) have not been",
+        "%s of %s data points (in: %s, years: %s) have not been",
         nrow(test),
-        paste(unique(test$country), collapse = ", ")
+        nrow(dataset),
+        paste(
+          c(head(unique(test$zn)) %>% as.character(), 
+            ifelse(length(unique(test$zn)) > 6, "...", "")), 
+          collapse = ", "
+        ),
+        paste(
+          c(head(unique(test$yr)), 
+            ifelse(length(unique(test$yr)) > 6, "...", "")), 
+          collapse = ", "
+        )
       )
     } else {test_result <- "all data points are"}
     message(paste(test_result, "assigned corresponding BHI IDs"))
     
-    
     ## return spatial object sf or just dataframe
-    data_sf <- rbind(data_sf, data_buff_sf)
+    data_rgns_joined <- data_sf0 %>% 
+      st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
+      st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
+      filter(!is.na(BHI_ID)) %>% 
+      mutate(in_25km_buffer = FALSE) %>% 
+      rbind(data_buff_sf)
+    
     if(!return_spatial){
-      data_rgns_joined <- data_sf %>% 
+      data_rgns_joined <- data_rgns_joined %>% 
         as_tibble() %>% 
         select(-geometry, -Area_km2_BHI, -Area_km2_ICES) 
-    } else {data_rgns_joined <- data_sf}
-    
+    }
   
+  ## country/subbasin approach ----
+  ## if no lat lon, need to use country or subbasin or other information... 
   } else {
-    ## if no lat lon, need to use country or subbasin or other information... 
     bhi_rgns_df <- BHI_rgns_shp %>% 
       as_tibble() %>% 
       select(rgn_nam, rgn_key, HELCOM_ID, BHI_ID)
@@ -139,5 +154,6 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
       by = c(helcomID_col = "helcom_id", country_col = "rgn_nam"))
   }
   
+  ## return result
   return(data_rgns_joined)
 }
