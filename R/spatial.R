@@ -1,7 +1,6 @@
 ## Libraries
 source(here::here("R", "setup.R"))
 library(sf)
-library(beyonce)
 
 ## Functions
 
