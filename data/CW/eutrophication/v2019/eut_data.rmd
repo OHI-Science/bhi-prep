@@ -92,13 +92,20 @@ knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/da
 ```
 
 ```{r using get_nest_data function to download winter nutrient data, eval = FALSE}
-get_nest_data(date_range = c(20050101,20191231), months = c(11,12,1:3), param_codes = c("NO3N","NO2N","NO23N","NH4N","TOTN","PO4P")) %>% 
-    readr::write_csv(file.path(dir_B, "Goals", "EUT", "NestData", "nestdata_winter_nutrients.csv"))
+dir_B <- "/home/ellie/data/bhi_share/BHI 2.0"
+get_nest_data(
+  date_range = c(20050101,20191231), 
+  months = c(11,12,1:3), 
+  param_codes = c("NO3N","NO2N","NO23N","NH4N","TOTN","PO4P")
+) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_winter_nutrients.csv"))
 ```
 
 ```{r using get_nest_data function to download summer chlorophyl A data, eval = FALSE}
-get_nest_data(date_range = c(20050101, 20191231), months = 5:10, param_codes = c("CHL")) %>% 
-    readr::write_csv(file.path(dir_B, "Goals", "EUT", "NestData", "nestdata_summer_chlorophyl.csv"))
+get_nest_data(
+  date_range = c(20050101, 20191231), 
+  months = 5:10, 
+  param_codes = c("CHL")
+) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_summer_chlorophyl.csv"))
 ```
 
 
