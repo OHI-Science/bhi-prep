@@ -90,7 +90,7 @@ spp_presence <- spp_w_rgns %>%
   sf::st_drop_geometry() %>% 
   select(BHI_ID, species_id, year_collected, red_list_assessments) %>% 
   filter(year_collected > 2016) %>% 
-  mutate(red_list_assessments = as.numeric(c)) %>% 
+  mutate(red_list_assessments = as.numeric(red_list_assessments)) %>% 
   group_by(BHI_ID, species_id) %>% 
   summarize(redlist_mean = mean(red_list_assessments, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -112,6 +112,11 @@ sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_specie
 <br/>
 
 ### 2.3 Initial Data Exploration
+
+```{r}
+
+```
+
 
 #### 2.3.1 Compare versus Previous Years Data
 
