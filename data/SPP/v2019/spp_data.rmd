@@ -1,0 +1,125 @@
+
+## 2. Data
+
+```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
+source(here::here("R", "setup.R"))
+source(here::here("R", "spatial.R"))
+```
+
+### 2.1 Datasets with Sources
+<br/>
+
+**Species Presence, Observations and Red List Status**  
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/Goals/baltic_species/baltic_species.shp -->
+
+To obtain data in shapefile format: downloaded, unzipped, opened (observations_final.gdb, observation_points layer) in QGIS, exported to shapefile
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Tab:", "Download"), 
+  c("Dataset:", "Observations data ESRI Geodatabase (ZIP)")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.helcom.fi/website/Biodiversity/) <br/> Downloaded 26 February by Ellie")
+```
+
+*These data are obtained from the HELCOM species database, compiled from original data sources: Shark SMHI, Species Observations System (Artportalen), MVM, and Entomological Collections (NHRS) from GBIF.*
+
+---
+
+<br/>
+
+
+### 2.2 Centralization & Normalization
+
+```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
+## root location of the raw data
+dir_rawdata <- file.path(dir_B, "Goals", "BD")
+```
+
+#### 2.2.1 Rename Fields/Variables
+
+#### 2.2.2 Standardize Units
+
+**Remove spatial 'depth' dimension, and assign BHI Region IDs**
+
+```{r remove z spatial dimension and assign BHI region ids}
+## read in raw data
+## need to rename columns, as names were shortened when exported to shapefile...
+spp_raw <- sf::st_read(file.path(dir_rawdata, "raw_species_observations")) %>% 
+   dplyr::rename(
+    scientific_name = scientific, 
+    accepted_name = accepted_n, 
+    species_group = species_gr, 
+    sampling_group = sampling_g,
+    red_list_assessments = red_list_a,
+    year_collected = year_colle
+  )
+buffer_sf <- st_read(
+  file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
+  "BHI_shapefile_25km_buffer"
+)
+spp_w_rgns <- join_rgns_info(
+  sf::st_zm(spp_raw),
+  latlon_vars = c("decimal_la", "decimal_lo"),
+  return_spatial = TRUE,
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
+  buffer_shp = buffer_sf
+)
+```
+
+**Reorganize into Presence/Absence data by BHI Region and Species**
+
+```{r presence absence species data}
+species_info <- spp_w_rgns %>% 
+  sf::st_drop_geometry() %>% 
+  select(
+    species_id, 
+    scientific_name,
+    taxonomica, 
+    accepted_name, 
+    synonyms, 
+    species_group, 
+    red_list_assessments
+  ) %>% 
+  distinct()
+
+spp_presence <- spp_w_rgns %>% 
+  sf::st_drop_geometry() %>% 
+  select(BHI_ID, species_id, year_collected, red_list_assessments) %>% 
+  filter(year_collected > 2016) %>% 
+  mutate(red_list_assessments = as.numeric(c)) %>% 
+  group_by(BHI_ID, species_id) %>% 
+  summarize(redlist_mean = mean(red_list_assessments, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  tidyr::pivot_wider(id_cols = species_id, names_from = BHI_ID, values_from = redlist_mean) %>% 
+  left_join(species_info, by = "species_id") %>% 
+  distinct()
+```
+
+
+#### 2.2.3 Save to BHI Database
+
+```{r save species data}
+if(!file.exists(file.path(dir_rawdata, "baltic_species"))){
+  dir.create(file.path(dir_rawdata, "baltic_species"))
+}
+sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_species.shp"))
+```
+
+<br/>
+
+### 2.3 Initial Data Exploration
+
+#### 2.3.1 Compare versus Previous Years Data
+
+#### 2.3.2 Timeseries Plots
+
+```{r CODE CHUNK WITH FIGURE OR GRAPH, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
+```
+
+#### 2.3.3 Map
+
+
