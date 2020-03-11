@@ -1,5 +1,5 @@
 
-## 2. Data
+## 2. Data Prep
 
 ```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
@@ -32,7 +32,7 @@ knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.
 <br/>
 
 
-### 2.2 Organizing Data to Match 2015 Format
+### 2.2 Processing raw data into an easier format
 
 #### 2.2.1 Set directory of raw data
 
@@ -45,7 +45,7 @@ dir_rawdata <- file.path(dir_B)      # Edit 1
 #dir_rawdata <- file.path(dir_B, "Goals", "BD")
 ```
 
-#### 2.2.2 Read in observations and add region data
+#### 2.2.2 Adding regional data into dataset
 
 **Remove spatial 'depth' dimension, and assign BHI Region IDs**
 
@@ -76,8 +76,19 @@ spp_w_rgns <- join_rgns_info(
   buffer_shp = buffer_sf
 )
 ```
+#### 2.2.3 Save to BHI Database
 
-#### 2.2.3 Reorganise into Presence/Absence
+```{r save species data}
+if(!file.exists(file.path(dir_rawdata, "baltic_species"))){
+  dir.create(file.path(dir_rawdata, "baltic_species"))
+}
+sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_species.shp"))
+```
+
+
+### 2.3 Organizing Data to Match 2015 Format
+
+#### 2.3.1 Reorganise into Presence/Absence
 
 **Reorganize into Presence/Absence data by BHI Region and Species**
 
@@ -108,7 +119,7 @@ spp_presence <- spp_w_rgns %>%
   distinct()
 ```
 
-#### 2.2.4 Isolating and matching BHI ID and basins in raw data
+#### 2.3.2 Isolating and matching BHI ID and basins in raw data
 
 ```{r create list BHI ID and Basins}
 
@@ -125,14 +136,7 @@ spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% distinct() %>% nr
 ```
 
 
-#### 2.2.3 Save to BHI Database
 
-```{r save species data}
-if(!file.exists(file.path(dir_rawdata, "baltic_species"))){
-  dir.create(file.path(dir_rawdata, "baltic_species"))
-}
-sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_species.shp"))
-```
 
 <br/>
 
