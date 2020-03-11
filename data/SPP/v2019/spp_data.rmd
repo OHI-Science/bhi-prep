@@ -22,7 +22,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.helcom.fi/website/Biodiversity/) <br/> Downloaded 26 February by Ellie")
+knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.helcom.fi/website/Biodiversity/) <br/> Downloaded 9 March by Chester")
 ```
 
 *These data are obtained from the HELCOM species database, compiled from original data sources: Shark SMHI, Species Observations System (Artportalen), MVM, and Entomological Collections (NHRS) from GBIF.*
@@ -32,16 +32,16 @@ knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.
 <br/>
 
 
-### 2.2 Centralization & Normalization
+### 2.2 Organizing Data to Match 2015 Format
+
+#### 2.2.1 Set directory of raw data
 
 ```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "BD")
 ```
 
-#### 2.2.1 Rename Fields/Variables
-
-#### 2.2.2 Standardize Units
+#### 2.2.2 Read in observations and add region data
 
 **Remove spatial 'depth' dimension, and assign BHI Region IDs**
 
@@ -69,6 +69,8 @@ spp_w_rgns <- join_rgns_info(
   buffer_shp = buffer_sf
 )
 ```
+
+#### 2.2.3 Reorganise into Presence/Absence
 
 **Reorganize into Presence/Absence data by BHI Region and Species**
 
@@ -113,7 +115,10 @@ sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_specie
 
 ### 2.3 Initial Data Exploration
 
+
 ```{r}
+
+
 
 ```
 
