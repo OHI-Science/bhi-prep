@@ -36,9 +36,13 @@ knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.
 
 #### 2.2.1 Set directory of raw data
 
+Notes: Commands labelled "Edit 1" to be removed at final polish, added now due to lack of access to Gunvor
+
 ```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
-dir_rawdata <- file.path(dir_B, "Goals", "BD")
+dir_B <- "C:/Users/chest/Downloads"  # Edit 1
+dir_rawdata <- file.path(dir_B)      # Edit 1
+#dir_rawdata <- file.path(dir_B, "Goals", "BD")
 ```
 
 #### 2.2.2 Read in observations and add region data
@@ -57,6 +61,9 @@ spp_raw <- sf::st_read(file.path(dir_rawdata, "raw_species_observations")) %>%
     red_list_assessments = red_list_a,
     year_collected = year_colle
   )
+
+dir_B <- "C:/Users/chest/OneDrive/Documents/Thesis/Github/Shapefiles" # Edit 1
+
 buffer_sf <- st_read(
   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
   "BHI_shapefile_25km_buffer"
@@ -99,6 +106,22 @@ spp_presence <- spp_w_rgns %>%
   tidyr::pivot_wider(id_cols = species_id, names_from = BHI_ID, values_from = redlist_mean) %>% 
   left_join(species_info, by = "species_id") %>% 
   distinct()
+```
+
+#### 2.2.4 Isolating and matching BHI ID and basins in raw data
+
+```{r create list BHI ID and Basins}
+
+basin_ID_namelist <- spp_w_rgns %>%
+  sf::st_drop_geometry() %>%
+  select(BHI_ID, Subbasin) %>%
+  distinct() %>%
+  arrange(.,BHI_ID)
+
+# To see how many distinct basins represented
+spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% distinct() %>% nrow()  #18 basins
+
+
 ```
 
 
