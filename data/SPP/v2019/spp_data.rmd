@@ -130,7 +130,12 @@ basin_ID_namelist <- spp_w_rgns %>%
   arrange(.,BHI_ID)
 
 # To see how many distinct basins represented
-spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% distinct() %>% nrow()  #18 basins
+spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% distinct() %>% nrow()  #18 basins -> One more than 2015 code
+
+# To check discrepancy
+
+basins <- spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% arrange(Subbasin = as.character(Subbasin)) %>% distinct()   # Discrepancy = spelling error in Bothnian Sea/Bothian Sea
+
 
 
 ```
