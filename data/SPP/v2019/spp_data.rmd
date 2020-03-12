@@ -9,8 +9,8 @@ source(here::here("R", "spatial.R"))
 ### 2.1 Datasets with Sources
 <br/>
 
-**Species Presence, Observations and Red List Status**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/Goals/baltic_species/baltic_species.shp -->
+**Species Presence, Observations and Red List Assessments**  
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/baltic_species/baltic_species.shp -->
 
 To obtain data in shapefile format: downloaded, unzipped, opened (observations_final.gdb, observation_points layer) in QGIS, exported to shapefile
 
@@ -26,6 +26,21 @@ knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.
 ```
 
 *These data are obtained from the HELCOM species database, compiled from original data sources: Shark SMHI, Species Observations System (Artportalen), MVM, and Entomological Collections (NHRS) from GBIF.*
+
+<br>
+
+**Red list (IUCN) information, about Species and their Assessment at HELCOM**  
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/species_with_redlist_category/species_with_redlist_category.csv -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Tab:", "Download"), 
+  c("Dataset:", "Red list information data CSV")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.helcom.fi/website/Biodiversity/) <br/> Downloaded 12 March by Ellie")
+```
 
 ---
 
