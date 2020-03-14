@@ -55,7 +55,8 @@ Notes: Commands labelled "Edit 1" to be removed at final polish, added now due t
 
 ```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
-dir_B <- "C:/Users/chest/Downloads"  # Edit 1
+# dir_B <- "C:/Users/chest/Downloads"  # Edit 1 Tablet
+dir_B <- "C:/Users/Chester Gan/Desktop" # Edit 1 Laptop
 dir_rawdata <- file.path(dir_B)      # Edit 1
 #dir_rawdata <- file.path(dir_B, "Goals", "BD")
 ```
@@ -77,7 +78,8 @@ spp_raw <- sf::st_read(file.path(dir_rawdata, "raw_species_observations")) %>%
     year_collected = year_colle
   )
 
-dir_B <- "C:/Users/chest/OneDrive/Documents/Thesis/Github/Shapefiles" # Edit 1
+# dir_B <- "C:/Users/chest/OneDrive/Documents/Thesis/Github/Shapefiles"  # Edit 1 Tablet
+dir_B <- "C:/Users/Chester Gan/OneDrive/Documents/Thesis/Github/Shapefiles" # Edit 1 Laptop
 
 buffer_sf <- st_read(
   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
@@ -100,10 +102,52 @@ if(!file.exists(file.path(dir_rawdata, "baltic_species"))){
 sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_species.shp"))
 ```
 
+### 2.3 Checking Data Attributes
 
-### 2.3 Organizing Data to Match 2015 Format
+```{r Dropping geometry column}
 
-#### 2.3.1 Reorganise into Presence/Absence
+full_species_checklist <- sf::st_drop_geometry(spp_w_rgns)
+
+```
+
+
+#### 2.3.1 Taxa Represented 
+
+
+#### 2.3.2 BHI ID and Basins
+
+```{r create list BHI ID and Basins}
+
+# Matching BHI ID to subbasins
+
+basin_ID_namelist <- full_species_checklist %>%
+  select(BHI_ID, Subbasin) %>%
+  distinct() %>%
+  arrange(.,BHI_ID)
+
+# To see how many distinct basins represented
+
+basins_distinct <- full_species_checklist %>% 
+  select(Subbasin) %>% 
+  distinct()
+
+nrow(basins_distinct)  #18 basins -> One more than HOLAS basin number
+
+# To check discrepancy
+
+HOLAS_Basins <- read.csv(file.path("C:/Users/Chester Gan/OneDrive/Documents/Thesis/Github/baltic2015/prep/SPP","distribution_locations.csv"), sep = ";", stringsAsFactors = FALSE) %>%
+  select(basin) %>%
+  distinct() %>%
+  dplyr::rename(Subbasin = basin)
+
+setdiff(basins_distinct, HOLAS_Basins)  # Discrepancy = spelling error in Bothian Sea
+
+# Should we correct spelling here or later?
+```
+
+### 2.4 Organizing Data to Match 2015 Format
+
+#### 2.4.1 Reorganise into Presence/Absence
 
 **Reorganize into Presence/Absence data by BHI Region and Species**
 
@@ -134,26 +178,7 @@ spp_presence <- spp_w_rgns %>%
   distinct()
 ```
 
-#### 2.3.2 Isolating and matching BHI ID and basins in raw data
 
-```{r create list BHI ID and Basins}
-
-basin_ID_namelist <- spp_w_rgns %>%
-  sf::st_drop_geometry() %>%
-  select(BHI_ID, Subbasin) %>%
-  distinct() %>%
-  arrange(.,BHI_ID)
-
-# To see how many distinct basins represented
-spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% distinct() %>% nrow()  #18 basins -> One more than 2015 code
-
-# To check discrepancy
-
-basins <- spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% arrange(Subbasin = as.character(Subbasin)) %>% distinct()   # Discrepancy = spelling error in Bothnian Sea/Bothian Sea
-
-
-
-```
 
 
 
