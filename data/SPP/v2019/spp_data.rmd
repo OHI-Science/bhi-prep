@@ -106,12 +106,36 @@ sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_specie
 
 ```{r Dropping geometry column}
 
-full_species_checklist <- sf::st_drop_geometry(spp_w_rgns)
+raw_species_checklist <- sf::st_drop_geometry(spp_w_rgns)
 
 ```
 
 
 #### 2.3.1 Taxa Represented 
+
+```{r Check Taxa}
+
+# Check representation of taxa
+
+raw_species_checklist %>%
+  select(species_group) %>%
+  distinct()  # Benthic Invertebrates, Fish and Lamprey, Macrophytes, Zooplankton, Bacteria, Phytoplankton, Mammals and Birds
+
+# Check number of species within each taxa
+
+raw_species_checklist %>%
+  group_by(species_group) %>%
+  count()
+
+ggplot(raw_species_checklist, aes(x=species_group))+
+   geom_bar(stat="count")+
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Number of species in raw checklist")
+
+## Number of unique latin names 
+raw_species_checklist %>% select(scientific_name)%>%distinct()%>%nrow() #2551 (Including Bacteria and Plankton)
+
+```
 
 
 #### 2.3.2 BHI ID and Basins
@@ -120,20 +144,20 @@ full_species_checklist <- sf::st_drop_geometry(spp_w_rgns)
 
 # Matching BHI ID to subbasins
 
-basin_ID_namelist <- full_species_checklist %>%
+basin_ID_namelist <- raw_species_checklist %>%
   select(BHI_ID, Subbasin) %>%
   distinct() %>%
   arrange(.,BHI_ID)
 
 # To see how many distinct basins represented
 
-basins_distinct <- full_species_checklist %>% 
+basins_distinct <- raw_species_checklist %>% 
   select(Subbasin) %>% 
   distinct()
 
 nrow(basins_distinct)  #18 basins -> One more than HOLAS basin number
 
-# To check discrepancy
+# To check discrepancy in number of basins
 
 HOLAS_Basins <- read.csv(file.path("C:/Users/Chester Gan/OneDrive/Documents/Thesis/Github/baltic2015/prep/SPP","distribution_locations.csv"), sep = ";", stringsAsFactors = FALSE) %>%
   select(basin) %>%
@@ -142,7 +166,14 @@ HOLAS_Basins <- read.csv(file.path("C:/Users/Chester Gan/OneDrive/Documents/Thes
 
 setdiff(basins_distinct, HOLAS_Basins)  # Discrepancy = spelling error in Bothian Sea
 
-# Should we correct spelling here or later?
+# Correct Spelling Error
+
+raw_species_checklist <- raw_species_checklist %>% 
+  mutate(Subbasin = as.character(Subbasin)) %>%
+  mutate(Subbasin = ifelse(Subbasin == "Bothian Sea", "Bothnian Sea", Subbasin))
+
+raw_species_checklist %>% select(Subbasin) %>% distinct() %>% nrow()  #17 = Correct number
+
 ```
 
 ### 2.4 Organizing Data to Match 2015 Format
@@ -152,8 +183,7 @@ setdiff(basins_distinct, HOLAS_Basins)  # Discrepancy = spelling error in Bothia
 **Reorganize into Presence/Absence data by BHI Region and Species**
 
 ```{r presence absence species data}
-species_info <- spp_w_rgns %>% 
-  sf::st_drop_geometry() %>% 
+species_info <- raw_species_checklist %>% 
   select(
     species_id, 
     scientific_name,
@@ -164,6 +194,7 @@ species_info <- spp_w_rgns %>%
     red_list_assessments
   ) %>% 
   distinct()
+
 
 spp_presence <- spp_w_rgns %>% 
   sf::st_drop_geometry() %>% 
