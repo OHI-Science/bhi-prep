@@ -328,16 +328,16 @@ lapply(
 
 ## check number of dates and years sample by country, PCBs data from ICES
 ## Denmark doesn't have herring data...
-do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(x){
+do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
   cbind(
     pcb_rawdata_bio %>% 
-      filter(Country == x) %>%
+      filter(Country == country) %>%
       select(Species, MYEAR) %>%
       distinct(.) %>%
       group_by(Species) %>%
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
-    Country = x
+    Country = country
   )
 })) %>% DT::datatable()
 ```
@@ -383,14 +383,17 @@ rename_vars <- function(dataset){
       vflag = VFLAG, detect_lim = DETLI,
       quant_lim = LMQNT, uncert_val = UNCRT, method_uncert = METCU,
       
-      analyt_lab = ALABO, ref_source = REFSK, method_storage = METST,
-      method_pretreat = METPT, method_pur_sep = METPS, method_chem_fix = METFP,
-      method_chem_extract = METCX, method_analysis = METOA, formula_calc = FORML,
+      analyt_lab = ALABO, ref_source = REFSK, 
+      method_storage = METST, method_pretreat = METPT, 
+      method_pur_sep = METPS, method_chem_fix = METFP,
+      method_chem_extract = METCX, method_analysis = METOA, 
+      formula_calc = FORML,
       
       sub_samp_id = SUBNO, bulk_id = BULKID,
       sampler_type = SMTYP, factor_compli_interp = FINFL,
       
-      analyt_method_ref = tblAnalysisID, measurement_ref = tblParamID,
+      analyt_method_ref = tblAnalysisID, 
+      measurement_ref = tblParamID,
       samp_ref = tblSampleID
     ) %>% 
     
@@ -435,6 +438,7 @@ lapply(
     assign(str_remove(x, "_rawdata"), renameddf, envir = .GlobalEnv)
   }
 )
+rm("pcb_rawdata_bio", "pfos_rawdata_bio", "dioxin_rawdata_bio", "pcb_rawdata_sed", "dioxin_rawdata_sed")
 ```
 
 ---
@@ -461,7 +465,8 @@ The datasets each contain two main categories (param_groups) one of which is BBI
 <!-- the following code chunks are modified from raw_data_prep.r scripts in bhi-1.0-archive/baltic2015/prep/CW/contaminants -->
 ```{r standardize units in biota datasets, echo = TRUE}
 
-contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
+standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
+  
   
   ## what are the specific parameters?
   ## unique parameter groups and associated variables:
@@ -482,7 +487,7 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   
   
   ## sediment versus biota datasets, different sample/id variables
-  sampvars <- c("sub_samp_ref", "samp_ref", "sub_samp_id")
+  sampvars <- c("sub_samp_id", "samp_ref", "sub_samp_ref")
   if(!matrix_biota){
     sampvars <- setdiff(sampvars, "sub_samp_ref")
   }
@@ -493,10 +498,10 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   for(i in c(sampvars, "measurement_ref")){
     chk_ids <- c(chk_ids, sprintf("%s: %s", i, length(unique(df[[i]]))))
   }
-  if(nrow(df %>% filter(is.na(sampvars[1]))) != 0){
-    warning(sprintf("there are observations without %s in the dataset", sampvars[1]))
+  if(nrow(df %>% filter(is.na(sampvars[length(sampvars)]))) != 0){
+    warning(sprintf("there are observations without %s in the dataset", sampvars[length(sampvars)]))
   }
-  message(sprintf("NOTE will align by %s when grouping to identify duplicates\n", sampvars[1]))
+  message(sprintf("NOTE will align by %s when grouping to identify duplicates\n", sampvars[length(sampvars)]))
   
   
   ## BBIO DATA
@@ -509,9 +514,10 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   df_bbio <- df  %>% 
     filter(param_group == "B-BIO") %>%
     select(
-      station, latitude, longitude, date, year, sampvars, 
-      species, matrix_analyzed, basis_determination,
-      variable, unit, value
+      station, latitude, longitude, date, year, 
+      species, matrix_analyzed, basis_determination, qflag,
+      variable, unit, value,
+      !!!syms(sampvars)
     )
   
   ## if there are cm, convert to mm
@@ -536,21 +542,19 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   
   df_bbio <- select(df_bbio, -unit)
 
-  
   chk_num_bbio_dup <- nrow(df_bbio) - nrow(distinct(df_bbio %>% select(-value)))
   
   ## BBIO DUPLICATES
   ## identify, explore, handle bbio duplicates ----
   ## group to identify duplicates; for a given sub_samp_ref only some variables may have duplicates
   grpvars <- c(
-    sampvars, "date", "variable",
-    "longitude", "latitude", "station", "year", "species",
-    "basis_determination", "matrix_analyzed"
+    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag",
+    sampvars, "date", "variable", "longitude", "latitude"
   )
   chk <- c()
-  for(i in 8:length(grpvars)){
+  for(i in 1:6){
     bbio_duplicates <- df_bbio %>% 
-      group_by(!!!syms(c(grpvars[1:7], grpvars[8:i]))) %>%
+      group_by(!!!syms(c(grpvars[1:i], grpvars[7:length(grpvars)]))) %>%
       summarise(n = n()) %>% 
       filter(n > 1) %>% 
       ungroup()
@@ -559,7 +563,7 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   if(var(chk) != 0){
     message(sprintf(
       "NOTE bbio duplicates dataframe dims vary with ID variables, investigate in grpvars: %s",
-      paste(grpvars[which(chk == boxplot(chk, plot = FALSE)$out)+7], collapse = ", ")
+      paste(grpvars[which(chk == quantile(chk, 0.1))], collapse = ", ")
     ))
   }
   
@@ -634,9 +638,10 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   df_conc <- df %>%
     filter(str_detect(param_group, pattern = contam_param)) %>%
     select(
-      station, latitude, longitude, date, year, sampvars,
+      station, latitude, longitude, date, year,
       species, matrix_analyzed, basis_determination,
-      variable, unit, value, detect_lim, quant_lim
+      variable, unit, value, detect_lim, quant_lim, qflag,
+      !!!syms(sampvars)
     )
   
   ## convert congener concentration units all to ug/kg
@@ -670,7 +675,7 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   ## identify duplicates
   ## group to identify duplicates, 
   ## for a given sub_samp_ref only some vars/congeners may have duplicates
-  message("STEP 4: averaging, where multiple congener concentrations observations per sub sample")
+  message("STEP 4: averaging, where multiple congener concentrations observations per sub sample\n")
   chk_num_conc_dup <- nrow(df_conc) - nrow(distinct(df_conc %>% select(-value, -detect_lim, -quant_lim)))
   
   conc_duplicates <- df_conc %>% 
@@ -701,6 +706,7 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   ## separate detect and quantification limit variables before next steps
   detect_quant_lims <- select(df_conc, grpvars, detect_lim, quant_lim)
   chk_lims_ids <- nrow(detect_quant_lims) == nrow(distinct(select(detect_quant_lims, grpvars)))
+  if(!chk_lims_ids){warning("detect and quant limit variables not uniquely identified by grouping variables")}
 
   ## spread df_conc data to wide format
   ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
@@ -712,33 +718,38 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   ## of these, keep wet weight records
   if(matrix_biota){
     chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
-    chk_conc_wide_id <- df_conc_wide %>%
+    chk_id <- df_conc_wide %>%
       group_by(!!!syms(chk)) %>%
       mutate(n = n()) %>%
       filter(n > 1) %>% 
       ungroup()
-    chk_conc_wide_id <- unique(chk_conc_wide_id[[sampvars[1]]])
+    chk_id <- unique(chk_id[["sub_samp_ref"]])
     df_conc_wide <- df_conc_wide %>%
-      filter(!(sampvars[1] %in% chk_conc_wide_id & basis_determination == "lipid weight"))
+      filter(!(sub_samp_ref %in% chk_id & basis_determination == "lipid weight" & !is.na(qflag)))
   }
-  
   ## check one row for every unique sub_samp_ref for biota, samp_ref for sediment
-  chk_conc_sub_samp <- length(unique(df_conc[[sampvars[1]]])) == nrow(distinct(df_conc_wide))
-  
+  if(length(unique(df_conc[[sampvars[length(sampvars)]]])) != nrow(distinct(df_conc_wide))){
+    message(
+      "NOTE conc. subsamples not uniquely identified even after averaging; 
+            multiple obs per ID, probably due to qflags\n"
+    )
+  }
   
   ## for biota convert lipid weight measurements to wet weight ----
   ## use the df_bbio_wide datatable to convert values in df_conc_wide table
   df_final <- df_conc_wide %>% 
-      left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
-      tidyr::pivot_longer(
-        cols = tidyselect::one_of(unique(df_conc$variable)), 
-        names_to = "variable", 
-        values_to = "value"
-      ) %>% 
-      left_join(detect_quant_lims, by = grpvars) 
+    left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
+    ## gathering into long format after having spread by congener will give lots of NAs
+    ## these'll be filtered out in the last line before result is returned
+    tidyr::pivot_longer(
+      cols = tidyselect::one_of(unique(df_conc$variable)), 
+      names_to = "variable", 
+      values_to = "value"
+    ) %>% 
+    left_join(detect_quant_lims, by = grpvars)
   
   if(matrix_biota){
-    message("STEP 5: converting congener concentrations observations all to wet weight")
+    message("STEP 5: converting all congener concentrations in biota to wet weight")
     df_final <- df_final %>% 
       ## if value is not wet weight convert, otherwise keep value
       mutate_at(
@@ -747,25 +758,26 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
           basis_determination == "lipid weight" ~ .*(`EXLIP%`/100),
           basis_determination == "dry weight" ~ .*(`DRYWT%`/100),
           basis_determination == "wet weight" ~ .
-        )
         ))
+      )
   }
   
   ## rejoin with meta information ----
   ## rejoin with info on country and monitoring program info, qflaugs, etc
   message("FINAL STEP: rejoining with meta information\n")
+  
   df_final <- df %>% 
     filter(str_detect(param_group, pattern = contam_param)) %>%
     select(
       country, monit_program, monit_purpose, 
       report_institute, 
       monit_year, date_ices, day, month,
-      num_indiv_subsample, 
-      qflag, uncert_val, method_uncert, bulk_id, grpvars
+      num_indiv_subsample, bulk_id,  
+      !!!syms(grpvars)
     ) %>% 
-  right_join(df_final, by = grpvars) %>% 
-  mutate(qflagged = ifelse(is.na(qflag), FALSE, TRUE))
-  
+    distinct() %>% 
+    right_join(df_final, by = grpvars) %>% 
+    mutate(qflagged = ifelse(is.na(qflag), FALSE, TRUE))
   
   ## return wrangled data and checks ----
   
@@ -773,13 +785,18 @@ contam_standardize_data <- function(data_renamed, matrix_biota = TRUE, contam_pa
   chks <- list(
     chk_params, chk_ids, 
     chk_bbio_units, chk_num_bbio_dup, chk_bbio_vars,
-    chk_conc_units, chk_num_conc_dup, chk_conc_dup,
-    chk_lims_ids, chk_conc_sub_samp
+    chk_conc_units, chk_num_conc_dup, chk_conc_dup
   )
   
   df_final <- filter(df_final, !is.na(value))
+    
+  if(!all(mutate(group_by(df_final, !!!syms(grpvars)), n = n())$n == 1)){
+    warning("NOTE rows of final dataframe are not uniquely identified by grouping variables")
+  }
+  
   return(list(
     df_final = df_final, 
+    groupingvars = grpvars,
     df_conc_wide = df_conc_wide, 
     df_bbio_wide = df_bbio_wide, 
     checks = chks
@@ -813,7 +830,7 @@ lapply(
   ),
   
   function(dat){
-    dat_final <- contam_standardize_data(get(dat[[1]]), dat[[2]], dat[[3]], dat[[4]]) 
+    dat_final <- standardize_con_data(get(dat[[1]]), dat[[2]], dat[[3]], dat[[4]]) 
     assign(
       x = paste(dat[[1]], "cleaned", sep = "_"), 
       value = dat_final, 
@@ -926,7 +943,7 @@ basemap <- ggplot2::ggplot() +
     panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")
   )
 
-%>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% %>% <- %>% %>% %>% %>% <- <- %>% %>% %>% %>% <- <- <- %>% %>% <- <- <- <- <- <- %>% %>% <- <- <- <- <- <- <- <- <- <- %>% <- <- <- <- <- <- <- <- %>% <- %>% ## mapping datasets for biota and sediments
+## mapping datasets for biota and sediments
 make_mapdf <- function(x, y){
   cbind(
     get(x) %>% 
