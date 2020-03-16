@@ -81,7 +81,13 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
   ## latitude/longitude approach ----
   ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
   if(length(lat) == 1 & length(lon) == 1 & !any(is.na(latlon_vars))){
-    data_sf0 <- st_as_sf(dataset, coords = c(lon, lat), crs = 4326, agr = "constant")
+    data_sf0 <- st_as_sf(
+      dataset, 
+      crs = 4326, 
+      agr = "constant", 
+      coords = c(lon, lat), 
+      remove = FALSE
+    )
     
     ## points in the BHI regions 10km buffer zone ----
     if(!is.null(buffer_shp)){
@@ -130,8 +136,10 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
       st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
       st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
       filter(!is.na(BHI_ID)) %>% 
-      mutate(in_25km_buffer = FALSE) %>% 
-      rbind(data_buff_sf)
+      mutate(in_25km_buffer = FALSE)
+    if(!is.null(buffer_shp)){
+      data_rgns_joined <- rbind(data_rgns_joined, data_buff_sf)
+    }
     
     if(!return_spatial){
       data_rgns_joined <- data_rgns_joined %>% 
