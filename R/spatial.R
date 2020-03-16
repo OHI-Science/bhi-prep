@@ -58,7 +58,7 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
 #'
 #' @return
 
-join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "country",
+join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "country", 
                            latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
                            rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL){
   
@@ -99,27 +99,34 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
         rename(Area_km2_BHI = Area_km2)
     }
     
-    ## check if any points are not matched with a BHI id ----
+    ## combine data joined with bhi regions and buffer zone if included
+    ## also account for a few other stations specifically
+    data_rgns_joined <- data_sf0 %>% 
+      st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
+      st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
+      mutate(in_25km_buffer = ifelse(!is.na(BHI_ID), FALSE, NA))
+    
     if(!is.null(buffer_shp)){
-      test <- data_sf0 %>% 
-        st_join(select(buffer_shp, bhi_id_buff = BHI_ID))
-    } else {
-      test <- data_sf0 %>% 
-        mutate(bhi_id_buff = NA)
+      data_rgns_joined <- rbind(data_rgns_joined, data_buff_sf)
     }
-    test <- test %>% 
-      select(zn = one_of("country", "helcom_id"), yr = starts_with("year"), bhi_id_buff) %>% 
-      st_join(select(BHI_rgns_shp, bhi_id_water = BHI_ID)) %>% 
-      filter(is.na(bhi_id_buff) & is.na(bhi_id_water))
+    
+    ## check if any points are not matched with a BHI id ----
+    test <- data_rgns_joined %>% 
+      select(
+        zn = one_of("station", country_col, helcomID_col), 
+        yr = starts_with("year"), 
+        BHI_ID
+      ) %>% 
+      filter(is.na(BHI_ID))
     
     if(nrow(test) != 0){
       test_result <- sprintf(
-        "%s of %s data points (in: %s, years: %s) have not been",
+        "%s of %s data points (%s, years: %s) have not been",
         nrow(test),
         nrow(dataset),
         paste(
-          c(head(unique(test$zn)) %>% as.character(), 
-            ifelse(length(unique(test$zn)) > 6, "...", "")), 
+          c(head(unique(test$zn1)) %>% as.character(), 
+            ifelse(length(unique(test$zn1)) > 6, "...", "")), 
           collapse = ", "
         ),
         paste(
@@ -131,16 +138,8 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     } else {test_result <- "all data points are"}
     message(paste(test_result, "assigned corresponding BHI IDs"))
     
-    ## return spatial object sf or just dataframe
-    data_rgns_joined <- data_sf0 %>% 
-      st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
-      st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
-      filter(!is.na(BHI_ID)) %>% 
-      mutate(in_25km_buffer = FALSE)
-    if(!is.null(buffer_shp)){
-      data_rgns_joined <- rbind(data_rgns_joined, data_buff_sf)
-    }
     
+    ## return spatial object sf or just dataframe
     if(!return_spatial){
       data_rgns_joined <- data_rgns_joined %>% 
         as_tibble() %>% 
