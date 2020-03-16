@@ -1,5 +1,5 @@
 
-## 2. Data
+## 2. Data Prep
 
 ```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
@@ -22,7 +22,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.helcom.fi/website/Biodiversity/) <br/> Downloaded 26 February by Ellie")
+knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.helcom.fi/website/Biodiversity/) <br/> Downloaded 9 March by Chester")
 ```
 
 *These data are obtained from the HELCOM species database, compiled from original data sources: Shark SMHI, Species Observations System (Artportalen), MVM, and Entomological Collections (NHRS) from GBIF.*
@@ -47,16 +47,20 @@ knitr::kable(tab, caption = "Source: [HELCOM Biodiversity Database](http://maps.
 <br/>
 
 
-### 2.2 Centralization & Normalization
+### 2.2 Processing raw data into an easier format
+
+#### 2.2.1 Set directory of raw data
+
+Notes: Commands labelled "Edit 1" to be removed at final polish, added now due to lack of access to Gunvor
 
 ```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
-dir_rawdata <- file.path(dir_B, "Goals", "BD")
+dir_B <- "C:/Users/chest/Downloads"  # Edit 1
+dir_rawdata <- file.path(dir_B)      # Edit 1
+#dir_rawdata <- file.path(dir_B, "Goals", "BD")
 ```
 
-#### 2.2.1 Rename Fields/Variables
-
-#### 2.2.2 Standardize Units
+#### 2.2.2 Adding regional data into dataset
 
 **Remove spatial 'depth' dimension, and assign BHI Region IDs**
 
@@ -72,6 +76,9 @@ spp_raw <- sf::st_read(file.path(dir_rawdata, "raw_species_observations")) %>%
     red_list_assessments = red_list_a,
     year_collected = year_colle
   )
+
+dir_B <- "C:/Users/chest/OneDrive/Documents/Thesis/Github/Shapefiles" # Edit 1
+
 buffer_sf <- st_read(
   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
   "BHI_shapefile_25km_buffer"
@@ -84,6 +91,19 @@ spp_w_rgns <- join_rgns_info(
   buffer_shp = buffer_sf
 )
 ```
+#### 2.2.3 Save to BHI Database
+
+```{r save species data}
+if(!file.exists(file.path(dir_rawdata, "baltic_species"))){
+  dir.create(file.path(dir_rawdata, "baltic_species"))
+}
+sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_species.shp"))
+```
+
+
+### 2.3 Organizing Data to Match 2015 Format
+
+#### 2.3.1 Reorganise into Presence/Absence
 
 **Reorganize into Presence/Absence data by BHI Region and Species**
 
@@ -105,7 +125,7 @@ spp_presence <- spp_w_rgns %>%
   sf::st_drop_geometry() %>% 
   select(BHI_ID, species_id, year_collected, red_list_assessments) %>% 
   filter(year_collected > 2016) %>% 
-  mutate(red_list_assessments = as.numeric(c)) %>% 
+  mutate(red_list_assessments = as.numeric(red_list_assessments)) %>% 
   group_by(BHI_ID, species_id) %>% 
   summarize(redlist_mean = mean(red_list_assessments, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -114,19 +134,41 @@ spp_presence <- spp_w_rgns %>%
   distinct()
 ```
 
+#### 2.3.2 Isolating and matching BHI ID and basins in raw data
 
-#### 2.2.3 Save to BHI Database
+```{r create list BHI ID and Basins}
 
-```{r save species data}
-if(!file.exists(file.path(dir_rawdata, "baltic_species"))){
-  dir.create(file.path(dir_rawdata, "baltic_species"))
-}
-sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_species.shp"))
+basin_ID_namelist <- spp_w_rgns %>%
+  sf::st_drop_geometry() %>%
+  select(BHI_ID, Subbasin) %>%
+  distinct() %>%
+  arrange(.,BHI_ID)
+
+# To see how many distinct basins represented
+spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% distinct() %>% nrow()  #18 basins -> One more than 2015 code
+
+# To check discrepancy
+
+basins <- spp_w_rgns %>% sf::st_drop_geometry() %>% select(Subbasin) %>% arrange(Subbasin = as.character(Subbasin)) %>% distinct()   # Discrepancy = spelling error in Bothnian Sea/Bothian Sea
+
+
+
 ```
+
+
+
 
 <br/>
 
 ### 2.3 Initial Data Exploration
+
+
+```{r}
+
+
+
+```
+
 
 #### 2.3.1 Compare versus Previous Years Data
 

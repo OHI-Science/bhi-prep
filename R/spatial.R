@@ -21,7 +21,7 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
     # "ices_rgn_shapefile",
     # "mpas_shapefile", 
     # "BHI_shapefile_25km_buffer",
-    "HELCOM_subbasins_holasbasins",
+    #"HELCOM_subbasins_holasbasins",
     "BHI_shapefile", 
     "ICES_areas"
   )
