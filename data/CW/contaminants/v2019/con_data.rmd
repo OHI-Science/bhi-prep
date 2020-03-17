@@ -548,13 +548,13 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## identify, explore, handle bbio duplicates ----
   ## group to identify duplicates; for a given sub_samp_ref only some variables may have duplicates
   grpvars <- c(
-    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag",
+    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag", 
     sampvars, "date", "variable", "longitude", "latitude"
   )
   chk <- c()
   for(i in 1:6){
     bbio_duplicates <- df_bbio %>% 
-      group_by(!!!syms(c(grpvars[1:i], grpvars[7:length(grpvars)]))) %>%
+      group_by(!!!syms(c(grpvars[i], grpvars[7:length(grpvars)]))) %>%
       summarise(n = n()) %>% 
       filter(n > 1) %>% 
       ungroup()
@@ -562,12 +562,17 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   if(var(chk) != 0){
     message(sprintf(
-      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate in grpvars: %s",
-      paste(grpvars[which(chk == quantile(chk, 0.1))], collapse = ", ")
+      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate: %s",
+      paste(grpvars[which(chk != chk[which.max(tabulate(match(chk, chk)))])], collapse = ", ")
     ))
   }
   
   ## join duplicate table by grouped vars to locate within full bbio dataset
+  bbio_duplicates <- df_bbio %>% 
+      group_by(!!!syms(grpvars)) %>%
+      summarise(n = n()) %>% 
+      filter(n > 1) %>% 
+      ungroup()
   df_bbio <- left_join(df_bbio, bbio_duplicates, by = grpvars)
   
   ## take averages for variable/sample duplicates
@@ -604,7 +609,11 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   
   ## WIDE BBIO DATA
   ## bbio data wide format ----
-  df_bbio_wide <- tidyr::pivot_wider(df_bbio, names_from = variable, values_from = value)
+  df_bbio_wide <- df_bbio %>% 
+    ## remove basis_determination because not always recorded for bio vars, 
+    ## will give incorrect NAs in EXLIP% among others for some rows when rejoined with concentration data
+    select(-basis_determination) %>% 
+    tidyr::pivot_wider(names_from = variable, values_from = value)
   
   ## which columns are needed to uniquely identify and later rejoin with congener conc. data
   ## i.e. at this stage, which subset of grpvars gives groupings such that all n are one?
@@ -865,9 +874,9 @@ lapply(
 
 ```{r congeners barplots dataframe, echo = TRUE, results = "show"}
 ## reshape for plotting
-plotdf <- pcb_bio_cleaned$df_final %>% # try also with pfos_bio_cleaned$df_final etc...
+plotdf <- pcb_bio_clean_df %>% # try also with pfos_bio_clean_df etc...
   group_by(variable, month, year, country) %>% 
-  summarize(Value = mean(value, na.rm = TRUE) %>% round(3)) %>% 
+  summarize(Value = mean(value_wet_wgt, na.rm = TRUE) %>% round(3)) %>% 
   ungroup() %>% 
   group_by(variable, year, country) %>%
   mutate(yearlyMean = mean(Value, na.rm = TRUE) %>% round(3)) %>% 
