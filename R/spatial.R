@@ -142,7 +142,6 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     ## return spatial object sf or just dataframe
     if(!return_spatial){
       data_rgns_joined <- data_rgns_joined %>% 
-        as_tibble() %>% 
         st_drop_geometry() %>% 
         select(-Area_km2_BHI, -Area_km2_ICES) %>% 
         mutate(Subbasin = as.character(Subbasin), HELCOM_ID = as.character(HELCOM_ID))
