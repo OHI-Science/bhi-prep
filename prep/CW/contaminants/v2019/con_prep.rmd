@@ -722,24 +722,99 @@ dioxin_sed_sf <- join_rgns_info(
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
   return_spatial = TRUE
 )
+## DATA POINTS WITH MISSING BHI IDS FILTERED OUT... SHOULD MANUALLY ADD INSTEAD?
 ```
+
+```{r TEQ conversion lookup}
+tef_pdf <- pdftools::pdf_text("https://www.who.int/ipcs/assessment/tef_values.pdf")[1] %>% 
+  stringr::str_split(pattern = "\n")
+tef_lookup <- as.data.frame(tef_pdf[[1]][2:34])
+colnames(tef_lookup) <- "singlecolumn"
+tidyr::separate(tef_lookup, singlecolumn, c("WHO_compound_name", "TEF_1998", "TEF_2005"), "\\s\\s+")
+
+## manually matched with ICES congeners names...
+lookup_tef <- read_csv(here::here("supplement", "lookup_tabs", "tef_conversion_lookup.csv"))
+```
+
 <br>
 
-**Assess if Dioxins and dioxin-like PCBs share `sub_sample_ref`**
-Were dioxins and PCBs measured from the same samples such that a total TEQ value per sample can be calculated?
+**Filter PCB to keep only dioxin-like PCBs and convert units**
+
+```{r filter dioxin like PCBs and convert units ug to pg per gram}
+## get dioxin-like PCBs using TEF lookup table
+dioxinlike_PCB <- pcb_bio_sf %>% 
+  ## retain only congeners in both objects
+  inner_join(lookup_tef, by = c("variable", "congener")) %>% 
+  ## filter out congeners without a TEF conversion
+  filter(!is.na(TEF_2005)) %>% 
+  select(-congener_match, -congener_full, -WHO_Compound_Name, -congener_category) %>% 
+  
+
+## deal with qflags adjustment here....
+
+```
+
 
 **Use TEF conversion factor to convert to TEQ**
 Dioxins and dioxin-like PCBs still separate objects here.
 
-```{r convert to TEQ}
+```{r convert to TEQ and plot by country}
+## dioxin dataset
+dioxin_teq <- dioxin_bio_sf %>%
+   ## retain only congeners in both objects
+  inner_join(lookup_tef, by = c("variable" = "congener")) %>% 
+   ## filter out congeners without a TEF conversion
+  filter(!is.na(TEF_2005)) %>%
+  select(-congener_match, -congener_full, -WHO_Compound_Name, -congener_category) %>%
+  ## convert concentration to TEQ from qflag adjusted value
+  mutate(value_TEQ = value_adj*TEF_2005)
+## check: nrow(dioxin_teq) == nrow(dioxin_bio_sf)
+
+## dioxin-like pcb dataset
+dioxinlike_PCB_teq <- dioxinlike_PCB %>%
+  mutate(value_TEQ = value_adj*TEF_2005)
+```
+
+
+**Assess if Dioxins and dioxin-like PCBs share `sub_sample_ref`**
+Were dioxins and PCBs measured from the same samples such that a total TEQ value per sample can be calculated?
+
+```{r assess dioxin pcb overlaps}
+## check unique and matching sub_sample_ref
+## any cases where sub_samp_ref appears in dioxin and pcb datasets?
+# intersect(unique(dioxinlike_PCB_teq$sub_samp_ref), unique(dioxin_teq$sub_samp_ref))
+full_join(
+  dioxin_teq %>% 
+    select(sub_samp_ref) %>% 
+    distinct() %>% 
+    mutate(dioxin = TRUE),
+  dioxinlike_PCB_teq %>% 
+    select(sub_samp_ref) %>% 
+    distinct() %>% 
+    mutate(pcb = TRUE),
+  by = "sub_samp_ref"
+) %>% filter(dioxin & PCB)
+
+## check any shared location and sample dates?
+# intersect(unique(dioxinlike_PCB_teq$sub_samp_ref), unique(dioxin_teq$sub_samp_ref))
+full_join(
+  dioxin_teq %>% 
+    select(country, station, date)%>%
+    distinct() %>%
+    mutate(dioxin = TRUE),
+  dioxinlike_PCB_teq %>% 
+    select(country, station, date)%>%
+    distinct() %>%
+    mutate(pcb = TRUE),
+  by = "sub_samp_ref"
+) %>% filter(dioxin & PCB)
+```
+
+
+```{r mean teq values by date and location map}
 
 ```
 
-**Filter PCB to keep only dioxin-like PCBs and convert units**
-
-```{r convert dioxin like PCBs ug to pg per gram}
-
-```
 
 <br>
 
