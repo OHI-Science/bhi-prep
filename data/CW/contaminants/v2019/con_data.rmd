@@ -686,10 +686,14 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## for a given sub_samp_ref only some vars/congeners may have duplicates
   message("STEP 4: averaging, where multiple congener concentrations observations per sub sample\n")
   chk_num_conc_dup <- nrow(df_conc) - nrow(distinct(df_conc %>% select(-value, -detect_lim, -quant_lim)))
-  
+
   conc_duplicates <- df_conc %>% 
     group_by(!!!syms(grpvars)) %>%
     summarise(n = n()) %>% 
+    ## no cases where duplicates with-and-without qflags, else would keep cases unflagged observations...
+    # group_by(!!!syms(setdiff(grpvars, "qflag"))) %>%
+    # mutate(allflagged = !any(is.na(qflag))) %>%
+    # filter(n > 1, !allflagged) %>% ...
     filter(n > 1) %>% 
     ungroup()
   
@@ -712,31 +716,30 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
     df_conc %>% filter(is.na(n)) %>% select(-n)
   )
   
-  ## separate detect and quantification limit variables before next steps
-  detect_quant_lims <- select(df_conc, grpvars, detect_lim, quant_lim)
-  chk_lims_ids <- nrow(detect_quant_lims) == nrow(distinct(select(detect_quant_lims, grpvars)))
-  if(!chk_lims_ids){warning("detect and quant limit variables not uniquely identified by grouping variables")}
-
-  ## spread df_conc data to wide format
-  ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
+  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records;
+  ## of these, keep wet weight records, when has a value
+  if(matrix_biota){
+    chk <- df_conc %>%
+      group_by(!!!syms(setdiff(grpvars, c("basis_determination", "matrix_analyzed")))) %>%
+      mutate(n = n(), ww_val = any(basis_determination == "wet weight" & !is.na(value))) %>%
+      filter(n > 1) %>% 
+      mutate(
+        rm_duplicate = 
+          (ww_val & basis_determination == "lipid weight")|
+          (!ww_val & basis_determination == "wet weight")
+      ) %>% 
+      ungroup()
+    df_conc <- df_conc %>%
+      left_join(chk, by = intersect(names(df_conc), names(chk))) %>% 
+      mutate(rm_duplicate = ifelse(is.na(rm_duplicate), TRUE, rm_duplicate)) %>% 
+      filter(rm_duplicate) %>% 
+      select(-n, -ww_val, -rm_duplicate)
+  }
+  
+  ## check if one row for every unique sub_samp_ref for biota, samp_ref for sediment
   df_conc_wide <- df_conc %>%
     select(-detect_lim, -quant_lim) %>% 
     tidyr::pivot_wider(names_from = variable, values_from = value)
-  
-  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records:
-  ## of these, keep wet weight records
-  if(matrix_biota){
-    chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
-    chk_id <- df_conc_wide %>%
-      group_by(!!!syms(chk)) %>%
-      mutate(n = n()) %>%
-      filter(n > 1) %>% 
-      ungroup()
-    chk_id <- unique(chk_id[["sub_samp_ref"]])
-    df_conc_wide <- df_conc_wide %>%
-      filter(!(sub_samp_ref %in% chk_id & basis_determination == "lipid weight" & !is.na(qflag)))
-  }
-  ## check one row for every unique sub_samp_ref for biota, samp_ref for sediment
   if(length(unique(df_conc[[sampvars[length(sampvars)]]])) != nrow(distinct(df_conc_wide))){
     message(
       "NOTE conc. subsamples not uniquely identified even after averaging; 
@@ -745,17 +748,9 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   
   ## for biota convert lipid weight measurements to wet weight ----
-  ## use the df_bbio_wide datatable to convert values in df_conc_wide table
-  df_final <- df_conc_wide %>% 
-    left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
-    ## gathering into long format after having spread by congener will give lots of NAs
-    ## these'll be filtered out in the last line before result is returned
-    tidyr::pivot_longer(
-      cols = tidyselect::one_of(unique(df_conc$variable)), 
-      names_to = "variable", 
-      values_to = "value"
-    ) %>% 
-    left_join(detect_quant_lims, by = grpvars)
+  ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
+  ## use the df_bbio_wide datatable to convert values in df_conc table
+  df_final <- left_join(df_conc, df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) 
   
   if(matrix_biota){
     message("STEP 5: converting all congener concentrations in biota to wet weight")
