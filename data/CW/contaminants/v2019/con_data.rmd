@@ -463,6 +463,7 @@ The datasets each contain two main categories (param_groups) one of which is BBI
 <br>
 
 <!-- the following code chunks are modified from raw_data_prep.r scripts in bhi-1.0-archive/baltic2015/prep/CW/contaminants -->
+
 ```{r standardize units in biota datasets, echo = TRUE}
 
 standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
@@ -548,13 +549,13 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## identify, explore, handle bbio duplicates ----
   ## group to identify duplicates; for a given sub_samp_ref only some variables may have duplicates
   grpvars <- c(
-    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag",
+    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag", 
     sampvars, "date", "variable", "longitude", "latitude"
   )
   chk <- c()
   for(i in 1:6){
     bbio_duplicates <- df_bbio %>% 
-      group_by(!!!syms(c(grpvars[1:i], grpvars[7:length(grpvars)]))) %>%
+      group_by(!!!syms(c(grpvars[i], grpvars[7:length(grpvars)]))) %>%
       summarise(n = n()) %>% 
       filter(n > 1) %>% 
       ungroup()
@@ -562,12 +563,17 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   if(var(chk) != 0){
     message(sprintf(
-      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate in grpvars: %s",
-      paste(grpvars[which(chk == quantile(chk, 0.1))], collapse = ", ")
+      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate: %s",
+      paste(grpvars[which(chk != chk[which.max(tabulate(match(chk, chk)))])], collapse = ", ")
     ))
   }
   
   ## join duplicate table by grouped vars to locate within full bbio dataset
+  bbio_duplicates <- df_bbio %>% 
+      group_by(!!!syms(grpvars)) %>%
+      summarise(n = n()) %>% 
+      filter(n > 1) %>% 
+      ungroup()
   df_bbio <- left_join(df_bbio, bbio_duplicates, by = grpvars)
   
   ## take averages for variable/sample duplicates
@@ -604,7 +610,11 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   
   ## WIDE BBIO DATA
   ## bbio data wide format ----
-  df_bbio_wide <- tidyr::pivot_wider(df_bbio, names_from = variable, values_from = value)
+  df_bbio_wide <- df_bbio %>% 
+    ## remove basis_determination because not always recorded for bio vars, 
+    ## will give incorrect NAs in EXLIP% among others for some rows when rejoined with concentration data
+    select(-basis_determination) %>% 
+    tidyr::pivot_wider(names_from = variable, values_from = value)
   
   ## which columns are needed to uniquely identify and later rejoin with congener conc. data
   ## i.e. at this stage, which subset of grpvars gives groupings such that all n are one?
@@ -677,10 +687,14 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## for a given sub_samp_ref only some vars/congeners may have duplicates
   message("STEP 4: averaging, where multiple congener concentrations observations per sub sample\n")
   chk_num_conc_dup <- nrow(df_conc) - nrow(distinct(df_conc %>% select(-value, -detect_lim, -quant_lim)))
-  
+
   conc_duplicates <- df_conc %>% 
     group_by(!!!syms(grpvars)) %>%
     summarise(n = n()) %>% 
+    ## no cases where duplicates with-and-without qflags, else would keep cases unflagged observations...
+    # group_by(!!!syms(setdiff(grpvars, "qflag"))) %>%
+    # mutate(allflagged = !any(is.na(qflag))) %>%
+    # filter(n > 1, !allflagged) %>% ...
     filter(n > 1) %>% 
     ungroup()
   
@@ -703,31 +717,30 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
     df_conc %>% filter(is.na(n)) %>% select(-n)
   )
   
-  ## separate detect and quantification limit variables before next steps
-  detect_quant_lims <- select(df_conc, grpvars, detect_lim, quant_lim)
-  chk_lims_ids <- nrow(detect_quant_lims) == nrow(distinct(select(detect_quant_lims, grpvars)))
-  if(!chk_lims_ids){warning("detect and quant limit variables not uniquely identified by grouping variables")}
-
-  ## spread df_conc data to wide format
-  ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
+  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records;
+  ## of these, keep wet weight records, when has a value
+  if(matrix_biota){
+    chk <- df_conc %>%
+      group_by(!!!syms(setdiff(grpvars, c("basis_determination", "matrix_analyzed")))) %>%
+      mutate(n = n(), ww_val = any(basis_determination == "wet weight" & !is.na(value))) %>%
+      filter(n > 1) %>% 
+      mutate(
+        rm_duplicate = 
+          (ww_val & basis_determination == "lipid weight")|
+          (!ww_val & basis_determination == "wet weight")
+      ) %>% 
+      ungroup()
+    df_conc <- df_conc %>%
+      left_join(chk, by = intersect(names(df_conc), names(chk))) %>% 
+      mutate(rm_duplicate = ifelse(is.na(rm_duplicate), TRUE, rm_duplicate)) %>% 
+      filter(rm_duplicate) %>% 
+      select(-n, -ww_val, -rm_duplicate)
+  }
+  
+  ## check if one row for every unique sub_samp_ref for biota, samp_ref for sediment
   df_conc_wide <- df_conc %>%
     select(-detect_lim, -quant_lim) %>% 
     tidyr::pivot_wider(names_from = variable, values_from = value)
-  
-  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records:
-  ## of these, keep wet weight records
-  if(matrix_biota){
-    chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
-    chk_id <- df_conc_wide %>%
-      group_by(!!!syms(chk)) %>%
-      mutate(n = n()) %>%
-      filter(n > 1) %>% 
-      ungroup()
-    chk_id <- unique(chk_id[["sub_samp_ref"]])
-    df_conc_wide <- df_conc_wide %>%
-      filter(!(sub_samp_ref %in% chk_id & basis_determination == "lipid weight" & !is.na(qflag)))
-  }
-  ## check one row for every unique sub_samp_ref for biota, samp_ref for sediment
   if(length(unique(df_conc[[sampvars[length(sampvars)]]])) != nrow(distinct(df_conc_wide))){
     message(
       "NOTE conc. subsamples not uniquely identified even after averaging; 
@@ -736,17 +749,9 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   
   ## for biota convert lipid weight measurements to wet weight ----
-  ## use the df_bbio_wide datatable to convert values in df_conc_wide table
-  df_final <- df_conc_wide %>% 
-    left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
-    ## gathering into long format after having spread by congener will give lots of NAs
-    ## these'll be filtered out in the last line before result is returned
-    tidyr::pivot_longer(
-      cols = tidyselect::one_of(unique(df_conc$variable)), 
-      names_to = "variable", 
-      values_to = "value"
-    ) %>% 
-    left_join(detect_quant_lims, by = grpvars)
+  ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
+  ## use the df_bbio_wide datatable to convert values in df_conc table
+  df_final <- left_join(df_conc, df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) 
   
   if(matrix_biota){
     message("STEP 5: converting all congener concentrations in biota to wet weight")
@@ -853,70 +858,7 @@ lapply(
 
 ---
 
-<br>
-
 ### 2.3 Initial Data Exploration
-
-<br>
-
-#### 2.3.1 Congeners by Country {.tabset .tabset-fade}
-
-##### Plotting Data
-
-```{r congeners barplots dataframe, echo = TRUE, results = "show"}
-## reshape for plotting
-plotdf <- pcb_bio_cleaned$df_final %>% # try also with pfos_bio_cleaned$df_final etc...
-  group_by(variable, month, year, country) %>% 
-  summarize(Value = mean(value, na.rm = TRUE) %>% round(3)) %>% 
-  ungroup() %>% 
-  group_by(variable, year, country) %>%
-  mutate(yearlyMean = mean(Value, na.rm = TRUE) %>% round(3)) %>% 
-  ungroup %>% 
-  filter(year > 2000) %>% 
-  rename(Congener = variable, Year = year) %>% 
-  mutate(Date = as.Date(paste("1", month, Year, sep = "-"), tryFormats = "%d-%m-%Y"))
-
-## color palettes
-cols <- c(
-  RColorBrewer::brewer.pal(8, "Dark2"), 
-  RColorBrewer::brewer.pal(9, "Set1")
-)
-cols <- colorRampPalette(cols)(42)[sample(1:42)]
-```
-
-##### Monthly
-
-```{r congeners monthly by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 11}
-## monthly plots
-plotly::ggplotly(
-  ggplot(plotdf, aes(Date, Value, fill = Congener)) +
-    geom_col(position = "stack", show.legend = FALSE) +
-    scale_x_date(
-      breaks = function(x){seq.Date(from = min(plotdf$Date), to = max(plotdf$Date), by = "3 months")},
-      date_labels = "%b %Y"
-    ) +
-    scale_fill_manual(values = cols) +
-    labs(x = NULL, y = NULL) +
-    theme(axis.text.x = element_text(angle = 45, size = 6)) +
-    facet_wrap(~country, scales = "free_y", ncol = 1) 
-)
-```
-
-##### Yearly
-
-```{r congeners yearly by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 11}
-## yearly plots
-plotly::ggplotly(
-  ggplot(plotdf, aes(Year, yearlyMean, fill = Congener)) +
-    geom_col(position = "stack", show.legend = FALSE) +
-    scale_fill_manual(values = cols) +
-    labs(x = NULL, y = NULL) +
-    theme(axis.text.x = element_text(angle = 45, size = 6)) +
-    facet_wrap(~country, scales = "free_y", ncol = 1) 
-)
-```
-
-<br> 
 
 #### 2.3.2 Spatial Distributions of Measurements
 
