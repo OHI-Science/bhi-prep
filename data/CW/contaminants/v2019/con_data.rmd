@@ -1,6 +1,4 @@
 
-## 2. Data
-
 ```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
 ```
@@ -225,59 +223,6 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES vocabulary](https://vocab.ices.dk/?ref=177) <br/> Downloaded 7 February 2020 by Ellie Campbell")
 ```
-<br/>
-
-#### 2.1.5 PCB Concentration Indicator
-
-**ICES-6 PCB**
-
-Non-dioxin like PCBs: sum of congeners (28, 52, 101, 138, 153, 180). Target is set at the threshold of 75 ug/kg ww (wet weight) fish muscle.
-
-This is similar to the ICES-7 except that PCB 118 is excluded, since it is metabolized by mammals.
-
-75 ng/g wet weight is the EU threshold for fish muscle. See Section 5 Annex, 5.3. This threshold was also agreed upon as GES boundary at the meeting of the [Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation) April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*  
-
-<br/>
-
-#### 2.1.6 TEQ values for Dioxins and Dioxin-like PCBs
-
-Dioxin and dioxin-like compounds. Target is set at 0.0065 TEQ ug/kg ww fish, crustaceans or molluscs (source of target: EQS biota human health). Secondary GES boundary: CB-118 24 ug/kg lw fish liver or muscle (source: EAC).  
-
-This threshold was agreed upon as GES indicator at the meeting of the [Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation) April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*  
-
-This is consistent with the [EU human health thresholds for dioxin and dioxin-like compounds - 6.5 pg/g](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF)  
-
-TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)  
-
-<br/>
-
-#### 2.1.7 PFOS Indicator
-
-According to [HELCOM PFOS core indicator document, p.3](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf), the "GES boundary is set to 9.1 μg/kg wet weight (or 9.1 ng/g ww) with the protection goal of human health".
-
-"The GES boundary is an environmental quality standard (EQS), derived at EU level as a substance included on the list of priority substances under the Water Framework Directive (European Commission 2000, 2013). GES, in accordance with the MSFD is defined as 'concentrations of contaminants at levels not giving rise to pollution effects'. EQS are derived from ecotoxicological studies to protect freshwater and marine ecosystems from potential adverse effects of chemicals, as well as adverse effects on human health via drinking water and food from aquatic environments. Quality Standards (QS) are derived for different protection goals, i.e.: pelagic and benthic communities, top-predators in these ecosystems, and human health. The most stringent of these QS is the basis for the EQS. The EQS boundary for PFOS is based on the QS set for biota to protect human health (9.1 μg/ kg fish ww), defined for edible parts in fish. For harmonization purposes the EC Guidance Document No. 32 on biota monitoring (the implementation of EQS biota) under the WFD was developed (European Commission 2014). This guidance document recommends that the results from the monitoring should be standardized to represent fish at a trophic level of 4, which is an estimate of the general trophic level in commercial fish in Europe. The recommendation to obtain PFOS data in fish at a trophic level of 4 is to adjust the values from monitoring in accordance with trophic magnification factors and trophic level." $-$ [HELCOM PFOS core indicator document, p.8](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)  
-
-**HELCOM core indicator report uses liver PFOS concentrations converted to muscle equivalent values** as in [Faxneld et al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).  
-
-<br/>
-
-#### 2.1.7 TEQ values for PCBs in Sediment
-
-Only a few environmental quality standards (EQS) are to date defined in the Baltic Sea for marine surface sediments. The Norwegian threshold values are often used when a comparison with ecotoxicological effects is needed. In particular, the [Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf) has defined EQS in sediment for 28 EU priority substances.
-
-PCB7 (sum PCB 28, 52, 101, 118, 138, 153, and 180): Target is set at 4.1 TS ug/kg dw. [Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
-
-**Recommended threshold values are given only for total PCB7, and not for each individual congener. This is because toxicity data are available for only a minority of congeners.**
-
-<br/>
-
-#### 2.1.8 TEQ values for Dioxins in Sediment
-
-Dioxin and dioxin-like compounds. Target is set at 0.00086 TEQ ug/kg dw (Total TEQ).
-[Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
-TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)  
-
-<br/>
 
 ---
 
@@ -875,32 +820,37 @@ basemap <- ggplot2::ggplot() +
   geom_sf(
     data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
       sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", 
-    size = 0.1
+    fill = "ivory", color = "lightsteelblue",
+    size = 0.1, alpha = 0.8
   ) +
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "grey40") +
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) +
-  theme(
-    panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")
-  )
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
 
 ## mapping datasets for biota and sediments
-make_mapdf <- function(x, y){
+make_mapdf <- function(x, yr){
   cbind(
-    get(x) %>% 
-      filter(year %in% y, longitude > 8) %>%
+    get(x) %>%
+      filter(year %in% yr, longitude > 9) %>%
       group_by(year, latitude, longitude, variable) %>%
       summarize(
-        mean_val = mean(value, na.rm = TRUE)
-      ) %>% 
-      group_by(year, latitude, longitude) %>% 
+        n_obs = n(),
+        mean_val = ifelse(
+          str_detect(x, "sed"), 
+          mean(value, na.rm = TRUE),
+          mean(value_wet_wgt, na.rm = TRUE)
+        )
+      ) %>%
+      filter(!is.na(mean_val)) %>% 
+      group_by(latitude, longitude) %>% 
       mutate(
-        mean_all = mean(mean_val),
-        sd_all = ifelse(is.na(sd(mean_val)), 1, sd(mean_val) +1)
+        num_congeners = n(),
+        mean_allcongeners_selectedyrs = mean(mean_val),
+        sd_allcongeners_selectedyrs = ifelse(is.na(sd(mean_val)), 1, sd(mean_val) + 1)
       ) %>%
       tidyr::pivot_longer(
-        cols = c(sd_all, mean_all), 
+        cols = c(sd_allcongeners_selectedyrs, mean_allcongeners_selectedyrs), 
         names_to = "metric", values_to = "value"
       ) %>%
       ungroup() %>% 
@@ -917,7 +867,7 @@ mapdf_sediment <- do.call(
   rbind, 
   lapply(
     list("pcb_sed_clean_df", "dioxin_sed_clean_df"), 
-    function(x) make_mapdf(x, 2014:2019)
+    function(x) make_mapdf(x, yr = 2014:2019)
   )
 )
 
@@ -925,25 +875,25 @@ mapdf_sediment <- do.call(
 mapbio <- basemap + 
   geom_sf(
     aes(size = value), 
-    color = "royalblue3",
+    color = "maroon",
     alpha = 0.2, 
     shape = 19, 
     data = mapdf_biota,
     show.legend = FALSE
   ) +
-  facet_grid(rows = vars(source), cols = vars(metric))
+  facet_grid(rows = vars(source), cols = vars(metric)) +
+  theme(axis.text.x = element_blank())
 
 mapsed <- basemap + 
   geom_sf(
     aes(size = value), 
-    color = "royalblue3", 
+    color = "maroon", 
     alpha = 0.2, 
     shape = 19, 
     data = mapdf_sediment,
     show.legend = FALSE
   ) +
-  facet_grid(rows = vars(source), cols = vars(metric)) +
-  theme(axis.text.x = element_blank())
+  facet_grid(rows = vars(source), cols = vars(metric))
 
 gridExtra::grid.arrange(mapbio, mapsed, ncol = 1, heights = c(1.5, 1))
 ```
@@ -953,7 +903,7 @@ gridExtra::grid.arrange(mapbio, mapsed, ncol = 1, heights = c(1.5, 1))
 
 **Contaminants: PCB and Dioxin by Matrix per Congener**
 
-```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 10}
+```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 11}
 sf::st_geometry(mapdf_sediment) <- NULL
 sf::st_geometry(mapdf_biota) <- NULL
 
@@ -970,20 +920,26 @@ boxdf <- bind_rows(
   )
 )
 boxdf <- boxdf %>% 
-  filter(metric == "mean_all") %>% 
+  filter(metric == "mean_allcongeners_selectedyrs", source != "pfos") %>% 
   group_by(source) %>% 
-  mutate(quant9 = quantile(mean_val, 0.9)) %>% 
+  mutate(quant9 = quantile(mean_val, 0.85)) %>% 
   ungroup() %>% 
   filter(mean_val < quant9)
 
-ggplot(filter(boxdf, source != "pfos"), aes(x = variable, y = mean_val, color = matrix)) + 
+ggplot(boxdf, aes(x = variable, y = mean_val, color = matrix)) + 
   geom_boxplot(outlier.alpha = 0.2, outlier.shape = 20) + 
   labs(x = NULL, y = NULL) + 
-  scale_color_manual(values = RColorBrewer::brewer.pal(5, "Paired")) +
+  scale_color_manual(values = c("orchid", "tomato")) +
   facet_wrap(~source, scales = "free", ncol = 12) +
   theme(axis.text.x = element_text(angle = 90)) +
   coord_flip() +
-  theme(legend.position = c(0.9, 0.9))
+  theme_bw() +
+  theme(
+    legend.background = element_rect(fill = "grey"),
+    legend.position = c(0.42, 0.94), 
+    panel.grid.minor.x = element_blank(), 
+    panel.grid.major.x = element_blank()
+  )
 ```
 
 <br>
