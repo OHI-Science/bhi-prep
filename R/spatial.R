@@ -77,6 +77,10 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
   if(is.na(st_crs(ICES_rgns_shp)$epsg) || st_crs(ICES_rgns_shp)$epsg != 4326){
     ICES_rgns_shp <- st_transform(ICES_rgns_shp, 4326)
   }
+  if("Bothian Sea" %in% unique(BHI_rgns_shp$Subbasin)){
+    BHI_rgns_shp <- BHI_rgns_shp %>% 
+      mutate(Subbasin = ifelse("Bothian Sea", "Bothnian Sea", Subbasin))
+  }
   
   ## latitude/longitude approach ----
   ## if there is lat lon information, use sf::st_join with shapefiles to assign regions
