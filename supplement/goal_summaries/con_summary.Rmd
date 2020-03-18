@@ -72,8 +72,6 @@ TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/ass
 
 <br/>
 
-<!-- ### Considerations for BHI 2.0 -->
-
-### Other information
+### 1.4 Other information
 
 *External advisors/goalkeepers: Anna Sobek*
