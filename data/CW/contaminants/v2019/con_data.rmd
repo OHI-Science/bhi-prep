@@ -11,6 +11,7 @@ source(here::here("R", "setup.R"))
 
 **PCB Data in Biota**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_PCBs.csv -->
+<!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_20Feb07_PCBs.csv -->
 ```{r PCB biota data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1990-2017"),
@@ -108,7 +109,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 
 **PFOS in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_PFOS.csv -->
-
+<!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_20Feb07_PFOS.csv -->
 ```{r PFOS biota data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "2005-2017  (2005 earliest allowed)"),  
@@ -131,6 +132,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 
 **Dioxins in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_Dioxins.csv -->
+<!-- w/ one year more...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_20Feb07_Dioxins.csv -->
 ```{r dioxin biota data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1998-2017  (1998 earliest allowed)"),  
@@ -193,10 +195,9 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
-
 ---
 
-<br/>
+<br>
 
 ### 2.2 Centralization & Normalization
 <!-- note: below incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections, the following: -->
@@ -209,10 +210,10 @@ dir_rawdata <- file.path(dir_B, "Goals", "CW", "CON")
 
 lapply(
   list(
-    c("ContaminantsBiota_PCBs", "pcb_rawdata_bio"),
+    c("ContaminantsBiota_20Feb07_PCBs", "pcb_rawdata_bio"),
     c("ContaminantsSediment_PCBs", "pcb_rawdata_sed"),
-    c("ContaminantsBiota_PFOS", "pfos_rawdata_bio"),
-    c("ContaminantsBiota_Dioxins", "dioxin_rawdata_bio"),
+    c("ContaminantsBiota_20Feb07_PFOS", "pfos_rawdata_bio"),
+    c("ContaminantsBiota_20Feb07_Dioxins", "dioxin_rawdata_bio"),
     c("ContaminantsSediment_Dioxins", "dioxin_rawdata_sed")
   ),
   function(x){
@@ -256,8 +257,6 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
   )
 })) %>% DT::datatable()
 ```
-
-<br>
 
 #### 2.2.1 Rename Fields/Variables
 
@@ -724,10 +723,6 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
 }
 ```
 
----
-
-<br>
-
 #### 2.2.3 Wrangle all and Save
 
 ```{r save cleaned datasets, echo = TRUE, message = FALSE, warning = FALSE, results = "hide"}
@@ -768,8 +763,6 @@ lapply(
   }
 )
 ```
-
-<br>
 
 ---
 
@@ -815,7 +808,7 @@ make_mapdf <- function(x, yr){
       filter(!is.na(mean_val)) %>% 
       group_by(latitude, longitude) %>% 
       mutate(
-        num_congeners = n(),
+        num_congeners = n_distinct(variable),
         mean_allcongeners_selectedyrs = mean(mean_val),
         sd_allcongeners_selectedyrs = ifelse(is.na(sd(mean_val)), 1, sd(mean_val) + 1)
       ) %>%
@@ -844,30 +837,31 @@ mapdf_sediment <- do.call(
 ## contaminants datasets overlaying basemap
 mapbio <- basemap + 
   geom_sf(
-    aes(size = value), 
-    color = "maroon",
-    alpha = 0.2, 
+    aes(size = value, color = num_congeners), 
+    alpha = 0.15, 
     shape = 19, 
-    data = mapdf_biota,
-    show.legend = FALSE
+    data = mapdf_biota
   ) +
+  scale_color_distiller(palette = "OrRd") +
   facet_grid(rows = vars(source), cols = vars(metric)) +
-  theme(axis.text.x = element_blank())
+  guides(size = FALSE) +
+  theme(legend.position = c(0.15, 0.94))
 
 mapsed <- basemap + 
   geom_sf(
-    aes(size = value), 
-    color = "maroon", 
-    alpha = 0.2, 
+    aes(size = value, color = num_congeners),
+    alpha = 0.15, 
     shape = 19, 
     data = mapdf_sediment,
     show.legend = FALSE
   ) +
+  scale_color_distiller(palette = "OrRd") +
   facet_grid(rows = vars(source), cols = vars(metric))
 
 gridExtra::grid.arrange(mapbio, mapsed, ncol = 1, heights = c(1.5, 1))
 ```
 
+<br>
 
 #### 2.3.3 Contaminants in Biota vs Sediments
 
@@ -892,24 +886,29 @@ boxdf <- bind_rows(
 boxdf <- boxdf %>% 
   filter(metric == "mean_allcongeners_selectedyrs", source != "pfos") %>% 
   group_by(source) %>% 
-  mutate(quant9 = quantile(mean_val, 0.85)) %>% 
+  mutate(quant9 = quantile(mean_val, 0.9)) %>% 
   ungroup() %>% 
   filter(mean_val < quant9)
 
-ggplot(boxdf, aes(x = variable, y = mean_val, color = matrix)) + 
-  geom_boxplot(outlier.alpha = 0.2, outlier.shape = 20) + 
-  labs(x = NULL, y = NULL) + 
-  scale_color_manual(values = c("orchid", "tomato")) +
-  facet_wrap(~source, scales = "free", ncol = 12) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  coord_flip() +
-  theme_bw() +
-  theme(
-    legend.background = element_rect(fill = "grey"),
-    legend.position = c(0.42, 0.94), 
-    panel.grid.minor.x = element_blank(), 
-    panel.grid.major.x = element_blank()
-  )
+make_boxplot <- function(dataset){
+  boxplot <- ggplot(dataset, aes(x = matrix, y = mean_val, color = matrix)) + 
+    geom_boxplot(outlier.alpha = 0.2, outlier.shape = 20) + 
+    labs(x = NULL, y = NULL) + 
+    scale_color_manual(values = c("orchid", "tomato")) +
+    facet_grid(rows = vars(variable), switch = "y") +
+    coord_flip() +
+    theme(
+      legend.position = c(0.85, 0.95), 
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid.minor.x = element_blank(), 
+      panel.grid.major.x = element_blank()
+    )
+  return(boxplot)
+}
+plotpcb <- make_boxplot(boxdf %>% filter(source == "pcb")) + theme(legend.position = "none")
+plotdioxin <- make_boxplot(boxdf %>% filter(source == "dioxin"))
+gridExtra::grid.arrange(plotpcb, plotdioxin, ncol = 2)
 ```
 
 <br>
