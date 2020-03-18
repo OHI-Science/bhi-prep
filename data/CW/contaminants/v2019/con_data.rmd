@@ -193,36 +193,6 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
-<br/>
-
-#### 2.1.4 ICES Station Dictionary and Impacts
-
-**ICES Station Dictionary**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ICES_station_dictionary/ICES_station_dictionary.csv -->
-```{r ices station dictionary, echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("", "")))
-
-colnames(tab) <- c("Option", "Specification")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [ICES](SOURCE...) <br/> Downloaded [DATE...] February 2020 by Ellie Campbell")
-```
-<br/>
-
-**ICES Station Impacts Codes**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ICES_station_dictionary/ICES_station_impacts.csv -->
-```{r ices station impact codes, echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("Data theme:", "Environmental"),
-  c("Keyword:", "Station"),
-  c("Code Types:", "MSTAT")))
-
-colnames(tab) <- c("Option", "Specification")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [ICES vocabulary](https://vocab.ices.dk/?ref=177) <br/> Downloaded 7 February 2020 by Ellie Campbell")
-```
 
 ---
 
