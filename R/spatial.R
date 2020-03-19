@@ -79,7 +79,8 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
   }
   if("Bothian Sea" %in% unique(BHI_rgns_shp$Subbasin)){
     BHI_rgns_shp <- BHI_rgns_shp %>% 
-      mutate(Subbasin = ifelse("Bothian Sea", "Bothnian Sea", Subbasin))
+      mutate(Subbasin = as.character(Subbasin)) %>% 
+      mutate(Subbasin = ifelse(Subbasin == "Bothian Sea", "Bothnian Sea", Subbasin))
   }
   
   ## latitude/longitude approach ----
