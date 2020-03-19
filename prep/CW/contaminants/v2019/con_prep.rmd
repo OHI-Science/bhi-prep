@@ -307,7 +307,7 @@ qflag_adjust <- function(dataset, congeners = NULL, matrix = "bio", sumcongeners
       values_fn = list(value_adj = mean)
     )
   ## sum congeners by date and location
-  ## remove cases where not all congeners are observed
+  ## remove cases where not all congeners are observed by filtering nas
   if(sumcongeners & !is.null(congeners)){
     data_Qadjust_sums <- data_Qadjust_sums %>% 
       mutate(sum_congeners = select(., congeners) %>% rowSums()) %>% 
@@ -327,14 +327,9 @@ pcb_sed_noqflag <- qflag_adjust(pcb_sed, congeners = pcb7sed_congeners, matrix =
 <!-- To visualize by country versus basin give either "country" or "subbasin" respectively as the `cntry_or_basin` arguement  -->
 
 ```{r congeners timeseries monthly by basin, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 9}
-## create color palettes, 6 colors for number of congeners in the dataset...
-cols <- c(
-  RColorBrewer::brewer.pal(8, "Dark2"),
-  RColorBrewer::brewer.pal(9, "Set1")
-)
 
 ## timeseries plots, congeners by country
-plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", cntry_or_basin = "subbasin"){
+plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", matrix = "bio", cntry_or_basin = "subbasin"){
   
   ## one of OC-CB, OC-DX or O-FL; becomes OC, DX, or FL respectively
   contam_param <- substr(contam_param, str_length(contam_param)-1, str_length(contam_param))
@@ -355,6 +350,20 @@ plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", cntry_o
     ungroup() %>%
     mutate(Date = as.Date(paste("1", month, Year, sep = "-"), tryFormats = "%d-%m-%Y"))
   
+  if(contam_param == "CB"){
+    if(matrix == "bio"){
+      dat$Congener <- factor(
+        dat$Congener, 
+        levels = c("CB101", "CB138", "CB153", "CB180", "CB28", "CB52")
+      )
+    } else {
+      dat$Congener <- factor(
+        dat$Congener, 
+        levels = c("CB101", "CB138", "CB153", "CB180", "CB28", "CB52", "CB118")
+      )
+    }
+  }
+  
   ## timeseries plots of all congeners by country
   plot <- ggplot(data = dat, aes(Date, Value, fill = Congener)) +
     geom_col(position = "stack", show.legend = FALSE) +
@@ -371,11 +380,17 @@ plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", cntry_o
   return(plotly::ggplotly(plot))
 }
 
-cols <- colorRampPalette(cols)(42)[sample(1:42, size = 6)]
+## create color palettes
+fullpal <- c(
+  RColorBrewer::brewer.pal(8, "Dark2"),
+  RColorBrewer::brewer.pal(9, "Set1")
+)
+
+cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 6)]
 plot_cwcon_initial(pcb_bio_qflag_adjust, col_pal = cols, contam_param = "OC-CB", cntry_or_basin = "country")
 
-cols <- colorRampPalette(cols)(42)[sample(1:42, size = 7)]
-plot_cwcon_initial(pcb_sed_qflag_adjust, col_pal = cols, contam_param = "OC-CB", cntry_or_basin = "country")
+cols <- c(cols, "turquoise")
+plot_cwcon_initial(pcb_sed_qflag_adjust, col_pal = cols, contam_param = "OC-CB", matrix = "sed", cntry_or_basin = "country")
 ```
 
 <br>
