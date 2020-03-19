@@ -113,6 +113,17 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     
     if(!is.null(buffer_shp)){
       data_rgns_joined <- rbind(data_rgns_joined, data_buff_sf)
+      duplicates <- data_rgns_joined %>% 
+        select(names(data_sf0)) %>% 
+        st_drop_geometry() %>% 
+        group_by_all() %>% 
+        summarize(count = n()) %>% 
+        filter(count > 1)
+      data_rgns_joined <- data_rgns_joined %>% 
+        left_join(duplicates, by = setdiff(names(data_sf0), "geometry")) %>% 
+        ## delete only NAs for BHI_ID etc where count is non-NA i.e. where are duplicates,
+        ## effectively keeping only NAs where the points were not within BHI assessment area...
+        filter(!(is.na(BHI_ID) & !is.na(count)))
     }
     
     ## check if any points are not matched with a BHI id ----
