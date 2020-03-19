@@ -241,7 +241,9 @@ lapply(
     ) %>% assign(x = x[2], envir = .GlobalEnv)
   }
 )
+```
 
+```{r check number of dates and years sample by country in pcb data,  results  = "show"}
 ## check number of dates and years sample by country, PCBs data from ICES
 ## Denmark doesn't have herring data...
 do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
@@ -257,6 +259,8 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
   )
 })) %>% DT::datatable()
 ```
+
+---
 
 #### 2.2.1 Rename Fields/Variables
 
@@ -356,8 +360,6 @@ rm("pcb_rawdata_bio", "pfos_rawdata_bio", "dioxin_rawdata_bio", "pcb_rawdata_sed
 ```
 
 ---
-
-<br>
 
 #### 2.2.2 Standardize Units
 
@@ -740,6 +742,8 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
 }
 ```
 
+<br>
+
 #### 2.2.3 Wrangle all and Save
 
 ```{r save cleaned datasets, echo = TRUE, message = FALSE, warning = FALSE, results = "hide"}
@@ -788,6 +792,19 @@ lapply(
 #### 2.3.2 Spatial Distributions of Measurements
 
 ```{r sampling maps, results = "show", message = FALSE, warning = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 20}
+## to start running code from here, will need to load in cleaned  datasets...
+# dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
+# funtemp <- function(dat){
+#   dat_final <- read_csv(file.path(dir_interm, dat))
+#   assign(
+#     x = str_replace(dat, "cleaned.csv", "clean_df"), 
+#     value = dat_final,
+#     envir = .GlobalEnv
+#   )
+# }
+# lapply(list.files(dir_interm), funtemp)
+
+
 ## basemap with baltic countries borders and BHI regions with ID numbers
 bhi_rgns_simple <- rmapshaper::ms_simplify(
   input =  sf::st_read(
@@ -862,7 +879,7 @@ mapbio <- basemap +
   scale_color_distiller(palette = "OrRd") +
   facet_grid(rows = vars(source), cols = vars(metric)) +
   guides(size = FALSE) +
-  theme(legend.position = c(0.15, 0.94))
+  theme(legend.position = c(0.1, 0.9))
 
 mapsed <- basemap + 
   geom_sf(
@@ -884,7 +901,7 @@ gridExtra::grid.arrange(mapbio, mapsed, ncol = 1, heights = c(1.5, 1))
 
 **Contaminants: PCB and Dioxin by Matrix per Congener**
 
-```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 11}
+```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 13}
 sf::st_geometry(mapdf_sediment) <- NULL
 sf::st_geometry(mapdf_biota) <- NULL
 
@@ -917,9 +934,10 @@ make_boxplot <- function(dataset){
     theme(
       legend.position = c(0.85, 0.95), 
       axis.text.y = element_blank(),
-      axis.ticks.y = element_blank(),
+      axis.ticks.y.left = element_blank(),
       panel.grid.minor.x = element_blank(), 
-      panel.grid.major.x = element_blank()
+      panel.grid.major.x = element_blank(),
+      strip.text.y = element_text(size = 8, angle = 180)
     )
   return(boxplot)
 }
