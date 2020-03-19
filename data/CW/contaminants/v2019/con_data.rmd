@@ -455,7 +455,9 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
     select(variable, unit) %>% 
     distinct()
   
-  df_bbio <- select(df_bbio, -unit)
+  ## if dealing with sediment, need to keep units for now...
+  if(matrix_biota){df_bbio <- select(df_bbio, -unit)}
+  
 
   chk_num_bbio_dup <- nrow(df_bbio) - nrow(distinct(df_bbio %>% select(-value)))
   
@@ -674,9 +676,24 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
       mutate_at(
         vars(c("value", "detect_lim", "quant_lim")), 
         list(wet_wgt = ~ case_when(
-          basis_determination == "lipid weight" ~ .*(`EXLIP%`/100),
-          basis_determination == "dry weight" ~ .*(`DRYWT%`/100),
+          basis_determination == "lipid weight" ~ .*(`EXLIP%`/100), # IS THIS HOW EXLIP% VARIABLE WORKS????
+          basis_determination == "dry weight" ~ .*(100/`DRYWT%`), # IS THIS HOW DRYWT% VARIABLE WORKS????
           basis_determination == "wet weight" ~ .
+        ))
+      )
+  }
+  ## for sediment data, still need to convert to dry weights
+  if(!matrix_biota){
+    ## what to do with the dry weights....
+    message("STEP 5: converting all congener concentrations in sediment to dry weight")
+    df_final <- df_final %>% 
+      ## if value is not dry weight convert, otherwise keep value
+      ## even though some have units of ug/kg treat the DRYWT% as percentage...
+      mutate_at(
+        vars(c("value", "detect_lim", "quant_lim")), 
+        list(dry_wgt = ~ case_when(
+          basis_determination == "wet weight" ~ .*(`DRYWT%`/100), # IS THIS HOW DRYWT% VARIABLE WORKS????
+          basis_determination == "dry weight" ~ .
         ))
       )
   }
@@ -734,7 +751,7 @@ lapply(
     ## remove PCB, SCB, SCB7 - these are summarized data or depreciated codes
     ## OC-CB variable codes: vocab.ices.dk/?CodeID=26983
     list("pcb_bio", TRUE, "OC-CB", c("PCB", "SCB", "SCB7")),
-    list("pcb_sed", FALSE, "OC-CB", c("PCB", "SCB", "SCB7")),
+    list("pcb_sed", FALSE, "OC-CB", c("PCB", "SCB")),
     
     ## Dioxin datasets
     list("dioxin_bio", TRUE, "OC-DX", NULL),
