@@ -186,10 +186,13 @@ ggplot(plotdf) +
   theme_bw()
 ```
 
+<br>
 
 **PCBs in Sediment, Visualize flagged data in Timeseries**
 
-```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.height = 22, fig.width = 9.5}
+Same as plots above, but with fewer data points. Higher opacity and larger points used just so they are easier to see in the plots.
+
+```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.height = 24, fig.width = 9.5}
 plotdf <- pcb_sed %>% 
   mutate(value_adj = ifelse(qflagged, value_dry_wgt/2, NA)) %>% 
   group_by(date, variable, Subbasin) %>% 
@@ -198,7 +201,7 @@ plotdf <- pcb_sed %>%
 
 ggplot(plotdf) + 
   scale_color_distiller(palette = "GnBu", direction = -1) +
-  geom_point(aes(date, value_dry_wgt, color = countObs), show.legend = FALSE, size = 0.6, alpha = 0.4) +
+  geom_point(aes(date, value_dry_wgt, color = countObs), show.legend = FALSE, size = 0.8, alpha = 0.7) +
   geom_point(aes(date, value_adj), color = "red", shape = 4, size = 1, alpha = 0.6) +
   facet_wrap(
     c("variable", "Subbasin"), 
@@ -395,9 +398,25 @@ plot_cwcon_initial(pcb_sed_qflag_adjust, col_pal = cols, contam_param = "OC-CB",
 
 <br>
 
-**Spatial distributions of PCB sampling Locations**
+#### Spatial distributions of PCB sampling Locations {.tabset .tabset-fade .tabset-pills}
 
-```{r map spatial dist of PCB bio, results = "show", echo = TRUE, fig.width = 10, fig.height = 9, out.width = "120%"}
+```{r css for tabset}
+cat("
+.btn {
+    border-width: 0 0px 0px 0px;
+    font-weight: normal;
+    text-transform: ;
+}
+.btn-default {
+    color: #2ecc71;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+")
+```
+
+
+```{r function for mapping spatial dist of data points}
 map_cwcon_initial <- function(dataset, yr, matrix){
   
   if(!"Matrix" %in% names(dataset)){
@@ -453,9 +472,20 @@ pcb_all_obs <- bind_rows(
     select(Subbasin, HELCOM_ID, BHI_ID, year, latitude, longitude) %>% 
     mutate(Matrix = "sediment")
 )
-map_cwcon_initial(pcb_all_obs, yr = 2014, matrix = "both")
-map_cwcon_initial(pcb_all_obs, yr = 2014:2018, matrix = "both")
 ```
+
+##### With just year 2014
+
+```{r map spatial dist of PCB bio one year, results = "show", echo = FALSE, fig.width = 10, fig.height = 9, out.width = "120%"}
+map_cwcon_initial(pcb_all_obs, yr = 2014, matrix = "both")
+```
+
+##### With years 2016-2019
+
+```{r map spatial dist of PCB bio multiple yrs, results = "show", echo = FALSE, fig.width = 10, fig.height = 9, out.width = "120%"}
+map_cwcon_initial(pcb_all_obs, yr = 2016:2019, matrix = "both")
+```
+---
 
 <br>
 
@@ -607,7 +637,7 @@ cwcon_indicators <- function(datalayer, yrs = 2010:2019, bio_thresh = 75, sed_th
 
 <br>
 
-```{r investigate approaches to qflags and summarizing by region vs basin pcb biota indicator, fig.width = 9.5, fig.height = 11}
+```{r investigate approaches to qflags and summarizing by region vs basin pcb biota indicator, fig.width = 9.5, fig.height = 17}
 ## using functions defined above, check effects of:
 ## (1) adjusting vs excluding flagged data, and 
 ## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
@@ -647,8 +677,12 @@ ggplot(compare_df, aes(Region, status, fill = approach)) +
   geom_col(position = position_dodge(), width = 1, color = "grey", alpha = 0.8, show.legend = FALSE) + 
   scale_fill_manual(values = c("navy", "steelblue", "maroon", "orchid")) +
   facet_grid(rows = vars(approach)) +
-  coord_flip()
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  theme(axis.text.y = element_text(size = 10))
+```
 
+```{r pcbs latest years for qflag adjust vs no flagged data approaches, results = "show"}
 DT::datatable(full_join(
   pcb_datalayer_qflagadjust %>%
     arrange(year) %>%
@@ -660,24 +694,6 @@ DT::datatable(full_join(
     summarise(lastyr_NoQflag = last(year)),
   by = "Subbasin"
 ))
-```
-
-
-
-<!-- #### 4.5.4 Calculate Status -->
-<!-- Xices6 = 1/ (Mean_ICES6_region / Reference_pt  ) * penalty_factor -->
-<!-- Reference_pt = health_threshold=  75ug/kg -->
-
-<!-- Scale between 0 and 1.  If value is below 75, score = 1 -->
-
-```{r pcb trend calculation}
-## ten year period for data used in calculating linear model, mean by basin (also count number observations)
-## assign bhi regions their correspoinding basin means
-
-
-
-
-
 ```
 
 
@@ -791,7 +807,7 @@ pfos <- pfos %>%
 
 Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
 
-```{r pfos qflag adjustment congeners by basin, results = "show", fig.height = 24, fig.width = 9.5}
+```{r pfos qflag adjustment congeners by basin, results = "show", fig.height = 28, fig.width = 9.5}
 ## pcb qflag adjustment congeners by basin and congener, 
 ## red x's indicate flagged data, colorscale indicates number of observations
 plotdf <- pfos %>% 
@@ -802,7 +818,7 @@ plotdf <- pfos %>%
 
 ggplot(plotdf) + 
   scale_color_distiller(palette = "GnBu", direction = -1) +
-  geom_point(aes(date, value_wet_wgt, color = countObs), show.legend = FALSE, size = 0.6, alpha = 0.4) +
+  geom_point(aes(date, value_wet_wgt, color = countObs), show.legend = FALSE, size = 0.8, alpha = 0.6) +
   geom_point(aes(date, value_adj), color = "red", shape = 4, size = 1, alpha = 0.6) +
   geom_line(aes(date, meanAdjww), size = 0.4, alpha = 0.6, show.legend = FALSE) +
   facet_wrap(
@@ -822,7 +838,7 @@ pcb_noqflag <- qflag_adjust(pfos, sumcongeners = FALSE, approach = "NoQflag")
 
 cols <- colorRampPalette(cols)(42)[sample(1:42, size = 19)]
 plot_cwcon_initial(pfos_qflag_adjust, col_pal = cols, contam_param = "O-FL", cntry_or_basin = "country")
-map_cwcon_initial(pfos_qflag_adjust %>% mutate(Matrix = "biota"), yr = 2014:2019, matrix = "biota")
+map_cwcon_initial(pfos_qflag_adjust %>% mutate(Matrix = "biota"), yr = 2014:2019)
 ```
 
 <br>
