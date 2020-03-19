@@ -116,13 +116,15 @@ pcb_sed <- join_rgns_info(
 
 <br>
 
-#### 3.1.2 Filter PCBs to ICES6 Set and Join Station Impact
+#### 3.1.2 Filter PCBs to ICES6 Set or PCB7 for Sediment
 
 The PCBs indicator uses only the ICES6 congeners: CB28, CB52, CB101, CB138, CB153, CB180.  Additionally, only herring are used from the biota dataset, as they are fairly equally spatially distributed across the baltic sea, while many other species are predominantly in the south.
 
 ```{r filter pcb data}
 ## for the PCBs indicator we use the ICE6 congeners:
 ices6_congeners <- c("CB101", "CB138", "CB153", "CB180", "CB28", "CB52")
+## for PCBs in sediment we use the seven from the Norwegian Environment Agency EQS in sediment for 28 EU priority substances
+## note: this sum is also included in the raw dataset as 'SCB7' but as of BHI2.0 all such observations are for the UK 
 pcb7sed_congeners <- c("CB28", "CB52", "CB101", "CB118", "CB138", "CB153", "CB180")
 
 pcb_bio <- pcb_bio %>% 
@@ -144,7 +146,7 @@ pcb_sed <- pcb_sed %>%
   filter(variable %in% pcb7sed_congeners) %>% 
   ## check that rows are distinct: nrow(pcb_sed) == nrow(distinct(pcb_sed))...
   select(
-    variable, value, detect_lim, quant_lim,
+    variable, value_dry_wgt, detect_lim_dry_wgt, quant_lim_dry_wgt,
     num_indiv_subsample, monit_program, monit_purpose, monit_year,
     samp_ref,
     qflagged, qflag, 
@@ -189,14 +191,14 @@ ggplot(plotdf) +
 
 ```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.height = 22, fig.width = 9.5}
 plotdf <- pcb_sed %>% 
-  mutate(value_adj = ifelse(qflagged, value/2, NA)) %>% 
+  mutate(value_adj = ifelse(qflagged, value_dry_wgt/2, NA)) %>% 
   group_by(date, variable, Subbasin) %>% 
   mutate(countObs = n(), meanAdjww = mean(value_adj, na.rm = TRUE)) %>% 
   ungroup()
 
 ggplot(plotdf) + 
   scale_color_distiller(palette = "GnBu", direction = -1) +
-  geom_point(aes(date, value, color = countObs), show.legend = FALSE, size = 0.6, alpha = 0.4) +
+  geom_point(aes(date, value_dry_wgt, color = countObs), show.legend = FALSE, size = 0.6, alpha = 0.4) +
   geom_point(aes(date, value_adj), color = "red", shape = 4, size = 1, alpha = 0.6) +
   facet_wrap(
     c("variable", "Subbasin"), 
@@ -286,12 +288,14 @@ qflag_adjust <- function(dataset, congeners = NULL, matrix = "bio", sumcongeners
       rename(value_plot = value_wet_wgt) %>% 
       select(-detect_lim_wet_wgt, -quant_lim_wet_wgt)
   } else {
-    dataset <- dataset %>% rename(value_plot = value)
+    dataset <- dataset %>% 
+      rename(value_plot = value_dry_wgt) %>% 
+      select(-detect_lim_dry_wgt, -quant_lim_dry_wgt)
   }
-
+  
   ## aggregate into single date-location values:
   ## sum concentration after flagged data adjustment and date-location averages per congener
-  data_Qadjust_meansums <- dataset %>% 
+  data_Qadjust_sums <- dataset %>% 
     ## adjust for qflags
     ## NOTE if all qflagged are removed, all adjusted values equal original values
     mutate(value_adj = ifelse(qflagged, value_plot/2, value_plot)) %>% 
@@ -302,19 +306,20 @@ qflag_adjust <- function(dataset, congeners = NULL, matrix = "bio", sumcongeners
       values_from = value_adj,
       values_fn = list(value_adj = mean)
     )
-    ## sum congeners by date and location
-    ## remove cases where not all congeners are observed
-    if(sumcongeners & !is.null(congeners)){
-      data_Qadjust_meansums <- data_Qadjust_meansums %>% 
-        mutate(sum_congeners = select(., congeners) %>% rowSums()) %>% 
-        filter(!is.na(sum_congeners))
-    }
+  ## sum congeners by date and location
+  ## remove cases where not all congeners are observed
+  if(sumcongeners & !is.null(congeners)){
+    data_Qadjust_sums <- data_Qadjust_sums %>% 
+      mutate(sum_congeners = select(., congeners) %>% rowSums()) %>% 
+      filter(!is.na(sum_congeners))
+  }
   
-  return(data_Qadjust_meansums)
+  return(data_Qadjust_sums)
 }
-
 pcb_bio_qflag_adjust <- qflag_adjust(pcb_bio, congeners = ices6_congeners)
 pcb_sed_qflag_adjust <- qflag_adjust(pcb_sed, congeners = pcb7sed_congeners, matrix = "sed")
+pcb_bio_noqflag <- qflag_adjust(pcb_bio, congeners = ices6_congeners, approach = "NoQflag")
+pcb_sed_noqflag <- qflag_adjust(pcb_sed, congeners = pcb7sed_congeners, matrix = "sed", approach = "NoQflag")
 ```
 
 <br>
@@ -333,6 +338,7 @@ plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", cntry_o
   
   ## one of OC-CB, OC-DX or O-FL; becomes OC, DX, or FL respectively
   contam_param <- substr(contam_param, str_length(contam_param)-1, str_length(contam_param))
+  if(contam_param == "FL"){contam_param = "PF"}
   cntry_or_basin <- str_to_lower(cntry_or_basin)
   
   dat <- dataset %>% 
@@ -395,6 +401,19 @@ map_cwcon_initial <- function(dataset, yr, matrix){
     by = "HELCOM_ID"
   )
   
+  # df <- full_join(
+  #   bhi_rgns_simple %>% 
+  #     select(BHI_ID) %>% 
+  #     mutate(BHI_ID = as.character(BHI_ID)),
+  #   dataset %>% 
+  #     filter(year %in% yr) %>% 
+  #     group_by(BHI_ID, Matrix) %>% 
+  #     summarize(ObservCount = n()) %>% 
+  #     ungroup() %>% 
+  #     mutate(BHI_ID = as.character(BHI_ID)),
+  #   by = "BHI_ID"
+  # )
+  
   map <- ggplot(df) + 
     geom_sf(aes(fill = ObservCount), color = "burlywood", size = 0.1, alpha = 0.9) +
     scale_fill_gradient(low = "navy", high = "skyblue", na.value = "white") +
@@ -413,10 +432,10 @@ map_cwcon_initial <- function(dataset, yr, matrix){
 
 pcb_all_obs <- bind_rows(
   pcb_bio_qflag_adjust %>% 
-    select(Subbasin, HELCOM_ID, year, latitude, longitude) %>% 
+    select(Subbasin, HELCOM_ID, BHI_ID, year, latitude, longitude) %>% 
     mutate(Matrix = "biota"), 
   pcb_sed_qflag_adjust %>% 
-    select(Subbasin, HELCOM_ID, year, latitude, longitude) %>% 
+    select(Subbasin, HELCOM_ID, BHI_ID, year, latitude, longitude) %>% 
     mutate(Matrix = "sediment")
 )
 map_cwcon_initial(pcb_all_obs, yr = 2014, matrix = "both")
@@ -427,137 +446,203 @@ map_cwcon_initial(pcb_all_obs, yr = 2014:2018, matrix = "both")
 
 #### 3.1.4 Status and trend options and calculation
 
-  <!-- mean of all unique obs. for past 10 years -->
-  <!-- Here 'observation' refers to a time and location, where one or more congeners were measured simulaneously -->
-  <!-- calculate the sum of the ICES6 congeners values for each date and location ---- -->
-  <!-- for observations averaged, also calculate mean, min, and max number of congeners in each of the observations, -->
-  <!-- and also numbers of observations for each date and location.... -->
-
-```{r investigate approaches to qflags and summarizing by region vs basin}
-
-eval_cwcon_indicators <- function(datalayer, yrs = 2010:2019,
-                                  threshold = 75, trendapproach = "", trend_lag = 5,
-                                  basins_or_rgns = "subbasins"){
-
-
-  result[["basin_status"]] <- datalayer %>%
-    filter() %>%
-    group_by() %>%
-    summarize(
-      meanVal = , # mean value....
-      numObs = , # number of data points contributing to status/trend score
-      mean_nCong,
-      minvCong,
-      max_nCong
-    ) %>%
-    ## keep sums only for samples with all 6 PCBs observed!
-    filter()
-
-  basin_status <- datalayer %>%
-    group_by(Subbains, HELCOM_ID, year) %>%
-    summarize(ices6_meansum = mean(ices6_meansum, na.rm = TRUE)) %>%
-    ungroup() %>%
+```{r calculations of indicators status and trend}
+cwcon_indicators <- function(datalayer, yrs = 2010:2019, bio_thresh = 75, sed_thresh = 4.1, approach = "scaledObs", trendlag = 5){
+  
+  result <- list()
+  
+  joindf <- BHI_rgns_shp %>% 
+    st_drop_geometry() %>% 
+    select(-Area_km2) %>% 
     mutate(
-      health_threshold = threshold,
-      ices6ratio = ices6_meansum/health_threshold,
-      status = 1/ices6ratio
-    ) %>%
-    ## if above one set to one
-    mutate(status = pmin(1, status)) %>%
-    select(Subbasin, HELCOM_ID, year, status, ices6_meansum)
+      Subbasin = as.character(Subbasin), 
+      HELCOM_ID = as.character(HELCOM_ID),
+      rgn_nam = as.character(rgn_nam), 
+      rgn_key = as.character(rgn_key)
+    )
+  
+  ## STATUS CALCULATIONS
+  ## calculate status by subbasins and by bhi regions
+  
+  result[["basin_status"]] <- datalayer %>%
+    filter(year %in% yrs) %>% 
+    group_by(HELCOM_ID, Subbasin, matrix) %>% 
+    summarize(
+      ## number of date-location specific (aggregated) data points contributing to status
+      ## plus some other summary statisics of interest
+      num_dateloc_pts = n(),
+      mean_dateloc_pts = mean(sum_congeners_datemean, na.rm = TRUE),
+      max_dateloc_pts = max(sum_congeners_datemean, na.rm = TRUE),
+      min_dateloc_pts = min(sum_congeners_datemean, na.rm = TRUE)
+    ) %>% 
+    ungroup() %>% 
+    mutate(
+      health_threshold = ifelse(matrix == "bio", bio_thresh, sed_thresh),
+      ratio = mean_dateloc_pts/health_threshold,
+      ## using pmin to cap the status at one
+      status = pmin(1, 1/ratio)
+    ) %>% 
+    group_by(HELCOM_ID, Subbasin) %>% 
+    summarize(status = mean(status, na.rm = TRUE)) %>% ## HOW TO INCLUDE SEDIMENT DATA... EQUAL WEIGHT??????
+    right_join(joindf, by = c("Subbasin", "HELCOM_ID"))
+  
+  result[["bhirgn_status"]] <- datalayer %>%
+    filter(year %in% yrs) %>% 
+    group_by(BHI_ID, matrix) %>% 
+    summarize(
+      ## number of date-location specific (aggregated) data points contributing to status
+      ## plus some other summary statisics of interest
+      num_dateloc_pts = n(),
+      mean_dateloc_pts = mean(sum_congeners_datemean, na.rm = TRUE),
+      max_dateloc_pts = max(sum_congeners_datemean, na.rm = TRUE),
+      min_dateloc_pts = min(sum_congeners_datemean, na.rm = TRUE)
+    ) %>% 
+    ungroup() %>% 
+    mutate(
+      health_threshold = ifelse(matrix == "bio", bio_thresh, sed_thresh),
+      ratio = mean_dateloc_pts/health_threshold,
+      ## using pmin to cap the status at one
+      status = pmin(1, 1/ratio)
+    ) %>% 
+    group_by(BHI_ID) %>% 
+    summarize(status = mean(status, na.rm = TRUE)) %>% ## HOW TO INCLUDE SEDIMENT DATA... EQUAL WEIGHT??????
+    right_join(joindf, by = c("BHI_ID"))
 
 
-  # result[["bhirgn_status"]] <-
-
+  ## TREND CALCULATIONS
+  ## calculate trend by subbasins and by bhi regions; use method specified in function args
   ## three approaches to calculating trend: mixed-effects, linear model
-
-  ## calculate trend with zscore of data
-  result[["basin_trend"]] <- result$basin_status %>%
-    mutate(zscore = (ices6_meansum - mean(ices6_meansum))/sd(ices6_meansum)) %>%
-    filter(year %in% yrs) %>%
-    group_by(Subbasin) %>%
-    ## regression model to get trend from raw observations
-    do(trend_mdl = lm(zscore ~ year, data = .)) %>%
-    ## alternative: mixed-effects model
-    ## error for fitting the zscore data an issue if only 1 factor...
-    # do({if(distinct(., lat) %>% nrow() > 1){
-    #   trend_mdl = lmer(zscore ~ year + (1|lat), data = .)
-    # } else {
-    #   trend_mdl = lm(zscore ~ year, data = .)
-    # }})
-    summarize(
-      trend_score = coef(trend_mdl)["year"]*trend_lag,
-      numyrs = n()
-    ) %>%
-    ungroup() %>%
-    ## number of years of status observations: basins should have all five
-    ## basins for which no status was calculated will be excluded
-    filter(Subbasin %in% filter(result$basin_status, !is.na(status))$Subbasin, numyrs == 5)
-
-
-  result[["bhirgn_trend"]] <- datalayer %>%
-    mutate(obs = ) %>%
-    filter(year %in% yrs) %>%
-    group_by(Subbasin) %>%
-    do(trend_mdl = lm(ices6_meansum ~ year, data = .)) %>%
-    summarize(
-      trend_score = coef(trend_mdl)["year"]*trend_lag,
-      numyrs = n()
-    ) %>%
-    ungroup() %>%
-    ## number of years of status observations: basins should have all five
-    ## basins for which no status was calculated will be excluded
-    filter(Subbasin %in% filter(result$basin_status, !is.na(status))$Subbasin, numyrs == 5) %>%
-    ## assign BHI region the basin score
-    left_join()
-
+  for(z in c("basin", "bhirgn")){
+    
+    if(z == "basin"){
+      grpvars <- c("HELCOM_ID", "Subbasin")
+      lstname <- "basin_trend"
+    } else {
+      grpvars <- c("BHI_ID")
+      lstname <- "bhirgn_trend"
+    }
+    
+    if(approach == "scaledObs"){
+      ## trend approach 1: by observations scaled w.r.t. to reference point
+      result[[lstname]] <- datalayer %>% 
+        filter(year %in% yrs) %>% 
+        group_by(!!!syms(grpvars), matrix) %>% 
+        mutate(
+          trendcalc_nyrs = n_distinct(year),
+          health_threshold = ifelse(matrix == "bio", bio_thresh, sed_thresh),
+          ratio = sum_congeners_datemean/health_threshold,
+          sumcon_datemean_scaled = pmin(1, 1/ratio)
+        ) %>% 
+        group_by(!!!syms(grpvars), matrix) %>% 
+        do(trend_mdl = lm(sumcon_datemean_scaled ~ year, data = .)) %>%
+        mutate(trend = coef(trend_mdl)["year"]*trendlag) %>% 
+        ungroup() %>% 
+        select(-trend_mdl) %>% 
+        group_by(!!!syms(grpvars)) %>% 
+        summarize(trend = mean(trend, na.rm = TRUE)) %>% ## HOW TO INCLUDE SEDIMENT DATA... EQUAL WEIGHT??????
+        right_join(joindf, by = grpvars)
+    }
+    
+    ## trend approach 2: calculate trend with zscores of data
+    if(approach == "zscores"){
+      datalayer_zscore <- datalayer %>% 
+        filter(year %in% yrs) %>% 
+        group_by(!!!syms(grpvars), matrix) %>% 
+        mutate(
+          trendcalc_nyrs = n_distinct(year),
+          mn = mean(sum_congeners_datemean),
+          sd = sd(sum_congeners_datemean),
+          zscore = (sum_congeners_datemean-mn)/sd
+        )
+      if(any(datalayer_zscore$trendcalc_nyrs < 5)){
+        message("some trends calculated with fewer than five years")
+      }
+      if(any(is.na(datalayer_zscore$zscore))){
+        message(sprintf(
+          "zscore NAs (%s cases) caused trends calculation to fail", 
+          nrow(filter(datalayer_zscore, is.na(zscore)))
+        ))
+      }
+      result[[lstname]] <- datalayer_zscore %>% 
+        filter(!is.na(zscore)) %>% 
+        group_by(!!!syms(grpvars), matrix) %>% 
+        do(trend_mdl = lm(zscore ~ year, data = .)) %>% # regression model to get trend from raw observations
+        mutate(trend = coef(trend_mdl)["year"]*trendlag) %>% 
+        ungroup() %>% 
+        select(-trend_mdl) %>% 
+        group_by(!!!syms(grpvars)) %>% 
+        summarize(trend = mean(trend, na.rm = TRUE)) %>% ## HOW TO INCLUDE SEDIMENT DATA... EQUAL WEIGHT??????
+        right_join(joindf, by = grpvars)
+    }
+    
+    ## trend approach 3: mixed effects
+    ## current error: not enough observations per group...
+    ## number of levels of each grouping factor must be < number of observations 
+    ## would use the following piece of code to fit model.....
+    # do({
+    #   if(distinct(., latitude) %>% nrow() > 1){
+    #     (trend_mdl = lme4::lmer(zscore ~ year + (1|latitude), data = .))
+    #   } else {(trend_mdl = lm(zscore ~ year, data = .))}
+    # }) %>% 
+  }
+  
   return(result)
 }
 ```
 
 <br>
 
-```{r evaluate pcb biota indicator status and trend}
-## using adjusted values where data was flagged
-pcbs_bio_eval_adj <- eval_cwcon_indicators(
-  pcb_bio_sf,
-  yrs = 2010:2019,
-  approach = "Adjusted"
-)
-dim(pcbs_bio_eval_adj$bhirgn_status)
-summary(pcbs_bio_eval_adj$bhirgn_status)
+```{r investigate approaches to qflags and summarizing by region vs basin pcb biota indicator, fig.width = 9.5, fig.height = 11}
+## using functions defined above, check effects of:
+## (1) adjusting vs excluding flagged data, and 
+## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
 
-## using only sets of observations that had no flags
-pcbs_bio_eval_noQ <- eval_cwcon_indicators(
-  pcb_bio_sf,
-  basin_col = "HELCOM_ID",
-  bhi_col = "BHI_ID",
-  yrs = 2010:2019,
-  approach = "NoQflag"
+## bind resulting dataset to plot together and evaluate....
+pcb_datalayer_qflagadjust <- bind_rows(
+  pcb_bio_qflag_adjust %>% 
+    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
+    mutate(matrix = "bio"),
+  pcb_sed_qflag_adjust %>% 
+    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
+    mutate(matrix = "sed")
 )
-dim(pcbs_bio_eval_noQ$bhirgn_status)
-summary(pcbs_bio_eval_noQ$bhirgn_status)
+pcb_datalayer_noqflag <- bind_rows(
+  pcb_bio_noqflag %>% 
+    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
+    mutate(matrix = "bio"),
+  pcb_sed_noqflag %>% 
+    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
+    mutate(matrix = "sed")
+)
+pcb_qflagadjust <- cwcon_indicators(pcb_datalayer_qflagadjust)
+pcb_noqflag <- cwcon_indicators(pcb_datalayer_noqflag)
 
-## comparing the two approaches, for data aggregated by BHI regions, and by Subbasins
-ggplot(bind_rows(
-    pcbs_bio_eval_adj$basin_status %>% mutate(approach = "Adjusted_Basin"),
-    pcbs_bio_eval_adj$bhirgn_status %>% mutate(approach = "Adjusted_BHI"),
-    pcbs_bio_eval_noQ$basin_status %>% mutate(approach = "NoQflag_Basin"),
-    pcbs_bio_eval_noQ$bhirgn_status %>% mutate(approach = "NoQflag_BHI")
-  )) +
-  geom_col(aes(date, ices6_meansum, color = approach), position = position_dodge()) +
-  geom_hline(yintercept = 75) +
-  facet_wrap(~BHI_ID, scales = "free_y")
+compare_df <- bind_rows(
+  pcb_qflagadjust$basin_status %>% mutate(approach = "Adjusted_Basin"),
+  pcb_qflagadjust$bhirgn_status %>% mutate(approach = "Adjusted_BHI"),
+  pcb_noqflag$basin_status %>% mutate(approach = "NoQflag_Basin"),
+  pcb_noqflag$bhirgn_status %>% mutate(approach = "NoQflag_BHI")
+) %>% mutate(Region = paste(Subbasin, rgn_nam))
+
+ggplot(compare_df, aes(Region, status, fill = approach)) +
+  geom_col(position = position_dodge(), width = 1, color = "grey", alpha = 0.8, show.legend = FALSE) + 
+  scale_fill_manual(values = c("navy", "steelblue", "maroon", "orchid")) +
+  facet_grid(rows = vars(approach)) +
+  coord_flip()
 
 DT::datatable(full_join(
-  pcbs_bio_eval_adj$basin_status %>%
+  pcb_datalayer_qflagadjust %>%
     arrange(year) %>%
     group_by(Subbasin) %>%
-    summarise(lastyr_adjusted <- last(year)),
-  pcbs_bio_eval_noQ$basin_status %>%
+    summarise(lastyr_Adjusted = last(year)),
+  pcb_datalayer_noqflag %>%
     arrange(year) %>%
     group_by(Subbasin) %>%
-    summarise(lastyr_noQflag <- last(year)),
+    summarise(lastyr_NoQflag = last(year)),
   by = "Subbasin"
 ))
 ```
@@ -595,14 +680,7 @@ DT::datatable(full_join(
 <br>
 
 ```{r save useful intermediate datasets and pcbs contaminants layer}
-write_csv(
-  pcbs_shiny,
-  here::here("data", "CW", "contaminants", version_year, "intermediate", "cw_con_shinydata.csv")
-)
-write_csv(
-  pcbs_final,
-  file.path(dir_layers, bhi_version, sprintf("cw_con_ices6_bhi%s.csv", assess_year))
-)
+
 ```
 
 
@@ -665,11 +743,12 @@ Scale between 0 and 1.  If value is below 75, $\mbox{score} = 1$
 **Use Lat/Long to Match BHI Regions**
 ```{r assign BHI regions to PFOS data, echo = TRUE, message = FALSE, warning = FALSE}
 # use 'join_rgns_info' helper function defined in spatial.R
-pfos_bio_sf <- join_rgns_info(
-  pfos_bio_clean_df,
+pfos <- join_rgns_info(
+  read_clean_df("pfos_bio_cleaned.csv"),
   latlon_vars = c("latitude", "longitude"),
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
-  return_spatial = TRUE
+  return_spatial = FALSE,
+  buffer_shp = buffer_sf
 )
 ```
 
@@ -677,11 +756,58 @@ pfos_bio_sf <- join_rgns_info(
 
 #### 3.2.2 Evaluate flagged data & sampling patterns
 
-Using the function defined above at the end of **section 3.1.3** to evaluate flagged data and sampling patterns for PFOS in biota data:
+```{r subset pfos data}
+pfos <- pfos %>% 
+  filter(!is.na(value_wet_wgt)) %>% 
+  filter(str_detect(species, pattern = "Clupea harengus")) %>%
+  select(
+    variable, value_wet_wgt, detect_lim_wet_wgt, quant_lim_wet_wgt,
+    species, num_indiv_subsample, monit_program, monit_purpose, monit_year,
+    sub_samp_ref,
+    qflagged, qflag, 
+    country, Subbasin, HELCOM_ID, BHI_ID, latitude, longitude, station,
+    date, year, month, day
+  )
+```
 
-```{r pfos input data initial data visualizations}
-## create visualizations, view/show the results with e.g. pfos_eval$map...
-pfos_eval <- make_cwcon_viz(pfos_bio_sf, bhi_rgn_shp = bhi_rgns_simple, plottype = c("map", "plot", "widget"), yr = 2014)
+<br> 
+
+**PFOS, Visualize flagged data in Timeseries**
+
+Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
+
+```{r pfos qflag adjustment congeners by basin, results = "show", fig.height = 24, fig.width = 9.5}
+## pcb qflag adjustment congeners by basin and congener, 
+## red x's indicate flagged data, colorscale indicates number of observations
+plotdf <- pfos %>% 
+  mutate(value_adj = ifelse(qflagged, value_wet_wgt/2, NA)) %>% 
+  group_by(date, variable, Subbasin) %>% 
+  mutate(countObs = n(), meanAdjww = mean(value_adj, na.rm = TRUE)) %>% 
+  ungroup()
+
+ggplot(plotdf) + 
+  scale_color_distiller(palette = "GnBu", direction = -1) +
+  geom_point(aes(date, value_wet_wgt, color = countObs), show.legend = FALSE, size = 0.6, alpha = 0.4) +
+  geom_point(aes(date, value_adj), color = "red", shape = 4, size = 1, alpha = 0.6) +
+  geom_line(aes(date, meanAdjww), size = 0.4, alpha = 0.6, show.legend = FALSE) +
+  facet_wrap(
+    c("variable", "Subbasin"), 
+    labeller = label_wrap_gen(width = 35, multi_line = FALSE), 
+    scales = "free_y", 
+    ncol = 3
+  ) +
+  labs(x = NULL, y = "Congener Concentration (ug/kg wet weight) measured in Clupea harengus") +
+  theme_bw()
+```
+
+
+```{r pfos initial visualizations, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 9}
+pfos_qflag_adjust <- qflag_adjust(pfos, sumcongeners = FALSE)
+pcb_noqflag <- qflag_adjust(pfos, sumcongeners = FALSE, approach = "NoQflag")
+
+cols <- colorRampPalette(cols)(42)[sample(1:42, size = 19)]
+plot_cwcon_initial(pfos_qflag_adjust, col_pal = cols, contam_param = "O-FL", cntry_or_basin = "country")
+map_cwcon_initial(pfos_qflag_adjust %>% mutate(Matrix = "biota"), yr = 2014:2019, matrix = "biota")
 ```
 
 <br>
@@ -695,10 +821,7 @@ pfos_eval <- make_cwcon_viz(pfos_bio_sf, bhi_rgn_shp = bhi_rgns_simple, plottype
 <br>
 
 ```{r save pfos contaminants layers}
-write_csv(
-  pfos_final,
-  file.path(dir_layers, bhi_version, sprintf("cw_con_pfos_bhi%s.csv", assess_year))
-)
+
 ```
 
 <br>
@@ -706,26 +829,7 @@ write_csv(
 The following pieces of code from data prep `BHI1.0` will be integrated into `functions.R`, to reduce numbers of steps in the more labor-intensive data preparation steps...
 
 ```{r calculation of pfos status and trend}
-pfos_status_layer <- pfos_status_rgn %>%
-  dplyr::rename(score = pfos_status)%>%
-  mutate(score = score*100,
-         dimension = "status")%>%
-  select(rgn_id,dimension,score)%>%
-  arrange(rgn_id)
 
-pfos_trend_basin <- pfos_trend_data %>%
-  group_by(basin) %>%
-  do(trend_mdl = lm(pfos_obs_status~year, data=.)) %>%  ## regression model to get trend from raw observations
-  summarize(
-    basin = basin,
-    trend_score = coef(trend_mdl)['year']*5 ## number of years for future status
-  ) %>%
-  ungroup()
-pfos_trend_layer <- pfos_trend_rgn %>%
-  dplyr::rename(score = trend_score)%>%
-  mutate(dimension = "trend")%>%
-  select(rgn_id,dimension,score)%>%
-  arrange(rgn_id)
 ```
 
 #### 3.2.4 Methods discussion
@@ -751,17 +855,19 @@ $\mbox{Trend} = 5 \times \mbox{slope }$
 
 ```{r assign BHI regions to Dioxin data, echo = TRUE, message = FALSE, warning = FALSE}
 ## use 'join_rgns_info' helper function defined in spatial.R
-dioxin_bio_sf <- join_rgns_info(
-  dioxin_bio_clean_df,
+dioxin_bio <- join_rgns_info(
+  read_clean_df("dioxin_bio_cleaned.csv"),
   latlon_vars = c("latitude", "longitude"),
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
-  return_spatial = TRUE
+  return_spatial = FALSE,
+  buffer_shp = buffer_sf
 )
-dioxin_sed_sf <- join_rgns_info(
-  dioxin_sed_clean_df,
+dioxin_sed <- join_rgns_info(
+  read_clean_df("dioxin_sed_cleaned.csv"),
   latlon_vars = c("latitude", "longitude"),
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"),
-  return_spatial = TRUE
+  return_spatial = FALSE,
+  buffer_shp = buffer_sf
 )
 ## DATA POINTS WITH MISSING BHI IDS FILTERED OUT... SHOULD MANUALLY ADD INSTEAD?
 ```
@@ -783,13 +889,12 @@ lookup_tef <- read_csv(here::here("supplement", "lookup_tabs", "tef_conversion_l
 
 ```{r filter dioxin like PCBs and convert units ug to pg per gram}
 ## get dioxin-like PCBs using TEF lookup table
-dioxinlike_PCB <- pcb_bio_sf %>%
+dioxinlike_PCB <- pcb_bio %>%
   ## retain only congeners in both objects
-  inner_join(lookup_tef, by = c("variable", "congener")) %>%
+  inner_join(lookup_tef, by = c("variable" = "congener")) %>%
   ## filter out congeners without a TEF conversion
   filter(!is.na(TEF_2005)) %>%
-  select(-congener_match, -congener_full, -WHO_Compound_Name, -congener_category) %>%
-
+  select(-congener_full, -WHO_compound_name, -congener_category)
 
 ## deal with qflags adjustment here....
 
@@ -801,19 +906,19 @@ Dioxins and dioxin-like PCBs still separate objects here.
 
 ```{r convert to TEQ and plot by country}
 ## dioxin dataset
-dioxin_teq <- dioxin_bio_sf %>%
+dioxin_teq <- dioxin_bio %>%
    ## retain only congeners in both objects
   inner_join(lookup_tef, by = c("variable" = "congener")) %>%
    ## filter out congeners without a TEF conversion
   filter(!is.na(TEF_2005)) %>%
-  select(-congener_match, -congener_full, -WHO_Compound_Name, -congener_category) %>%
+  select(-congener_full, -WHO_compound_name, -congener_category)
   ## convert concentration to TEQ from qflag adjusted value
-  mutate(value_TEQ = value_adj*TEF_2005)
-## check: nrow(dioxin_teq) == nrow(dioxin_bio_sf)
+  # mutate(value_TEQ = value_adj*TEF_2005)
+
 
 ## dioxin-like pcb dataset
-dioxinlike_PCB_teq <- dioxinlike_PCB %>%
-  mutate(value_TEQ = value_adj*TEF_2005)
+# dioxinlike_PCB_teq <- dioxinlike_PCB %>%
+#   mutate(value_TEQ = value_adj*TEF_2005)
 ```
 
 
@@ -824,31 +929,31 @@ Were dioxins and PCBs measured from the same samples such that a total TEQ value
 ## check unique and matching sub_sample_ref
 ## any cases where sub_samp_ref appears in dioxin and pcb datasets?
 # intersect(unique(dioxinlike_PCB_teq$sub_samp_ref), unique(dioxin_teq$sub_samp_ref))
-full_join(
-  dioxin_teq %>%
-    select(sub_samp_ref) %>%
-    distinct() %>%
-    mutate(dioxin = TRUE),
-  dioxinlike_PCB_teq %>%
-    select(sub_samp_ref) %>%
-    distinct() %>%
-    mutate(pcb = TRUE),
-  by = "sub_samp_ref"
-) %>% filter(dioxin & PCB)
+# full_join(
+#   dioxin_teq %>%
+#     select(sub_samp_ref) %>%
+#     distinct() %>%
+#     mutate(dioxin = TRUE),
+#   dioxinlike_PCB_teq %>%
+#     select(sub_samp_ref) %>%
+#     distinct() %>%
+#     mutate(pcb = TRUE),
+#   by = "sub_samp_ref"
+# ) %>% filter(dioxin & PCB)
 
 ## check any shared location and sample dates?
 # intersect(unique(dioxinlike_PCB_teq$sub_samp_ref), unique(dioxin_teq$sub_samp_ref))
-full_join(
-  dioxin_teq %>%
-    select(country, station, date)%>%
-    distinct() %>%
-    mutate(dioxin = TRUE),
-  dioxinlike_PCB_teq %>%
-    select(country, station, date)%>%
-    distinct() %>%
-    mutate(pcb = TRUE),
-  by = "sub_samp_ref"
-) %>% filter(dioxin & PCB)
+# full_join(
+#   dioxin_teq %>%
+#     select(country, station, date)%>%
+#     distinct() %>%
+#     mutate(dioxin = TRUE),
+#   dioxinlike_PCB_teq %>%
+#     select(country, station, date)%>%
+#     distinct() %>%
+#     mutate(pcb = TRUE),
+#   by = "sub_samp_ref"
+# ) %>% filter(dioxin & PCB)
 ```
 
 
@@ -893,22 +998,7 @@ $X_{TEQstatus} = \frac{1}{\mbox{dioxin + } \mbox{dioxin-like pcb teq value / teq
 ## 4. Contaminant Indicator
 
 ```{r read in indicator layers and join into single object}
-con_status <- bind_rows(
-  read_csv() %>% mutate(ind = "bioPCB"),
-  read_csv() %>% mutate(ind = "bioDioxin"),
-  read_csv() %>% mutate(ind = "bioPFOS"),
-  read_csv(),
-  read_csv(),
-  read_csv()
-)
-con_trend <- bind_rows(
-  read_csv(),
-  read_csv(),
-  read_csv(),
-  read_csv(),
-  read_csv(),
-  read_csv()
-)
+
 ```
 
 ### 4.1 Plotting Indicators for Comparison
@@ -918,9 +1008,7 @@ con_trend <- bind_rows(
 ### 4.3 Trends by BHI Region
 
 ```{r plot basin trends for all indicators}
-# ggplot(trends_dataframe)+
-#   geom_point(aes(Subbasin, trend_score), size = 2.5) +
-#   labs(x = "Subbasin", y = "Trend score")
+
 ```
 
 
