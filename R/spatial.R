@@ -29,8 +29,14 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
   for(i in foldernames){
     
     if(file.exists(file.path(sp_dir, i))){
-      shp_path <- list.files(file.path(sp_dir, i), full.names = TRUE, 
-                             pattern = "[A-Za-z0-9_]+.shp$") # assumes 1 shapefile per folder
+      
+      ## assuming 1 shapefile per folder!!!
+      shp_path <- list.files(
+        file.path(sp_dir, i), 
+        full.names = TRUE, 
+        pattern = "[A-Za-z0-9_]+.shp$"
+      )
+      
       shp <- sf::st_read(
         dsn = file.path(sp_dir, i), 
         layer = str_extract(basename(shp_path), pattern = "[A-Za-z0-9_]+"),
@@ -43,6 +49,12 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
       
     } else {
       warning(paste(i, "not found, check it exists in spatial directory", sp_dir))
+    }
+    
+    if(exists("BHI_rgns_shp", envir = .GlobalEnv) & "Bothian Sea" %in% unique(BHI_rgns_shp$Subbasin)){
+      BHI_rgns_shp <- BHI_rgns_shp %>% 
+        mutate(Subbasin = as.character(Subbasin)) %>% 
+        mutate(Subbasin = ifelse(Subbasin == "Bothian Sea", "Bothnian Sea", Subbasin))
     }
   }
 }
