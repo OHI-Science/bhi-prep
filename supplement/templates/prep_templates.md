@@ -65,6 +65,7 @@ output:
   html_document:
     toc: true
     toc_depth: 4
+    code_folding: hide
 ---
 
 <br>

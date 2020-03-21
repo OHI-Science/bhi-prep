@@ -1,6 +1,4 @@
 
-## 2. Data
-
 ```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
 ```
@@ -13,6 +11,7 @@ source(here::here("R", "setup.R"))
 
 **PCB Data in Biota**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_PCBs.csv -->
+<!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_20Feb07_PCBs.csv -->
 ```{r PCB biota data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1990-2017"),
@@ -110,7 +109,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 
 **PFOS in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_PFOS.csv -->
-
+<!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_20Feb07_PFOS.csv -->
 ```{r PFOS biota data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "2005-2017  (2005 earliest allowed)"),  
@@ -133,6 +132,7 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 
 **Dioxins in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_Dioxins.csv -->
+<!-- w/ one year more...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_20Feb07_Dioxins.csv -->
 ```{r dioxin biota data, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1998-2017  (1998 earliest allowed)"),  
@@ -195,93 +195,9 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
-<br/>
-
-#### 2.1.4 ICES Station Dictionary and Impacts
-
-**ICES Station Dictionary**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ICES_station_dictionary/ICES_station_dictionary.csv -->
-```{r ices station dictionary, echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("", "")))
-
-colnames(tab) <- c("Option", "Specification")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [ICES](SOURCE...) <br/> Downloaded [DATE...] February 2020 by Ellie Campbell")
-```
-<br/>
-
-**ICES Station Impacts Codes**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ICES_station_dictionary/ICES_station_impacts.csv -->
-```{r ices station impact codes, echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("Data theme:", "Environmental"),
-  c("Keyword:", "Station"),
-  c("Code Types:", "MSTAT")))
-
-colnames(tab) <- c("Option", "Specification")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [ICES vocabulary](https://vocab.ices.dk/?ref=177) <br/> Downloaded 7 February 2020 by Ellie Campbell")
-```
-<br/>
-
-#### 2.1.5 PCB Concentration Indicator
-
-**ICES-6 PCB**
-
-Non-dioxin like PCBs: sum of congeners (28, 52, 101, 138, 153, 180). Target is set at the threshold of 75 ug/kg ww (wet weight) fish muscle.
-
-This is similar to the ICES-7 except that PCB 118 is excluded, since it is metabolized by mammals.
-
-75 ng/g wet weight is the EU threshold for fish muscle. See Section 5 Annex, 5.3. This threshold was also agreed upon as GES boundary at the meeting of the [Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation) April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*  
-
-<br/>
-
-#### 2.1.6 TEQ values for Dioxins and Dioxin-like PCBs
-
-Dioxin and dioxin-like compounds. Target is set at 0.0065 TEQ ug/kg ww fish, crustaceans or molluscs (source of target: EQS biota human health). Secondary GES boundary: CB-118 24 ug/kg lw fish liver or muscle (source: EAC).  
-
-This threshold was agreed upon as GES indicator at the meeting of the [Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation) April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*  
-
-This is consistent with the [EU human health thresholds for dioxin and dioxin-like compounds - 6.5 pg/g](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF)  
-
-TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)  
-
-<br/>
-
-#### 2.1.7 PFOS Indicator
-
-According to [HELCOM PFOS core indicator document, p.3](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf), the "GES boundary is set to 9.1 μg/kg wet weight (or 9.1 ng/g ww) with the protection goal of human health".
-
-"The GES boundary is an environmental quality standard (EQS), derived at EU level as a substance included on the list of priority substances under the Water Framework Directive (European Commission 2000, 2013). GES, in accordance with the MSFD is defined as 'concentrations of contaminants at levels not giving rise to pollution effects'. EQS are derived from ecotoxicological studies to protect freshwater and marine ecosystems from potential adverse effects of chemicals, as well as adverse effects on human health via drinking water and food from aquatic environments. Quality Standards (QS) are derived for different protection goals, i.e.: pelagic and benthic communities, top-predators in these ecosystems, and human health. The most stringent of these QS is the basis for the EQS. The EQS boundary for PFOS is based on the QS set for biota to protect human health (9.1 μg/ kg fish ww), defined for edible parts in fish. For harmonization purposes the EC Guidance Document No. 32 on biota monitoring (the implementation of EQS biota) under the WFD was developed (European Commission 2014). This guidance document recommends that the results from the monitoring should be standardized to represent fish at a trophic level of 4, which is an estimate of the general trophic level in commercial fish in Europe. The recommendation to obtain PFOS data in fish at a trophic level of 4 is to adjust the values from monitoring in accordance with trophic magnification factors and trophic level." $-$ [HELCOM PFOS core indicator document, p.8](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)  
-
-**HELCOM core indicator report uses liver PFOS concentrations converted to muscle equivalent values** as in [Faxneld et al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).  
-
-<br/>
-
-#### 2.1.7 TEQ values for PCBs in Sediment
-
-Only a few environmental quality standards (EQS) are to date defined in the Baltic Sea for marine surface sediments. The Norwegian threshold values are often used when a comparison with ecotoxicological effects is needed. In particular, the [Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf) has defined EQS in sediment for 28 EU priority substances.
-
-PCB7 (sum PCB 28, 52, 101, 118, 138, 153, and 180): Target is set at 4.1 TS ug/kg dw. [Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
-
-**Recommended threshold values are given only for total PCB7, and not for each individual congener. This is because toxicity data are available for only a minority of congeners.**
-
-<br/>
-
-#### 2.1.8 TEQ values for Dioxins in Sediment
-
-Dioxin and dioxin-like compounds. Target is set at 0.00086 TEQ ug/kg dw (Total TEQ).
-[Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
-TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)  
-
-<br/>
-
 ---
 
-<br/>
+<br>
 
 ### 2.2 Centralization & Normalization
 <!-- note: below incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections, the following: -->
@@ -294,10 +210,10 @@ dir_rawdata <- file.path(dir_B, "Goals", "CW", "CON")
 
 lapply(
   list(
-    c("ContaminantsBiota_PCBs", "pcb_rawdata_bio"),
+    c("ContaminantsBiota_20Feb07_PCBs", "pcb_rawdata_bio"),
     c("ContaminantsSediment_PCBs", "pcb_rawdata_sed"),
-    c("ContaminantsBiota_PFOS", "pfos_rawdata_bio"),
-    c("ContaminantsBiota_Dioxins", "dioxin_rawdata_bio"),
+    c("ContaminantsBiota_20Feb07_PFOS", "pfos_rawdata_bio"),
+    c("ContaminantsBiota_20Feb07_Dioxins", "dioxin_rawdata_bio"),
     c("ContaminantsSediment_Dioxins", "dioxin_rawdata_sed")
   ),
   function(x){
@@ -325,7 +241,9 @@ lapply(
     ) %>% assign(x = x[2], envir = .GlobalEnv)
   }
 )
+```
 
+```{r check number of dates and years sample by country in pcb data,  results  = "show"}
 ## check number of dates and years sample by country, PCBs data from ICES
 ## Denmark doesn't have herring data...
 do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
@@ -342,7 +260,7 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
 })) %>% DT::datatable()
 ```
 
-<br>
+---
 
 #### 2.2.1 Rename Fields/Variables
 
@@ -443,8 +361,6 @@ rm("pcb_rawdata_bio", "pfos_rawdata_bio", "dioxin_rawdata_bio", "pcb_rawdata_sed
 
 ---
 
-<br>
-
 #### 2.2.2 Standardize Units
 
 
@@ -463,6 +379,7 @@ The datasets each contain two main categories (param_groups) one of which is BBI
 <br>
 
 <!-- the following code chunks are modified from raw_data_prep.r scripts in bhi-1.0-archive/baltic2015/prep/CW/contaminants -->
+
 ```{r standardize units in biota datasets, echo = TRUE}
 
 standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
@@ -540,7 +457,9 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
     select(variable, unit) %>% 
     distinct()
   
-  df_bbio <- select(df_bbio, -unit)
+  ## if dealing with sediment, need to keep units for now...
+  if(matrix_biota){df_bbio <- select(df_bbio, -unit)}
+  
 
   chk_num_bbio_dup <- nrow(df_bbio) - nrow(distinct(df_bbio %>% select(-value)))
   
@@ -548,13 +467,13 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## identify, explore, handle bbio duplicates ----
   ## group to identify duplicates; for a given sub_samp_ref only some variables may have duplicates
   grpvars <- c(
-    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag",
+    "station", "year", "species", "basis_determination", "matrix_analyzed", "qflag", 
     sampvars, "date", "variable", "longitude", "latitude"
   )
   chk <- c()
   for(i in 1:6){
     bbio_duplicates <- df_bbio %>% 
-      group_by(!!!syms(c(grpvars[1:i], grpvars[7:length(grpvars)]))) %>%
+      group_by(!!!syms(c(grpvars[i], grpvars[7:length(grpvars)]))) %>%
       summarise(n = n()) %>% 
       filter(n > 1) %>% 
       ungroup()
@@ -562,12 +481,17 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   if(var(chk) != 0){
     message(sprintf(
-      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate in grpvars: %s",
-      paste(grpvars[which(chk == quantile(chk, 0.1))], collapse = ", ")
+      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate: %s",
+      paste(grpvars[which(chk != chk[which.max(tabulate(match(chk, chk)))])], collapse = ", ")
     ))
   }
   
   ## join duplicate table by grouped vars to locate within full bbio dataset
+  bbio_duplicates <- df_bbio %>% 
+      group_by(!!!syms(grpvars)) %>%
+      summarise(n = n()) %>% 
+      filter(n > 1) %>% 
+      ungroup()
   df_bbio <- left_join(df_bbio, bbio_duplicates, by = grpvars)
   
   ## take averages for variable/sample duplicates
@@ -604,7 +528,11 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   
   ## WIDE BBIO DATA
   ## bbio data wide format ----
-  df_bbio_wide <- tidyr::pivot_wider(df_bbio, names_from = variable, values_from = value)
+  df_bbio_wide <- df_bbio %>% 
+    ## remove basis_determination because not always recorded for bio vars, 
+    ## will give incorrect NAs in EXLIP% among others for some rows when rejoined with concentration data
+    select(-basis_determination) %>% 
+    tidyr::pivot_wider(names_from = variable, values_from = value)
   
   ## which columns are needed to uniquely identify and later rejoin with congener conc. data
   ## i.e. at this stage, which subset of grpvars gives groupings such that all n are one?
@@ -677,10 +605,14 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## for a given sub_samp_ref only some vars/congeners may have duplicates
   message("STEP 4: averaging, where multiple congener concentrations observations per sub sample\n")
   chk_num_conc_dup <- nrow(df_conc) - nrow(distinct(df_conc %>% select(-value, -detect_lim, -quant_lim)))
-  
+
   conc_duplicates <- df_conc %>% 
     group_by(!!!syms(grpvars)) %>%
     summarise(n = n()) %>% 
+    ## no cases where duplicates with-and-without qflags, else would keep cases unflagged observations...
+    # group_by(!!!syms(setdiff(grpvars, "qflag"))) %>%
+    # mutate(allflagged = !any(is.na(qflag))) %>%
+    # filter(n > 1, !allflagged) %>% ...
     filter(n > 1) %>% 
     ungroup()
   
@@ -703,31 +635,30 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
     df_conc %>% filter(is.na(n)) %>% select(-n)
   )
   
-  ## separate detect and quantification limit variables before next steps
-  detect_quant_lims <- select(df_conc, grpvars, detect_lim, quant_lim)
-  chk_lims_ids <- nrow(detect_quant_lims) == nrow(distinct(select(detect_quant_lims, grpvars)))
-  if(!chk_lims_ids){warning("detect and quant limit variables not uniquely identified by grouping variables")}
-
-  ## spread df_conc data to wide format
-  ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
+  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records;
+  ## of these, keep wet weight records, when has a value
+  if(matrix_biota){
+    chk <- df_conc %>%
+      group_by(!!!syms(setdiff(grpvars, c("basis_determination", "matrix_analyzed")))) %>%
+      mutate(n = n(), ww_val = any(basis_determination == "wet weight" & !is.na(value))) %>%
+      filter(n > 1) %>% 
+      mutate(
+        rm_duplicate = 
+          (ww_val & basis_determination == "lipid weight")|
+          (!ww_val & basis_determination == "wet weight")
+      ) %>% 
+      ungroup()
+    df_conc <- df_conc %>%
+      left_join(chk, by = intersect(names(df_conc), names(chk))) %>% 
+      mutate(rm_duplicate = ifelse(is.na(rm_duplicate), TRUE, rm_duplicate)) %>% 
+      filter(rm_duplicate) %>% 
+      select(-n, -ww_val, -rm_duplicate)
+  }
+  
+  ## check if one row for every unique sub_samp_ref for biota, samp_ref for sediment
   df_conc_wide <- df_conc %>%
     select(-detect_lim, -quant_lim) %>% 
     tidyr::pivot_wider(names_from = variable, values_from = value)
-  
-  ## remaining duplicates for biota datasets are due to dual wet/lipid weight records:
-  ## of these, keep wet weight records
-  if(matrix_biota){
-    chk <- setdiff(grpvars, c("basis_determination", "matrix_analyzed", "variable"))
-    chk_id <- df_conc_wide %>%
-      group_by(!!!syms(chk)) %>%
-      mutate(n = n()) %>%
-      filter(n > 1) %>% 
-      ungroup()
-    chk_id <- unique(chk_id[["sub_samp_ref"]])
-    df_conc_wide <- df_conc_wide %>%
-      filter(!(sub_samp_ref %in% chk_id & basis_determination == "lipid weight" & !is.na(qflag)))
-  }
-  ## check one row for every unique sub_samp_ref for biota, samp_ref for sediment
   if(length(unique(df_conc[[sampvars[length(sampvars)]]])) != nrow(distinct(df_conc_wide))){
     message(
       "NOTE conc. subsamples not uniquely identified even after averaging; 
@@ -736,17 +667,9 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   
   ## for biota convert lipid weight measurements to wet weight ----
-  ## use the df_bbio_wide datatable to convert values in df_conc_wide table
-  df_final <- df_conc_wide %>% 
-    left_join(df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) %>% 
-    ## gathering into long format after having spread by congener will give lots of NAs
-    ## these'll be filtered out in the last line before result is returned
-    tidyr::pivot_longer(
-      cols = tidyselect::one_of(unique(df_conc$variable)), 
-      names_to = "variable", 
-      values_to = "value"
-    ) %>% 
-    left_join(detect_quant_lims, by = grpvars)
+  ## UNITS HAVE ALL BEEN CONVERTED TO MICROGRAMS PER KILOGRAM
+  ## use the df_bbio_wide datatable to convert values in df_conc table
+  df_final <- left_join(df_conc, df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) 
   
   if(matrix_biota){
     message("STEP 5: converting all congener concentrations in biota to wet weight")
@@ -755,9 +678,24 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
       mutate_at(
         vars(c("value", "detect_lim", "quant_lim")), 
         list(wet_wgt = ~ case_when(
-          basis_determination == "lipid weight" ~ .*(`EXLIP%`/100),
-          basis_determination == "dry weight" ~ .*(`DRYWT%`/100),
+          basis_determination == "lipid weight" ~ .*(`EXLIP%`/100), # IS THIS HOW EXLIP% VARIABLE WORKS????
+          basis_determination == "dry weight" ~ .*(100/`DRYWT%`), # IS THIS HOW DRYWT% VARIABLE WORKS????
           basis_determination == "wet weight" ~ .
+        ))
+      )
+  }
+  ## for sediment data, still need to convert to dry weights
+  if(!matrix_biota){
+    ## what to do with the dry weights....
+    message("STEP 5: converting all congener concentrations in sediment to dry weight")
+    df_final <- df_final %>% 
+      ## if value is not dry weight convert, otherwise keep value
+      ## even though some have units of ug/kg treat the DRYWT% as percentage...
+      mutate_at(
+        vars(c("value", "detect_lim", "quant_lim")), 
+        list(dry_wgt = ~ case_when(
+          basis_determination == "wet weight" ~ .*(`DRYWT%`/100), # IS THIS HOW DRYWT% VARIABLE WORKS????
+          basis_determination == "dry weight" ~ .
         ))
       )
   }
@@ -804,8 +742,6 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
 }
 ```
 
----
-
 <br>
 
 #### 2.2.3 Wrangle all and Save
@@ -819,7 +755,7 @@ lapply(
     ## remove PCB, SCB, SCB7 - these are summarized data or depreciated codes
     ## OC-CB variable codes: vocab.ices.dk/?CodeID=26983
     list("pcb_bio", TRUE, "OC-CB", c("PCB", "SCB", "SCB7")),
-    list("pcb_sed", FALSE, "OC-CB", c("PCB", "SCB", "SCB7")),
+    list("pcb_sed", FALSE, "OC-CB", c("PCB", "SCB")),
     
     ## Dioxin datasets
     list("dioxin_bio", TRUE, "OC-DX", NULL),
@@ -849,78 +785,26 @@ lapply(
 )
 ```
 
-<br>
-
 ---
 
-<br>
-
 ### 2.3 Initial Data Exploration
-
-<br>
-
-#### 2.3.1 Congeners by Country {.tabset .tabset-fade}
-
-##### Plotting Data
-
-```{r congeners barplots dataframe, echo = TRUE, results = "show"}
-## reshape for plotting
-plotdf <- pcb_bio_cleaned$df_final %>% # try also with pfos_bio_cleaned$df_final etc...
-  group_by(variable, month, year, country) %>% 
-  summarize(Value = mean(value, na.rm = TRUE) %>% round(3)) %>% 
-  ungroup() %>% 
-  group_by(variable, year, country) %>%
-  mutate(yearlyMean = mean(Value, na.rm = TRUE) %>% round(3)) %>% 
-  ungroup %>% 
-  filter(year > 2000) %>% 
-  rename(Congener = variable, Year = year) %>% 
-  mutate(Date = as.Date(paste("1", month, Year, sep = "-"), tryFormats = "%d-%m-%Y"))
-
-## color palettes
-cols <- c(
-  RColorBrewer::brewer.pal(8, "Dark2"), 
-  RColorBrewer::brewer.pal(9, "Set1")
-)
-cols <- colorRampPalette(cols)(42)[sample(1:42)]
-```
-
-##### Monthly
-
-```{r congeners monthly by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 11}
-## monthly plots
-plotly::ggplotly(
-  ggplot(plotdf, aes(Date, Value, fill = Congener)) +
-    geom_col(position = "stack", show.legend = FALSE) +
-    scale_x_date(
-      breaks = function(x){seq.Date(from = min(plotdf$Date), to = max(plotdf$Date), by = "3 months")},
-      date_labels = "%b %Y"
-    ) +
-    scale_fill_manual(values = cols) +
-    labs(x = NULL, y = NULL) +
-    theme(axis.text.x = element_text(angle = 45, size = 6)) +
-    facet_wrap(~country, scales = "free_y", ncol = 1) 
-)
-```
-
-##### Yearly
-
-```{r congeners yearly by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 11}
-## yearly plots
-plotly::ggplotly(
-  ggplot(plotdf, aes(Year, yearlyMean, fill = Congener)) +
-    geom_col(position = "stack", show.legend = FALSE) +
-    scale_fill_manual(values = cols) +
-    labs(x = NULL, y = NULL) +
-    theme(axis.text.x = element_text(angle = 45, size = 6)) +
-    facet_wrap(~country, scales = "free_y", ncol = 1) 
-)
-```
-
-<br> 
 
 #### 2.3.2 Spatial Distributions of Measurements
 
 ```{r sampling maps, results = "show", message = FALSE, warning = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 20}
+## to start running code from here, will need to load in cleaned  datasets...
+# dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
+# funtemp <- function(dat){
+#   dat_final <- read_csv(file.path(dir_interm, dat))
+#   assign(
+#     x = str_replace(dat, "cleaned.csv", "clean_df"), 
+#     value = dat_final,
+#     envir = .GlobalEnv
+#   )
+# }
+# lapply(list.files(dir_interm), funtemp)
+
+
 ## basemap with baltic countries borders and BHI regions with ID numbers
 bhi_rgns_simple <- rmapshaper::ms_simplify(
   input =  sf::st_read(
@@ -933,32 +817,37 @@ basemap <- ggplot2::ggplot() +
   geom_sf(
     data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
       sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", 
-    size = 0.1
+    fill = "ivory", color = "lightsteelblue",
+    size = 0.1, alpha = 0.8
   ) +
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "grey40") +
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) +
-  theme(
-    panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")
-  )
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
 
 ## mapping datasets for biota and sediments
-make_mapdf <- function(x, y){
+make_mapdf <- function(x, yr){
   cbind(
-    get(x) %>% 
-      filter(year %in% y, longitude > 8) %>%
+    get(x) %>%
+      filter(year %in% yr, longitude > 9) %>%
       group_by(year, latitude, longitude, variable) %>%
       summarize(
-        mean_val = mean(value, na.rm = TRUE)
-      ) %>% 
-      group_by(year, latitude, longitude) %>% 
+        n_obs = n(),
+        mean_val = ifelse(
+          str_detect(x, "sed"), 
+          mean(value, na.rm = TRUE),
+          mean(value_wet_wgt, na.rm = TRUE)
+        )
+      ) %>%
+      filter(!is.na(mean_val)) %>% 
+      group_by(latitude, longitude) %>% 
       mutate(
-        mean_all = mean(mean_val),
-        sd_all = ifelse(is.na(sd(mean_val)), 1, sd(mean_val) +1)
+        num_congeners = n_distinct(variable),
+        mean_allcongeners_selectedyrs = mean(mean_val),
+        sd_allcongeners_selectedyrs = ifelse(is.na(sd(mean_val)), 1, sd(mean_val) + 1)
       ) %>%
       tidyr::pivot_longer(
-        cols = c(sd_all, mean_all), 
+        cols = c(sd_allcongeners_selectedyrs, mean_allcongeners_selectedyrs), 
         names_to = "metric", values_to = "value"
       ) %>%
       ungroup() %>% 
@@ -975,43 +864,44 @@ mapdf_sediment <- do.call(
   rbind, 
   lapply(
     list("pcb_sed_clean_df", "dioxin_sed_clean_df"), 
-    function(x) make_mapdf(x, 2014:2019)
+    function(x) make_mapdf(x, yr = 2014:2019)
   )
 )
 
 ## contaminants datasets overlaying basemap
 mapbio <- basemap + 
   geom_sf(
-    aes(size = value), 
-    color = "royalblue3",
-    alpha = 0.2, 
+    aes(size = value, color = num_congeners), 
+    alpha = 0.15, 
     shape = 19, 
-    data = mapdf_biota,
-    show.legend = FALSE
+    data = mapdf_biota
   ) +
-  facet_grid(rows = vars(source), cols = vars(metric))
+  scale_color_distiller(palette = "OrRd") +
+  facet_grid(rows = vars(source), cols = vars(metric)) +
+  guides(size = FALSE) +
+  theme(legend.position = c(0.1, 0.9))
 
 mapsed <- basemap + 
   geom_sf(
-    aes(size = value), 
-    color = "royalblue3", 
-    alpha = 0.2, 
+    aes(size = value, color = num_congeners),
+    alpha = 0.15, 
     shape = 19, 
     data = mapdf_sediment,
     show.legend = FALSE
   ) +
-  facet_grid(rows = vars(source), cols = vars(metric)) +
-  theme(axis.text.x = element_blank())
+  scale_color_distiller(palette = "OrRd") +
+  facet_grid(rows = vars(source), cols = vars(metric))
 
 gridExtra::grid.arrange(mapbio, mapsed, ncol = 1, heights = c(1.5, 1))
 ```
 
+<br>
 
 #### 2.3.3 Contaminants in Biota vs Sediments
 
 **Contaminants: PCB and Dioxin by Matrix per Congener**
 
-```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 10}
+```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 13}
 sf::st_geometry(mapdf_sediment) <- NULL
 sf::st_geometry(mapdf_biota) <- NULL
 
@@ -1028,20 +918,32 @@ boxdf <- bind_rows(
   )
 )
 boxdf <- boxdf %>% 
-  filter(metric == "mean_all") %>% 
+  filter(metric == "mean_allcongeners_selectedyrs", source != "pfos") %>% 
   group_by(source) %>% 
   mutate(quant9 = quantile(mean_val, 0.9)) %>% 
   ungroup() %>% 
   filter(mean_val < quant9)
 
-ggplot(filter(boxdf, source != "pfos"), aes(x = variable, y = mean_val, color = matrix)) + 
-  geom_boxplot(outlier.alpha = 0.2, outlier.shape = 20) + 
-  labs(x = NULL, y = NULL) + 
-  scale_color_manual(values = RColorBrewer::brewer.pal(5, "Paired")) +
-  facet_wrap(~source, scales = "free", ncol = 12) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  coord_flip() +
-  theme(legend.position = c(0.9, 0.9))
+make_boxplot <- function(dataset){
+  boxplot <- ggplot(dataset, aes(x = matrix, y = mean_val, color = matrix)) + 
+    geom_boxplot(outlier.alpha = 0.2, outlier.shape = 20) + 
+    labs(x = NULL, y = NULL) + 
+    scale_color_manual(values = c("orchid", "tomato")) +
+    facet_grid(rows = vars(variable), switch = "y") +
+    coord_flip() +
+    theme(
+      legend.position = c(0.85, 0.95), 
+      axis.text.y = element_blank(),
+      axis.ticks.y.left = element_blank(),
+      panel.grid.minor.x = element_blank(), 
+      panel.grid.major.x = element_blank(),
+      strip.text.y = element_text(size = 8, angle = 180)
+    )
+  return(boxplot)
+}
+plotpcb <- make_boxplot(boxdf %>% filter(source == "pcb")) + theme(legend.position = "none")
+plotdioxin <- make_boxplot(boxdf %>% filter(source == "dioxin"))
+gridExtra::grid.arrange(plotpcb, plotdioxin, ncol = 2)
 ```
 
 <br>

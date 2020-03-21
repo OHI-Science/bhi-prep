@@ -199,41 +199,90 @@ nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutri
 **Secchi datasets**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
-# Data overview
+# ICES Data overview
 colnames(secchi_raw_ices)
 str(secchi_raw_ices)
 
+## Check for duplicates in ices
+ices_duplicates <- secchi_raw_ices %>%
+    group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
+             Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup() 
+
+# Only extract unique observations
+ices_unique <- secchi_raw_ices %>% 
+  distinct(yyyy.mm.ddThh.mm, Latitude..degrees_north., Longitude..degrees_east., 
+           Secchi.Depth..m., Bot..Depth..m., Station, Cruise)
+
+# Check if there are no more duplicates
+ices_duplicates2 <- ices_unique %>%
+    group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
+             Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup() 
+
+# SMHI data overview
 colnames(secchi_raw_smhi)
 str(secchi_raw_smhi)
+
+## Check for duplicates in smhi
+smhi_duplicates <- secchi_raw_smhi %>%
+    group_by(Station.name, Value, Sample.latitude..DD., 
+             Sample.longitude..DD., Sampling.date, Shark.sample.id.MD5) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup()
+
+# Only extract unique observations
+smhi_unique <- secchi_raw_smhi %>% 
+  distinct(Station.name, Value, Sample.latitude..DD., 
+           Sample.longitude..DD., Sampling.date, Year, Shark.sample.id.MD5, Station.ID..VISS., 
+           HELCOM.OSPAR.area, Station.water.depth)
 
 ## Merging the two datasets
 secchi <- bind_rows( 
    # smhi
-  secchi_raw_smhi %>% 
+  smhi_unique %>% 
     rename(secchi = Value, date = Sampling.date, year = Year, 
-         # use the decimal degrees for lat and lon (as for ICES)
-         lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
-         # don't find the "cruise" variable?? (Station.ID..VISS. as example)
-         cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
-  mutate(date =  as.Date(date), month = format(date, "%m"),
-         secchi = as.numeric(secchi), year = as.character(year),
-         supplier = 'smhi') %>% 
-    ## REMOVE OSPAR ROWS (TO-DO)
-  dplyr::select(cruise, station, date, year, month,
-                lat, lon, secchi, bottom_m, supplier),
-    # ices
-    secchi_raw_ices %>% 
-  rename(secchi = Secchi.Depth..m.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         bottom_m = as.numeric(bottom_m), 
-         supplier = 'ices'))
+           # use the decimal degrees for lat and lon (as for ICES)
+           lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
+           # don't find the "cruise" variable?? (chose "Station.ID..VISS." as example)
+           cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
+    mutate(date =  as.Date(date), month = format(date, "%m"),
+           secchi = as.numeric(secchi), year = as.character(year)) %>% 
+           # supplier = 'smhi') %>% 
+    ## remove OSPAR rows
+    filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
+    dplyr::select(cruise, station, date, year, month,
+                  lat, lon, secchi, bottom_m),
+  # ices
+  ices_unique %>% 
+    rename(secchi = Secchi.Depth..m.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           bottom_m = as.numeric(bottom_m)))
+           # supplier = 'ices'))
 
-## CHECK FOR DUPLICATES (TO-DO)   
-str(secchi)
+## Check for duplicates in the combined dataset
+secchi_duplicates <- secchi %>%
+    group_by(cruise, station, date, year, 
+             month, lat, lon, secchi, bottom_m) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup()
+
+## Only extract unique observations
+secchi_unique <- secchi %>% 
+  distinct(cruise, station, date, year, 
+             month, lat, lon, secchi, bottom_m)
+
+#### Add "supplier" column to differentiate ICES from SMHI data (TO-DO)!!!
+str(secchi_unique)
 
 ```
 <br/>
@@ -241,38 +290,55 @@ str(secchi)
 **Oxygen data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
-# Data overview
-colnames(oxden1)
-str(oxden1)
+## Check for duplicates in all national datasets
+oxden1_duplicates <- oxden1 %>%
+  # oxden2_duplicates <- oxden2 %>%
+  # oxest_duplicates <- oxest %>%
+  # oxger_duplicates <- oxger %>%
+  # oxlat_duplicates <- oxlat %>%
+  # oxlit_duplicates <- oxlit %>%
+    group_by(Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
+             PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup()
 
-colnames(secchi_raw_smhi)
-str(oxswe)
+# Only extract unique observations
+oxden1_unique <- oxden1 %>% 
+  # oxden2_unique <- oxden2 %>% 
+  # oxest_unique <- oxest %>%
+  # oxger_unique <- oxger %>%
+  # oxlat_unique <- oxlat %>%
+  # oxlit_unique <- oxlit %>% 
+  distinct(Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
+             PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.)
 
+# Merging unique datasets
 oxygen <- bind_rows(
-  oxden1 %>% 
+  oxden1_unique %>% 
   rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
                 lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
                 cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"),
          bottom_m = as.numeric(bottom_m),
          country = "denmark"),
-  oxden2 %>% 
+  oxden2_unique %>% 
   rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
                 lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
                 cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"),
          station = as.character(station),
          bottom_m = as.numeric(bottom_m),
          country = "denmark"),
-  oxest %>% 
+  oxest_unique %>% 
   rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
                 lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
                 cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"),
          bottom_m = as.numeric(bottom_m),
@@ -287,30 +353,30 @@ oxygen <- bind_rows(
          oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
          bottom_m = as.numeric(bottom_m),
          country = "finland"),
-  oxger %>% 
+  oxger_unique %>% 
   rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
                 lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
                 cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"),
          oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
          bottom_m = as.numeric(bottom_m),
          country = "germany"),
-  oxlat %>% 
+  oxlat_unique %>% 
   rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
                 lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
                 cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"),
          bottom_m = as.numeric(bottom_m),
          country = "latvia"),
-  oxlit %>% 
+  oxlit_unique %>% 
   rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
                 lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
                 cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
+  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"),
          bottom_m = as.numeric(bottom_m),
@@ -345,6 +411,8 @@ oxygen <- bind_rows(
          country = "sweden"))
 
 str(oxygen)
+colnames(oxygen)
+
 ```
 <br/>
 
