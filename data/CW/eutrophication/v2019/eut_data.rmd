@@ -194,41 +194,47 @@ nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutri
 <br/>
 
 
-#### 2.2.1. Merging datasets
+#### 2.2.1. Secchi datasets
 
-**Secchi datasets**
-```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
+ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records
 
-# ICES Data overview
-colnames(secchi_raw_ices)
-str(secchi_raw_ices)
+**METHOD 1**
+```{r}
+## METHOD 1
 
-## Check for duplicates in ices
+## 1) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
+## 2) Use setdiff() to indentify data smhi not in ices 
+## 3) Create a new Secchi dataset by only binding the new_smhi_unique object to ices_unique
+
+### ICES Data overview
+# colnames(secchi_raw_ices)
+# str(secchi_raw_ices)
+
+# Check for duplicates in ices
 ices_duplicates <- secchi_raw_ices %>%
-    group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
-             Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
-    summarise(n = n()) %>%
-    filter(n > 1) %>%
-    ungroup() 
+  group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
+           Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
+  summarise(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup() 
 
 # Only extract unique observations
 ices_unique <- secchi_raw_ices %>% 
+  mutate(supplier = 'ices') %>%  
   distinct(yyyy.mm.ddThh.mm, Latitude..degrees_north., Longitude..degrees_east., 
-           Secchi.Depth..m., Bot..Depth..m., Station, Cruise)
+           Secchi.Depth..m., Bot..Depth..m., Station, Cruise, supplier) %>% 
+  rename(secchi = Secchi.Depth..m.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           bottom_m = as.numeric(bottom_m))
 
-# Check if there are no more duplicates
-ices_duplicates2 <- ices_unique %>%
-    group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
-             Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
-    summarise(n = n()) %>%
-    filter(n > 1) %>%
-    ungroup() 
+### SMHI data overview
+# colnames(secchi_raw_smhi)
+# str(secchi_raw_smhi)
 
-# SMHI data overview
-colnames(secchi_raw_smhi)
-str(secchi_raw_smhi)
-
-## Check for duplicates in smhi
+# Check for duplicates in smhi
 smhi_duplicates <- secchi_raw_smhi %>%
     group_by(Station.name, Value, Sample.latitude..DD., 
              Sample.longitude..DD., Sampling.date, Shark.sample.id.MD5) %>%
@@ -238,11 +244,82 @@ smhi_duplicates <- secchi_raw_smhi %>%
 
 # Only extract unique observations
 smhi_unique <- secchi_raw_smhi %>% 
+  mutate(supplier = 'smhi') %>% 
   distinct(Station.name, Value, Sample.latitude..DD., 
            Sample.longitude..DD., Sampling.date, Year, Shark.sample.id.MD5, Station.ID..VISS., 
-           HELCOM.OSPAR.area, Station.water.depth)
+           HELCOM.OSPAR.area, Station.water.depth, supplier) %>% 
+   rename(secchi = Value, date = Sampling.date, year = Year, 
+           # use the decimal degrees for lat and lon (as for ICES)
+           lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
+           # don't find the "cruise" variable?? (chose "Station.ID..VISS." as example)
+           cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
+    mutate(date =  as.Date(date), month = format(date, "%m"),
+           secchi = as.numeric(secchi), year = as.character(year)) %>%  
+ ## remove OSPAR rows
+    filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
+    dplyr::select(cruise, station, date, year, month,
+                  lat, lon, secchi, bottom_m, supplier)
 
-## Merging the two datasets
+## Use setdiff() to indentify data smhi not in ices  
+new_smhi_unique <- setdiff(dplyr::select(smhi_unique,-supplier), dplyr::select(ices_unique,-supplier)) %>%
+  mutate(supplier = "smhi")
+
+## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
+secchi <- bind_rows(ices_unique, new_smhi_unique) %>% 
+  distinct() %>% # 146572 tot observations (as for method 2)
+  # select summer months (June-September) and Years >= 2000  
+  filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
+  filter(year >=2000)
+```
+<br/>
+
+**METHOD 2**
+```{r}
+## METHOD 2
+
+## 1) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
+## 2) Merge the two datasets
+## 3) Check duplicates from the merged datasets and distinct 
+## 4) Need to add the 'supplier' column
+
+### ICES Data overview
+# colnames(secchi_raw_ices)
+# str(secchi_raw_ices)
+
+# Check for duplicates in ices
+ices_duplicates <- secchi_raw_ices %>%
+  group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
+           Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
+  summarise(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup() 
+
+# Only extract unique observations
+ices_unique <- secchi_raw_ices %>% 
+  mutate(supplier = 'ices') %>%  
+  distinct(yyyy.mm.ddThh.mm, Latitude..degrees_north., Longitude..degrees_east., 
+           Secchi.Depth..m., Bot..Depth..m., Station, Cruise, supplier) 
+
+### SMHI data overview
+# colnames(secchi_raw_smhi)
+# str(secchi_raw_smhi)
+
+# Check for duplicates in smhi
+smhi_duplicates <- secchi_raw_smhi %>%
+    group_by(Station.name, Value, Sample.latitude..DD., 
+             Sample.longitude..DD., Sampling.date, Shark.sample.id.MD5) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup()
+
+# Only extract unique observations
+smhi_unique <- secchi_raw_smhi %>% 
+  mutate(supplier = 'smhi') %>% 
+  distinct(Station.name, Value, Sample.latitude..DD., 
+           Sample.longitude..DD., Sampling.date, Year, Shark.sample.id.MD5, Station.ID..VISS., 
+           HELCOM.OSPAR.area, Station.water.depth, supplier)
+
+### Merging the two datasets
 secchi <- bind_rows( 
    # smhi
   smhi_unique %>% 
@@ -253,7 +330,6 @@ secchi <- bind_rows(
            cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
     mutate(date =  as.Date(date), month = format(date, "%m"),
            secchi = as.numeric(secchi), year = as.character(year)) %>% 
-           # supplier = 'smhi') %>% 
     ## remove OSPAR rows
     filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
     dplyr::select(cruise, station, date, year, month,
@@ -266,7 +342,7 @@ secchi <- bind_rows(
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            bottom_m = as.numeric(bottom_m)))
-           # supplier = 'ices'))
+        
 
 ## Check for duplicates in the combined dataset
 secchi_duplicates <- secchi %>%
@@ -279,13 +355,13 @@ secchi_duplicates <- secchi %>%
 ## Only extract unique observations
 secchi_unique <- secchi %>% 
   distinct(cruise, station, date, year, 
-             month, lat, lon, secchi, bottom_m)
-
-#### Add "supplier" column to differentiate ICES from SMHI data (TO-DO)!!!
-str(secchi_unique)
-
+             month, lat, lon, secchi, bottom_m) # %>% 
+  # select summer months (June-September) and Years >= 2000  
+  # filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
+  # filter(year >=2000)
 ```
 <br/>
+
 
 **Oxygen data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
@@ -416,7 +492,7 @@ colnames(oxygen)
 ```
 <br/>
 
-**Chlorophyll a and Nutrients data**
+**Chlorophyll a data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
 # Data overview
@@ -429,18 +505,38 @@ str(nutrient)
 chla <- chlorophyll %>% 
   rename(chl = CHL,  date = OBSDATE, 
                 lat = LATITUDE, lon = LONGITUDE, 
-                cruise = SHIP, id = ID) %>%
-  select(-OBSTIME, -OBSDEP) %>% 
+                cruise = SHIP, id = ID, depth = OBSDEP) %>%
+  select(-OBSTIME) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"))
 
+## Check for duplicates 
+chla_duplicates <- chla %>%
+    group_by(id, cruise, date, year, month, lat,
+             lon, chl, depth) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup() #no duplicates
+```
+<br/>
+
+**Nutrients data**
+```{r}
 nutrients <- nutrient %>% 
   rename(no3 = NO3N,  no2 = NO2N, nh4 = NH4N, po4 = PO4P, date = OBSDATE, 
                 lat = LATITUDE, lon = LONGITUDE, 
-                cruise = SHIP, id = ID) %>%
-  select(-OBSTIME, -OBSDEP, -NO23N, -TOTN) %>% 
+                cruise = SHIP, id = ID, depth = OBSDEP) %>%
+  select(-OBSTIME, -NO23N, -TOTN) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"))
+
+## Check for duplicates 
+nutrients_duplicates <- nutrients %>%
+    group_by(id, cruise, date, year, month, lat,
+             lon, no3, no2, nh4, po4, depth) %>%
+    summarise(n = n()) %>%
+    filter(n > 1) %>%
+    ungroup() #no duplicates
 
 ```
 
