@@ -106,7 +106,7 @@ sf::st_write(spp_w_rgns, file.path(dir_rawdata, "baltic_species", "baltic_specie
 
 ```{r Dropping geometry column}
 
-raw_species_checklist <- sf::st_drop_geometry(spp_w_rgns)
+raw_obs_checklist <- sf::st_drop_geometry(spp_w_rgns)
 
 ```
 
@@ -117,23 +117,23 @@ raw_species_checklist <- sf::st_drop_geometry(spp_w_rgns)
 
 # Check representation of taxa
 
-raw_species_checklist %>%
+raw_obs_checklist %>%
   select(species_group) %>%
   distinct()  # Benthic Invertebrates, Fish and Lamprey, Macrophytes, Zooplankton, Bacteria, Phytoplankton, Mammals and Birds
 
 # Check number of species within each taxa
 
-raw_species_checklist %>%
+raw_obs_checklist %>%
   group_by(species_group) %>%
   count()
 
-ggplot(raw_species_checklist, aes(x=species_group))+
+ggplot(raw_obs_checklist, aes(x=species_group))+
    geom_bar(stat="count")+
   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
   ggtitle("Number of species in raw checklist")
 
 ## Number of unique latin names 
-raw_species_checklist %>% select(scientific_name)%>%distinct()%>%nrow() #2551 (Including Bacteria and Plankton)
+raw_obs_checklist %>% select(scientific_name)%>%distinct()%>%nrow() #2551 (Including Bacteria and Plankton)
 
 ```
 
@@ -144,14 +144,14 @@ raw_species_checklist %>% select(scientific_name)%>%distinct()%>%nrow() #2551 (I
 
 # Matching BHI ID to subbasins
 
-basin_ID_namelist <- raw_species_checklist %>%
+basin_ID_namelist <- raw_obs_checklist %>%
   select(BHI_ID, Subbasin) %>%
   distinct() %>%
   arrange(.,BHI_ID)
 
 # To see how many distinct basins represented
 
-basins_distinct <- raw_species_checklist %>% 
+basins_distinct <- raw_obs_checklist %>% 
   select(Subbasin) %>% 
   distinct()
 
@@ -168,22 +168,78 @@ setdiff(basins_distinct, HOLAS_Basins)  # Discrepancy = spelling error in Bothia
 
 # Correct Spelling Error
 
-raw_species_checklist <- raw_species_checklist %>% 
+raw_obs_checklist <- raw_obs_checklist %>% 
   mutate(Subbasin = as.character(Subbasin)) %>%
   mutate(Subbasin = ifelse(Subbasin == "Bothian Sea", "Bothnian Sea", Subbasin))
 
-raw_species_checklist %>% select(Subbasin) %>% distinct() %>% nrow()  #17 = Correct number
+raw_obs_checklist %>% select(Subbasin) %>% distinct() %>% nrow()  #17 = Correct number
 
 ```
 
 ### 2.4 Organizing Data to Match 2015 Format
 
-#### 2.4.1 Reorganise into Presence/Absence
+#### 2.4.1 Removing Unnecessary COlumns, Bacteria and Plankton Rows as well as observations before 2016
+
+```{r remove bacteria plankton}
+full_obs_checklist_2016 <- raw_obs_checklist %>%
+  filter(year_collected >= 2016) %>%
+  select(
+    species_id,
+    scientific_name,
+    taxonomica,
+    accepted_name,
+    synonyms,
+    species_group,
+    year_collected,
+    red_list_assessments,
+    rgn_nam,
+    Subbasin,
+    BHI_ID
+  ) %>%
+  filter(!species_group %in% c("Bacteria", "Phytoplankton", "Zooplankton")) %>%
+  mutate(list_type = "checklist")
+
+# Checking filter
+
+full_obs_checklist_2016 %>%
+  group_by(species_group) %>%
+  count()
+
+# Number of unique species names
+
+full_obs_checklist_2016 %>% select(scientific_name)%>%distinct()%>%nrow() #833
+
+```
+
+#### 2.4.2 Check to see if there are insects in dataset
+
+```{r insect check}
+# Use invert data set in 2015 to check for common insect species with current dataset
+
+invert_insect_2015 <- read.csv(file.path("C:/Users/Chester Gan/OneDrive/Documents/Thesis/Github/baltic2015/prep/SPP/data_checklist_redlist", "invert_dist_checklist_alltaxalevels.csv"), sep= ";", stringsAsFactors = FALSE) %>%  # TO EDIT WITH BHI Filepath
+  select(class, latin_name) %>%
+  filter(class == "Insecta") %>%
+  dplyr::rename(scientific_name = latin_name) %>%
+  mutate(list_type = "2015")
+
+
+insect_check <- intersect(unique(full_obs_checklist_2016$scientific_name), unique(invert_insect_2015$scientific_name))
+
+length(insect_check)  #99 unique insect species, need to summarise insects to family level
+
+```
+
+#### 2.4.3 Reorganise into Presence/Absence
 
 **Reorganize into Presence/Absence data by BHI Region and Species**
 
+Species only considered present when there at least 10 observations in each BHI region.
+
 ```{r presence absence species data}
-species_info <- raw_species_checklist %>% 
+
+# For species information to add to final presence/absence list
+
+species_obs_info <- full_obs_checklist_2016 %>% 
   select(
     species_id, 
     scientific_name,
@@ -191,25 +247,59 @@ species_info <- raw_species_checklist %>%
     accepted_name, 
     synonyms, 
     species_group, 
-    red_list_assessments
+    list_type
   ) %>% 
   distinct()
 
+# Summarize number of observations per species per BHI region
 
-spp_presence <- spp_w_rgns %>% 
-  sf::st_drop_geometry() %>% 
-  select(BHI_ID, species_id, year_collected, red_list_assessments) %>% 
-  filter(year_collected > 2016) %>% 
+species_obs_count <- full_obs_checklist_2016 %>%
+  group_by(species_id, scientific_name, BHI_ID) %>%
+  summarise(count = n()) 
+
+# Filter those with >= 10 observations and add presence column
+
+species_obs_present <- species_obs_count %>%
+  filter(count >= 10) %>%
+  mutate(presence = "1") %>%
+  select(-count) # remove count column to prep for list joining
+
+# Join with main observation list and make into Presence/Absence Data
+
+full_presence_checklist <- full_obs_checklist_2016 %>%
+  select(-year_collected, -red_list_assessments) %>% 
+  distinct() %>% # To collapse all obs to 1 per species per BHI region
+  left_join(.,species_obs_present) %>%
+  arrange(.,BHI_ID) %>%
+  mutate(presence = ifelse(is.na(presence), 0, presence)) %>%
+  tidyr::pivot_wider(id_cols = species_id, names_from = BHI_ID, values_from = presence) %>%
+  left_join(species_obs_info, by = "species_id")
+  
+# Replacing NAs with 0
+
+full_presence_checklist[ , 2:40 ][is.na(full_presence_checklist[, 2:40 ])] <- 0  # Replacing NAs with 0
+
+
+# ELLIE's OLD CODE, JUST FOR SAFETY
+
+full_presence_checklist <- full_obs_checklist_2016 %>% 
   mutate(red_list_assessments = as.numeric(red_list_assessments)) %>% 
   group_by(BHI_ID, species_id) %>% 
   summarize(redlist_mean = mean(red_list_assessments, na.rm = TRUE)) %>% 
-  ungroup() %>% 
+  ungroup() %>%
   tidyr::pivot_wider(id_cols = species_id, names_from = BHI_ID, values_from = redlist_mean) %>% 
-  left_join(species_info, by = "species_id") %>% 
+  left_join(species_obs_info, by = "species_id") %>% 
   distinct()
+
 ```
 
 
+#### 2.4.4 Read in Redlist and get Data Attributes
+
+```{r redlist info}
+
+
+```
 
 
 
