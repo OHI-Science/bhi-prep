@@ -243,10 +243,49 @@ lapply(
 )
 ```
 
-```{r check number of dates and years sample by country in pcb data,  results  = "show"}
+
+##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills}
+
+###### PCBs
+
+```{r check number of years sample by country in pcb data,  results  = "show"}
+do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
+  cbind(
+    pcb_rawdata_bio %>% 
+      filter(Country == country) %>%
+      select(Species, MYEAR) %>%
+      distinct(.) %>%
+      group_by(Species) %>%
+      summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
+      ungroup(),
+    Country = country
+  )
+})) %>% DT::datatable()
 ## check number of dates and years sample by country, PCBs data from ICES
 ## Denmark doesn't have herring data...
-do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
+```
+
+###### PFOS 
+
+```{r check number of dates and years sample by country in pfos data,  results  = "show"}
+do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(country){
+  cbind(
+    pcb_rawdata_bio %>% 
+      filter(Country == country) %>%
+      select(Species, MYEAR) %>%
+      distinct(.) %>%
+      group_by(Species) %>%
+      summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
+      ungroup(),
+    Country = country
+  )
+})) %>% DT::datatable()
+```
+
+###### Dioxins
+
+```{r check number of dates and years sample by country in dioxin data,  results  = "show"}
+do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(country){
   cbind(
     pcb_rawdata_bio %>% 
       filter(Country == country) %>%
@@ -331,11 +370,12 @@ rename_vars <- function(dataset){
         ifelse(
           matrix_analyzed == "MU", "muscle",
           ifelse(
-            matrix_analyzed == "WO", "whole organism", NA
+            matrix_analyzed == "WO", "wholeorganism", NA
           )
         )
       )
     )
+  
   return(df_vars_renamed)
 }
 
@@ -384,6 +424,7 @@ The datasets each contain two main categories (param_groups) one of which is BBI
 
 standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
   
+  contam_param <- substr(contam_param, str_length(contam_param)-1, str_length(contam_param))
   
   ## what are the specific parameters?
   ## unique parameter groups and associated variables:
@@ -397,10 +438,16 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   df <- data_renamed %>% 
     ## remove 'suspect' and other non-'acceptable': https://vocab.ices.dk/?ref=58
     filter(!vflag %in% c("S", "C")) %>% 
-    ## remove samples for liver tissue, keep muscle, and whole organism for length x weight
-    filter(matrix_analyzed != "liver" | is.na(matrix_analyzed)) %>% 
     ## remove certain variables-- summarized data or depreciated codes
     filter(!variable %in% rm_vars)
+  
+  if(contam_param != "FL"){
+    ## remove samples for liver tissue, keep muscle, and whole organism for length x weight
+    df <- filter(df, matrix_analyzed != "liver" | is.na(matrix_analyzed))
+  }
+  ## for PFOS (contaminant pargroup 'O-FL'), keep liver measurements-- 
+  ## all compounds except parameter 'PFOS' measured only in the liver
+  ## DRYWT% and EXLIP% have been measured for both muscle and liver
   
   
   ## sediment versus biota datasets, different sample/id variables
@@ -459,7 +506,6 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   
   ## if dealing with sediment, need to keep units for now...
   if(matrix_biota){df_bbio <- select(df_bbio, -unit)}
-  
 
   chk_num_bbio_dup <- nrow(df_bbio) - nrow(distinct(df_bbio %>% select(-value)))
   
@@ -481,7 +527,7 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   }
   if(var(chk) != 0){
     message(sprintf(
-      "NOTE bbio duplicates dataframe dims vary with ID variables, investigate: %s",
+      "NOTE bbio duplicates dataframe dims vary with grpvars: %s",
       paste(grpvars[which(chk != chk[which.max(tabulate(match(chk, chk)))])], collapse = ", ")
     ))
   }
@@ -518,22 +564,38 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
             df_bbio %>% 
               filter(species == x) %>%
               select(matrix_analyzed, basis_determination, variable) %>% 
-              distinct(),
+              distinct() %>% 
+              arrange(variable, matrix_analyzed, basis_determination),
             species = x
           )
         }
       )
     )
   }
+
   
   ## WIDE BBIO DATA
   ## bbio data wide format ----
-  df_bbio_wide <- df_bbio %>% 
-    ## remove basis_determination because not always recorded for bio vars, 
-    ## will give incorrect NAs in EXLIP% among others for some rows when rejoined with concentration data
-    select(-basis_determination) %>% 
+  
+  ## remove basis_determination because some bio vars are recorded at whole organism scale, others for liver or muscle,
+  ## no concentration variables measured for whole organism matrix, so don't need for joining...
+  ## no problem pivoting wider also indicates uniquely identified by remaining grouping variables
+  # unique(filter(df, param_group != "B-BIO")$matrix_analyzed)
+  
+  if(contam_param == "FL"){
+    ## for PFOS we have liver and muscle measurements
+    ## need to deal with matrix_analyzed to get 'muscle equivalent' from conc. measurements in liver
+    df_bbio_wide <- df_bbio %>% 
+      mutate(variable = paste(matrix_analyzed, variable, sep = "_")) %>% 
+      select(-matrix_analyzed, -basis_determination)
+  } else {
+    df_bbio_wide <- df_bbio %>% 
+      select(-basis_determination)
+  }
+  df_bbio_wide <- df_bbio_wide %>% 
     tidyr::pivot_wider(names_from = variable, values_from = value)
   
+
   ## which columns are needed to uniquely identify and later rejoin with congener conc. data
   ## i.e. at this stage, which subset of grpvars gives groupings such that all n are one?
   # for(i in grpvars){print(paste(i, length(unique(df_bbio_wide[[i]]))))}
@@ -561,7 +623,13 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   
   ## CONGENER CONCENTRATIONS DATA
   ## check congener concentration data, units and duplicates ----
-  contam_param <- substr(contam_param, str_length(contam_param)-1, str_length(contam_param))
+  
+  if(!matrix_biota){
+    ## WHAT ARE THE UNITS OF DEPTH VARIABLES?????????
+    ## only keep sediment measurements in top 2cm, 
+    ## or maximum 5cm if filtering to within 2cm of surface yeilds too few data pts...
+    df <- df %>% filter(depth_low < 5)
+  }
   
   df_conc <- df %>%
     filter(str_detect(param_group, pattern = contam_param)) %>%
@@ -655,7 +723,8 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
       select(-n, -ww_val, -rm_duplicate)
   }
   
-  ## check if one row for every unique sub_samp_ref for biota, samp_ref for sediment
+  ## do not want to spread the data because the qflag, detli etc is unique to each congener
+  ## but, spread to check if one row for every unique sub_samp_ref for biota, samp_ref for sediment
   df_conc_wide <- df_conc %>%
     select(-detect_lim, -quant_lim) %>% 
     tidyr::pivot_wider(names_from = variable, values_from = value)
@@ -672,8 +741,35 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   df_final <- left_join(df_conc, df_bbio_wide, by = intersect(grpvars, names(df_bbio_wide))) 
   
   if(matrix_biota){
-    message("STEP 5: converting all congener concentrations in biota to wet weight")
-    df_final <- df_final %>% 
+    
+    message("STEP 5: converting all congener concentrations in biota to wet weight, muscle equivalence")
+    
+    ## for PFOS data convert liver values into those for muscle 
+    ## using conversion values from Faxneld et al 2014
+    ## https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf)
+    ## follow methods in the HELCOM core indicator p.9
+    ## http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf
+    ## use the mean liver:muscle ratio for all species (17.9), see Table 8 in Faxneld et al 2014
+    if(contam_param == "FL"){
+      df_final <- df_final %>% 
+        mutate_at(
+          vars(c("value", "detect_lim", "quant_lim")), 
+          list(pfos_muscle_equiv = ~ case_when(
+            variable == "PFOS" & matrix_analyzed == "liver" ~ ./17.9,
+            variable == "PFOS" & matrix_analyzed == "muscle" ~ .
+          ))
+        ) %>% 
+        mutate_at(
+        vars(c("value_pfos_muscle_equiv", "detect_lim_pfos_muscle_equiv", "quant_lim_pfos_muscle_equiv")), 
+        ## will probably all be in wet weight already, but just in case...
+        list(wet_wgt = ~ case_when(
+          basis_determination == "lipid weight" ~ .*(`muscle_EXLIP%`/100), # IS THIS HOW EXLIP% VARIABLE WORKS????
+          basis_determination == "dry weight" ~ .*(100/`muscle_DRYWT%`), # IS THIS HOW DRYWT% VARIABLE WORKS????
+          basis_determination == "wet weight" ~ .
+        ))
+      )
+    } else {
+      df_final <- df_final %>% 
       ## if value is not wet weight convert, otherwise keep value
       mutate_at(
         vars(c("value", "detect_lim", "quant_lim")), 
@@ -683,6 +779,8 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
           basis_determination == "wet weight" ~ .
         ))
       )
+    }
+    
   }
   ## for sediment data, still need to convert to dry weights
   if(!matrix_biota){
@@ -751,6 +849,8 @@ dir_interm <- here::here("data", "CW", "contaminants", version_year, "intermedia
 
 lapply(
   list(
+    ## for param definitions see //vocab.ices.dk/?ref=37
+    
     ## PCB datasets
     ## remove PCB, SCB, SCB7 - these are summarized data or depreciated codes
     ## OC-CB variable codes: vocab.ices.dk/?CodeID=26983
@@ -797,7 +897,7 @@ lapply(
 # funtemp <- function(dat){
 #   dat_final <- read_csv(file.path(dir_interm, dat))
 #   assign(
-#     x = str_replace(dat, "cleaned.csv", "clean_df"), 
+#     x = str_replace(dat, "cleaned.csv", "clean_df"),
 #     value = dat_final,
 #     envir = .GlobalEnv
 #   )
@@ -835,8 +935,12 @@ make_mapdf <- function(x, yr){
         n_obs = n(),
         mean_val = ifelse(
           str_detect(x, "sed"), 
-          mean(value, na.rm = TRUE),
-          mean(value_wet_wgt, na.rm = TRUE)
+          mean(value_dry_wgt, na.rm = TRUE),
+          ifelse(
+            str_detect(x, "pfos"),
+            mean(value_pfos_muscle_equiv_wet_wgt, na.rm = TRUE), 
+            mean(value_wet_wgt, na.rm = TRUE)
+          )
         )
       ) %>%
       filter(!is.na(mean_val)) %>% 
@@ -879,12 +983,12 @@ mapbio <- basemap +
   scale_color_distiller(palette = "OrRd") +
   facet_grid(rows = vars(source), cols = vars(metric)) +
   guides(size = FALSE) +
-  theme(legend.position = c(0.1, 0.9))
+  theme(legend.position = c(0.1, 0.9), legend.box.background = element_rect(colour = "grey"))
 
 mapsed <- basemap + 
   geom_sf(
     aes(size = value, color = num_congeners),
-    alpha = 0.15, 
+    alpha = 0.25, 
     shape = 19, 
     data = mapdf_sediment,
     show.legend = FALSE
