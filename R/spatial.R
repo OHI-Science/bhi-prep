@@ -55,6 +55,7 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
       BHI_rgns_shp <- BHI_rgns_shp %>% 
         mutate(Subbasin = as.character(Subbasin)) %>% 
         mutate(Subbasin = ifelse(Subbasin == "Bothian Sea", "Bothnian Sea", Subbasin))
+      assign("BHI_rgns_shp", BHI_rgns_shp, envir = .GlobalEnv)
     }
   }
 }
