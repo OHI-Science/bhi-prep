@@ -221,22 +221,19 @@ lapply(
       file.path(dir_rawdata, x[1], paste(x[1], "csv", sep = ".")),
       ## where not read in correctly, column types must be specified ...
       col_types = cols(
-        SUBNO = col_character(), 
+        .default = col_character(),
+        MYEAR = col_number(), 
+        Latitude = col_number(), 
+        Longitude = col_number(), 
+        NOINP = col_number(),
+        Value = col_number(), 
         DETLI = col_number(), 
         LMQNT = col_number(), 
-        METCU = col_character(),
-        METST = col_character(), 
-        METPT = col_character(),
-        METPS = col_character(),
-        METFP = col_character(), 
-        METOA = col_character(),
-        REFSK = col_character(),
-        VFLAG = col_character(), 
-        BULKID = col_character(), 
-        PURPM = col_character(),
-        QFLAG = col_character(),
-        FINFL = col_character(),
-        UNCRT = col_number()
+        UNCRT = col_number(),
+        tblAnalysisID = col_number(), 
+        tblParamID = col_number(), 
+        tblBioID = col_number(), 
+        tblSampleID = col_number()
       )
     ) %>% assign(x = x[2], envir = .GlobalEnv)
   }
@@ -976,7 +973,7 @@ mapdf_sediment <- do.call(
 mapbio <- basemap + 
   geom_sf(
     aes(size = value, color = num_congeners), 
-    alpha = 0.15, 
+    alpha = 0.3, 
     shape = 19, 
     data = mapdf_biota
   ) +
@@ -988,7 +985,7 @@ mapbio <- basemap +
 mapsed <- basemap + 
   geom_sf(
     aes(size = value, color = num_congeners),
-    alpha = 0.25, 
+    alpha = 0.3, 
     shape = 19, 
     data = mapdf_sediment,
     show.legend = FALSE
