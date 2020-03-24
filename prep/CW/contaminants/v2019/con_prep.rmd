@@ -333,7 +333,7 @@ pcb_sed_noqflag <- qflag_adjust(pcb_sed, congeners = pcb7sed_congeners, matrix =
 
 <!-- To visualize by country versus basin give either "country" or "subbasin" respectively as the `cntry_or_basin` arguement  -->
 
-```{r function for congeners timeseries monthly by basin, message = FALSE, echo = TRUE}
+```{r function for congeners timeseries monthly by basin, echo = TRUE}
 
 ## timeseries plots, congeners by country
 plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", matrix = "bio", cntry_or_basin = "subbasin"){
@@ -390,7 +390,7 @@ plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", matrix 
 
 ###### Congeners Monthly Sums, PCBs in Biota
 
-```{r congeners timeseries monthly by basin for biota, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 9}
+```{r congeners timeseries monthly by basin for biota, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
 ## create color palettes
 fullpal <- c(
   RColorBrewer::brewer.pal(8, "Dark2"),
@@ -402,7 +402,7 @@ plot_cwcon_initial(pcb_bio_qflag_adjust, col_pal = cols, contam_param = "OC-CB",
 
 ###### Congeners Monthly Sums, PCBs in Sediments
 
-```{r congeners timeseries monthly by basin for sediments, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 9}
+```{r congeners timeseries monthly by basin for sediments, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
 cols <- c(cols, "turquoise")
 plot_cwcon_initial(pcb_sed_qflag_adjust, cols, "OC-CB", "sed", "country")
 ```
@@ -420,8 +420,8 @@ map_cwcon_initial <- function(dataset, yr, matrix = NULL){
   } else {
     dataset <- dataset %>% 
       mutate(Matrix = ifelse(
-        Matrix == "bio", "biota", 
-        ifelse(Matrix == "sed", "sediment", NA))
+        str_detect(Matrix, "bio"), "biota",
+        ifelse(str_detect(Matrix, "sed"), "sediment", NA))
       )
     if(nrow(filter(dataset, is.na(Matrix))) > 0){
       message("missing matrix value (bio or sed) in some rows")
@@ -445,6 +445,8 @@ map_cwcon_initial <- function(dataset, yr, matrix = NULL){
     by = "HELCOM_ID"
   )
   
+  obs_count_limits <- c(0, signif(max(df$ObservCount, na.rm = TRUE), 1))
+  
   # df <- full_join(
   #   bhi_rgns_simple %>% 
   #     select(BHI_ID) %>% 
@@ -460,7 +462,7 @@ map_cwcon_initial <- function(dataset, yr, matrix = NULL){
   
   map <- ggplot(df) + 
     geom_sf(aes(fill = ObservCount), color = "burlywood", size = 0.2, alpha = 0.95) +
-    scale_fill_gradient(low = "midnightblue", high = "lightcyan", na.value = "whitesmoke", limits = c(0, 15)) +
+    scale_fill_gradient(low = "midnightblue", high = "lightcyan", na.value = "whitesmoke", limits = obs_count_limits) +
     geom_sf(
       data = st_as_sf(dataset, coords = c("longitude", "latitude"), crs = 4326) %>% filter(year %in% yr), 
       mapping = aes(color = Matrix, shape = Matrix),
@@ -475,11 +477,11 @@ map_cwcon_initial <- function(dataset, yr, matrix = NULL){
   
   basinplot <- ggplot(filter(df, !is.na(Matrix))) +
     geom_point(
-      aes(Subbasin, meanVal, fill = obs_by_matrix, size = numLocation),
+      aes(Subbasin, meanVal, fill = matrix_ObservCount, size = numLocation),
       color = "burlywood", shape =  21
     ) +
     labs(x = NULL, y = "Mean concentration (ug/kg)", color = NULL) +
-    scale_fill_gradient(low = "midnightblue", high = "lightcyan", na.value = "whitesmoke", limits = c(0, 15)) +
+    scale_fill_gradient(low = "midnightblue", high = "lightcyan", na.value = "whitesmoke", limits = obs_count_limits) +
     facet_grid(rows = vars(Matrix), scales = "free") +
     theme_bw() +
     theme(
@@ -493,7 +495,7 @@ map_cwcon_initial <- function(dataset, yr, matrix = NULL){
 }
 
 ## bind resulting dataset to plot together and evaluate....
-pcb_qflag_adjust <- bind_rows(
+pcb_qflag_adjust_datemeans <- bind_rows(
   pcb_bio_qflag_adjust %>% 
     group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
     summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
@@ -504,7 +506,7 @@ pcb_qflag_adjust <- bind_rows(
     mutate(Matrix = "sed")
 ) %>% ungroup()
 
-pcb_noqflag <- bind_rows(
+pcb_noqflag_datemeans <- bind_rows(
   pcb_bio_noqflag %>% 
     group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
     summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
@@ -519,8 +521,8 @@ pcb_noqflag <- bind_rows(
 
 ###### With just year 2014
 
-```{r map spatial dist of PCBs year 2014, results = "show", results = "show", fig.width = 9.5}
-pcb2014 <- map_cwcon_initial(pcb_qflag_adjust, yr = 2014, matrix = "both")
+```{r map spatial dist of PCBs year 2014, results = "show", fig.width = 9.5, out.width = "50%"}
+pcb2014 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2014, matrix = "both")
 gridExtra::grid.arrange(pcb2014$map, pcb2014$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -528,8 +530,8 @@ gridExtra::grid.arrange(pcb2014$map, pcb2014$basinplot, nrow = 1, widths = c(1.2
 
 ###### With just year 2016
 
-```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 9.5}
-pcb2016 <- map_cwcon_initial(pcb_qflag_adjust, yr = 2016, matrix = "both")
+```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 9.5, out.width = "50%"}
+pcb2016 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2016, matrix = "both")
 gridExtra::grid.arrange(pcb2016$map, pcb2016$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -538,7 +540,7 @@ gridExtra::grid.arrange(pcb2016$map, pcb2016$basinplot, nrow = 1, widths = c(1.2
 ###### With years 2014 to 2019
 
 ```{r map spatial dist of PCBs multiple years, results = "show", fig.width = 9.5, out.width = "50%"}
-pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust, yr = 2014, matrix = "both")
+pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2014, matrix = "both")
 gridExtra::grid.arrange(pcb2014to2019$map, pcb2014to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -719,11 +721,11 @@ cwcon_indicators <- function(datalayer, yrs = 2010:2019, bio_thresh = 75, sed_th
 ```{r pcbs latest years for qflag adjust vs no flagged data approaches, results = "show"}
 DT::datatable(
   full_join(
-    pcb_qflag_adjust %>%
+    pcb_qflag_adjust_datemeans %>%
       arrange(year) %>%
       group_by(Subbasin) %>%
       summarise(lastyr_Adjusted = last(year)),
-    pcb_noqflag %>%
+    pcb_noqflag_datemeans %>%
       arrange(year) %>%
       group_by(Subbasin) %>%
       summarise(lastyr_NoQflag = last(year)),
@@ -738,17 +740,17 @@ DT::datatable(
 ## using function defined above, investigate:
 ## (1) adjusting vs excluding flagged data, and 
 ## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
-pcb_qflag_adjust <- cwcon_indicators(pcb_qflag_adjust)
-pcb_noqflag <- cwcon_indicators(pcb_noqflag)
+pcb_qflag_adjust_indicators <- cwcon_indicators(pcb_qflag_adjust_datemeans)
+pcb_noqflag_indicators <- cwcon_indicators(pcb_noqflag_datemeans)
 
 pcb_status <- bind_rows(
-  pcb_qflag_adjust$basin_status %>% 
+  pcb_qflag_adjust_indicators$basin_status %>% 
     mutate(approach = "Adjusted", spatialunits = "Subbasins"),
-  pcb_qflag_adjust$bhirgn_status %>% 
+  pcb_qflag_adjust_indicators$bhirgn_status %>% 
     mutate(approach = "Adjusted", spatialunits = "BHI Regions"),
-  pcb_qflag_adjust$basin_status %>% 
+  pcb_noqflag_indicators$basin_status %>% 
     mutate(approach = "NoQflag", spatialunits = "Subbasins"),
-  pcb_qflag_adjust$bhirgn_status %>% 
+  pcb_noqflag_indicators$bhirgn_status %>% 
     mutate(approach = "NoQflag", spatialunits = "BHI Regions")
 )
 pcb_status <- pcb_status %>%
@@ -756,7 +758,6 @@ pcb_status <- pcb_status %>%
   mutate(approach_sp_unit = paste(spatialunits, approach))
 
 pcb_status$spatialunits <- factor(pcb_status$spatialunits, levels = c("Subbasins", "BHI Regions"))
-
 
 ggplot(pcb_status, aes(Region, status, fill = Subbasin)) +
   geom_col(position = position_dodge(), color = "grey", alpha = 0.7, show.legend = FALSE) + 
@@ -863,10 +864,14 @@ pfos <- join_rgns_info(
 
 ```{r subset pfos data}
 pfos <- pfos %>% 
-  filter(!is.na(value_wet_wgt)) %>% 
-  # filter(str_detect(species, pattern = "Clupea harengus")) %>%
+  filter(!is.na(value_pfos_muscle_equiv_wet_wgt)) %>% 
+  filter(str_detect(species, pattern = "Clupea harengus")) %>%
+  filter(variable == "PFOS") %>% 
   select(
-    variable, value_wet_wgt, detect_lim_wet_wgt, quant_lim_wet_wgt,
+    variable, 
+    value_wet_wgt = value_pfos_muscle_equiv_wet_wgt, 
+    detect_lim_wet_wgt = detect_lim_pfos_muscle_equiv_wet_wgt, 
+    quant_lim_wet_wgt = quant_lim_pfos_muscle_equiv_wet_wgt,
     species, num_indiv_subsample, monit_program, monit_purpose, monit_year,
     sub_samp_ref,
     qflagged, qflag, 
@@ -877,78 +882,130 @@ pfos <- pfos %>%
 
 <br> 
 
-**Visualize PFOS flagged data in Timeseries**
+##### Visualize PFOS flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
 
-Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
+Below the PFOS data are plotted by subbasin. Colorscale in plot one corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination. Plot 2 shows the same information in boxplot format, with data grouped by year. 
 
-```{r pfos qflag adjustment congeners by basin, results = "show", fig.height = 52, fig.width = 9.5}
+###### Concentrations Timeseries with Observation Counts
+
+```{r pfos qflag adjustment congeners by basin, results = "show", fig.width  = 9.5, fig.height = 9}
 ## pcb qflag adjustment congeners by basin and congener, 
 ## red x's indicate flagged data, colorscale indicates number of observations
 plotdf <- pfos %>% 
-  mutate(value_adj = ifelse(qflagged, value_wet_wgt/2, NA)) %>% 
+  mutate(value_adj = ifelse(qflagged, value_wet_wgt/2, value_wet_wgt)) %>% 
+  mutate(value_adj_original = ifelse(qflagged, value_wet_wgt, NA)) %>% 
   group_by(date, variable, Subbasin) %>% 
   mutate(countObs = n(), meanAdjww = mean(value_adj, na.rm = TRUE)) %>% 
   ungroup()
 
-pfos_basin_qflags <- function(plotdf, subbasin_name = NULL){
-  
-  if(!is.null(subbasin_name)){
-    plotdf <- plotdf %>% filter(Subbasin == subbasin_name)
-  }
-  plot <- ggplot(plotdf) + 
-    scale_color_distiller(palette = "GnBu", direction = -1) +
-    geom_point(aes(date, value_wet_wgt, color = countObs), show.legend = FALSE, size = 0.8, alpha = 0.6) +
-    geom_point(aes(date, value_adj), color = "red", shape = 4, size = 1, alpha = 0.6) +
-    # geom_line(aes(date, meanAdjww), size = 0.4, alpha = 0.6, show.legend = FALSE) +
-    facet_wrap(
-      c("variable", "Subbasin"), 
-      labeller = label_wrap_gen(width = 35, multi_line = FALSE), 
-      scales = "free_y", 
-      ncol = 4
-    ) +
-    labs(x = NULL, y = "Congener Concentration (ug/kg wet weight) measured in all Species") +
-    theme_bw()
-  
-  return(plot)
-}
+ggplot(plotdf) + 
+  scale_color_distiller(palette = "GnBu", direction = -1, limits = c(0, 15)) +
+  geom_point(aes(date, value_adj, color = countObs), show.legend = FALSE, size = 0.8, alpha = 0.9) +
+  ## no flagged values that needed adjustment as of BHI2.0
+  # geom_point(aes(date, value_adj_original), color = "red", shape = 4, size = 1, alpha = 0.6) +
+  facet_wrap(~ Subbasin, scales = "free_y", ncol = 3) +
+  labs(x = NULL, y = "Congener Concentration (ug/kg wet weight) measured in Clupea harengus") +
+  theme_dark()
 ```
 
+###### Boxplot, Concentrations (muscle equivalent) by Year
 
+```{r pfos qflag adjustment congeners by basin, results = "show", fig.width  = 9.5, fig.height = 9}
+boxplotdf <- plotdf %>%
+  mutate(year = as.factor(year)) %>% 
+  group_by(year, variable, Subbasin) %>% 
+  mutate(countObs = sum(countObs)) %>% 
+  select(year, date, variable, Subbasin, meanAdjww, countObs) %>% 
+  distinct()
 
-```{r pfos qflag adjustment congeners by basin}
-pfos_basin_qflags(plotdf, )
-```
-
-
-
-***
-
-**Congeners Monthly Sums PFOS**
-
-```{r pfos initial visualizations, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 9}
-pfos_qflag_adjust <- qflag_adjust(pfos, sumcongeners = FALSE)
-pcb_noqflag <- qflag_adjust(pfos, sumcongeners = FALSE, approach = "NoQflag")
-
-cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 22)]
-plot_cwcon_initial(pfos_qflag_adjust, col_pal = cols, contam_param = "O-FL", cntry_or_basin = "country")
+ggplot(boxplotdf) + 
+  scale_color_distiller(palette = "GnBu", direction = -1, limits = c(0, 155)) +
+  geom_boxplot(aes(year, meanAdjww, color = countObs), show.legend = FALSE, outlier.size = 0.3) + 
+  facet_wrap(~ Subbasin, ncol = 3) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = NULL, y = "Congener Concentration (daily mean, ug/kg wet weight) measured in Clupea harengus") +
+  theme_dark()
 ```
 
 ***
-
-<br>
 
 **Spatial distributions of PFOS sampling Locations, Years 2014-2019**
-```{r pfos map of data records, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 9}
-map_cwcon_initial(pfos_qflag_adjust %>% mutate(Matrix = "biota"), yr = 2008:2019)
+```{r pfos map of data records, results = "show", fig.width = 9.5, out.width = "50%"}
+pfos_qflag_adjust <- qflag_adjust(pfos, sumcongeners = FALSE)
+pfos_qflag_adjust_datemeans <- pfos_qflag_adjust %>% 
+  group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+  summarize(sum_congeners_datemean = mean(PFOS, na.rm = TRUE)) %>% 
+  mutate(Matrix = "bio") %>% 
+  ungroup()
+
+pfos_noqflag <- qflag_adjust(pfos, sumcongeners = FALSE, approach = "NoQflag")
+pfos_noqflag_datemeans <- pfos_noqflag %>% 
+  group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+  summarize(sum_congeners_datemean = mean(PFOS, na.rm = TRUE)) %>% 
+  mutate(Matrix = "bio") %>% 
+  ungroup()
+
+pfos2008to2019 <- map_cwcon_initial(pfos_qflag_adjust_datemeans, yr = 2008:2019)
+gridExtra::grid.arrange(pfos2008to2019$map, pfos2008to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
 <br>
 
 #### 3.2.3 Status and trend options and calculation
 
-```{r check pfos calculation and approach}
-
+```{r pfos latest years for qflag adjust vs no flagged data approaches, results = "show"}
+DT::datatable(
+  full_join(
+    pfos_qflag_adjust_datemeans %>%
+      arrange(year) %>%
+      group_by(Subbasin) %>%
+      summarise(lastyr_Adjusted = last(year)),
+    pfos_noqflag_datemeans %>%
+      arrange(year) %>%
+      group_by(Subbasin) %>%
+      summarise(lastyr_NoQflag = last(year)),
+    by = "Subbasin"
+  ) %>% filter(!is.na(Subbasin)),
+  fillContainer = FALSE, 
+  options = list(pageLength = 17)
+)
 ```
+
+```{r investigate approaches to qflags and summarizing by region vs basin pfos indicator, fig.width = 9.5, fig.height = 7}
+## using function defined above, investigate:
+## (1) adjusting vs excluding flagged data, and 
+## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
+pfos_qflag_adjust_indicators <- cwcon_indicators(pfos_qflag_adjust_datemeans, bio_thresh = 9.1)
+pfos_noqflag_indicators <- cwcon_indicators(pfos_noqflag_datemeans, bio_thresh = 9.1)
+
+pfos_status <- bind_rows(
+  pfos_qflag_adjust_indicators$basin_status %>% 
+    mutate(approach = "Adjusted", spatialunits = "Subbasins"),
+  pfos_qflag_adjust_indicators$bhirgn_status %>% 
+    mutate(approach = "Adjusted", spatialunits = "BHI Regions"),
+  pfos_noqflag_indicators$basin_status %>% 
+    mutate(approach = "NoQflag", spatialunits = "Subbasins"),
+  pfos_noqflag_indicators$bhirgn_status %>% 
+    mutate(approach = "NoQflag", spatialunits = "BHI Regions")
+)
+pfos_status <- pfos_status %>%
+  mutate(Region = paste(Subbasin, rgn_nam, sep = ", ")) %>% 
+  mutate(approach_sp_unit = paste(spatialunits, approach))
+
+pfos_status$spatialunits <- factor(pfos_status$spatialunits, levels = c("Subbasins", "BHI Regions"))
+
+ggplot(pfos_status, aes(Region, status, fill = Subbasin)) +
+  geom_col(position = position_dodge(), color = "grey", alpha = 0.7, show.legend = FALSE) + 
+  scale_fill_manual(values = colorRampPalette(fullpal)(42)[sample(1:42, size = 18)]) +
+  facet_grid(rows = vars(approach), cols = vars(spatialunits)) +
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 7))
+```
+
+
+**Conclusions:**
 
 <br>
 
