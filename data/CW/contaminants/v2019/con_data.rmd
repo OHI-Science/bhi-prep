@@ -200,9 +200,18 @@ knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/C
 <br>
 
 ### 2.2 Centralization & Normalization
-<!-- note: below incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections, the following: -->
+<!-- note: remainder of this document incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections: -->
 <!-- raw_pcb_data_prep.R, raw_dioxin_data_prep.R, and raw_pfos_data_prep.R -->
 <!-- station_attribute_prep.R, congener_description.R -->
+
+This preliminary data wrangling includes steps to harmonize and check the 5 datasets used in the Contaminants subgoal: 
+
+- Check number of years with samples by Country and Species, for Contaminants in Biota datasets
+- Rename columns and some variables within columns to improve clarity
+- Standardize by converting units and also between methods of measurement (e.g. wet vs. dry weight or muscle vs liver matrix analyzed)
+
+More details about the standardization and convertions in section 2.2.2.
+
 
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 ## root location of the raw data
@@ -243,9 +252,13 @@ lapply(
 
 ##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills}
 
+***
+
 ###### PCBs
 
 ```{r check number of years sample by country in pcb data,  results  = "show"}
+## check number of dates and years sample by country, PCBs data from ICES
+## Denmark doesn't have herring data...
 do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
   cbind(
     pcb_rawdata_bio %>% 
@@ -256,10 +269,8 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
     Country = country
-  )
-})) %>% DT::datatable()
-## check number of dates and years sample by country, PCBs data from ICES
-## Denmark doesn't have herring data...
+  ) %>% select(Country, Species, NumYrs, LatestYr)
+})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
 ```
 
 ###### PFOS 
@@ -275,8 +286,8 @@ do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(countr
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
     Country = country
-  )
-})) %>% DT::datatable()
+  ) %>% select(Country, Species, NumYrs, LatestYr)
+})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
 ```
 
 ###### Dioxins
@@ -292,18 +303,21 @@ do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(coun
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
     Country = country
-  )
-})) %>% DT::datatable()
+  ) %>% select(Country, Species, NumYrs, LatestYr)
+})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
 ```
+
+***
+
+<br>
 
 ---
 
 #### 2.2.1 Rename Fields/Variables
 
+Renaming columns and some variables within columns for clarity. See references: [Contaminants in Biota](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20biota.pdf) and [Contaminants in Sediment](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20sediment.pdf). For more information about the ICES reporting format for environmental data see [this document](http://ices.dk/marine-data/Documents/ENV/ERF3.2.doc), also referenced in [this document from HELCOM BalticBOOST workshop](https://portal.helcom.fi/meetings/HELCOM%20BalticBOOST%20HZ%20WS%201-2016-323/MeetingDocuments/1-9%20Comparison%20of%20COMBINE%20data%20fields%20to%20EIONET%20data%20fields.pdf) on the HOLAS II hazardous substance assessment.
+
 ```{r rename fields for data, echo = TRUE, results = "hide"}
-## ICES column name descriptors:
-## http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20biota.pdf
-## http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20sediment.pdf
 rename_vars <- function(dataset){
   
   df_vars_renamed <- dataset %>% 
@@ -389,7 +403,8 @@ lapply(
   list("pcb_rawdata_sed", "dioxin_rawdata_sed"),
   function(x){
     renameddf <- rename_vars(get(x)) %>% 
-      rename(press_depth = DEPHU, depth_low = DEPHL)
+      rename(press_depth = DEPHU, depth_low = DEPHL) %>% 
+      mutate(press_depth = as.numeric(press_depth), depth_low = as.numeric(depth_low))
     assign(str_remove(x, "_rawdata"), renameddf, envir = .GlobalEnv)
   }
 )
@@ -405,13 +420,73 @@ The main objective of the code below is to clean the contaminants datases set so
 This includes the following pre-processing steps:
 
 - Remove flagged and deprecated data entries  
-- Separate 'b-bio' data from the other param group data ('oc-cb', 'oc-dx', or 'o-fl' for PCB, Dioxin, PFOS resp.) for use in lipid basis to wet weight conversion  
-- Take averages where there are duplicate data samples, based on the sub_samp_ref value groupings for biota or samp_ref value groupings for sediment-matrix measurements  
-- Convert all congener concentration data to ug/kg and to wet weight for biota  
+- Separate `B-BIO` data from the other param group data (`OC-CB`, `OC-DX`, or `O-FL` for PCB, Dioxin, PFOS resp.) for use in lipid basis to wet weight conversion for biota or for conversion to dry weight for sediments; also for calculation of muscle equivalent in PFOS data
+- Take averages where there are duplicate data samples, based on the `sub_samp_ref` value groupings for biota or `samp_ref` value groupings for sediment-matrix measurements  
+- If wrangling PFOS dataset, calculate the muscle equivalent of values where matrix analyzed was liver, using [Faxneld et al 2014, table 8](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf)
+- Convert all congener concentration data to ug/kg, and to wet weight for biota or dry weight for sediment
 - If data were presented in lipid weight, they were converted to wet weight by: $(\mbox{EXLIP%}/100)*(\mbox{CB conc. lipid weight})$  
 
 
-The datasets each contain two main categories (param_groups) one of which is BBIO. BBIO consists of variables with information about the sample like dry/lipid/wet weight percentage, age, weight and length. The second category contains the congeners concentration information. In stages, these are each manipulated and later rejoined by the sample (samp_ref or sub_samp_ref) ID numbers.
+The datasets each contain two main categories (param_groups) one of which is BBIO. BBIO consists of variables with information about the sample like dry/lipid/wet weight percentage, age, weight and length. The second category contains the congeners concentration information. In stages, these are each manipulated and later rejoined by the sample (`samp_ref` or `sub_samp_ref`) ID numbers.
+
+<br>
+
+**Check Sediment data Coverage before Filtering and Standardizing Units**
+
+Setting the cutoff to 0.05m (concentration measurements from sediment samples taked from within 5cm of the surface) means we retain coverage in the Gulf of Finland for PCBs indicator, and many more measurements in Germany around Kiel. Setting the depth cutoff to any smaller value would result in poor coverage.
+
+```{r check at what depths theres still good sediment data coverage, warning = FALSE, message = FALSE, echo = TRUE}
+## basemap with baltic countries borders and BHI regions with ID numbers
+bhi_rgns_simple <- rmapshaper::ms_simplify(
+  input =  sf::st_read(
+    dsn = file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"), 
+    layer = "BHI_shapefile",
+    quiet = TRUE
+  )) %>% sf::st_as_sf()
+
+basemap <- ggplot2::ggplot() + 
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", color = "lightsteelblue",
+    size = 0.1, alpha = 0.8
+  ) +
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+depthcols <- c("firebrick", "coral", "khaki1", "thistle", "thistle4")
+```
+
+<br>
+
+```{r spatial coverage for sediment measurement depths, results = "show", fig.width = 12, fig.height = 5}
+pcb_sed_depths <- basemap + 
+  geom_sf(
+    data = pcb_sed %>% 
+      filter(longitude > 9, depth_low <= 0.05) %>% ## play with depth value to evaluate spatial coverage...
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326),
+    aes(size = depth_low, color = depth_low),
+    show.legend = FALSE,
+    alpha = 0.08
+  ) +
+  scale_color_gradientn(colors = depthcols)
+
+dioxin_sed_depths <- basemap + 
+  geom_sf(
+    data = dioxin_sed %>% 
+      filter(longitude > 9, depth_low <= 0.05) %>% ## play with depth value to evaluate spatial coverage...
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326),
+    aes(size = depth_low, color = depth_low), 
+    alpha = 0.08
+  ) +
+  scale_color_gradientn(colors = depthcols) +
+  guides(color = guide_colorbar("Depth"), size = FALSE) +
+  theme(legend.position = c(0.95, 0.85), legend.background = element_rect(color = "grey"))
+
+gridExtra::grid.arrange(pcb_sed_depths, dioxin_sed_depths, nrow = 1)
+```
 
 <br>
 
@@ -574,7 +649,7 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## WIDE BBIO DATA
   ## bbio data wide format ----
   
-  ## remove basis_determination because some bio vars are recorded at whole organism scale, others for liver or muscle,
+  ## remove basis_determ. as some bio vars are recorded for whole organism, others for liver or muscle,
   ## no concentration variables measured for whole organism matrix, so don't need for joining...
   ## no problem pivoting wider also indicates uniquely identified by remaining grouping variables
   # unique(filter(df, param_group != "B-BIO")$matrix_analyzed)
@@ -622,10 +697,10 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
   ## check congener concentration data, units and duplicates ----
   
   if(!matrix_biota){
-    ## WHAT ARE THE UNITS OF DEPTH VARIABLES?????????
+    ## units of depth variables meters
     ## only keep sediment measurements in top 2cm, 
     ## or maximum 5cm if filtering to within 2cm of surface yeilds too few data pts...
-    df <- df %>% filter(depth_low < 5)
+    df <- df %>% filter(depth_low <= 0.05) 
   }
   
   df_conc <- df %>%
@@ -753,14 +828,40 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
           vars(c("value", "detect_lim", "quant_lim")), 
           list(pfos_muscle_equiv = ~ case_when(
             variable == "PFOS" & matrix_analyzed == "liver" ~ ./17.9,
-            variable == "PFOS" & matrix_analyzed == "muscle" ~ .
+            variable == "PFOS" & matrix_analyzed == "muscle" ~ .,
+            ## NOT IN BHI1.0, BUT INCLUDING FOR INITIAL EXPLORATION...
+            variable == "PFOA" & species == "Clupea harengus" & matrix_analyzed == "liver" ~ ./13.4,
+            variable == "PFOA" & species == "Clupea harengus" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFOA" & species == "Zoarces viviparus" & matrix_analyzed == "liver" ~ ./6.13,
+            variable == "PFOA" & species == "Zoarces viviparus" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFOA" & species == "Perca fluviatilis" & matrix_analyzed == "liver" ~ ./13.7,
+            variable == "PFOA" & species == "Perca fluviatilis" & matrix_analyzed == "muscle" ~ .,
+            
+            variable == "PFDA" & species == "Clupea harengus" & matrix_analyzed == "liver" ~ ./19.4,
+            variable == "PFDA" & species == "Clupea harengus" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFDA" & species == "Zoarces viviparus" & matrix_analyzed == "liver" ~ ./5.69,
+            variable == "PFDA" & species == "Zoarces viviparus" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFDA" & species == "Perca fluviatiliss" & matrix_analyzed == "liver" ~ ./5.69,
+            variable == "PFDA" & species == "Perca fluviatilis" & matrix_analyzed == "muscle" ~ .,
+            
+            variable == "PFNA" & species == "Clupea harengus" & matrix_analyzed == "liver" ~ ./15.5,
+            variable == "PFNA" & species == "Clupea harengus" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFNA" & species == "Zoarces viviparus" & matrix_analyzed == "liver" ~ ./5.62,
+            variable == "PFNA" & species == "Zoarces viviparus" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFNA" & species == "Perca fluviatilis" & matrix_analyzed == "liver" ~ ./13.7,
+            variable == "PFNA" & species == "Perca fluviatilis" & matrix_analyzed == "muscle" ~ .,
+
+            variable == "PFPEDA" & matrix_analyzed == "liver" ~ ./7.4,
+            variable == "PFPEDA" & matrix_analyzed == "muscle" ~ .,
+            variable == "PFUnDA" & matrix_analyzed == "liver" ~ ./10.1,
+            variable == "PFUnDA" & matrix_analyzed == "muscle" ~ .
           ))
         ) %>% 
         mutate_at(
         vars(c("value_pfos_muscle_equiv", "detect_lim_pfos_muscle_equiv", "quant_lim_pfos_muscle_equiv")), 
         ## will probably all be in wet weight already, but just in case...
         list(wet_wgt = ~ case_when(
-          basis_determination == "lipid weight" ~ .*(`muscle_EXLIP%`/100), # IS THIS HOW EXLIP% VARIABLE WORKS????
+          basis_determination == "lipid weight" ~ .*(`muscle_EXLIP%`/100), # IS THIS HOW EXLIP% VARIABLE WORKS??
           basis_determination == "dry weight" ~ .*(100/`muscle_DRYWT%`), # IS THIS HOW DRYWT% VARIABLE WORKS????
           basis_determination == "wet weight" ~ .
         ))
@@ -841,6 +942,11 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
 
 #### 2.2.3 Wrangle all and Save
 
+Apply the Standardization function defined above to all 5 Contaminants datasets and save the cleaned, harmonized data for later analysis.
+For PCBs in biota data, remove PCB, SCB, SCB7 variables as these are summarized data or depreciated codes; for PCBs in sediments remove PCB and SCB. 
+
+<!-- ideally at this stage we would save to a postgres+postgis database; still in the process of building this database now -->
+
 ```{r save cleaned datasets, echo = TRUE, message = FALSE, warning = FALSE, results = "hide"}
 dir_interm <- here::here("data", "CW", "contaminants", version_year, "intermediate")
 
@@ -886,164 +992,202 @@ lapply(
 
 ### 2.3 Initial Data Exploration
 
-#### 2.3.2 Spatial Distributions of Measurements
-
-```{r sampling maps, results = "show", message = FALSE, warning = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 20}
+```{r combining data for initial exploration, echo = TRUE, warning = FALSE, message = FALSE}
 ## to start running code from here, will need to load in cleaned  datasets...
+
 # dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
-# funtemp <- function(dat){
+# lapply(list.files(dir_interm), function(dat){
 #   dat_final <- read_csv(file.path(dir_interm, dat))
 #   assign(
 #     x = str_replace(dat, "cleaned.csv", "clean_df"),
 #     value = dat_final,
 #     envir = .GlobalEnv
 #   )
-# }
-# lapply(list.files(dir_interm), funtemp)
+# })
 
-
-## basemap with baltic countries borders and BHI regions with ID numbers
-bhi_rgns_simple <- rmapshaper::ms_simplify(
-  input =  sf::st_read(
-    dsn = file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"), 
-    layer = "BHI_shapefile",
-    quiet = TRUE
-  )) %>% sf::st_as_sf()
-
-basemap <- ggplot2::ggplot() + 
-  geom_sf(
-    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", color = "lightsteelblue",
-    size = 0.1, alpha = 0.8
-  ) +
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
-  scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
-
-## mapping datasets for biota and sediments
-make_mapdf <- function(x, yr){
+make_plotdf <- function(x, yrs){
+  
+  grpvars <- c("year", "latitude", "longitude", "variable", "num_distinct_dates", "species")
+  valvar <- "value_wet_wgt"
+  if(str_detect(x, "sed")){
+    grpvars <- setdiff(grpvars, "species")
+    valvar <- "value_dry_wgt"
+  }
+  if(str_detect(x, "pfos")){
+    valvar <- "value_pfos_muscle_equiv_wet_wgt"
+  }
   cbind(
     get(x) %>%
-      filter(year %in% yr, longitude > 9) %>%
-      group_by(year, latitude, longitude, variable) %>%
+      filter(!is.na(!!!syms(valvar))) %>% 
+      filter(year %in% yrs, longitude > 9) %>%
+      group_by(latitude, longitude, variable) %>%
+      ## number of disinct dates at the location for the variable
+      mutate(num_distinct_dates = n_distinct(date)) %>%
+      group_by(!!!syms(grpvars)) %>%
+      ## mean annual values at the locatioin, by variable
       summarize(
-        n_obs = n(),
         mean_val = ifelse(
           str_detect(x, "sed"), 
-          mean(value_dry_wgt, na.rm = TRUE),
+          mean(value_dry_wgt), 
           ifelse(
             str_detect(x, "pfos"),
-            mean(value_pfos_muscle_equiv_wet_wgt, na.rm = TRUE), 
-            mean(value_wet_wgt, na.rm = TRUE)
+            mean(value_pfos_muscle_equiv_wet_wgt), 
+            mean(value_wet_wgt)
           )
         )
       ) %>%
-      filter(!is.na(mean_val)) %>% 
-      group_by(latitude, longitude) %>% 
-      mutate(
-        num_congeners = n_distinct(variable),
-        mean_allcongeners_selectedyrs = mean(mean_val),
-        sd_allcongeners_selectedyrs = ifelse(is.na(sd(mean_val)), 1, sd(mean_val) + 1)
-      ) %>%
-      tidyr::pivot_longer(
-        cols = c(sd_allcongeners_selectedyrs, mean_allcongeners_selectedyrs), 
-        names_to = "metric", values_to = "value"
-      ) %>%
-      ungroup() %>% 
-      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "identity"),
-    source = str_remove(x, "_clean_df"))
+      ungroup(),
+    source = str_to_upper(str_remove(x, "_clean_df")))
 }
-mapdf_biota <- do.call(
-  rbind, lapply(
-    list("pcb_bio_clean_df", "pfos_bio_clean_df", "dioxin_bio_clean_df"), 
-    function(x) make_mapdf(x, 2016:2019)
-  )
+## apply make_plotdf bringing all datasets together 
+plotdf <- bind_rows(
+  do.call(
+    rbind, 
+    lapply(
+      list("pcb_bio_clean_df", "dioxin_bio_clean_df", "pfos_bio_clean_df"), 
+      function(x) make_plotdf(x, 2016:2019)
+    )) %>% mutate(matrix = "biota", indicator = str_remove(source, "_[A-Z].*")),
+  do.call(
+    rbind, 
+    lapply(
+      list("pcb_sed_clean_df", "dioxin_sed_clean_df"), 
+      function(x) make_plotdf(x, 2016:2019)
+    )) %>% mutate(matrix = "sediment", indicator = str_remove(source, "_[A-Z].*"))
 )
-mapdf_sediment <- do.call(
-  rbind, 
-  lapply(
-    list("pcb_sed_clean_df", "dioxin_sed_clean_df"), 
-    function(x) make_mapdf(x, yr = 2014:2019)
-  )
-)
-
-## contaminants datasets overlaying basemap
-mapbio <- basemap + 
-  geom_sf(
-    aes(size = value, color = num_congeners), 
-    alpha = 0.3, 
-    shape = 19, 
-    data = mapdf_biota
-  ) +
-  scale_color_distiller(palette = "OrRd") +
-  facet_grid(rows = vars(source), cols = vars(metric)) +
-  guides(size = FALSE) +
-  theme(legend.position = c(0.1, 0.9), legend.box.background = element_rect(colour = "grey"))
-
-mapsed <- basemap + 
-  geom_sf(
-    aes(size = value, color = num_congeners),
-    alpha = 0.3, 
-    shape = 19, 
-    data = mapdf_sediment,
-    show.legend = FALSE
-  ) +
-  scale_color_distiller(palette = "OrRd") +
-  facet_grid(rows = vars(source), cols = vars(metric))
-
-gridExtra::grid.arrange(mapbio, mapsed, ncol = 1, heights = c(1.5, 1))
 ```
+
+<br>
+
+#### 2.3.2 Spatial Distributions of Measurements {.tabset .tabset-fade .tabset-pills}
+
+The maps below show data distribution spatially. Size and color correspond to number of distinct dates measurements were collected for a variable, for the given location within the specified time period (2016 through 2019); larger points with more yellow color indicate greater number of observations while smaller more red points indicate fewer observations. Opacity corresponds to number of years with greater transparency indicating fewer years of data. These faceted plots are created for multiple species; the species selected for visualization are those with the greatest number of measurements recorded across the three indicators.
+
+```{r make plotting dataframe, echo = TRUE, warning = FALSE, message = FALSE}
+make_map <- function(data, yrs){
+  
+  ## make data spatial using lat/lon columns
+  df <- sf::st_as_sf(
+    x = data, 
+    agr = "identity",
+    coords = c("longitude", "latitude"), 
+    crs = 4326
+  )
+  ## contaminants datasets overlaying basemap
+  map <- basemap + 
+    geom_sf(
+      data = df,
+      aes(
+        size = num_distinct_dates,
+        color = num_distinct_dates), 
+      show.legend = FALSE,
+      alpha = 0.5, 
+      shape = 19
+    ) +
+    scale_color_gradient2(
+      low = "red3", 
+      mid = "lightcoral",
+      high = "lightgoldenrod",
+      midpoint = 2.5
+    ) +
+    facet_wrap(c("indicator", "variable"), ncol = 5)
+
+  return(map)
+}
+# for(i in unique(plotdf$indicator)){
+#   plotdf %>% 
+#     filter(matrix == "biota", indicator == i) %>% 
+#     group_by(species) %>%
+#     summarise(n = sum(num_distinct_dates)) %>% 
+#     arrange(desc(n))
+# }
+```
+
+<br>
+
+##### Clupea Harengus
+
+```{r sampling maps herring, results = "show", echo = TRUE, fig.width = 11, fig.height = 28.2}
+make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus")))
+```
+
+##### Zoarces Viviparus
+
+```{r sampling maps eelpout, results = "show", echo = TRUE, fig.width = 11, fig.height = 23.8}
+make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparus")))
+```
+
+##### Perca Fluviatilis
+
+```{r sampling maps perch, results = "show", echo = TRUE, fig.width = 11, fig.height = 28.2}
+make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatilis")))
+```
+
+##### Platichthys Flesus
+
+```{r sampling maps flounder, results = "show", echo = TRUE, fig.width = 11, fig.height = 21.7}
+make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys flesus")))
+```
+
+##### Mytilus Edulis
+
+```{r sampling maps blue muscles, results = "show", echo = TRUE, fig.width = 11, fig.height = 13}
+make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")))
+```
+
+##### Uria Aalge
+
+```{r sampling maps common murre, results = "show", echo = TRUE, fig.width = 11, fig.height = 15.2}
+make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
+```
+
+##### Sediments
+
+```{r sampling maps sediments, results = "show", echo = TRUE, fig.width = 11, fig.height = 17.3}
+make_map(filter(plotdf, matrix == "sediment"))
+```
+
+---
 
 <br>
 
 #### 2.3.3 Contaminants in Biota vs Sediments
 
-**Contaminants: PCB and Dioxin by Matrix per Congener**
+Distributions of contaminant concentration values by indicator and matrix. Given the nearly exponential shape of the concentration distributions, plotting log values would makes some sense, though these are more difficult to interpret. Rescaling faceted axes of plots with actual values, to exclude outliers and focus in on 1st-3rd quartiles proved difficult (though rough  code to do this visualization was kept and commented out below).
 
-```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 13}
-sf::st_geometry(mapdf_sediment) <- NULL
-sf::st_geometry(mapdf_biota) <- NULL
+```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 12}
+## for boxplots, can (1) filter to remove beyond 90th quartile, or (2) log the data
+## contaminants measurements represent an exponential dist. more closely than normal
+## though logarithms are less intuitive to interpret here...
+boxdf <- plotdf %>% mutate(log_mean_val = log(mean_val))
 
-boxdf <- bind_rows(
-  mutate(
-    mapdf_sediment, 
-    matrix = "sediment",
-    source = str_remove(source, "_[a-z].*")
-  ),
-  mutate(
-    mapdf_biota, 
-    matrix = "biota",
-    source = str_remove(source, "_[a-z].*")
-  )
-)
-boxdf <- boxdf %>% 
-  filter(metric == "mean_allcongeners_selectedyrs", source != "pfos") %>% 
-  group_by(source) %>% 
-  mutate(quant9 = quantile(mean_val, 0.9)) %>% 
-  ungroup() %>% 
-  filter(mean_val < quant9)
-
+## mapping datasets for biota and sediments
 make_boxplot <- function(dataset){
-  boxplot <- ggplot(dataset, aes(x = matrix, y = mean_val, color = matrix)) + 
-    geom_boxplot(outlier.alpha = 0.2, outlier.shape = 20) + 
+  
+  boxplot <- ggplot(dataset) + 
+    geom_boxplot(
+      # aes(x = variable, y = mean_val, color = matrix),
+      aes(x = variable, y = log_mean_val, color = matrix),
+      outlier.alpha = 0.2, 
+      outlier.shape = 20, 
+      show.legend = FALSE
+    ) + 
     labs(x = NULL, y = NULL) + 
     scale_color_manual(values = c("orchid", "tomato")) +
-    facet_grid(rows = vars(variable), switch = "y") +
+    facet_grid(cols = vars(matrix), rows = vars(variable), scales = "free", switch = "y") +
     coord_flip() +
     theme(
-      legend.position = c(0.85, 0.95), 
       axis.text.y = element_blank(),
       axis.ticks.y.left = element_blank(),
       panel.grid.minor.x = element_blank(), 
       panel.grid.major.x = element_blank(),
       strip.text.y = element_text(size = 8, angle = 180)
     )
+  # boxplot <- boxplot + scale_y_continuous(limits = c(0, quantile(dataset$mean_val, 0.95)))
+  
   return(boxplot)
 }
-plotpcb <- make_boxplot(boxdf %>% filter(source == "pcb")) + theme(legend.position = "none")
-plotdioxin <- make_boxplot(boxdf %>% filter(source == "dioxin"))
+plotpcb <- make_boxplot(boxdf %>% filter(indicator == "PCB"))
+plotdioxin <- make_boxplot(boxdf %>% filter(indicator == "DIOXIN"))
 gridExtra::grid.arrange(plotpcb, plotdioxin, ncol = 2)
 ```
 
