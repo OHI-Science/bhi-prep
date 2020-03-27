@@ -153,7 +153,12 @@ eut_thresholds <- eut_thresholds_values %>%
          oxyg_debt = str_replace(oxyg_debt, "N", " "),
          oxyg_debt = as.numeric(oxyg_debt))
 
-## TO-DO: INCORPORATE IT TO SECCHI DATA
+#select just summer_seccchi target
+secchi_target <- eut_thresholds %>% 
+  dplyr::select(Subbasin = basin, secchi_target = summer_secchi) %>%
+  mutate(Subbasin = str_replace_all(Subbasin, "_", " "),
+         secchi_target = as.factor(secchi_target))   
+
 
 str(eut_thresholds)
 str(basin_lookup_table)
@@ -361,6 +366,39 @@ secchi_unique <- secchi %>%
   # filter(year >=2000)
 ```
 <br/>
+
+
+**SECCHI SPATIAL VISUALIZATION**
+```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, out.width = "100%"}
+# assign secchi data to bhi basins
+secchi_rgns_shp <- join_rgns_info(
+  secchi, helcomID_col = "helcom_id", country_col = "country", 
+                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+                           rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL)
+
+## Merge the secchi target (does not work)!! 
+secchi_rgns_shp <- secchi_rgns_shp %>% 
+  left_join(secchi_target, by = "Subbasin")
+
+# Plot by bhi regions
+ggplot(secchi_rgns_shp) + 
+  geom_point(aes(month, secchi, colour = supplier)) +
+  facet_wrap(~BHI_ID, scales ="free_y")
+
+ggplot(secchi_rgns_shp) + 
+  geom_point(aes(year ,secchi, colour = supplier)) +
+  facet_wrap(~BHI_ID)
+
+# Plot by subbasins
+ggplot(secchi_rgns_shp) + 
+  geom_point(aes(month, secchi, colour = supplier)) +
+  facet_wrap(~Subbasin, scales ="free_y")
+
+ggplot(secchi_rgns_shp) + 
+  geom_point(aes(year, secchi, colour = supplier)) +
+  facet_wrap(~Subbasin, scales ="free_y")
+
+```
 
 
 **Oxygen data**
