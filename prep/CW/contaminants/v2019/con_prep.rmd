@@ -1195,13 +1195,12 @@ dioxinsed_teq <- dioxin_sed %>%
   select(-ends_with("dry_wgt"))
 ```
 
-<br>
 
-##### Visualize flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
+##### Checking Outliers/Questionable Measurements {.tabset .tabset-fade .tabset-pills}
 
-Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
+###### Dioxin-like PCBs in Biota
 
-```{r checking data and outliers, results = "show", fig.width = 9.5, fig.height = 8}
+```{r checking dioxinlike pcb bio data and outliers, results = "show", fig.width = 9.5, fig.height = 8}
 ## something funky with some stations are these outliers or incorrectly recorded data??
 dioxinlike_pcbbio_teq <- dioxinlike_pcbbio_teq %>% 
   mutate(
@@ -1212,56 +1211,140 @@ dioxinlike_pcbbio_teq <- dioxinlike_pcbbio_teq %>%
     chk1 = (station == "473" & year == 2015 & month == 7),
     chk2 = (station %in% c("SJB1454000", "SJB1455000", "SJB1453000") & year == 2018 & month == 10),
     chk3 = (station == "SJB1453000" & year == 2017 & month == 10),
-    chk = !chk0 & !chk1 & !chk2 & !chk3
+    chk = !chk0&!chk1&!chk2&!chk3
   )
 plotdf <- mutate(dioxinlike_pcbbio_teq, value_adj = ifelse(qflagged, value_teq/2, value_teq)) 
 
 makeplot <- function(data){
   ggplot(data) + 
-    geom_point(aes(date, value_adj), show.legend = FALSE, size = 0.2, alpha = 0.5, color =  "grey") +
-    facet_wrap(~variable, scales = "free_y", nrow = 7) +
+    geom_point(aes(date, value_adj), show.legend = FALSE, size = 0.5, alpha = 0.5, color =  "grey") +
+    facet_wrap(~variable, scales = "free_y", nrow = length(unique(data$variable))) +
     labs(x = NULL, y = NULL)
 }
 gridExtra::grid.arrange(
   makeplot(plotdf) + 
-    geom_point(data = filter(plotdf, !chk), aes(date, value_adj)) +
+    geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1) +
     ggtitle("All Data"),
   makeplot(filter(plotdf, !chk1)) + 
-    geom_point(data = filter(plotdf, !chk1 & !chk), aes(date, value_adj)) +
+    geom_point(data = filter(plotdf, !chk1&!chk), aes(date, value_adj), shape = 1) +
     ggtitle("W/O station 473 July2015"),
-  makeplot(filter(plotdf, !chk1 & !chk2)) + 
-    geom_point(data = filter(plotdf, !chk1 & !chk2 & !chk), aes(date, value_adj)) +
+  makeplot(filter(plotdf, !chk1&!chk2)) + 
+    geom_point(data = filter(plotdf, !chk1&!chk2&!chk), aes(date, value_adj), shape = 1) +
     ggtitle("W/O SJB1454000/5000/3000, Oct2018"),
   makeplot(filter(plotdf, chk)) +
     ggtitle("All questionable points removed"),
   ncol = 4
 )
-dioxinlike_pcbbio_teq <- dioxinlike_pcbbio_teq %>% 
-  filter(chk) %>% 
-  select(-starts_with("chk"))
+dioxinlike_pcbbio_teq <- filter(dioxinlike_pcbbio_teq, chk) %>% select(-starts_with("chk"))
 ```
+
+###### Dioxin-like PCBs in Sediment
+
+```{r checking dioxinlike pcb sed data and outliers, results = "show", fig.width = 9.5, fig.height = 8}
+dioxinlike_pcbsed_teq <- dioxinlike_pcbsed_teq %>% 
+  mutate(
+    chk0 = (station == "FYN 3" & samp_ref == 293730),
+    chk1 = (country == "Estonia" & qflag == "<" & variable %in% c("CB157", "CB167", "CB169")),
+    chk = !chk0&!chk1
+  )
+plotdf <- dioxinlike_pcbsed_teq %>% 
+  mutate(value_adj = ifelse(qflagged, value_teq/2, value_teq), country = as.factor(country))
+plotdf$country <- factor(plotdf$country, levels = unique(plotdf$country)) # estonia last for matching palettes!
+
+gridExtra::grid.arrange(
+  makeplot(plotdf) +
+    geom_point(aes(date, value_adj, color = country), alpha = 0.5, size = 0.5, show.legend = FALSE) +
+    scale_color_manual(values = c(rep("grey", 7), "coral")) +
+    geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1) +
+    ggtitle("All Data"),
+  makeplot(filter(plotdf, !chk0)) + 
+    geom_point(data = filter(plotdf, !chk0&!chk), aes(date, value_adj), shape = 1) +
+    geom_point(aes(date, value_adj, color = country), alpha = 0.5, size = 0.5, show.legend = FALSE) +
+    scale_color_manual(values = c(rep("grey", 7), "coral")) +
+    ggtitle("W/O station FYN 3 sample #293730 Oct2000"),
+  makeplot(filter(plotdf, chk)) + 
+    ggtitle("All questionable points removed"),
+  ncol = 3
+)
+dioxinlike_pcbsed_teq <- filter(dioxinlike_pcbsed_teq,chk) %>% select(-starts_with("chk"))
+```
+
+###### Dioxins in Biota
+
+```{r checking dioxin biota data and outliers, results = "show", fig.width = 9.5, fig.height = 18}
+## something funky with some stations are these outliers or incorrectly recorded data??
+dioxinbio_teq <- dioxinbio_teq %>% 
+  mutate(
+    chk0 = (station == "473" & year == 2015 & month == 7),
+    chk1 = (station %in% c("SJB1454000", "SJB1455000", "SJB1453000") & year == 2018 & month == 10),
+    chk = !chk0&!chk1
+    # chk2 = (station == "Utlängan" & year == 2014 & month == 6),
+    # chk = !chk0&!chk1&!chk2
+  )
+plotdf <- mutate(dioxinbio_teq, value_adj = ifelse(qflagged, value_teq/2, value_teq)) 
+
+gridExtra::grid.arrange(
+  makeplot(plotdf) + 
+    geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1) +
+    ggtitle("All Data"),
+  makeplot(filter(plotdf, !chk0)) + 
+    geom_point(data = filter(plotdf, !chk0&!chk), aes(date, value_adj), shape = 1) +
+    ggtitle("W/O station 473 July2015"),
+  makeplot(filter(plotdf, !chk0&!chk1)) + 
+    geom_point(data = filter(plotdf, !chk0&!chk1&!chk), aes(date, value_adj), shape = 1) +
+    ggtitle("W/O SJB1454000/5000/3000, Oct2018"),
+  makeplot(filter(plotdf, chk)) +
+    ggtitle("All questionable points removed"),
+  ncol = 4
+)
+dioxinbio_teq <- filter(dioxinbio_teq, chk) %>% select(-starts_with("chk"))
+```
+
+###### Dioxins in Sediment
+
+```{r checking dioxin sediment data and outliers, results = "show", fig.width = 9.5, fig.height = 5.7}
+## something funky with some stations are these outliers or incorrectly recorded data??
+dioxinsed_teq <- dioxinsed_teq %>% 
+  mutate(
+    chk0 = (station == "NORS-AlsMole" & year == 2007 & month == 12),
+    chk1 = (station == "STO0501059" & year == 2007 & month == 11),
+    chk2 = (station == "NORS-Blaakilde" & year == 2014 & month == 12),
+    chk = !chk0&!chk1&!chk2
+  )
+plotdf <- mutate(dioxinsed_teq, value_adj = ifelse(qflagged, value_teq/2, value_teq)) 
+## no apparent patterns in outliers to raise concern here
+makeplot(plotdf) +
+  facet_wrap(~variable, scales = "free_y", nrow = 5) +
+  geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1) +
+  ggtitle("All Data")
+```
+<br>
+
+##### Visualize flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
+
+Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
 
 ###### Dioxin-like PCBs in Biota
 
-```{r pcbs bio qflag adjustment congeners by basin, results = "show", fig.height = 22, fig.width = 9.5}
+```{r pcbs bio qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 18}
 qflag_timeseries_plot(dioxinlike_pcbbio_teq, "value_teq", "Congener Concentration (ug/kg TEQ wet weight) in Clupea Harengus")
 ```
 
 ###### Dioxin-like PCBs in Sediment
 
-```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.height = 31, fig.width = 9.5}
+```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 20.7}
 qflag_timeseries_plot(dioxinlike_pcbsed_teq, "value_teq", "Congener Concentration (ug/kg TEQ dry weight) in Sediments")
 ```
 
 ###### Dioxins in Biota
 
-```{r pcbs bio qflag adjustment congeners by basin, results = "show", fig.height = 22, fig.width = 9.5}
+```{r pcbs bio qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 38.7}
 qflag_timeseries_plot(dioxinbio_teq, "value_teq", "Congener Concentration (ug/kg TEQ wet weight) in Clupea Harengus")
 ```
 
 ###### Dioxins in Sediment
 
-```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.height = 31, fig.width = 9.5}
+```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 49.5}
 qflag_timeseries_plot(dioxinsed_teq, "value_teq", "Congener Concentration (ug/kg TEQ dry weight) in Sediments")
 ```
 
