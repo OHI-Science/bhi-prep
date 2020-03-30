@@ -261,12 +261,7 @@ ggplot(chk_pcb_bio_qflags) +
 
 <br>
 
-##### Compare two approaches to deal with flagged data, for BHI regions vs Basin  {.tabset .tabset-fade .tabset-pills}
-
-1. Remove the flagged observations or adjust values using detect_lim/2; detect_lim values not always provided, so instead, apply transformation to the reported data value
-2. Start with mean ICES6 conc. by date and location (our unique observations) 
-3. Take mean of all unique obs. for past 5 years in either BHI region or basin
-4. Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing  
+**Defining two approaches to deal with flagged data, for BHI regions vs Basin**
 
 ```{r function to adjust qflagged data}
 
@@ -401,6 +396,9 @@ plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", matrix 
 }
 ```
 
+<br>
+
+##### Congeners Timeseries by Basin {.tabset .tabset-fade .tabset-pills}
 
 ###### Congeners Monthly Sums, PCBs in Biota
 
@@ -476,8 +474,8 @@ map_cwcon_initial <- function(dataset, yr, obs_count_limits, matrix = NULL){
       mapping = aes(color = Matrix, shape = Matrix),
       size = 3
     ) +
-    scale_color_manual(values = c("red", "green")) +
-    scale_shape_manual(values = c(9, 7)) +
+    scale_color_manual(values = c("limegreen", "brown1")) +
+    scale_shape_manual(values = c(13, 13)) +
     theme_linedraw() +
     theme(legend.position = c(0.1, 0.85), legend.background = element_rect(color = "grey")) +
     guides(fill = guide_legend(order = 2))
@@ -499,7 +497,7 @@ map_cwcon_initial <- function(dataset, yr, obs_count_limits, matrix = NULL){
       aes(Subbasin, meanVal, fill = matrix_ObservCount, size = numLocation),
       color = "burlywood", shape =  21
     ) +
-    labs(x = NULL, y = "Mean concentration (ug/kg)", color = NULL) +
+    labs(x = NULL, y = "Mean concentration (ug/kg)\n", color = NULL) +
     scale_fill_gradient(
       low = "midnightblue", 
       high = "lightcyan", 
@@ -542,7 +540,6 @@ pcb_noqflag_datemeans <- bind_rows(
     mutate(Matrix = "sed")
 ) %>% ungroup()
 ```
-
 
 ###### With just year 2014
 
@@ -761,6 +758,13 @@ htmlTable::htmlTable(
 )
 ```
 
+**Compare two approaches to deal with flagged data, for BHI regions vs Basin**
+
+1. Remove the flagged observations or adjust values using detect_lim/2; detect_lim values not always provided, so instead, apply transformation to the reported data value
+2. Start with mean ICES6 conc. by date and location (our unique observations) 
+3. Take mean of all unique obs. for past 5 years in either BHI region or basin
+4. Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing  
+
 ```{r investigate approaches to qflags and summarizing by region vs basin pcb biota indicator, fig.width = 9.5, fig.height = 9}
 ## using function defined above, investigate:
 ## (1) adjusting vs excluding flagged data, and 
@@ -951,7 +955,12 @@ boxplotdf <- plotdf %>%
 ggplot(boxplotdf) + 
   scale_color_distiller(palette = "GnBu", direction = -1, limits = c(0, 155)) +
   scale_fill_distiller(palette = "GnBu", direction = -1, limits = c(0, 155)) +
-  geom_boxplot(aes(year, meanAdjww, color = countObs, fill = countObs), show.legend = FALSE, alpha = 0.4, outlier.size = 0.3) + 
+  geom_boxplot(
+    aes(year, meanAdjww, color = countObs, fill = countObs), 
+    show.legend = FALSE, 
+    alpha = 0.4, 
+    outlier.size = 0.3
+  ) + 
   facet_wrap(~ Subbasin, ncol = 3) +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(x = NULL, y = "Congener Concentration (daily mean, ug/kg wet weight) measured in Clupea harengus") +
@@ -1173,7 +1182,8 @@ dioxin_sed <- dioxin_sed %>%
     qflagged, qflag, 
     country, Subbasin, HELCOM_ID, BHI_ID, latitude, longitude, station,
     date, year, month, day
-  )
+  ) %>% 
+  filter(!is.na(BHI_ID)|!is.na(Subbasin))
 ```
 
 
@@ -1318,6 +1328,7 @@ makeplot(plotdf) +
   geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1) +
   ggtitle("All Data")
 ```
+
 <br>
 
 ##### Visualize flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
@@ -1344,9 +1355,159 @@ qflag_timeseries_plot(dioxinbio_teq, "value_teq", "Congener Concentration (ug/kg
 
 ###### Dioxins in Sediment
 
-```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 49.5}
+```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 45.9}
 qflag_timeseries_plot(dioxinsed_teq, "value_teq", "Congener Concentration (ug/kg TEQ dry weight) in Sediments")
 ```
+
+<br>
+
+#### 3.3.3 Evaluate Flagged Data & Sampling Patterns
+
+**Adjust Qflagged values**
+
+Use $LOD/2$ approach to adjust values. Because we do not have the LOD in all cases, use: $adjustedValue = value / 2$
+
+<br>
+
+**TEQ concentrations per Sample**
+
+1. Sum TEQ concentration values for each `sub_samp_ref` in dioxin and dioxin-like PCBs in biota separately, and count number of congeners included in that sum
+2. Sum TEQ concentration values for each `samp_ref` in dioxin and dioxin-like PCB in sediment separately, and count number of congeners included in that sum
+3. Mean TEQ values by date and location, for each of the four datasets: dioxin-like pcbs in biota and sediments, and dioxins in biota and sediments. For observations averaged, track the mean/min/max number of congeners in each of the observations, and count the number of observations for each date and location grouping.
+
+```{r adjust qflagged data for dioxin and dioxinlike pcbs teq data}
+lapply(
+  list(
+    ## dioxin-like PCBs in biota, two approaches to handling qflags
+    list(df = "dioxinlike_pcbbio_teq", mat = "bio", apr = "Adjusted"),
+    list(df = "dioxinlike_pcbbio_teq", mat = "bio", apr = "NoQflag"),
+    ## dioxin-like PCBs in sediment, two approaches to handling qflags
+    list(df = "dioxinlike_pcbsed_teq", mat = "sed", apr = "Adjusted"),
+    list(df = "dioxinlike_pcbsed_teq", mat = "sed", apr = "NoQflag"),
+    ## Dioxins in biota, two approaches to handling qflags
+    list(df = "dioxinbio_teq", mat = "bio", apr = "Adjusted"),
+    list(df = "dioxinbio_teq", mat = "bio", apr = "NoQflag"),
+    ## Dioxins in sediment, two approaches to handling qflags
+    list(df = "dioxinsed_teq", mat = "sed", apr = "Adjusted"),
+    list(df = "dioxinsed_teq", mat = "sed", apr = "NoQflag")
+  ),
+  function(x){
+    congeners <- unique(get(x$df)$variable)
+    result <- qflag_adjust(get(x$df), indicator = "dioxin", congeners, matrix = x$mat, approach = x$apr)
+    assign(
+      str_replace(x$df, "teq", ifelse(x$apr == "Adjusted", "qflag_adjust", "noqflag")), 
+      result, 
+      envir = .GlobalEnv
+    )
+  }
+)
+```
+
+<br>
+
+<!-- To visualize by country or basin pass "country" or "subbasin" respectively to `cntry_or_basin` arguement  -->
+
+##### Congeners Timeseries by Basin {.tabset .tabset-fade .tabset-pills}
+
+###### Congeners Monthly Sums, Dioxin-like PCBs in Biota
+
+```{r congeners timeseries monthly by basin for biota, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
+cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 7)]
+plot_cwcon_initial(dioxinlike_pcbbio_qflag_adjust, col_pal = cols, contam_param = "OC-CB", cntry_or_basin = "country")
+```
+
+###### Congeners Monthly Sums, Dioxin-like PCBs in Sediments
+
+```{r congeners timeseries monthly by basin for sediments, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
+plot_cwcon_initial(dioxinlike_pcbsed_qflag_adjust, cols, "OC-CB", "sed", "country")
+```
+
+###### Congeners Monthly Sums, Dioxins in Biota
+
+```{r congeners timeseries monthly by basin for biota, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
+cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 16)]
+plot_cwcon_initial(dioxinbio_qflag_adjust, col_pal = cols, contam_param = "OC-DX", cntry_or_basin = "country")
+```
+
+###### Congeners Monthly Sums, Dioxins in Sediments
+
+```{r congeners timeseries monthly by basin for sediments, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
+plot_cwcon_initial(dioxinsed_qflag_adjust, col_pal = cols[-16], contam_param = "OC-DX", cntry_or_basin = "country")
+```
+
+---
+
+<br>
+
+**Get mean TEQs by Date and Location for Plotting**
+
+Calculate the sum of the mean dioxin and the mean dioxin-like PCB TEQ value for each date and location. For observations averaged, also calculate mean, min, and max number of congeners in each of the observations, and also numbers of observations for each date and location.
+
+```{r mapping spatial distribution of dioxin and dioxinlike pcbs data}
+lapply(
+  list(
+    list("dioxinlike_pcbbio_qflag_adjust", "dioxinlike_pcbsed_qflag_adjust"),
+    list("dioxinlike_pcbbio_noqflag", "dioxinlike_pcbsed_noqflag"),
+    list("dioxinbio_qflag_adjust", "dioxinsed_qflag_adjust"),
+    list("dioxinbio_noqflag", "dioxinsed_noqflag")
+  ),
+  function(x){
+    datemeandf <- bind_rows(
+      get(x[[1]]) %>% 
+        group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+        summarize(
+          sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE),
+          mean_congener_in_sum = mean(num_congener_in_sum, na.rm = TRUE),
+          min_congener_in_sum = min(num_congener_in_sum, na.rm = TRUE),
+          max_congener_in_sum = max(num_congener_in_sum, na.rm = TRUE)
+        ) %>% 
+        mutate(Matrix = "bio"),
+      get(x[[2]]) %>% 
+        group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
+        summarize(
+          sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE),
+          mean_congener_in_sum = mean(num_congener_in_sum, na.rm = TRUE),
+          min_congener_in_sum = min(num_congener_in_sum, na.rm = TRUE),
+          max_congener_in_sum = max(num_congener_in_sum, na.rm = TRUE)
+        ) %>% 
+        mutate(Matrix = "sed")
+    ) %>% ungroup()
+    
+    dfname <- paste(str_remove(x[[1]], "bio"), "datemeans", sep = "_")
+    assign(dfname, datemeandf, envir = .GlobalEnv)
+  }
+)
+```
+
+<br>
+
+##### Spatial distributions of Dioxin and Dioxin-like PCBs sampling Locations {.tabset .tabset-fade .tabset-pills}
+
+###### Dioxin-like PCBs years 2016-2019
+
+```{r map spatial dist of PCBs year 2014, results = "show", fig.width = 9.5, out.width = "120%"}
+mapdioxinlikepcb <- map_cwcon_initial(dioxinlike_pcb_qflag_adjust_datemeans, c(0, 15), yr = 2016:2019, matrix = "both")
+gridExtra::grid.arrange(
+  mapdioxinlikepcb$map + labs(y = "Mean concentration (pg/g)\n"), 
+  mapdioxinlikepcb$basinplot, 
+  nrow = 1, 
+  widths = c(1.2, 1)
+)
+```
+
+###### Dioxins years 2016-2019
+
+```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 9.5, out.width = "120%"}
+mapdioxins <- map_cwcon_initial(dioxin_qflag_adjust_datemeans, c(0, 15), yr = 2016:2019, matrix = "both")
+gridExtra::grid.arrange(
+  mapdioxins$map + labs(y = "Mean concentration (pg/g)\n"), 
+  mapdioxins$basinplot, 
+  nrow = 1, 
+  widths = c(1.2, 1)
+)
+```
+
+---
 
 <br>
 
@@ -1354,8 +1515,8 @@ qflag_timeseries_plot(dioxinsed_teq, "value_teq", "Congener Concentration (ug/kg
 
 Were dioxins and PCBs measured from the same samples such that a total TEQ value per sample can be calculated?
 
-1. Join dioxins and dioxin-like PCBs by `sub_sample_ref`, `date`, `latitude`, `longitude`
-2. Get TEQ concentration for each sub_sample_ref
+1. Join dioxins and dioxin-like PCBs by `sub_samp_ref` or `samp_ref`, `date`, `latitude`, `longitude`
+2. Get TEQ concentration for each sample reference
 3. Take mean to get single TEQ value per date-location
 
 ```{r assess dioxin pcb overlaps in biota data, eval = FALSE}
@@ -1404,171 +1565,47 @@ full_join(
 ) %>% filter(dioxin & pcb)
 ```
 
-
-
-<!-- **TEQ concentration for each sub_sample_ref** -->
-
-<!-- 1. Sum TEQ concentration values for each `sub_samp_ref` in dioxin and dioxin-like PCBs in biota separately, and count number of congeners included in that sum -->
-<!-- 2. Sum TEQ concentration values for each `samp_ref` in dioxin and dioxin-like PCB in sediment separately, and count number of congeners included in that sum -->
-<!-- 3. Mean TEQ values by date and location, for each of the four datasets: dioxin-like pcbs in biota and sediments, and dioxins in biota and sediments. For observations averaged, track the mean/min/max number of congeners in each of the observations, and count the number of observations for each date and location grouping. -->
-
-
 <br>
 
-#### 3.3.3 Evaluate Flagged Data & Sampling Patterns
+**Join dioxin and dioxin-like PCB observations**
 
-**Adjust Qflagged values**
-
-Use $LOD/2$ approach to adjust values. Because we do not have the LOD in all cases, use: $adjustedValue = value / 2$
-
-<br>
-
-##### Compare two approaches to deal with flagged data, for BHI regions vs Basin  {.tabset .tabset-fade .tabset-pills}
-
-<!-- 1. Remove the flagged observations or adjust values using detect_lim/2; detect_lim values not always provided, so instead, apply transformation to the reported data value -->
-<!-- 2. Start with mean ICES6 conc. by date and location (our unique observations)  -->
-<!-- 3. Take mean of all unique obs. for past 5 years in either BHI region or basin -->
-<!-- 4. Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing   -->
-
-```{r adjust qflagged data for dioxin and dioxinlike pcbs teq data}
-lapply(
-  list(
-    ## dioxin-like PCBs in biota, two approaches to handling qflags
-    list(df = "dioxinlike_pcbbio_teq", mat = "bio", apr = "Adjusted"),
-    list(df = "dioxinlike_pcbbio_teq", mat = "bio", apr = "NoQflag"),
-    ## dioxin-like PCBs in sediment, two approaches to handling qflags
-    list(df = "dioxinlike_pcbsed_teq", mat = "sed", apr = "Adjusted"),
-    list(df = "dioxinlike_pcbsed_teq", mat = "sed", apr = "NoQflag"),
-    ## Dioxins in biota, two approaches to handling qflags
-    list(df = "dioxinbio_teq", mat = "bio", apr = "Adjusted"),
-    list(df = "dioxinbio_teq", mat = "bio", apr = "NoQflag"),
-    ## Dioxins in sediment, two approaches to handling qflags
-    list(df = "dioxinsed_teq", mat = "sed", apr = "Adjusted"),
-    list(df = "dioxinsed_teq", mat = "sed", apr = "NoQflag")
-  ),
-  function(x){
-    congeners <- unique(get(x$df)$variable)
-    result <- qflag_adjust(get(x$df), indicator = "dioxin", congeners, matrix = x$mat, approach = x$apr)
-    assign(
-      str_replace(x$df, "teq", ifelse(x$apr == "Adjusted", "qflag_adjust", "noqflag")), 
-      result, 
-      envir = .GlobalEnv
-    )
-  }
-)
-```
-
-<br>
-
-<!-- To visualize by country or basin pass "country" or "subbasin" respectively to `cntry_or_basin` arguement  -->
-
-###### Congeners Monthly Sums, Dioxins in Biota
-
-```{r congeners timeseries monthly by basin for biota, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
-cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 16)]
-plot_cwcon_initial(dioxinbio_qflag_adjust, col_pal = cols, contam_param = "OC-DX", cntry_or_basin = "country")
-```
-
-###### Congeners Monthly Sums, Dioxins in Sediments
-
-```{r congeners timeseries monthly by basin for sediments, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
-plot_cwcon_initial(dioxinsed_qflag_adjust, col_pal = cols[-16], contam_param = "OC-DX", cntry_or_basin = "country")
-```
-
-###### Congeners Monthly Sums, Dioxin-like PCBs in Biota
-
-```{r congeners timeseries monthly by basin for biota, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
-cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 7)]
-plot_cwcon_initial(dioxinlike_pcbbio_qflag_adjust, col_pal = cols, contam_param = "OC-CB", cntry_or_basin = "country")
-```
-
-###### Congeners Monthly Sums, Dioxin-like PCBs in Sediments
-
-```{r congeners timeseries monthly by basin for sediments, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
-plot_cwcon_initial(dioxinlike_pcbsed_qflag_adjust, cols, "OC-CB", "sed", "country")
-```
-
-
-<br>
-
-##### Spatial distributions of Dioxin and Dioxin-like PCBs sampling Locations {.tabset .tabset-fade .tabset-pills}
-
-```{r mapping spatial distribution of dioxin and dioxinlike pcbs data}
-dioxinlikepcb_qflag_adjust_datemeans <- bind_rows(
-  dioxinlike_pcbbio_qflag_adjust %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "bio"),
-  dioxinlike_pcbsed_qflag_adjust %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "sed")
-) %>% ungroup()
-
-dioxinlikepcb_noqflag_datemeans <- bind_rows(
-  dioxinlike_pcbbio_noqflag %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "bio"),
-  dioxinlike_pcbsed_noqflag %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "sed")
-) %>% ungroup()
-
-dioxin_qflag_adjust_datemeans <- bind_rows(
-  dioxinbio_qflag_adjust %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "bio"),
-  dioxinsed_qflag_adjust %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "sed")
-) %>% ungroup()
-
-dioxin_noqflag_datemeans <- bind_rows(
-  dioxinbio_noqflag %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "bio"),
-  dioxinsed_noqflag  %>% 
-    group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
-    summarize(sum_congeners_datemean = mean(sum_congeners, na.rm = TRUE)) %>% 
-    mutate(Matrix = "sed")
-) %>% ungroup()
-```
-
-
-<!-- ###### With just year 2014 -->
-
-<!-- ```{r map spatial dist of PCBs year 2014, results = "show", fig.width = 9.5, out.width = "120%"} -->
-<!-- pcb2014 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, c(0, 10), yr = 2014, matrix = "both") -->
-<!-- gridExtra::grid.arrange(pcb2014$map, pcb2014$basinplot, nrow = 1, widths = c(1.2, 1)) -->
-<!-- ``` -->
-
-<!-- ###### With just year 2016 -->
-
-<!-- ```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 9.5, out.width = "120%"} -->
-<!-- pcb2016 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, c(0, 10), yr = 2016, matrix = "both") -->
-<!-- gridExtra::grid.arrange(pcb2016$map, pcb2016$basinplot, nrow = 1, widths = c(1.2, 1)) -->
-<!-- ``` -->
-
-<!-- ###### With years 2014 to 2019 -->
-
-<!-- ```{r map spatial dist of PCBs multiple years, results = "show", fig.width = 9.5, out.width = "120%"} -->
-<!-- pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, c(0, 10), yr = 2014, matrix = "both") -->
-<!-- gridExtra::grid.arrange(pcb2014to2019$map, pcb2014to2019$basinplot, nrow = 1, widths = c(1.2, 1)) -->
-<!-- ``` -->
-
-<!-- TEQ concentration for each sub_sample_ref! -->
-
-**Sum dioxin and dioxin-like PCB mean TEQ values by date and location**
+Join dioxin and dioxin-like PCB observations by shared date and location. Use `inner_join` to retain only observations where both dioxin and dioxin-like PCBs were measured.
 
 ```{r sum dioxin and dioxinlike pcb mean teq values by date and location and plot, results = "show", fig.width = 9.5}
+dioxins_qflag_adjust_teqs_total <- inner_join(
+  dioxinlike_pcb_qflag_adjust_datemeans %>% 
+    rename(
+      sum_congeners_datemean_pcb = sum_congeners_datemean, 
+      mean_congener_in_sum_pcb = mean_congener_in_sum,
+      min_congener_in_sum_pcb = min_congener_in_sum,
+      max_congener_in_sum_pcb = max_congener_in_sum
+    ), 
+  dioxin_qflag_adjust_datemeans %>% 
+    rename(
+      sum_congeners_datemean_dioxin = sum_congeners_datemean, 
+      mean_congener_in_sum_dioxin = mean_congener_in_sum,
+      min_congener_in_sum_dioxin = min_congener_in_sum,
+      max_congener_in_sum_dioxin = max_congener_in_sum
+    )
+) %>% mutate(total_teq = sum_congeners_datemean_pcb + sum_congeners_datemean_dioxin)
 
+dioxins_noqflag_teqs_total <- inner_join(
+  dioxinlike_pcb_noqflag_datemeans %>% 
+    rename(
+      sum_congeners_datemean_pcb = sum_congeners_datemean, 
+      mean_congener_in_sum_pcb = mean_congener_in_sum,
+      min_congener_in_sum_pcb = min_congener_in_sum,
+      max_congener_in_sum_pcb = max_congener_in_sum
+    ), 
+  dioxin_noqflag_datemeans %>% 
+    rename(
+      sum_congeners_datemean_dioxin = sum_congeners_datemean, 
+      mean_congener_in_sum_dioxin = mean_congener_in_sum,
+      min_congener_in_sum_dioxin = min_congener_in_sum,
+      max_congener_in_sum_dioxin = max_congener_in_sum
+    )
+) %>% mutate(total_teq = sum_congeners_datemean_pcb + sum_congeners_datemean_dioxin)
 ```
-
 
 ---
 
@@ -1576,16 +1613,84 @@ dioxin_noqflag_datemeans <- bind_rows(
 
 #### 3.3.3 Status and Trend Options
 
-**Calculate the mean TEQ value by basin using just years 2009-2013 (?)**
+```{r dioxins latest years for qflag adjust vs no flagged data approaches, results = "show"}
+htmlTable::htmlTable(
+  full_join(
+    dioxins_qflag_adjust_teqs_total %>%
+      arrange(year) %>%
+      group_by(Subbasin) %>%
+      summarise(lastyr_Adjusted = last(year)),
+    dioxins_noqflag_teqs_total %>%
+      arrange(year) %>%
+      group_by(Subbasin) %>%
+      summarise(lastyr_NoQflag = last(year)),
+    by = "Subbasin"
+  ) %>% filter(!is.na(Subbasin)),
+  align = "lcc", 
+  rnames = FALSE,
+  css.cell = c(
+    rep("padding-left: 5.75em; padding-right: 1.5em", 2),
+    "padding-left: 10em; padding-right: 1.5em"
+  ),
+  col.rgroup = c("none", "#F7F7F7")
+)
+```
+
 <br>
 
-**Total TEQ (pg/g) Dioxin**
+**Compare two approaches to deal with flagged data, for BHI regions vs Basin**
 
-Calculate the sum of the mean dioxin and the mean dioxin-like PCB TEQ value for each date and location. For observations averaged, also calculate mean, min, and max number of congeners in each of the observations, and also numbers of observations for each date and location.
+1. Start with total TEQs: congeners summed per sample, means by date and location, dioxin and dioxin-like PCB summes added together per unique date and location  
+2. Take mean of all unique obs. for latest 5 years in either BHI region or basin
+3. Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing
 
-Horizontal line is the EU human health threshold (6.5 TEQ pg/g ww) (equivalent to suggested HELCOM level of 0.0065 TEQ ug/kg ww)
+```{r investigate approaches to qflags and summarizing by region vs basin pcb biota indicator, fig.width = 9.5, fig.height = 9}
+## using function defined above, investigate:
+## (1) adjusting vs excluding flagged data, and 
+## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
+dioxin_qflag_adjust_indicators <- cwcon_indicators(
+  dioxins_qflag_adjust_teqs_total %>% rename(sum_congeners_datemean = total_teq), 
+  bio_thresh = 6.5, sed_thresh = 0.86, 
+  yrs = 2014:2018
+)
+dioxin_noqflag_indicators <- cwcon_indicators(
+  dioxins_noqflag_teqs_total %>% rename(sum_congeners_datemean = total_teq), 
+  bio_thresh = 6.5, sed_thresh = 0.86, 
+  yrs = 2014:2018
+)
+dioxin_status <- bind_rows(
+  dioxin_qflag_adjust_indicators$basin_status %>% 
+    mutate(approach = "Adjusted", spatialunits = "Subbasins"),
+  dioxin_qflag_adjust_indicators$bhirgn_status %>% 
+    mutate(approach = "Adjusted", spatialunits = "BHI Regions"),
+  dioxin_noqflag_indicators$basin_status %>% 
+    mutate(approach = "NoQflag", spatialunits = "Subbasins"),
+  dioxin_noqflag_indicators$bhirgn_status %>% 
+    mutate(approach = "NoQflag", spatialunits = "BHI Regions")
+)
+dioxin_status <- dioxin_status %>%
+  mutate(Region = paste(Subbasin, rgn_nam, sep = ", ")) %>% 
+  mutate(approach_sp_unit = paste(spatialunits, approach))
+
+dioxin_status$spatialunits <- factor(dioxin_status$spatialunits, levels = c("Subbasins", "BHI Regions"))
+
+ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
+  geom_col(position = position_dodge(), color = "grey", alpha = 0.7, show.legend = FALSE) + 
+  scale_fill_manual(values = colorRampPalette(fullpal)(42)[sample(1:42, size = 18)]) +
+  facet_grid(rows = vars(approach), cols = vars(spatialunits)) +
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 7))
+```
 
 <br>
+
+**Conclusions:**
+
+<br>
+
+---
 
 #### 3.3.4 Methods discussion
 
