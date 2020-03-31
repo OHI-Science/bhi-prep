@@ -450,8 +450,8 @@ oxygen <- bind_rows(
   oxden1_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            station = as.character(station),
@@ -460,8 +460,8 @@ oxygen <- bind_rows(
   oxden2_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
@@ -472,8 +472,8 @@ oxygen <- bind_rows(
   oxden3_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
@@ -484,8 +484,8 @@ oxygen <- bind_rows(
   oxden4_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            station = as.character(station),
@@ -494,8 +494,8 @@ oxygen <- bind_rows(
   oxden5_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            station = as.character(station),
@@ -504,8 +504,8 @@ oxygen <- bind_rows(
   oxest_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            station = as.character(station),
@@ -514,8 +514,8 @@ oxygen <- bind_rows(
   oxfin_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
@@ -525,8 +525,8 @@ oxygen <- bind_rows(
   oxger1_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
@@ -536,8 +536,8 @@ oxygen <- bind_rows(
   oxger2_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
@@ -547,8 +547,8 @@ oxygen <- bind_rows(
   oxlat_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            bottom_m = as.numeric(bottom_m),
@@ -556,8 +556,8 @@ oxygen <- bind_rows(
   oxlit_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            bottom_m = as.numeric(bottom_m),
@@ -565,8 +565,8 @@ oxygen <- bind_rows(
   oxpol_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            bottom_m = as.numeric(bottom_m),
@@ -574,8 +574,9 @@ oxygen <- bind_rows(
   oxrus %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-Type, -PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
+    select(-Type) %>% 
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
@@ -586,8 +587,8 @@ oxygen <- bind_rows(
   oxswe_unique %>% 
     rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
            lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
-    select(-PRES..db., -PSAL..psu.) %>% 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., sal_psu = PSAL..psu., 
+           press_db = PRES..db., bottom_m = Bot..Depth..m.) %>%
     mutate(date =  as.Date(date), year = format(date, "%Y"), 
            date =  as.Date(date), month = format(date, "%m"),
            station = as.character(station),
@@ -598,6 +599,12 @@ oxygen <- bind_rows(
 
 str(oxygen)
 colnames(oxygen)
+
+# Save dataset
+readr::write_csv(
+  oxygen, 
+  here::here("data", "CW", "eutrophication", version_year, "intermediate", "ox_merged_rawdata.csv")
+)
 
 ```
 <br/>
