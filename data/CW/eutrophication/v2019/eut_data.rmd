@@ -63,7 +63,7 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c("Period:", "2010-2020"), 
+  c("Period:", "2000-2020"), 
   c("Parameter:", "Oxygen"),
   c("Country:", "(choose each Baltic country at a time)"),
   c("Ship:", "Any")))
@@ -71,8 +71,8 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 27 February 2020 by Andrea De Cervo")
-# each dataset has been extracted by country and Denmark split into two because too big
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 March 2020 by Andrea De Cervo")
+# each dataset has been extracted by country and Denmark split into five (5) because too big
 ```
 *The maximum number of stations per download is 20000*
 
@@ -178,11 +178,15 @@ secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "Secchi
 
 **Oxygen**
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-oxden1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmark1ox", "denmark1ox.csv"), sep = ",")
-oxden2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmark2ox", "denmark2ox.csv"), sep = ",")
+oxden1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2000-2001ox.csv"), sep = ",")
+oxden2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2002-2004ox.csv"), sep = ",")
+oxden3 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2005-2009ox.csv"), sep = ",")
+oxden4 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2010-2014ox.csv"), sep = ",")
+oxden5 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2015-2020ox.csv"), sep = ",")
 oxest <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "estoniaox", "estoniaox.csv"), sep = ",")
 oxfin <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "finlandox", "finlandox.csv"), sep = ",")
-oxger <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "germanyox", "germanyox.csv"), sep = ",")
+oxger1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "germanyox", "germany2000-2009ox.csv"), sep = ",")
+oxger2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "germanyox", "germany2010-2020ox.csv"), sep = ",")
 oxlat <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "latviaox", "latviaox.csv"), sep = ",")
 oxlit <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "lithuaniaox", "lithuaniaox.csv"), sep = ",")
 oxpol <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "polandox", "polandox.csv"), sep = ",")
@@ -405,12 +409,18 @@ ggplot(secchi_rgns_shp) +
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
 ## Check for duplicates in all national datasets
-oxden1_duplicates <- oxden1 %>%
+oxswe_duplicates <- oxswe %>%
   # oxden2_duplicates <- oxden2 %>%
+  # oxden3_duplicates <- oxden3 %>%
+  # oxden4_duplicates <- oxden4 %>%
+  # oxden5_duplicates <- oxden5 %>%
   # oxest_duplicates <- oxest %>%
+  # oxfin_duplicates <- oxfin %>%
   # oxger_duplicates <- oxger %>%
   # oxlat_duplicates <- oxlat %>%
   # oxlit_duplicates <- oxlit %>%
+  # oxpol_duplicates <- oxpol %>%
+  # oxswe_duplicates <- oxswe %>%
     group_by(Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
              PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.) %>%
     summarise(n = n()) %>%
@@ -418,117 +428,209 @@ oxden1_duplicates <- oxden1 %>%
     ungroup()
 
 # Only extract unique observations
-oxden1_unique <- oxden1 %>% 
-  # oxden2_unique <- oxden2 %>% 
+oxswe_unique <- oxswe %>% 
+  # oxden2_unique <- oxden2 %>%
+  # oxden3_unique <- oxden3 %>%
+  # oxden4_unique <- oxden4 %>%
+  # oxden5_unique <- oxden5 %>%
   # oxest_unique <- oxest %>%
+  # oxfin_unique <- oxfin %>%
   # oxger_unique <- oxger %>%
   # oxlat_unique <- oxlat %>%
-  # oxlit_unique <- oxlit %>% 
+  # oxlit_unique <- oxlit %>%
+  # oxpol_unique <- oxpol %>%
+  # oxswe_unique <- oxswe %>%
   distinct(Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
              PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.)
 
+str(oxswe_unique)
+str(oxygen)
 # Merging unique datasets
 oxygen <- bind_rows(
   oxden1_unique %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         bottom_m = as.numeric(bottom_m),
-         country = "denmark"),
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           station = as.character(station),
+           bottom_m = as.numeric(bottom_m),
+           country = "denmark"),
   oxden2_unique %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         station = as.character(station),
-         bottom_m = as.numeric(bottom_m),
-         country = "denmark"),
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           station = as.character(station),
+           bottom_m = as.numeric(bottom_m),
+           country = "denmark"),
+  oxden3_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           station = as.character(station),
+           bottom_m = as.numeric(bottom_m),
+           country = "denmark"),
+  oxden4_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           station = as.character(station),
+           bottom_m = as.numeric(bottom_m),
+           country = "denmark"),
+  oxden5_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           station = as.character(station),
+           bottom_m = as.numeric(bottom_m),
+           country = "denmark"),
   oxest_unique %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         bottom_m = as.numeric(bottom_m),
-         country = "estonia"),
-  oxfin %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
-         bottom_m = as.numeric(bottom_m),
-         country = "finland"),
-  oxger_unique %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
-         bottom_m = as.numeric(bottom_m),
-         country = "germany"),
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           station = as.character(station),
+           bottom_m = as.numeric(bottom_m),
+           country = "estonia"),
+  oxfin_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           bottom_m = as.numeric(bottom_m),
+           country = "finland"),
+  oxger1_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           bottom_m = as.numeric(bottom_m),
+           country = "germany"),
+  oxger2_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           bottom_m = as.numeric(bottom_m),
+           country = "germany"),
   oxlat_unique %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         bottom_m = as.numeric(bottom_m),
-         country = "latvia"),
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           bottom_m = as.numeric(bottom_m),
+           country = "latvia"),
   oxlit_unique %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         bottom_m = as.numeric(bottom_m),
-         country = "lithuania"),
-  oxpol %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         country = "poland"),
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           bottom_m = as.numeric(bottom_m),
+           country = "lithuania"),
+  oxpol_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           bottom_m = as.numeric(bottom_m),
+           country = "poland"),
   oxrus %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         station = as.character(station),
-         country = "russia"),    
-  oxswe %>% 
-  rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
-                lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-                cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-  select(-Type, -PRES..db., -TEMP..deg.C., -PSAL..psu.) %>% 
-  mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"),
-         station = as.character(station),
-         oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
-         bottom_m = as.numeric(bottom_m),
-         country = "sweden"))
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-Type, -PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           bottom_m = as.numeric(bottom_m),
+           station = as.character(station),
+           country = "russia"),    
+  oxswe_unique %>% 
+    rename(oxygen_ml_l = DOXY..ml.l.,  date = yyyy.mm.ddThh.mm, 
+           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
+           cruise = Cruise, station = Station, temp = TEMP..deg.C., bottom_m = Bot..Depth..m.) %>%
+    select(-PRES..db., -PSAL..psu.) %>% 
+    mutate(date =  as.Date(date), year = format(date, "%Y"), 
+           date =  as.Date(date), month = format(date, "%m"),
+           station = as.character(station),
+           oxygen_ml_l = str_replace(oxygen_ml_l, "<", ""),
+           oxygen_ml_l = as.numeric(as.character(oxygen_ml_l)),
+           bottom_m = as.numeric(bottom_m),
+           country = "sweden"))
 
 str(oxygen)
 colnames(oxygen)
 
 ```
 <br/>
+
+**OXYGEN SPATIAL VISUALIZATION**
+```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, out.width = "100%"}
+# assign secchi data to bhi basins
+oxyg_rgns_shp <- join_rgns_info(
+  oxygen, helcomID_col = "helcom_id", country_col = "country", 
+                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+                           rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL)
+
+## Merge the oxygen target (does not work)!! 
+secchi_rgns_shp <- secchi_rgns_shp %>% 
+  left_join(secchi_target, by = "Subbasin")
+
+# Plot by bhi regions
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l)) +
+  facet_wrap(~BHI_ID, scales ="free_y")
+
+# Plot by subbasins
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l)) +
+  facet_wrap(~Subbasin, scales ="free_y")
+
+# Plot by country
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l)) +
+  facet_wrap(~country, scales ="free_y")
+
+```
+
 
 **Chlorophyll a data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
