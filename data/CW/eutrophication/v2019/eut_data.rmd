@@ -600,7 +600,7 @@ oxygen <- bind_rows(
 str(oxygen)
 colnames(oxygen)
 
-# Save dataset
+# Save dataset (bhi-prep)
 readr::write_csv(
   oxygen, 
   here::here("data", "CW", "eutrophication", version_year, "intermediate", "ox_merged_rawdata.csv")
@@ -610,11 +610,11 @@ readr::write_csv(
 <br/>
 
 **OXYGEN SPATIAL VISUALIZATION**
-```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, out.width = "100%"}
+```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, fig.height= 25, fig.width=11}
 # assign secchi data to bhi basins
 oxyg_rgns_shp <- join_rgns_info(
   oxygen, helcomID_col = "helcom_id", country_col = "country", 
-                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+                           latlon_vars = c("^lat", "^lon"), return_spatial = TRUE, 
                            rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL)
 
 ## Merge the oxygen target (does not work)!! 
@@ -623,17 +623,18 @@ secchi_rgns_shp <- secchi_rgns_shp %>%
 
 # Plot by bhi regions
 ggplot(oxyg_rgns_shp) + 
-  geom_point(aes(year, oxygen_ml_l)) +
-  facet_wrap(~BHI_ID, scales ="free_y")
+  geom_point(aes(year, oxygen_ml_l), size = 0.3, alpha = 0.4) +
+  facet_grid(cols = vars(country), rows = vars(BHI_ID))
 
 # Plot by subbasins
 ggplot(oxyg_rgns_shp) + 
-  geom_point(aes(year, oxygen_ml_l)) +
-  facet_wrap(~Subbasin, scales ="free_y")
+  geom_point(aes(year, oxygen_ml_l, colour = country), size = 0.7) +
+  facet_wrap(~Subbasin, scales ="free_y") +
+  
 
 # Plot by country
 ggplot(oxyg_rgns_shp) + 
-  geom_point(aes(year, oxygen_ml_l)) +
+  geom_point(aes(year, oxygen_ml_l), size = 0.7) +
   facet_wrap(~country, scales ="free_y")
 
 ```
