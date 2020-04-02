@@ -542,7 +542,7 @@ map_cwcon_initial <- function(dataset, yr, obs_count_limits, matrix = NULL){
     scale_color_manual(values = c("limegreen", "brown1")) +
     scale_shape_manual(values = c(13, 13)) +
     theme_linedraw() +
-    theme(legend.position = c(0.1, 0.85), legend.background = element_rect(color = "grey")) +
+    theme(legend.position = c(0.1, 0.78), legend.background = element_rect(color = "grey")) +
     guides(fill = guide_legend(order = 2))
   
   df <- df %>% 
@@ -575,7 +575,7 @@ map_cwcon_initial <- function(dataset, yr, obs_count_limits, matrix = NULL){
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 90, hjust = 1), 
-      legend.position = c(0.85, 0.9),
+      legend.position = c(0.12, 0.85),
       legend.background = element_rect(color = "grey", fill = NA),
       strip.text.y = element_text(size = 8, angle = 0)
     ) +
@@ -610,8 +610,8 @@ pcb_noqflag_datemeans <- bind_rows(
 
 ###### With 2014 data Only
 
-```{r map spatial dist of PCBs year 2014, results = "show", fig.width = 14, fig.height = 7.5, out.width = "120%"}
-pcb2014 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, c(0, 15), yr = 2014, matrix = "both")
+```{r map spatial dist of PCBs year 2014, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
+pcb2014 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2014, c(0, 15), matrix = "both")
 gridExtra::grid.arrange(pcb2014$map, pcb2014$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -620,8 +620,8 @@ gridExtra::grid.arrange(pcb2014$map, pcb2014$basinplot, nrow = 1, widths = c(1.2
 
 ###### With 2016 data Only
 
-```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 14, fig.height = 7.5, out.width = "120%"}
-pcb2016 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, c(0, 15), yr = 2016, matrix = "both")
+```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
+pcb2016 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2016, c(0, 15), matrix = "both")
 gridExtra::grid.arrange(pcb2016$map, pcb2016$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -630,8 +630,8 @@ gridExtra::grid.arrange(pcb2016$map, pcb2016$basinplot, nrow = 1, widths = c(1.2
 
 ###### With years 2014 to 2018
 
-```{r map spatial dist of PCBs multiple years, results = "show", fig.width = 14, fig.height = 7.5, out.width = "120%"}
-pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, c(0, 15), yr = 2014:2018, matrix = "both")
+```{r map spatial dist of PCBs multiple years, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
+pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans,yr = 2014:2018,  c(0, 15), matrix = "both")
 gridExtra::grid.arrange(pcb2014to2019$map, pcb2014to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -902,8 +902,8 @@ cwcon_indicators <- function(dat, yrs, bio_thresh = 75, sed_thresh = 4.1, approa
 ## using function defined above, investigate:
 ## (1) adjusting vs excluding flagged data, and 
 ## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
-pcb_qflag_adjust_indicators <- cwcon_indicators(pcb_qflag_adjust_datemeans, yrs = 2014:2019)
-pcb_noqflag_indicators <- cwcon_indicators(pcb_noqflag_datemeans, yrs = 2014:2019)
+pcb_qflag_adjust_indicators <- cwcon_indicators(pcb_qflag_adjust_datemeans, yrs = 2014:2018)
+pcb_noqflag_indicators <- cwcon_indicators(pcb_noqflag_datemeans, yrs = 2014:2018)
 ## to try with biota data only...
 # pcb_qflag_adjust_indicators <- cwcon_indicators(pcb_qflag_adjust_datemeans %>% filter(Matrix == "bio"), yrs = 2015:2019)
 # pcb_noqflag_indicators <- cwcon_indicators(pcb_noqflag_datemeans %>% filter(Matrix == "bio"), yrs = 2015:2019)
@@ -944,6 +944,8 @@ ggplot(pcb_status, aes(Region, status, fill = Subbasin)) +
 ```
 
 <br>
+
+---
 
 #### 3.1.5 Methods discussion
 
@@ -1106,7 +1108,7 @@ ggplot(boxplotdf) +
 
 ##### Spatial distributions of PFOS sampling Locations, Years 2014-2018
 
-```{r pfos map of data records, results = "show", fig.width = 14, fig.height = 7.5, out.width = "120%"}
+```{r pfos map of data records, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
 pfos_qflag_adjust <- qflag_adjust(pfos, indicator = "pfos", sumcongeners = FALSE)
 pfos_qflag_adjust_datemeans <- pfos_qflag_adjust %>% 
   group_by(date, day, month, year, latitude, longitude, country, Subbasin, HELCOM_ID, BHI_ID) %>% 
@@ -1170,8 +1172,8 @@ htmlTable::htmlTable(
 ## using function defined above, investigate:
 ## (1) adjusting vs excluding flagged data, and 
 ## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
-pfos_qflag_adjust_indicators <- cwcon_indicators(pfos_qflag_adjust_datemeans, yrs = 2010:2019, bio_thresh = 9.1)
-pfos_noqflag_indicators <- cwcon_indicators(pfos_noqflag_datemeans, yrs = 2010:2019, bio_thresh = 9.1)
+pfos_qflag_adjust_indicators <- cwcon_indicators(pfos_qflag_adjust_datemeans, yrs = 2014:2018, bio_thresh = 9.1)
+pfos_noqflag_indicators <- cwcon_indicators(pfos_noqflag_datemeans, yrs = 2014:2018, bio_thresh = 9.1)
 
 pfos_status <- bind_rows(
   pfos_qflag_adjust_indicators$basin_status %>% 
@@ -1208,6 +1210,8 @@ ggplot(pfos_status, aes(Region, status, fill = Subbasin)) +
 ```
 
 <br>
+
+---
 
 #### 3.1.5 Methods discussion
 
@@ -1629,10 +1633,10 @@ lapply(
 
 ##### Spatial distributions of Dioxin and Dioxin-like PCBs sampling Locations {.tabset .tabset-fade .tabset-pills}
 
-###### Dioxin-like PCBs years 2016-2019
+###### Dioxin-like PCBs years 2014-2018
 
-```{r map spatial dist of dioxinlike pcbs, results = "show", fig.width = 14, fig.height = 7.5, out.width = "120%"}
-mapdioxinlikepcb <- map_cwcon_initial(dioxinlike_pcb_qflag_adjust_datemeans, c(0, 15), yr = 2016:2019, matrix = "both")
+```{r map spatial dist of dioxinlike pcbs, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
+mapdioxinlikepcb <- map_cwcon_initial(dioxinlike_pcb_qflag_adjust_datemeans, yr = 2014:2018, c(0, 30), matrix = "both")
 gridExtra::grid.arrange(
   mapdioxinlikepcb$map + labs(y = "Mean concentration (pg/g)\n"), 
   mapdioxinlikepcb$basinplot, 
@@ -1644,10 +1648,10 @@ gridExtra::grid.arrange(
 ***
 <br>
 
-###### Dioxins years 2016-2019
+###### Dioxins years 2014-2018
 
-```{r map spatial dist of dioxins, results = "show", fig.width = 14, fig.height = 7.5, out.width = "120%"}
-mapdioxins <- map_cwcon_initial(dioxin_qflag_adjust_datemeans, c(0, 15), yr = 2016:2019, matrix = "both")
+```{r map spatial dist of dioxins, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
+mapdioxins <- map_cwcon_initial(dioxin_qflag_adjust_datemeans, yr = 2014:2018, c(0, 30), matrix = "both")
 gridExtra::grid.arrange(
   mapdioxins$map + labs(y = "Mean concentration (pg/g)\n"), 
   mapdioxins$basinplot, 
@@ -1834,7 +1838,11 @@ ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
 
 <br>
 
-**Conclusions:**
+**Save PFOS contaminants layer and intermediate datasets**
+
+```{r save pfos contaminants layer and intermediate datasets}
+
+```
 
 <br>
 
@@ -1844,7 +1852,7 @@ ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
 
 **Status formula**
 
-$X_{TEQstatus} = \frac{1}{\mbox{dioxin + } \mbox{dioxin-like pcb teq value / teq threshold }}$
+$X_{dioxinTEQ} = \min\{1, \mbox{ teq threshold}/\mbox{mean dioxin-like pcb teq value}\}$
 
 **Conclusions & Decisions regarding Status and Trend Options**
 
@@ -1854,12 +1862,19 @@ $X_{TEQstatus} = \frac{1}{\mbox{dioxin + } \mbox{dioxin-like pcb teq value / teq
 
 ### 3.4 Concerning Substances Indicator
 
-This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by of concerning substances](), and involves cross-refeerencing these with those in the [ICES contaminants databases](). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region. 
+This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by of concerning substances](), and involves cross-referencing with those monitored substances in the [ICES contaminants databases](). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region. 
 
-```{r}
-get_spatial_monitor_info <- function(substance_name, data_loc, matrix = "bio"){
+```{r function to evaluate spatial coverage of monitored, eval = FALSE}
+get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", yrs, bhi_join_tab){
   
-  df <- readr::read_csv(file.path(data_loc, sprintf("%s.csv", substance_name))) %>% 
+  if(matrix == "bio"){
+    df <- readr::read_delim(substance_data_filepath, delim = ";")
+  }  
+  if(matrix == "sed"){
+      df <- readr::read_delim(substance_data_filepath, delim = ";") %>% 
+        filter(DEPHL <= 0.05)
+  }
+  countdf <- df %>%
     dplyr::select(
       country = Country, station = STATN, 
       year = MYEAR, ices_date = DATE, 
@@ -1870,41 +1885,173 @@ get_spatial_monitor_info <- function(substance_name, data_loc, matrix = "bio"){
       sub_samp_id = SUBNO, bulk_id = BULKID,
       sub_samp_ref = matches("tblBioID"),
       press_depth = matches("DEPHU"), depth_low = matches("DEPHL")
-    ) 
-  if(matrix == "sed"){
-    df <- df %>% filter(depth_low <=  0.05)
-  }
-  df <- df %>% 
-    group_by(country, year, lat, lon, param_group, variable) %>% 
-    summarize(count_obs = n()) %>% 
-    ## should we filter, if fewer than a certain number of measurements in the region?
-    # filter(count_obs > threshold) %>% 
-    ungroup() %>% 
-    join_rgns_info() %>% 
+    ) %>% 
+    filter(year %in% yrs) %>% 
+    join_rgns_info(buffer_shp = buffer_sf) %>% 
+    mutate(country = ifelse(
+      !is.na(rgn_nam) & country != rgn_nam, 
+      as.character(rgn_nam), 
+      country
+    )) %>% 
     filter(!is.na(BHI_ID)) %>% 
-    select(year, count_obs, BHI_ID, HELCOM_ID, Subbasin, Country)
+    group_by(year, param_group, variable, BHI_ID, HELCOM_ID, Subbasin, country) %>% 
+    summarize(count_obs = n()) %>% 
+    ungroup()
   
-  return(df)
-}
+  countdfplot <- ggplot(countdf %>% mutate(BHI_ID = as.factor(BHI_ID))) + 
+    geom_point(
+      aes(BHI_ID, year, color = count_obs), 
+      show.legend = FALSE,
+      size = 5, 
+      shape = 15, 
+      alpha = 0.7
+    ) + 
+    facet_grid(cols = vars(country), scales = "free") +
+    labs(x = NULL, y = NULL, color = "Num. Obs.") +
+    theme(legend.background = element_rect(color = "grey")) +
+    scale_color_viridis_c()
 
-## read in master table of emerging contaminant
-con_emerging <- read_csv(file.path(dir_B, ...)))
-
-## loop through substances and determine which regions they are/not monitored in
-
-for(nm in unique(con_emerging$substancescolumn)){
-  regionalmonitoring <- get_spatial_monitor_info(nm)
+  monitordf <- countdf %>% 
+    mutate(ICES_monitored = TRUE) %>% 
+    ## should we filter, if fewer than a certain number of measurements in the region?
+    # filter(count_obs > 2) %>% 
+    select(BHI_ID, HELCOM_ID, Subbasin, rgn_nam = country, ICES_monitored) %>%
+    distinct() %>% 
+    right_join(bhi_join_tab) %>% 
+    mutate(ICES_monitored = ifelse(is.na(ICES_monitored), FALSE, ICES_monitored))
   
+  return(list(monitored = monitordf, obscounts = countdfplot))
 }
-
-## calculating emerging concerning substances indicator
-
-
-
 ```
 
+```{r creating substances of concern data layer, echo = TRUE}
+## read in master table of emerging contaminant
+## this was compiled by Andrea and checked by Anna Sobeck for correctness/completeness
+data_loc <- file.path(dir_B, "Goals", "CW", "CON")
+subst_of_concern <- read_csv(file.path(data_loc, "concerning_substances_lookup.csv"))
 
+## spatial regions table for joining
+joindf <- BHI_rgns_shp %>% 
+  st_drop_geometry() %>% 
+  select(-Area_km2) %>% 
+  mutate(
+    Subbasin = as.character(Subbasin), 
+    HELCOM_ID = as.character(HELCOM_ID),
+    rgn_nam = as.character(rgn_nam), 
+    rgn_key = as.character(rgn_key)
+  )
 
+## loop through substances and determine which regions they are/not monitored in
+rgn_monitor_bio_allsubst <- joindf
+rgn_monitor_sed_allsubst <- joindf
+plotlistbio <- list()
+plotlistsed <- list()
+
+for(nm in unique(filter(subst_of_concern, ICES_monitored)$filename)){
+  
+  bio_fp <- file.path(
+    data_loc, 
+    "ContaminantsBiota_ConcerningSubstances", 
+    sprintf("ContaminantsBiota_%s.csv", nm)
+  )
+  sed_fp <- file.path(
+    data_loc,
+    "ContaminantsSediment_ConcerningSubstances", 
+    sprintf("ContaminantsSediment_%s.csv", nm)
+  )
+  
+  if(file.exists(bio_fp)){
+    regionalmonitoringbio <- get_spatial_monitor_info(
+      bio_fp,
+      matrix = "bio",
+      yrs = 2014:2018,
+      bhi_join_tab = joindf
+    )
+    colnames(regionalmonitoringbio$monitored) <- names(regionalmonitoringbio$monitored) %>%
+      str_replace("ICES_monitored", paste(nm, "monitored", sep = "_"))
+
+    rgn_monitor_bio_allsubst <- rgn_monitor_bio_allsubst %>%
+      left_join(regionalmonitoringbio$monitored)
+    
+    plotlistbio[[nm]] <- regionalmonitoringbio$obscounts
+  }
+  if(file.exists(sed_fp)){
+    regionalmonitoringsed <- get_spatial_monitor_info(
+      sed_fp,
+      matrix = "sed",
+      yrs = 2014:2018,
+      bhi_join_tab = joindf
+    )
+    colnames(regionalmonitoringsed$monitored) <- names(regionalmonitoringsed$monitored) %>% 
+      str_replace("ICES_monitored", paste(nm, "monitored", sep = "_"))
+    
+    rgn_monitor_sed_allsubst <- rgn_monitor_sed_allsubst %>% 
+      left_join(regionalmonitoringsed$monitored)
+    
+    plotlistsed[[nm]] <- regionalmonitoringsed$obscounts
+  }
+}
+rgn_monitor_allsubst <- full_join(
+  rgn_monitor_bio_allsubst %>%
+    tidyr::pivot_longer(
+      cols = ends_with("_monitored"), 
+      names_to = "substance", 
+      values_to = "bio_monitored"
+    ),
+  rgn_monitor_sed_allsubst %>%
+    tidyr::pivot_longer(
+      cols = ends_with("_monitored"), 
+      names_to = "substance", 
+      values_to = "sed_monitored"
+    )
+)
+```
+
+<br>
+
+```{rconcerning substances monitoring in biota, fig.width = 9.5, fig.height = 14}
+gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
+```
+
+***
+<br>
+
+```{r concerning substances monitoring in sediments, fig.width = 9.5, fig.height = 14}
+gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
+```
+
+***
+<br>
+
+```{r calculating emerging concerning substances indicator}
+## calculating emerging concerning substances indicator
+rgn_monitor_allsubst <- rgn_monitor_allsubst %>%
+  mutate(monitored = bio_monitored|sed_monitored) %>%
+  mutate(monitored = ifelse(is.na(monitored), FALSE, monitored)) %>%
+  select(-bio_monitored, -sed_monitored) %>%
+  tidyr::pivot_wider(names_from = "substance", values_from = "monitored")
+
+## for the remaining substances of concern (not monitored at all) add columns
+for(s in unique(filter(subst_of_concern, !ICES_monitored)$filename)){
+  df <- mutate(rgn_monitor_allsubst, addcolumn = FALSE)
+  colnames(df) <- c(names(rgn_monitor_allsubst), paste0(s, "_monitored"))
+  rgn_monitor_allsubst <- df
+}
+num_substances <- length(grep("_monitored", colnames(rgn_monitor_allsubst)))
+rgn_monitor_allsubst <- rgn_monitor_allsubst %>%
+  mutate(num_substances = num_substances_bio) %>%
+  mutate(num_monitored = rowSums(.[grep("_monitored", names(.))]))
+```
+
+<br>
+
+**Save PFOS contaminants layer and intermediate datasets**
+
+```{r save pfos contaminants layer and intermediate datasets}
+write_csv(rgn_monitor_allsubst, file.path(dir_layers, version_year, "cw_con_penalty.csv"))
+```
+
+<br>
 
 ---
 
