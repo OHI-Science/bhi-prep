@@ -1838,9 +1838,9 @@ ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
 
 <br>
 
-**Save PFOS contaminants layer and intermediate datasets**
+**Save Dioxin contaminants layer and intermediate datasets**
 
-```{r save pfos contaminants layer and intermediate datasets}
+```{r save dioxin contaminants layer and intermediate datasets}
 
 ```
 
@@ -1865,7 +1865,7 @@ $X_{dioxinTEQ} = \min\{1, \mbox{ teq threshold}/\mbox{mean dioxin-like pcb teq v
 This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by of concerning substances](), and involves cross-referencing with those monitored substances in the [ICES contaminants databases](). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region. 
 
 ```{r function to evaluate spatial coverage of monitored, eval = FALSE}
-get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", yrs, bhi_join_tab){
+get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", bhi_join_tab){
   
   if(matrix == "bio"){
     df <- readr::read_delim(substance_data_filepath, delim = ";")
@@ -1886,7 +1886,7 @@ get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", yr
       sub_samp_ref = matches("tblBioID"),
       press_depth = matches("DEPHU"), depth_low = matches("DEPHL")
     ) %>% 
-    filter(year %in% yrs) %>% 
+    # filter(year %in% yrs) %>% 
     join_rgns_info(buffer_shp = buffer_sf) %>% 
     mutate(country = ifelse(
       !is.na(rgn_nam) & country != rgn_nam, 
@@ -1900,26 +1900,26 @@ get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", yr
   
   countdfplot <- ggplot(countdf %>% mutate(BHI_ID = as.factor(BHI_ID))) + 
     geom_point(
-      aes(BHI_ID, year, color = count_obs), 
-      show.legend = FALSE,
-      size = 5, 
-      shape = 15, 
-      alpha = 0.7
+        aes(year, BHI_ID, color = count_obs), 
+        show.legend = FALSE,
+        size = 3, 
+        shape = 15, 
+        alpha = 0.7
     ) + 
-    facet_grid(cols = vars(country), scales = "free") +
-    labs(x = NULL, y = NULL, color = "Num. Obs.") +
-    theme(legend.background = element_rect(color = "grey")) +
+    facet_wrap(~country, nrow = 1, scales = "free_y") +
+    labs(x = NULL, y = NULL) +
     scale_color_viridis_c()
 
-  monitordf <- countdf %>% 
-    mutate(ICES_monitored = TRUE) %>% 
-    ## should we filter, if fewer than a certain number of measurements in the region?
-    # filter(count_obs > 2) %>% 
-    select(BHI_ID, HELCOM_ID, Subbasin, rgn_nam = country, ICES_monitored) %>%
-    distinct() %>% 
-    right_join(bhi_join_tab) %>% 
-    mutate(ICES_monitored = ifelse(is.na(ICES_monitored), FALSE, ICES_monitored))
-  
+  monitordf <- left_join(
+    bhi_join_tab,
+    countdf %>% 
+      mutate(ICES_monitored = TRUE) %>% 
+      ## should maybe filter, if fewer than a certain number of measurements in the region?
+      # filter(count_obs > 2) %>%
+      select(BHI_ID, HELCOM_ID, Subbasin, rgn_nam = country, year, ICES_monitored) %>%
+      distinct()
+    ) %>% mutate(ICES_monitored = ifelse(is.na(ICES_monitored), FALSE, ICES_monitored))
+    
   return(list(monitored = monitordf, obscounts = countdfplot))
 }
 ```
@@ -1939,7 +1939,9 @@ joindf <- BHI_rgns_shp %>%
     HELCOM_ID = as.character(HELCOM_ID),
     rgn_nam = as.character(rgn_nam), 
     rgn_key = as.character(rgn_key)
-  )
+  ) %>% 
+  mutate(year = list(1990:2020)) %>% 
+  tidyr::unnest(year)
 
 ## loop through substances and determine which regions they are/not monitored in
 rgn_monitor_bio_allsubst <- joindf
@@ -1964,7 +1966,6 @@ for(nm in unique(filter(subst_of_concern, ICES_monitored)$filename)){
     regionalmonitoringbio <- get_spatial_monitor_info(
       bio_fp,
       matrix = "bio",
-      yrs = 2014:2018,
       bhi_join_tab = joindf
     )
     colnames(regionalmonitoringbio$monitored) <- names(regionalmonitoringbio$monitored) %>%
@@ -1979,7 +1980,6 @@ for(nm in unique(filter(subst_of_concern, ICES_monitored)$filename)){
     regionalmonitoringsed <- get_spatial_monitor_info(
       sed_fp,
       matrix = "sed",
-      yrs = 2014:2018,
       bhi_join_tab = joindf
     )
     colnames(regionalmonitoringsed$monitored) <- names(regionalmonitoringsed$monitored) %>% 
@@ -1991,6 +1991,19 @@ for(nm in unique(filter(subst_of_concern, ICES_monitored)$filename)){
     plotlistsed[[nm]] <- regionalmonitoringsed$obscounts
   }
 }
+
+## for the remaining substances of concern (not monitored at all) create columns
+for(s in unique(filter(subst_of_concern, !ICES_monitored)$filename)){
+  ## add to bio dataset
+  dfbio <- mutate(rgn_monitor_bio_allsubst, addcolumn = FALSE)
+  colnames(dfbio) <- c(names(rgn_monitor_bio_allsubst), paste0(s, "_monitored"))
+  rgn_monitor_bio_allsubst <- dfbio
+  ## add to sed dataset
+  dfsed <- mutate(rgn_monitor_sed_allsubst, addcolumn = FALSE)
+  colnames(dfsed) <- c(names(rgn_monitor_sed_allsubst), paste0(s, "_monitored"))
+  rgn_monitor_sed_allsubst <- dfsed
+}
+## join and spread so can easily sum num. substances monitored
 rgn_monitor_allsubst <- full_join(
   rgn_monitor_bio_allsubst %>%
     tidyr::pivot_longer(
@@ -2009,45 +2022,49 @@ rgn_monitor_allsubst <- full_join(
 
 <br>
 
-```{rconcerning substances monitoring in biota, fig.width = 9.5, fig.height = 14}
+```{rconcerning substances monitoring in biota, fig.width = 9.5, fig.height = 15}
 gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
 ```
 
 ***
 <br>
 
-```{r concerning substances monitoring in sediments, fig.width = 9.5, fig.height = 14}
+```{r concerning substances monitoring in sediments, fig.width = 9.5, fig.height = 15}
 gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
 ```
 
 ***
 <br>
 
-```{r calculating emerging concerning substances indicator}
+```{r calculating concerning substances indicator}
 ## calculating emerging concerning substances indicator
-rgn_monitor_allsubst <- rgn_monitor_allsubst %>%
+concern_subst_indicator <- rgn_monitor_allsubst %>%
   mutate(monitored = bio_monitored|sed_monitored) %>%
   mutate(monitored = ifelse(is.na(monitored), FALSE, monitored)) %>%
   select(-bio_monitored, -sed_monitored) %>%
   tidyr::pivot_wider(names_from = "substance", values_from = "monitored")
 
-## for the remaining substances of concern (not monitored at all) add columns
-for(s in unique(filter(subst_of_concern, !ICES_monitored)$filename)){
-  df <- mutate(rgn_monitor_allsubst, addcolumn = FALSE)
-  colnames(df) <- c(names(rgn_monitor_allsubst), paste0(s, "_monitored"))
-  rgn_monitor_allsubst <- df
-}
-num_substances <- length(grep("_monitored", colnames(rgn_monitor_allsubst)))
-rgn_monitor_allsubst <- rgn_monitor_allsubst %>%
-  mutate(num_substances = num_substances_bio) %>%
-  mutate(num_monitored = rowSums(.[grep("_monitored", names(.))]))
+yrs <- 2014:2018
+num_substances <- length(grep("_monitored", colnames(concern_subst_indicator)))
+concern_subst_indicator <- concern_subst_indicator %>%
+  ## look at monitoring only within time period of interest
+  filter(year %in% yrs) %>% 
+  group_by(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID) %>% 
+  summarise_at(vars(ends_with("_monitored")), sum) %>% 
+  ungroup() %>% 
+  mutate_at(vars(ends_with("_monitored")), funs(pmin(1, .))) %>% 
+  ## add columns on number substances and number monitored
+  mutate(num_substances = num_substances) %>%
+  mutate(num_monitored = rowSums(.[grep("_monitored", names(.))])) %>% 
+  mutate(proportion_monitored = round(num_monitored/num_substances, 2)) %>% 
+  select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, proportion_monitored)
 ```
 
 <br>
 
-**Save PFOS contaminants layer and intermediate datasets**
+**Save concerning substances layer and intermediate datasets**
 
-```{r save pfos contaminants layer and intermediate datasets}
+```{r save oncerning substances layer and intermediate datasets}
 write_csv(rgn_monitor_allsubst, file.path(dir_layers, version_year, "cw_con_penalty.csv"))
 ```
 
@@ -2057,7 +2074,7 @@ write_csv(rgn_monitor_allsubst, file.path(dir_layers, version_year, "cw_con_pena
 
 ## 4. Visualizing Contaminants Data Layers
 
-```{r read in indicator layers and join into single object}
+```{r read in indicator layers}
 
 ```
 
