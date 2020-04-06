@@ -126,6 +126,7 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
 ```
+
 <br/>
 
 #### 2.1.3 Dioxin Data
@@ -195,6 +196,7 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
+
 ---
 
 <br>
@@ -252,8 +254,6 @@ lapply(
 
 ##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills}
 
-***
-
 ###### PCBs
 
 ```{r check number of years sample by country in pcb data,  results  = "show"}
@@ -273,29 +273,15 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
 })) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
 ```
 
+***
+<br>
+
 ###### PFOS 
 
 ```{r check number of dates and years sample by country in pfos data,  results  = "show"}
 do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(country){
   cbind(
-    pcb_rawdata_bio %>% 
-      filter(Country == country) %>%
-      select(Species, MYEAR) %>%
-      distinct(.) %>%
-      group_by(Species) %>%
-      summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
-      ungroup(),
-    Country = country
-  ) %>% select(Country, Species, NumYrs, LatestYr)
-})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
-```
-
-###### Dioxins
-
-```{r check number of dates and years sample by country in dioxin data,  results  = "show"}
-do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(country){
-  cbind(
-    pcb_rawdata_bio %>% 
+    pfos_rawdata_bio %>% 
       filter(Country == country) %>%
       select(Species, MYEAR) %>%
       distinct(.) %>%
@@ -308,10 +294,27 @@ do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(coun
 ```
 
 ***
-
 <br>
 
----
+###### Dioxins
+
+```{r check number of dates and years sample by country in dioxin data,  results  = "show"}
+do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(country){
+  cbind(
+    dioxin_rawdata_bio %>% 
+      filter(Country == country) %>%
+      select(Species, MYEAR) %>%
+      distinct(.) %>%
+      group_by(Species) %>%
+      summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
+      ungroup(),
+    Country = country
+  ) %>% select(Country, Species, NumYrs, LatestYr)
+})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
+```
+
+***
+<br>
 
 #### 2.2.1 Rename Fields/Variables
 
@@ -366,26 +369,16 @@ rename_vars <- function(dataset){
     ) %>% 
     
     ## improve clarity of 'basis_determination' and 'matrix_analyzed' column content
-    mutate(
-      basis_determination = ifelse(
-        basis_determination == "L", "lipid weight",
-        ifelse(
-          basis_determination == "W", "wet weight",
-          ifelse(
-            basis_determination == "D", "dry weight", NA
-          )
-        )
-      ),
-      matrix_analyzed = ifelse(
-        matrix_analyzed == "LI", "liver",
-        ifelse(
-          matrix_analyzed == "MU", "muscle",
-          ifelse(
-            matrix_analyzed == "WO", "wholeorganism", NA
-          )
-        )
-      )
-    )
+    mutate(basis_determination = case_when(
+      basis_determination == "L" ~ "lipid weight",
+      basis_determination == "W" ~ "wet weight",
+      basis_determination == "D" ~ "dry weight"
+    )) %>% 
+    mutate(matrix_analyzed = case_when(
+      matrix_analyzed == "LI" ~ "liver",
+      matrix_analyzed == "MU" ~ "muscle",
+      matrix_analyzed == "WO" ~ "wholeorganism"
+    ))
   
   return(df_vars_renamed)
 }
@@ -455,37 +448,41 @@ basemap <- ggplot2::ggplot() +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) +
   theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
-
-depthcols <- c("firebrick", "coral", "khaki1", "thistle", "thistle4")
 ```
 
 <br>
 
-```{r spatial coverage for sediment measurement depths, results = "show", fig.width = 12, fig.height = 5}
+```{r spatial coverage for sediment measurement depths, results = "show", fig.width = 13.5, fig.height = 6}
 pcb_sed_depths <- basemap + 
   geom_sf(
     data = pcb_sed %>% 
-      filter(longitude > 9, depth_low <= 0.05) %>% ## play with depth value to evaluate spatial coverage...
+      filter(longitude > 9, country != "Norway") %>% 
+      filter(depth_low <= 0.05) %>% ## play with depth value to evaluate spatial coverage...
       sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326),
     aes(size = depth_low, color = depth_low),
     show.legend = FALSE,
     alpha = 0.08
   ) +
-  scale_color_gradientn(colors = depthcols)
+  scale_color_gradient2(low = "red3", mid = "lightcoral", high = "lightgoldenrod", midpoint = 0.02)
 
 dioxin_sed_depths <- basemap + 
   geom_sf(
     data = dioxin_sed %>% 
-      filter(longitude > 9, depth_low <= 0.05) %>% ## play with depth value to evaluate spatial coverage...
+      filter(longitude > 9, country != "Norway") %>% 
+      filter(depth_low <= 0.05) %>% ## play with depth value to evaluate spatial coverage...
       sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326),
     aes(size = depth_low, color = depth_low), 
     alpha = 0.08
   ) +
-  scale_color_gradientn(colors = depthcols) +
+  scale_color_gradient2(low = "red3", mid = "lightcoral", high = "goldenrod2", midpoint = 0.02) +
   guides(color = guide_colorbar("Depth"), size = FALSE) +
-  theme(legend.position = c(0.95, 0.85), legend.background = element_rect(color = "grey"))
+  theme(legend.position = c(0.9, 0.8), legend.background = element_rect(color = "grey"))
 
-gridExtra::grid.arrange(pcb_sed_depths, dioxin_sed_depths, nrow = 1)
+gridExtra::grid.arrange(
+  pcb_sed_depths + ggtitle("PCB Measurement Depths"), 
+  dioxin_sed_depths + ggtitle("Dioxin Measurement Depths"), 
+  nrow = 1
+)
 ```
 
 <br>
@@ -829,6 +826,7 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
           list(pfos_muscle_equiv = ~ case_when(
             variable == "PFOS" & matrix_analyzed == "liver" ~ ./17.9,
             variable == "PFOS" & matrix_analyzed == "muscle" ~ .,
+            
             ## NOT IN BHI1.0, BUT INCLUDING FOR INITIAL EXPLORATION...
             variable == "PFOA" & species == "Clupea harengus" & matrix_analyzed == "liver" ~ ./13.4,
             variable == "PFOA" & species == "Clupea harengus" & matrix_analyzed == "muscle" ~ .,
@@ -836,21 +834,18 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
             variable == "PFOA" & species == "Zoarces viviparus" & matrix_analyzed == "muscle" ~ .,
             variable == "PFOA" & species == "Perca fluviatilis" & matrix_analyzed == "liver" ~ ./13.7,
             variable == "PFOA" & species == "Perca fluviatilis" & matrix_analyzed == "muscle" ~ .,
-            
             variable == "PFDA" & species == "Clupea harengus" & matrix_analyzed == "liver" ~ ./19.4,
             variable == "PFDA" & species == "Clupea harengus" & matrix_analyzed == "muscle" ~ .,
             variable == "PFDA" & species == "Zoarces viviparus" & matrix_analyzed == "liver" ~ ./5.69,
             variable == "PFDA" & species == "Zoarces viviparus" & matrix_analyzed == "muscle" ~ .,
             variable == "PFDA" & species == "Perca fluviatiliss" & matrix_analyzed == "liver" ~ ./5.69,
             variable == "PFDA" & species == "Perca fluviatilis" & matrix_analyzed == "muscle" ~ .,
-            
             variable == "PFNA" & species == "Clupea harengus" & matrix_analyzed == "liver" ~ ./15.5,
             variable == "PFNA" & species == "Clupea harengus" & matrix_analyzed == "muscle" ~ .,
             variable == "PFNA" & species == "Zoarces viviparus" & matrix_analyzed == "liver" ~ ./5.62,
             variable == "PFNA" & species == "Zoarces viviparus" & matrix_analyzed == "muscle" ~ .,
             variable == "PFNA" & species == "Perca fluviatilis" & matrix_analyzed == "liver" ~ ./13.7,
             variable == "PFNA" & species == "Perca fluviatilis" & matrix_analyzed == "muscle" ~ .,
-
             variable == "PFPEDA" & matrix_analyzed == "liver" ~ ./7.4,
             variable == "PFPEDA" & matrix_analyzed == "muscle" ~ .,
             variable == "PFUnDA" & matrix_analyzed == "liver" ~ ./10.1,
@@ -1045,13 +1040,13 @@ plotdf <- bind_rows(
     rbind, 
     lapply(
       list("pcb_bio_clean_df", "dioxin_bio_clean_df", "pfos_bio_clean_df"), 
-      function(x) make_plotdf(x, 2016:2019)
+      function(x) make_plotdf(x, 2014:2019)
     )) %>% mutate(matrix = "biota", indicator = str_remove(source, "_[A-Z].*")),
   do.call(
     rbind, 
     lapply(
       list("pcb_sed_clean_df", "dioxin_sed_clean_df"), 
-      function(x) make_plotdf(x, 2016:2019)
+      function(x) make_plotdf(x, 2014:2019)
     )) %>% mutate(matrix = "sediment", indicator = str_remove(source, "_[A-Z].*"))
 )
 ```
@@ -1063,17 +1058,17 @@ plotdf <- bind_rows(
 The maps below show data distribution spatially. Size and color correspond to number of distinct dates measurements were collected for a variable, for the given location within the specified time period (2016 through 2019); larger points with more yellow color indicate greater number of observations while smaller more red points indicate fewer observations. Opacity corresponds to number of years with greater transparency indicating fewer years of data. These faceted plots are created for multiple species; the species selected for visualization are those with the greatest number of measurements recorded across the three indicators.
 
 ```{r make plotting dataframe, echo = TRUE, warning = FALSE, message = FALSE}
-make_map <- function(data, yrs){
+make_map <- function(mapdata){
   
   ## make data spatial using lat/lon columns
   df <- sf::st_as_sf(
-    x = data, 
+    x = mapdata, 
     agr = "identity",
     coords = c("longitude", "latitude"), 
     crs = 4326
   )
   ## contaminants datasets overlaying basemap
-  map <- basemap + 
+  speciesmap <- basemap + 
     geom_sf(
       data = df,
       aes(
@@ -1091,14 +1086,15 @@ make_map <- function(data, yrs){
     ) +
     facet_wrap(c("indicator", "variable"), ncol = 5)
 
-  return(map)
+  return(speciesmap)
 }
 # for(i in unique(plotdf$indicator)){
-#   plotdf %>% 
-#     filter(matrix == "biota", indicator == i) %>% 
+#   species_obs <- plotdf %>%
+#     filter(matrix == "biota", indicator == i) %>%
 #     group_by(species) %>%
-#     summarise(n = sum(num_distinct_dates)) %>% 
+#     summarise(n = sum(num_distinct_dates)) %>%
 #     arrange(desc(n))
+#   print(head(species_obs))
 # }
 ```
 
@@ -1110,11 +1106,17 @@ make_map <- function(data, yrs){
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus")))
 ```
 
+***
+<br>
+
 ##### Zoarces Viviparus
 
 ```{r sampling maps eelpout, results = "show", echo = TRUE, fig.width = 11, fig.height = 23.8}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparus")))
 ```
+
+***
+<br>
 
 ##### Perca Fluviatilis
 
@@ -1122,17 +1124,26 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparu
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatilis")))
 ```
 
+***
+<br>
+
 ##### Platichthys Flesus
 
 ```{r sampling maps flounder, results = "show", echo = TRUE, fig.width = 11, fig.height = 21.7}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys flesus")))
 ```
 
+***
+<br>
+
 ##### Mytilus Edulis
 
-```{r sampling maps blue muscles, results = "show", echo = TRUE, fig.width = 11, fig.height = 13}
+```{r sampling maps blue muscles, results = "show", echo = TRUE, fig.width = 11, fig.height = 17.3}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")))
 ```
+
+***
+<br>
 
 ##### Uria Aalge
 
@@ -1140,21 +1151,23 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
 ```
 
+***
+<br>
+
 ##### Sediments
 
 ```{r sampling maps sediments, results = "show", echo = TRUE, fig.width = 11, fig.height = 17.3}
 make_map(filter(plotdf, matrix == "sediment"))
 ```
 
----
-
+***
 <br>
 
 #### 2.3.3 Contaminants in Biota vs Sediments
 
 Distributions of contaminant concentration values by indicator and matrix. Given the nearly exponential shape of the concentration distributions, plotting log values would makes some sense, though these are more difficult to interpret. Rescaling faceted axes of plots with actual values, to exclude outliers and focus in on 1st-3rd quartiles proved difficult (though rough  code to do this visualization was kept and commented out below).
 
-```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 12}
+```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 11}
 ## for boxplots, can (1) filter to remove beyond 90th quartile, or (2) log the data
 ## contaminants measurements represent an exponential dist. more closely than normal
 ## though logarithms are less intuitive to interpret here...

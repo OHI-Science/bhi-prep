@@ -39,6 +39,16 @@ bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_s
 
 ## 2. Data
 
+This prep document is used to generate and explore the following data layers: 
+
+- `cw_con_pcb_bhi2019.csv` 
+- `cw_con_pfos_bhi2019.csv` 
+- `cw_con_dioxin_bhi2019.csv` 
+- `cw_con_penalty_bhi2019.csv` 
+
+These are saved to the `layers/v2019` folder. Intermediate datasets saved to `data/CW/contaminants/v2019/intermediate` include: `pcb_bio_cleaned.csv`, `pcb_sed_cleaned.csv`, `pfos_bio_cleaned.csv`, `dioxin_bio_cleaned.csv` and `dioxin_sed_cleaned.csv`. All these are derived from or informed by the following raw datasets.
+
+
 ```{r Data, child = data_path, results = "asis", echo = FALSE}
 ```
 
@@ -939,8 +949,17 @@ ggplot(pcb_status, aes(Region, status, fill = Subbasin)) +
 
 **Save PCB contaminants layer and intermediate datasets**
 
-```{r save pcbs contaminants layer and intermediate datasets}
-
+```{r save pcbs contaminants layer and any intermediate datasets}
+write_csv(
+  pcb_qflag_adjust_datemeans %>% 
+    select(
+      region_id = BHI_ID,
+      year,
+      value = sum_congeners_datemean, 
+      matrix = Matrix
+    ), 
+  file.path(dir_layers, version_year, sprintf("cw_con_pcb_bhi%s.csv", assess_year))
+)
 ```
 
 <br>
@@ -1205,8 +1224,17 @@ ggplot(pfos_status, aes(Region, status, fill = Subbasin)) +
 
 **Save PFOS contaminants layer and intermediate datasets**
 
-```{r save pfos contaminants layer and intermediate datasets}
-
+```{r save pfos contaminants layer and any intermediate datasets}
+write_csv(
+  pfos_qflag_adjust_datemeans %>% 
+    select(
+      region_id = BHI_ID,
+      year,
+      value = sum_congeners_datemean, 
+      matrix = Matrix
+    ), 
+  file.path(dir_layers, version_year, sprintf("cw_con_pfos_bhi%s.csv", assess_year))
+)
 ```
 
 <br>
@@ -1840,8 +1868,17 @@ ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
 
 **Save Dioxin contaminants layer and intermediate datasets**
 
-```{r save dioxin contaminants layer and intermediate datasets}
-
+```{r save dioxin contaminants layer and any intermediate datasets}
+write_csv(
+  dioxins_qflag_adjust_teqs_total %>% 
+    select(
+      region_id = BHI_ID,
+      year,
+      value = total_teq, 
+      matrix = Matrix
+    ), 
+  file.path(dir_layers, version_year, sprintf("cw_con_dioxin_bhi%s.csv", assess_year))
+)
 ```
 
 <br>
@@ -1864,7 +1901,7 @@ $X_{dioxinTEQ} = \min\{1, \mbox{ teq threshold}/\mbox{mean dioxin-like pcb teq v
 
 This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by of concerning substances](), and involves cross-referencing with those monitored substances in the [ICES contaminants databases](). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region. 
 
-```{r function to evaluate spatial coverage of monitored, eval = FALSE}
+```{r function to evaluate spatial coverage of monitored}
 get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", bhi_join_tab){
   
   if(matrix == "bio"){
@@ -2018,34 +2055,27 @@ rgn_monitor_allsubst <- full_join(
       values_to = "sed_monitored"
     )
 )
+rgn_monitor_allsubst <- rgn_monitor_allsubst %>%
+  mutate(monitored = bio_monitored|sed_monitored) %>%
+  mutate(monitored = ifelse(is.na(monitored), FALSE, monitored)) %>%
+  select(-bio_monitored, -sed_monitored) %>% 
+  mutate(substance = str_remove(substance, "_monitored"))
+
+# gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
+# gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistsed))
 ```
 
-<br>
-
-```{rconcerning substances monitoring in biota, fig.width = 9.5, fig.height = 15}
-gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
-```
-
-***
-<br>
-
-```{r concerning substances monitoring in sediments, fig.width = 9.5, fig.height = 15}
-gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistbio))
-```
-
-***
-<br>
 
 ```{r calculating concerning substances indicator}
 ## calculating emerging concerning substances indicator
-concern_subst_indicator <- rgn_monitor_allsubst %>%
-  mutate(monitored = bio_monitored|sed_monitored) %>%
-  mutate(monitored = ifelse(is.na(monitored), FALSE, monitored)) %>%
-  select(-bio_monitored, -sed_monitored) %>%
-  tidyr::pivot_wider(names_from = "substance", values_from = "monitored")
-
+concern_subst_indicator <- tidyr::pivot_wider(
+  rgn_monitor_allsubst,
+  names_from = "substance", 
+  values_from = "monitored"
+)
 yrs <- 2014:2018
 num_substances <- length(grep("_monitored", colnames(concern_subst_indicator)))
+
 concern_subst_indicator <- concern_subst_indicator %>%
   ## look at monitoring only within time period of interest
   filter(year %in% yrs) %>% 
@@ -2054,9 +2084,11 @@ concern_subst_indicator <- concern_subst_indicator %>%
   ungroup() %>% 
   mutate_at(vars(ends_with("_monitored")), funs(pmin(1, .))) %>% 
   ## add columns on number substances and number monitored
-  mutate(num_substances = num_substances) %>%
-  mutate(num_monitored = rowSums(.[grep("_monitored", names(.))])) %>% 
-  mutate(proportion_monitored = round(num_monitored/num_substances, 2)) %>% 
+  mutate(
+    num_substances = num_substances,
+    num_monitored = rowSums(.[grep("_monitored", names(.))]),
+    proportion_monitored = round(num_monitored/num_substances, 2)
+  ) %>%
   select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, proportion_monitored)
 ```
 
@@ -2065,7 +2097,16 @@ concern_subst_indicator <- concern_subst_indicator %>%
 **Save concerning substances layer and intermediate datasets**
 
 ```{r save oncerning substances layer and intermediate datasets}
-write_csv(rgn_monitor_allsubst, file.path(dir_layers, version_year, "cw_con_penalty.csv"))
+write_csv(
+  rgn_monitor_allsubst %>% 
+    select(
+      region_id = BHI_ID,
+      year,
+      monitored, 
+      substance
+    ), 
+  file.path(dir_layers, version_year, sprintf("cw_con_penalty_bhi%s.csv", assess_year))
+)
 ```
 
 <br>
