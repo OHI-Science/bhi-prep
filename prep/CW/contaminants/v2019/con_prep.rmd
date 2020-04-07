@@ -4,7 +4,7 @@ output:
   html_document:
     toc: true
     toc_depth: 3
-    code_folding: hide
+    code_folding: show
 ---
 
 <br>
@@ -20,12 +20,10 @@ data_path <- here::here("data", "CW", "contaminants", version_year, "con_data.rm
 refs_path <- file.path(loc, "con_references.Rmd")
 
 source(here::here("R", "spatial.R"))
-regions_shape()
 buffer_sf <- st_read(
   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
   "BHI_shapefile_25km_buffer"
 )
-bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 ```
 
 <br>
@@ -187,7 +185,7 @@ makeplot <- function(data){
     geom_point(aes(date, value_adj), show.legend = FALSE, size = 0.5, alpha = 0.5, color =  "grey") +
     facet_wrap(~variable, scales = "free_y", nrow = length(unique(data$variable))) +
     labs(x = NULL, y = NULL) +
-    theme(plot.title = element_text(size = 8.5)) 
+    theme(plot.title = element_text(size = 8)) 
 }
 gridExtra::grid.arrange(
   makeplot(plotdf) + 
@@ -230,13 +228,11 @@ gridExtra::grid.arrange(
 ***
 <br>
 
-##### Visualize flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
+##### Visualize flagged data in Timeseries
 
 Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
 
-###### PCBs in Biota
-
-```{r pcbs bio qflag adjustment congeners by basin, results = "show", fig.height = 19.5, fig.width = 9.5}
+```{r pcbs bio qflag adjustment congeners by basin, fig.show = "hide", fig.height = 19.5, fig.width = 9.5}
 ## pcb qflag adjustment congeners by basin and congener, 
 ## red x's indicate flagged data, colorscale indicates number of observations
 qflag_timeseries_plot <- function(data, valvarname, plottitle){
@@ -262,16 +258,17 @@ qflag_timeseries_plot <- function(data, valvarname, plottitle){
     theme_bw()
 }
 
-qflag_timeseries_plot(pcb_bio, "value_wet_wgt", "Congener Concentration (ug/kg wet weight) measured in Clupea harengus")
+qflag_timeseries_plot(
+  pcb_bio, "value_wet_wgt", 
+  "Congener Concentration (ug/kg wet weight) measured in Clupea harengus\n"
+)
 ```
 
-***
-<br>
-
-###### PCBs in Sediment
-
-```{r pcbs sed qflag adjustment congeners by basin, results = "show", fig.height = 30, fig.width = 9.5}
-qflag_timeseries_plot(pcb_sed, "value_dry_wgt", "Congener Concentration (ug/kg) measured in Sediments")
+```{r pcbs sed qflag adjustment congeners by basin, fig.show = "hide", fig.height = 30, fig.width = 9.5}
+qflag_timeseries_plot(
+  pcb_sed, "value_dry_wgt", 
+  "Congener Concentration (ug/kg dry weight) measured in Sediments\n"
+)
 ```
 
 ***
@@ -389,7 +386,6 @@ qflag_adjust <- function(dataset, indicator, congeners = NULL, matrix = "bio", s
         filter(!is.na(sum_congeners))
     }
   }
-  
   return(data_Qadjust_sums)
 }
 
@@ -461,7 +457,7 @@ plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", matrix 
     theme(axis.text.x = element_text(angle = 45, size = 6)) +
     facet_wrap(~zone, scales = "free_y", ncol = 1)
   
-  return(plot) # plotly::ggplotly(plot)
+  return(plot) # return(plotly::ggplotly(plot))
 }
 ```
 
@@ -494,9 +490,18 @@ plot_cwcon_initial(pcb_sed_qflag_adjust, c(cols, "turquoise"), "OC-CB", "sed", "
 ***
 <br>
 
-##### Spatial distributions of PCB sampling Locations {.tabset .tabset-fade .tabset-pills}
+##### Spatial distributions of PCB sampling Locations
 
 ```{r function for mapping spatial dist of data points}
+if(!exists("bhi_rgns_simple")){
+  bhi_rgns_simple <- rmapshaper::ms_simplify(
+  input =  sf::st_read(
+    dsn = file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_corrected"), 
+    layer = "BHI_shapefile_corrected",
+    quiet = TRUE
+  )) %>% sf::st_as_sf()
+}
+
 map_cwcon_initial <- function(dataset, yr, obs_count_limits, matrix = NULL){
   
   if(!"Matrix" %in% names(dataset)){
@@ -585,7 +590,7 @@ map_cwcon_initial <- function(dataset, yr, obs_count_limits, matrix = NULL){
     theme_bw() +
     theme(
       axis.text.x = element_text(angle = 90, hjust = 1), 
-      legend.position = c(0.12, 0.85),
+      legend.position = c(0.87, 0.82),
       legend.background = element_rect(color = "grey", fill = NA),
       strip.text.y = element_text(size = 8, angle = 0)
     ) +
@@ -618,30 +623,8 @@ pcb_noqflag_datemeans <- bind_rows(
 ) %>% ungroup()
 ```
 
-###### With 2014 data Only
-
-```{r map spatial dist of PCBs year 2014, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
-pcb2014 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2014, c(0, 15), matrix = "both")
-gridExtra::grid.arrange(pcb2014$map, pcb2014$basinplot, nrow = 1, widths = c(1.2, 1))
-```
-
-***
-<br>
-
-###### With 2016 data Only
-
-```{r map spatial dist of PCBs year 2016, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
-pcb2016 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2016, c(0, 15), matrix = "both")
-gridExtra::grid.arrange(pcb2016$map, pcb2016$basinplot, nrow = 1, widths = c(1.2, 1))
-```
-
-***
-<br>
-
-###### With years 2014 to 2018
-
 ```{r map spatial dist of PCBs multiple years, results = "show", fig.width = 13, fig.height = 7.5, out.width = "120%"}
-pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans,yr = 2014:2018,  c(0, 15), matrix = "both")
+pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2014:2018,  c(0, 15), matrix = "both")
 gridExtra::grid.arrange(pcb2014to2019$map, pcb2014to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
@@ -689,7 +672,7 @@ cwcon_indicators <- function(dat, yrs, bio_thresh = 75, sed_thresh = 4.1, approa
   
   result <- list()
   
-  joindf <- BHI_rgns_shp %>% 
+  joindf <- bhi_rgns_simple %>% 
     st_drop_geometry() %>% 
     select(-Area_km2) %>% 
     mutate(
@@ -947,7 +930,7 @@ ggplot(pcb_status, aes(Region, status, fill = Subbasin)) +
 
 <br>
 
-**Save PCB contaminants layer and intermediate datasets**
+#### 3.1.5 Save PCB contaminants layer and intermediate datasets
 
 ```{r save pcbs contaminants layer and any intermediate datasets}
 write_csv(
@@ -964,9 +947,7 @@ write_csv(
 
 <br>
 
----
-
-#### 3.1.5 Methods discussion
+#### 3.1.6 Methods discussion
 
 Only herring (no other species) used from biota dataset, because herring are most equally spatially spaced across the baltic sea, whereas others are mostly in the south.
 
@@ -1016,7 +997,6 @@ Score scaled between 0 and 1. If value is below 75, score = 1.
 
 <!-- **`BHI2.0` discussions with Anna Sobek ** -->
 
----
 ***
 
 <br>
@@ -1065,13 +1045,13 @@ pfos <- pfos %>%
 
 #### 3.2.3 Evaluate Flagged Data & Sampling Patterns
 
-##### Visualize PFOS flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
+##### Visualize PFOS flagged data in Timeseries
 
-Below the PFOS data are plotted by subbasin. Colorscale in plot one corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination. Plot 2 shows the same information in boxplot format, with data grouped by year. 
+PFOS data plotted by subbasin. Colorscale in plot one corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination. Plot 2 shows the same information in boxplot format, with data grouped by year. 
 
-###### Concentrations Timeseries with Observation Counts
+###### Concentrations Timeseries and Boxplots with Observation Counts
 
-```{r pfos qflag adjustment values by basin, results = "show", fig.width  = 9.5, fig.height = 7}
+```{r pfos qflag adjustment values by basin, fig.show = "hide", fig.width  = 9.5, fig.height = 8}
 ## pcb qflag adjustment congeners by basin and congener, 
 ## red x's indicate flagged data, colorscale indicates number of observations
 plotdf <- pfos %>% 
@@ -1091,12 +1071,7 @@ ggplot(plotdf) +
   theme_bw()
 ```
 
-***
-<br>
-
-###### Concentrations Boxplots by Year
-
-```{r pfos qflag adjusted values basin boxplots, results = "show", fig.width  = 9.5, fig.height = 7}
+```{r pfos qflag adjusted values basin boxplots, fig.show = "hide", fig.width  = 9.5, fig.height = 8}
 boxplotdf <- plotdf %>%
   mutate(year = as.factor(year)) %>% 
   group_by(year, variable, Subbasin) %>% 
@@ -1146,6 +1121,7 @@ pfos2008to2019 <- map_cwcon_initial(pfos_qflag_adjust_datemeans, yr = 2014:2018,
 gridExtra::grid.arrange(pfos2008to2019$map, pfos2008to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
+***
 <br>
 
 #### 3.2.4 Status and Trend Options
@@ -1187,7 +1163,7 @@ htmlTable::htmlTable(
 3. Calculate status as mean of all scaled obs. for past 5 years in either BHI region or basin 
 4. Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing 
 
-```{r investigate approaches to qflags and summarizing by region vs basin pfos indicator, fig.width = 9.5, fig.height = 7}
+```{r investigate approaches to qflags and summarizing by region vs basin pfos indicator, fig.width = 9.5, fig.height = 8}
 ## using function defined above, investigate:
 ## (1) adjusting vs excluding flagged data, and 
 ## (2) aggregating data by subbasin versus BHI regions in calculating status and trend
@@ -1222,7 +1198,7 @@ ggplot(pfos_status, aes(Region, status, fill = Subbasin)) +
 
 <br>
 
-**Save PFOS contaminants layer and intermediate datasets**
+#### 3.1.5 Save PFOS contaminants layer and intermediate datasets
 
 ```{r save pfos contaminants layer and any intermediate datasets}
 write_csv(
@@ -1241,7 +1217,7 @@ write_csv(
 
 ---
 
-#### 3.1.5 Methods discussion
+#### 3.1.6 Methods discussion
 
 **Status formula, ICES6 PCBs Biota and 7PCBs in Sediment**
 
@@ -1282,7 +1258,7 @@ dioxin_sed <- join_rgns_info(
 
 To convert dioxin and dioxin-like PCB congener concentrations to toxic equivalents we use the [IPCS Reference Table](https://www.who.int/ipcs/assessment/tef_values.pdf), taken from The 2005 World Health Organization Re-evaluation of Human and Mammalian Toxic Equivalency Factors for Dioxins and Dioxin-like Compounds (Van den Berg et al, 2005).
 
-```{r TEQ conversion lookup, results = "hide"}
+```{r TEQ conversion lookup, fig.show = "hide"}
 tef_pdf <- pdftools::pdf_text("https://www.who.int/ipcs/assessment/tef_values.pdf")[1] %>%
   stringr::str_split(pattern = "\n")
 tef_lookup <- as.data.frame(tef_pdf[[1]][2:34])
@@ -1363,8 +1339,6 @@ dioxinsed_teq <- dioxin_sed %>%
 ```
 
 ##### Checking Outliers/Questionable Measurements {.tabset .tabset-fade .tabset-pills}
-
----
 
 ###### Dioxin-like PCBs in Biota
 
@@ -1467,12 +1441,10 @@ gridExtra::grid.arrange(
 dioxinbio_teq <- filter(dioxinbio_teq, chk) %>% select(-starts_with("chk"))
 ```
 
-***
+---
 <br>
 
-###### Dioxins in Sediment
-
-```{r checking dioxin sediment data and outliers, results = "show", fig.width = 10, fig.height = 5.7}
+```{r checking dioxin sediment data and outliers, fig.show = "hide", fig.width = 10, fig.height = 5.7}
 dioxinsed_teq <- dioxinsed_teq %>% 
   mutate(
     chk0 = (station == "NORS-AlsMole" & year == 2007 & month == 12),
@@ -1484,48 +1456,40 @@ plotdf <- mutate(dioxinsed_teq, value_adj = ifelse(qflagged, value_teq/2, value_
 ## no apparent patterns in outliers to raise concern here
 makeplot(plotdf) +
   facet_wrap(~variable, scales = "free_y", nrow = 5) +
-  geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1) +
-  ggtitle("All Data")
+  geom_point(data = filter(plotdf, !chk), aes(date, value_adj), shape = 1)
 ```
 
-***
-<br>
 
-##### Visualize flagged data in Timeseries {.tabset .tabset-fade .tabset-pills}
+##### Visualize flagged data in Timeseries
 
-Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
+Dioxin and dioxin-like data plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
 
-###### Dioxin-like PCBs in Biota
-
-```{r dioxinlike pcb bio qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 18}
-qflag_timeseries_plot(dioxinlike_pcbbio_teq, "value_teq", "Congener Concentration (ug/kg TEQ wet weight) in Clupea Harengus")
+```{r dioxinlike pcb bio qflag adjustment congeners by basin, fig.show = "hide", fig.width = 9.5, fig.height = 18}
+qflag_timeseries_plot(
+  dioxinlike_pcbbio_teq, "value_teq", 
+  "Congener Concentration (ug/kg TEQ wet weight) in Clupea Harengus\n"
+)
 ```
 
-***
-<br>
-
-###### Dioxin-like PCBs in Sediment
-
-```{r dioxinlike pcb sed qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 20.7}
-qflag_timeseries_plot(dioxinlike_pcbsed_teq, "value_teq", "Congener Concentration (ug/kg TEQ dry weight) in Sediments")
+```{r dioxinlike pcb sed qflag adjustment congeners by basin, fig.show = "hide", fig.width = 9.5, fig.height = 20.7}
+qflag_timeseries_plot(
+  dioxinlike_pcbsed_teq, "value_teq", 
+  "Congener Concentration (ug/kg TEQ dry weight) in Sediments\n"
+)
 ```
 
-***
-<br>
-
-###### Dioxins in Biota
-
-```{r dioxin bio qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 38.7}
-qflag_timeseries_plot(dioxinbio_teq, "value_teq", "Congener Concentration (ug/kg TEQ wet weight) in Clupea Harengus")
+```{r dioxin bio qflag adjustment congeners by basin, fig.show = "hide", fig.width = 9.5, fig.height = 38.7}
+qflag_timeseries_plot(
+  dioxinbio_teq, "value_teq", 
+  "Congener Concentration (ug/kg TEQ wet weight) in Clupea Harengus\n"
+)
 ```
 
-***
-<br>
-
-###### Dioxins in Sediment
-
-```{r dioxin sed qflag adjustment congeners by basin, results = "show", fig.width = 9.5, fig.height = 45.9}
-qflag_timeseries_plot(dioxinsed_teq, "value_teq", "Congener Concentration (ug/kg TEQ dry weight) in Sediments")
+```{r dioxin sed qflag adjustment congeners by basin, fig.show = "hide", fig.width = 9.5, fig.height = 45.9}
+qflag_timeseries_plot(
+  dioxinsed_teq, "value_teq", 
+  "Congener Concentration (ug/kg TEQ dry weight) in Sediments\n"
+)
 ```
 
 ***
@@ -1791,7 +1755,7 @@ dioxins_noqflag_teqs_total <- inner_join(
 
 <br>
 
-#### 3.3.3 Status and Trend Options
+#### 3.3.4 Status and Trend Options
 
 ```{r dioxins latest years for qflag adjust vs no flagged data approaches, results = "show"}
 htmlTable::htmlTable(
@@ -1866,7 +1830,7 @@ ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
 
 <br>
 
-**Save Dioxin contaminants layer and intermediate datasets**
+#### 3.3.5 Save Dioxin contaminants layer and intermediate datasets
 
 ```{r save dioxin contaminants layer and any intermediate datasets}
 write_csv(
@@ -1885,7 +1849,7 @@ write_csv(
 
 ---
 
-#### 3.3.4 Methods discussion
+#### 3.3.6 Methods discussion
 
 **Status formula**
 
@@ -1899,7 +1863,7 @@ $X_{dioxinTEQ} = \min\{1, \mbox{ teq threshold}/\mbox{mean dioxin-like pcb teq v
 
 ### 3.4 Concerning Substances Indicator
 
-This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by of concerning substances](), and involves cross-referencing with those monitored substances in the [ICES contaminants databases](). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region. 
+This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by ECHA of concerning substances](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists), and involves cross-referencing with those monitored substances in the [ICES contaminants databases for biota](http://dome.ices.dk/views/ContaminantsBiota.aspx) [and for sediments](http://dome.ices.dk/views/ContaminantsSediment.aspx). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region. 
 
 ```{r function to evaluate spatial coverage of monitored}
 get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", bhi_join_tab){
@@ -1960,6 +1924,10 @@ get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", bh
   return(list(monitored = monitordf, obscounts = countdfplot))
 }
 ```
+
+### 3.4.1 Regional monitoring of Concerning Substances
+
+Of the concerning substances which are monitored, some are monitored only in some BHI regions and/or years. The code below is used in assessing this spatial coverage.
 
 ```{r creating substances of concern data layer, echo = TRUE}
 ## read in master table of emerging contaminant
@@ -2065,14 +2033,12 @@ rgn_monitor_allsubst <- rgn_monitor_allsubst %>%
 # gridExtra::grid.arrange(grobs = plotlistbio, nrow = length(plotlistsed))
 ```
 
-
 ```{r calculating concerning substances indicator}
 ## calculating emerging concerning substances indicator
-concern_subst_indicator <- tidyr::pivot_wider(
-  rgn_monitor_allsubst,
-  names_from = "substance", 
-  values_from = "monitored"
-)
+concern_subst_indicator <- rgn_monitor_allsubst %>% 
+  mutate(substance = paste0(substance, "_monitored")) %>% 
+  tidyr::pivot_wider(names_from = "substance", values_from = "monitored")
+
 yrs <- 2014:2018
 num_substances <- length(grep("_monitored", colnames(concern_subst_indicator)))
 
@@ -2089,12 +2055,13 @@ concern_subst_indicator <- concern_subst_indicator %>%
     num_monitored = rowSums(.[grep("_monitored", names(.))]),
     proportion_monitored = round(num_monitored/num_substances, 2)
   ) %>%
-  select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, proportion_monitored)
+  select(Subbasin, BHI_ID, proportion_monitored) %>% 
+  mutate(dimension = "status")
 ```
 
-<br>
+### 3.4.2 Save concerning substances layer and intermediate datasets
 
-**Save concerning substances layer and intermediate datasets**
+The data layer for the concerning substances indicator contains true/false records per BHI region per year for each of the 35 distinct substances on the [European Chemical Agency Candidate List of substances of very high concern for Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists).
 
 ```{r save oncerning substances layer and intermediate datasets}
 write_csv(
@@ -2109,35 +2076,146 @@ write_csv(
 )
 ```
 
-<br>
-
 ---
 
 ## 4. Visualizing Contaminants Data Layers
 
-```{r read in indicator layers}
-
+```{r join indicator layers for plotting}
+## join PCB, Dioxin and PFOS indicators, and take average
+cw_con <- do.call(rbind, lapply(
+  list(
+    list(df = pcb_qflag_adjust_indicators$basin_status, dim = "status", ind = "pcb"),
+    list(df = pcb_qflag_adjust_indicators$basin_trend, dim = "trend", ind = "pcb"),
+    list(df = pfos_qflag_adjust_indicators$basin_status, dim = "status", ind = "pfos"),
+    list(df = pfos_qflag_adjust_indicators$basin_trend, dim = "trend", ind = "pfos"),
+    list(df = dioxin_qflag_adjust_indicators$basin_status, dim = "status", ind = "dioxin"),
+    list(df = dioxin_qflag_adjust_indicators$basin_trend, dim = "trend", ind = "dioxin")
+  ), 
+  function(x){
+    joindf <- x$df %>% 
+      ungroup() %>% 
+      select(Subbasin, BHI_ID, rgn_nam, !!!syms(x$dim)) %>% 
+      mutate(dimension = x$dim, indicator = x$ind)
+    colnames(joindf) <- c("Subbasin", "BHI_ID", "rgn_nam", "score", "dimension", "indicator")
+    
+    return(joindf)
+  }
+)) 
+cw_con_w_penalty <- cw_con %>%   
+  dplyr::group_by(BHI_ID, dimension) %>%
+  dplyr::mutate(num_indicators = n()) %>%
+  ## in first assessment, excluded where only had pcb indicator
+  ## have all 3 here though for each case
+  # dplyr::filter(num_indicators > 1) %>%
+  dplyr::summarise(score = ifelse(
+    sum(is.na(score)) == n(), NA,
+    mean(score, na.rm = TRUE)
+  )) %>%
+  dplyr::mutate(score = round(score, 3)) %>%
+  ungroup() %>% 
+  left_join(concern_subst_indicator, by = c("BHI_ID", "dimension")) %>% 
+  mutate(score = ifelse(dimension == "trend", score, score*proportion_monitored))
 ```
 
-### 4.1 Plotting Indicators for Comparison
+### 4.1 Contaminants data layers Maps & Subbasin Trends
 
-### 4.2 Number of Indicators per BHI Region and Subbasin
+Maps on the left show each indicator's status individually, and the larger map on the right shows the combined status score with PCB, PFOS, and Dioxin indicators averaged and penalized by the Concerning Substances indicator (monitored proportion). 
 
-### 4.3 Trends by BHI Region
+```{r contaminants maps and trend plots}
+mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 
-```{r plot basin trends for all indicators}
+mapdf <- bind_rows(
+  cw_con %>% 
+    select(-rgn_nam) %>% 
+    filter(dimension == "status"),
+  
+  cw_con_w_penalty %>% 
+    filter(dimension == "status") %>% 
+    tidyr::pivot_longer(
+      cols = c("proportion_monitored", "score"),
+      names_to = "indicator",
+      values_to = "score"
+    )
+)
+mapsf <- left_join(bhi_rgns_simple, mapdf, by = c("Subbasin", "BHI_ID"))
 
+indicatormaps <- basemap + 
+  geom_sf(
+    data = filter(mapsf, indicator != "score"), aes(fill = score), 
+    size = 0.1, alpha = 0.85, show.legend = FALSE
+  ) +
+  facet_wrap(~ indicator) +
+  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro")
+
+statusmap <- basemap + 
+  geom_sf(data = filter(mapsf, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
+  facet_wrap(~ indicator) +
+  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  labs(fill = "Score")
+
+trendsdf <- left_join(
+  cw_con %>% 
+    select(-rgn_nam) %>% 
+    filter(dimension == "trend") %>% 
+    tidyr::pivot_wider(names_from = indicator, values_from = score),
+  cw_con_w_penalty %>% 
+    filter(dimension == "trend") %>% 
+    select(-proportion_monitored, -Subbasin),
+  by = c("BHI_ID", "dimension")
+)
+trendsdf <- trendsdf %>% 
+  tidyr::pivot_longer(
+    cols = c("pcb", "pfos", "dioxin", "score"), 
+    names_to = "indicator",
+    values_to = "score"
+  ) %>% 
+  left_join(
+    read_csv(here::here("supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+      select(Subbasin = subbasin, subbasin_order, BHI_ID = region_id, subbasin_order),
+    by = c("Subbasin", "BHI_ID")
+  ) %>% 
+  mutate(
+    score_na = ifelse(is.na(score), 1, score),
+    indicator = ifelse(indicator == "score", "average_trend", indicator)
+  ) %>% 
+  arrange(desc(subbasin_order))
+
+trendsdf$Subbasin <- factor(
+  trendsdf$Subbasin,
+  levels = unique(trendsdf$Subbasin)
+)
+
+trendplots <- ggplot(trendsdf, aes(Subbasin, score_na, fill = score)) +
+  geom_bar(stat = "identity", position = position_dodge(), show.legend = FALSE) +
+  geom_hline(yintercept = 0, color = "grey") +
+  scale_fill_gradientn(colors = rev(mapcols), limits = c(-1, 1), na.value = "gainsboro") +
+  facet_wrap(~ indicator, nrow = 1) +
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  guides() +
+  theme_bw()
 ```
 
-### 4.4 Status Timeseries Plots
-
-### 4.5 Contaminants data layers Map
-
-<br>
+```{r visualize data layers and trends, results = "show", fig.width = 9.5, fig.height = 7}
+laymat <- rbind(
+  c(1,1,2,2), c(1,1,2,2),  c(1,1,2,2), c(1,1,2,2),
+  c(1,1,2,2), c(1,1,2,2), c(3,3,3,3), c(3,3,3,3), c(3,3,3,3)
+)
+gridExtra::grid.arrange(
+  indicatormaps, statusmap, trendplots, 
+  layout_matrix = laymat
+)
+```
 
 <br>
 
 ## 5. Considerations for `BHI3.0`
+
+From the ICES Organofluorines dataset, include PFAS in addition to PFOS. To include PFAS, a suitable reference point will need to be found.
 
 <br>
 

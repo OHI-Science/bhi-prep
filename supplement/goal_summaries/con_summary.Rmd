@@ -6,18 +6,15 @@ The Contaminant sub-goal of the Clean Water goal captures the degree to which lo
 
 All contaminant data were downloaded from the open-accessible ICES database (see below).
 
-- [ICES Database for Contaminants in Biota (PCBs, Dioxins, PFOS)](http://dome.ices.dk/views/ContaminantsBiota.aspx)
-- [ICES Database for Contaminants in Sediment (PCBs, Dioxins)](http://dome.ices.dk/views/ContaminantsSediment.aspx)
+- [ICES Database for Contaminants in Biota (PCBs, Dioxins, PFOS, and Concerning Substances)](http://dome.ices.dk/views/ContaminantsBiota.aspx)
+- [ICES Database for Contaminants in Sediment (PCBs, Dioxins, and Concerning Substances)](http://dome.ices.dk/views/ContaminantsSediment.aspx)
 - [Reference codes for PCB Congeners](https://vocab.ices.dk/?CodeID=26983)
 - [Reference codes for Dioxin Congeners](https://vocab.ices.dk/?CodeID=26986)
 
 
-Data to calculate the penalty factor were taken from: 
+Table to calculate the Concerning Substances indicator (penalty factor): 
 
-**TO BE UPDATED**
-
-<!-- -	The CHASE assessment tool to account for the chemicals monitored in the Baltic Sea - _Andersen et al 2016, Environ Monit Assess (2016) 188:115, DOI 10.1007/s10661-016-5121-x_ -->
-<!-- -	The [Candidate List (Annex XV of the REACH regulation)]((https://echa.europa.eu/candidate-list-table)), which compiles chemicals that within REACH have been identified as Substances of Very High Concern (SVHC)  -->
+- [European Chemical Agency Candidate List of substances of very high concern for Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists)
 
 
 ### 1.3 Reference points
@@ -74,4 +71,4 @@ TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/ass
 
 ### 1.4 Other information
 
-*External advisors/goalkeepers: Anna Sobek*
+External advisors/goalkeepers: Anna Sobek

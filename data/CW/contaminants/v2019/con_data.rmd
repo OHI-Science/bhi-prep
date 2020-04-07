@@ -197,6 +197,14 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
 
+2.1.4 Concerning Substances Datasets
+
+<!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_ConcerningSubstances -->
+<!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_ConcerningSubstances -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/concerning_substances_lookup.csv -->
+
+A list of concerning substances was obtained from [European Chemical Agency Candidate List of substances of very high concern for Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists) (published in accordance with Article 59(10) of the REACH Regulation). These substances were compared with those in the [ICES database](http://dome.ices.dk/views/ContaminantsBiota.aspx). Datasets for substances with ICES records were downloaded and saved in a similar manner as the PCBs, PFOS, and Organofluorines datasets.
+
 ---
 
 <br>
@@ -256,7 +264,7 @@ lapply(
 
 ###### PCBs
 
-```{r check number of years sample by country in pcb data,  results  = "show"}
+```{r check number of years sample by country in pcb data, results  = "show"}
 ## check number of dates and years sample by country, PCBs data from ICES
 ## Denmark doesn't have herring data...
 do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country){
@@ -270,7 +278,7 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
       ungroup(),
     Country = country
   ) %>% select(Country, Species, NumYrs, LatestYr)
-})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
+})) %>% DT::datatable(rownames = FALSE)
 ```
 
 ***
@@ -290,7 +298,7 @@ do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(countr
       ungroup(),
     Country = country
   ) %>% select(Country, Species, NumYrs, LatestYr)
-})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
+})) %>% DT::datatable(rownames = FALSE)
 ```
 
 ***
@@ -310,7 +318,7 @@ do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(coun
       ungroup(),
     Country = country
   ) %>% select(Country, Species, NumYrs, LatestYr)
-})) %>% DT::datatable(options = list(sDom  = '<"bottom">rrt<"top">ip'), rownames = FALSE)
+})) %>% DT::datatable(rownames = FALSE)
 ```
 
 ***
@@ -401,7 +409,6 @@ lapply(
     assign(str_remove(x, "_rawdata"), renameddf, envir = .GlobalEnv)
   }
 )
-rm("pcb_rawdata_bio", "pfos_rawdata_bio", "dioxin_rawdata_bio", "pcb_rawdata_sed", "dioxin_rawdata_sed")
 ```
 
 ---
@@ -432,8 +439,8 @@ Setting the cutoff to 0.05m (concentration measurements from sediment samples ta
 ## basemap with baltic countries borders and BHI regions with ID numbers
 bhi_rgns_simple <- rmapshaper::ms_simplify(
   input =  sf::st_read(
-    dsn = file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"), 
-    layer = "BHI_shapefile",
+    dsn = file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_corrected"), 
+    layer = "BHI_shapefile_corrected",
     quiet = TRUE
   )) %>% sf::st_as_sf()
 
@@ -475,7 +482,7 @@ dioxin_sed_depths <- basemap +
     alpha = 0.08
   ) +
   scale_color_gradient2(low = "red3", mid = "lightcoral", high = "goldenrod2", midpoint = 0.02) +
-  guides(color = guide_colorbar("Depth"), size = FALSE) +
+  guides(color = guide_colorbar("Depth (m)"), size = FALSE) +
   theme(legend.position = c(0.9, 0.8), legend.background = element_rect(color = "grey"))
 
 gridExtra::grid.arrange(
@@ -1084,7 +1091,11 @@ make_map <- function(mapdata){
       high = "lightgoldenrod",
       midpoint = 2.5
     ) +
-    facet_wrap(c("indicator", "variable"), ncol = 5)
+    facet_wrap(
+      c("indicator", "variable"), 
+      labeller = label_wrap_gen(width = 35, multi_line = FALSE), 
+      ncol = 5
+    )
 
   return(speciesmap)
 }
@@ -1102,7 +1113,7 @@ make_map <- function(mapdata){
 
 ##### Clupea Harengus
 
-```{r sampling maps herring, results = "show", echo = TRUE, fig.width = 11, fig.height = 28.2}
+```{r sampling maps herring, results = "show", echo = TRUE, fig.width = 11, fig.height = 26.7}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus")))
 ```
 
@@ -1111,7 +1122,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus"
 
 ##### Zoarces Viviparus
 
-```{r sampling maps eelpout, results = "show", echo = TRUE, fig.width = 11, fig.height = 23.8}
+```{r sampling maps eelpout, results = "show", echo = TRUE, fig.width = 11, fig.height = 22.55}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparus")))
 ```
 
@@ -1120,7 +1131,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparu
 
 ##### Perca Fluviatilis
 
-```{r sampling maps perch, results = "show", echo = TRUE, fig.width = 11, fig.height = 28.2}
+```{r sampling maps perch, results = "show", echo = TRUE, fig.width = 11, fig.height = 26.7}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatilis")))
 ```
 
@@ -1129,7 +1140,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatili
 
 ##### Platichthys Flesus
 
-```{r sampling maps flounder, results = "show", echo = TRUE, fig.width = 11, fig.height = 21.7}
+```{r sampling maps flounder, results = "show", echo = TRUE, fig.width = 11, fig.height = 20.6}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys flesus")))
 ```
 
@@ -1138,7 +1149,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys fles
 
 ##### Mytilus Edulis
 
-```{r sampling maps blue muscles, results = "show", echo = TRUE, fig.width = 11, fig.height = 17.3}
+```{r sampling maps blue muscles, results = "show", echo = TRUE, fig.width = 11, fig.height = 16.4}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")))
 ```
 
@@ -1147,7 +1158,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")
 
 ##### Uria Aalge
 
-```{r sampling maps common murre, results = "show", echo = TRUE, fig.width = 11, fig.height = 15.2}
+```{r sampling maps common murre, results = "show", echo = TRUE, fig.width = 11, fig.height = 16.4}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
 ```
 
@@ -1156,52 +1167,9 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
 
 ##### Sediments
 
-```{r sampling maps sediments, results = "show", echo = TRUE, fig.width = 11, fig.height = 17.3}
+```{r sampling maps sediments, results = "show", echo = TRUE, fig.width = 11, fig.height = 16.4}
 make_map(filter(plotdf, matrix == "sediment"))
 ```
 
 ***
-<br>
-
-#### 2.3.3 Contaminants in Biota vs Sediments
-
-Distributions of contaminant concentration values by indicator and matrix. Given the nearly exponential shape of the concentration distributions, plotting log values would makes some sense, though these are more difficult to interpret. Rescaling faceted axes of plots with actual values, to exclude outliers and focus in on 1st-3rd quartiles proved difficult (though rough  code to do this visualization was kept and commented out below).
-
-```{r contaminants in biota vs sediment histograms, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 11}
-## for boxplots, can (1) filter to remove beyond 90th quartile, or (2) log the data
-## contaminants measurements represent an exponential dist. more closely than normal
-## though logarithms are less intuitive to interpret here...
-boxdf <- plotdf %>% mutate(log_mean_val = log(mean_val))
-
-## mapping datasets for biota and sediments
-make_boxplot <- function(dataset){
-  
-  boxplot <- ggplot(dataset) + 
-    geom_boxplot(
-      # aes(x = variable, y = mean_val, color = matrix),
-      aes(x = variable, y = log_mean_val, color = matrix),
-      outlier.alpha = 0.2, 
-      outlier.shape = 20, 
-      show.legend = FALSE
-    ) + 
-    labs(x = NULL, y = NULL) + 
-    scale_color_manual(values = c("orchid", "tomato")) +
-    facet_grid(cols = vars(matrix), rows = vars(variable), scales = "free", switch = "y") +
-    coord_flip() +
-    theme(
-      axis.text.y = element_blank(),
-      axis.ticks.y.left = element_blank(),
-      panel.grid.minor.x = element_blank(), 
-      panel.grid.major.x = element_blank(),
-      strip.text.y = element_text(size = 8, angle = 180)
-    )
-  # boxplot <- boxplot + scale_y_continuous(limits = c(0, quantile(dataset$mean_val, 0.95)))
-  
-  return(boxplot)
-}
-plotpcb <- make_boxplot(boxdf %>% filter(indicator == "PCB"))
-plotdioxin <- make_boxplot(boxdf %>% filter(indicator == "DIOXIN"))
-gridExtra::grid.arrange(plotpcb, plotdioxin, ncol = 2)
-```
-
 <br>
