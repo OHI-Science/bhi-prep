@@ -22,7 +22,7 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
     # "mpas_shapefile", 
     # "BHI_shapefile_25km_buffer",
     #"HELCOM_subbasins_holasbasins",
-    "BHI_shapefile", 
+    "BHI_shapefile_corrected", 
     "ICES_areas"
   )
   
@@ -49,13 +49,6 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
       
     } else {
       warning(paste(i, "not found, check it exists in spatial directory", sp_dir))
-    }
-    
-    if(exists("BHI_rgns_shp", envir = .GlobalEnv) & "Bothian Sea" %in% unique(BHI_rgns_shp$Subbasin)){
-      BHI_rgns_shp <- BHI_rgns_shp %>% 
-        mutate(Subbasin = as.character(Subbasin)) %>% 
-        mutate(Subbasin = ifelse(Subbasin == "Bothian Sea", "Bothnian Sea", Subbasin))
-      assign("BHI_rgns_shp", BHI_rgns_shp, envir = .GlobalEnv)
     }
   }
 }
