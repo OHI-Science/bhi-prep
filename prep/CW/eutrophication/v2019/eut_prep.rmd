@@ -55,17 +55,11 @@ These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermed
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
 ```{r load datasets, echo = FALSE, include = FALSE}
-combined_secchi_rawdata <- read_csv(file.path((loc), version_year, "intermediate", "secchi_merged_rawdata.csv"))
-combined_ox_rawdata <- read_csv(file.path((dir_prep), "data", "CW", "eutrophication", version_year, "intermediate", "ox_merged_rawdata.csv"))
+combined_secchi_rawdata <- read_csv(file.path(dirname(data_path), "intermediate", "secchi_merged_rawdata.csv"))
+combined_ox_rawdata <- read_csv(file.path(dirname(data_path), "intermediate", "ox_merged_rawdata.csv"))
 ```
 
 ### 3.1 Secchi Indicator
-
-```{r}
- # select summer months (June-September) and Years >= 2000  
-  filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
-  filter(year >=2000)
-```
 
 #### 3.1.1 Match BHI regions
 
@@ -123,27 +117,114 @@ ggplot(secchi_rgns_shp) +
   geom_point(aes(month, secchi_m, colour = supplier), size = 0.3, alpha = 0.4) +
   facet_wrap(~subbasin, scales ="free_y")
 
-## Merge the secchi target (does not work)!! 
-secchi_rgns_shp <- secchi_rgns_shp %>% 
-  left_join(secchi_target, by = "subbasin")
 ```
 
 <br/>
 
 #### 3.1.2 Mean secchi Calculation
 
-**Calculate mean monthly value for each summer month** 
-basin monthly mean = mean of all samples within month and basin
+**Calculate mean monthly value for each summer month (subbasin)** 
+basin monthly mean = mean of all samples within month and subbasin
 ```{r calculate monthly mean secchi}
 
-mean_months <- secchi_rgns_shp %>% 
-  dplyr::select(year, month, suubasin, secchi_m)%>%
+sub_mean_months <- secchi_rgns_shp %>% 
+  dplyr::select(year, month, subbasin, secchi_m)%>%
   group_by(year, month, subbasin) %>%
   summarise(mean_secchi = round(mean(secchi_m, na.rm=TRUE), 1)) %>%
   ungroup()
-# head(mean_months)
+
+## Plot mean monthly value by subbasin
+ggplot(sub_mean_months) + 
+  geom_point(aes(year, mean_secchi, colour = factor(month))) +
+  geom_line(aes(year, mean_secchi, colour = factor (month))) +
+  facet_wrap (~subbasin) +
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Monthly Secchi")
+
+## There might be some outlier to check (TO-DO)
+```
+
+
+**Calculate summer mean secchi (subbasin)**
+basin summer mean = mean of basin monthly mean values
+```{r calculate mean summer secchi}
+
+sub_mean_months_summer <- sub_mean_months %>% 
+  dplyr::select(year, subbasin, mean_secchi) %>%
+  group_by(year, subbasin) %>%
+  summarise(mean_secchi = round(mean(mean_secchi,na.rm=TRUE),1)) %>%
+  filter(!is.na(subbasin)) %>% 
+  ungroup()  #in mean calculation all some months to have NA, ignore for that years calculation
+
+# Plot summer mean secchi
+ggplot(sub_mean_months_summer) + 
+  geom_point(aes(year, mean_secchi)) +
+  geom_line(aes(year, mean_secchi)) +
+  facet_wrap(~subbasin)+
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Summer Secchi")
+
+## Only few outliers to check (TO-DO)
+```
+
+**Calculate mean monthly value for each summer month (bhi basins)** 
+basin monthly mean = mean of all samples within month and bhi basins
+```{r calculate monthly mean secchi}
+
+bhi_mean_months <- secchi_rgns_shp %>% 
+  dplyr::select(year, month, bhi_id, secchi_m)%>%
+  group_by(year, month, bhi_id) %>%
+  summarise(mean_secchi = round(mean(secchi_m, na.rm=TRUE), 1)) %>%
+  ungroup()
+
+## Plot mean monthly value by bhi basin
+ggplot(bhi_mean_months) + 
+  geom_point(aes(year, mean_secchi, colour = factor(month)), size = 1.2, alpha = 0.4) +
+  geom_line(aes(year, mean_secchi, colour = factor(month)), alpha = 0.3) +
+  facet_wrap (~bhi_id) +
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Monthly Secchi")
+
+## There might be some outlier to check (TO-DO)
+```
+
+**Calculate summer mean secchi (bhi basins)**
+basin summer mean = mean of basin monthly mean values
+```{r calculate mean summer secchi}
+
+bhi_mean_months_summer <- bhi_mean_months %>% 
+  dplyr::select(year, bhi_id, mean_secchi) %>%
+  group_by(year, bhi_id) %>%
+  summarise(mean_secchi = round(mean(mean_secchi,na.rm=TRUE),1)) %>%
+  ungroup()  #in mean calculation all some months to have NA, ignore for that years calculation
+
+# Plot summer mean secchi
+ggplot(bhi_mean_months_summer) + 
+  geom_point(aes(year, mean_secchi)) +
+  geom_line(aes(year, mean_secchi)) +
+  facet_wrap(~bhi_id)+
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Summer Secchi")
+
+## There might be some outlier to check (TO-DO)
+```
+<br/>
+
+**Plot summer secchi with target values indicated**
+Horizontal lines are HELCOM target values 
+```{r summer secchi with target }
+
+target <- left_join(sub_mean_months_summer, target_secchi, by = "subbasin")
+# head(secchi_target)
+
+ggplot(secchi_target) + geom_point(aes(year,mean_secchi))+
+  geom_line(aes(year,target_secchi))+
+  facet_wrap(~basin_name)+
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Summer Secchi against Targe values")
 
 ```
+
 
 
 ## 4. Visualizing Data Layers
