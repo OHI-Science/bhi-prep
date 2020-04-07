@@ -88,23 +88,20 @@ prod_mdl <- lm(split_production ~ 0 + split_N, data = plotdf)
 ```
 
 ```{r nutrient and production estimates, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
-plotly::ggplotly(
-  ggplot(plotdf) +
-    geom_abline(slope = coef(p_mdl)[["split_production"]], intercept = 0, color = "grey") +
-    geom_point(aes(x = split_production, y = split_P), color = "blue", alpha = 0.75) +
-    labs(x = "Production", y = "Phosphorus Use\n")
-)
-plotly::ggplotly(
-  ggplot(plotdf) +
-    geom_abline(slope = coef(prod_mdl)[["split_N"]], intercept = 0, color = "grey") +
-    geom_point(aes(x = split_N, y = split_production), color = "blue", alpha = 0.75) +
-    labs(x = "Nitrogen Use\n", y = "Production")
-)
+ggplot(plotdf) +
+  geom_abline(slope = coef(p_mdl)[["split_production"]], intercept = 0, color = "grey") +
+  geom_point(aes(x = split_production, y = split_P), color = "blue", alpha = 0.75) +
+  labs(x = "Production", y = "Phosphorus Use\n")
+
+ggplot(plotdf) +
+  geom_abline(slope = coef(prod_mdl)[["split_N"]], intercept = 0, color = "grey") +
+  geom_point(aes(x = split_N, y = split_production), color = "blue", alpha = 0.75) +
+  labs(x = "Nitrogen Use\n", y = "Production")
 ```
 
 <br>
 
-#### 3.2.2 Gapfill and save MAR layes
+#### 3.2.2 Gapfill and save MAR layers
 
 ```{r gapfilling and save datasets, echo = TRUE}
 ## create dataset with nutrient ESTIMATES (kg) from COMBINED data
@@ -192,8 +189,9 @@ As noted above, the HELCOM recommnedation is 50gN and 7kgP per kg of fish. The p
 ## using gapfilled data
 plotdf <- mar_datalayers %>% 
   left_join(
-    bhiregions %>% 
-      select(region_id, country) %>% 
+    read_csv(here::here("supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+      select(region_id, country = region_name) %>% 
+      mutate(country = str_replace(country, "[A-Za-z ]+, ", "")) %>% 
       distinct(),
     by = "region_id"
   ) %>% 
@@ -311,7 +309,6 @@ Below is a map with the `MAR` goal data. Included in the map are data on product
 ```{r mar data map, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 library(leaflet)
 
-## join mar datalayers with simplified spatial data for mapping
 plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
   sf::st_as_sf() %>% 
   dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, region_id = BHI_ID, Area_km2) %>% 
@@ -333,7 +330,7 @@ palN <- leaflet::colorNumeric("RdYlBu", seq(0, 60, 0.5), "#fcfcfd", reverse = TR
 palP <- leaflet::colorNumeric("RdYlBu", seq(0, 8.4, 0.05), "#fcfcfd", reverse = TRUE)
 pal_gf <- leaflet::colorNumeric("Greys", seq(0, 1, 0.01))
 
-## create map
+## create maps
 leaflet(data = plotshp) %>% 
   addProviderTiles(providers$CartoDB.Positron) %>%
   setView(18, 59, zoom = 5) %>% 
@@ -390,6 +387,10 @@ leaflet(data = plotshp) %>%
     stroke = FALSE,
     options = pathOptions(pane = "popup")
   )
+
+
+
+
 ```
 
 <br>
@@ -400,8 +401,9 @@ leaflet(data = plotshp) %>%
 percentagegf <- ggplot(
   mar_datalayers %>% 
     left_join(
-      bhiregions %>% 
-        select(region_id, country) %>% 
+      read_csv(here::here("supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+        select(region_id, country = region_name) %>% 
+        mutate(country = str_replace(country, "[A-Za-z ]+, ", "")) %>% 
         distinct(),
       by = "region_id"
     ) %>% 
@@ -422,7 +424,7 @@ percentagegf +
 
 ## 5. Considerations for `BHI3.0`
 
-If more adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles). In particular, regarding Sweden, there are reports (e.g. page 8, table 9 https://www.scb.se/contentassets/8964475d3a8b4aa88af32e4fcbc248eb/jo1201_2014a01_sm_jo60sm1501.pdf) where information about rainbow trout production in "other coasts" is split into two areas: sounth-eastern coast and south-western coast. However, these data are only available until 2014.  
+If more adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles). In particular, regarding Sweden, there are reports (e.g. [page 8, table 9](https://www.scb.se/contentassets/8964475d3a8b4aa88af32e4fcbc248eb/jo1201_2014a01_sm_jo60sm1501.pdf)) where information about rainbow trout production in "other coasts" is split into two areas: sounth-eastern coast and south-western coast. However, these data are only available until 2014.  
 
 <br>
 
@@ -430,3 +432,5 @@ If more adequate data are available, mariculture sites may be matched to BHI reg
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
+
+<br>
