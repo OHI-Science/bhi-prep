@@ -14,13 +14,17 @@ Contains subfolders for each goal/subgoal, pressure and resilience dimensions an
 
 Contains subfolders for each goal/subgoal, pressure and resilience dimensions and within those subfolders for each assessment year, identical to `data` folder structure. These subfolders of the `prep` folder contain scripts for converting, combining, rescaling, or otherwise deriving BHI input data layers. The line between this 'prep' step and the actual modeling of the BHI goals is somewhat arbitrary, but generally ...
 
-**`ref`**  
+**`supplement`**  
 
 Background information on the BHI goals -the meaning of or philosophy the goals, and the data sources behind them- is documented in the `goal_summaries` subfolder. General reference/lookup tables are stored in `lookup_tabs`. 
 
 **`R`**  
 
-A folder containing R functions used throughout the data prep process, and to keep the repo tidy. Functions are subdivided in to multiple -hopefully helpfully named- scripts. 
+A folder containing functions used throughout the data prep process, and to keep the repo tidy. Functions are subdivided in to multiple -hopefully helpfully named- scripts. 
+
+**`layers`**  
+
+Contains data prepared, quality-checked, and ready to be used in calculating the BHI goal scores and Index. All prepared layers are saved to this folder, potentially including multiple versions of a certain layer to be used in different analyses e.g. in evaluating the effect of using different reference points, or in testing scenarios. This is the folder of possible layers to be copied to the `bhi` repo for index calculations.
 
 ---
 
