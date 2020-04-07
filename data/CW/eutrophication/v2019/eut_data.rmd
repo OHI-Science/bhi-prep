@@ -3,6 +3,7 @@
 
 ```{r Preamble, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "data.R"))
+source(here::here("R", "spatial.R"))
 ```
 
 For the Eutrophication sub-goal five indicators were included:
@@ -153,13 +154,6 @@ eut_thresholds <- eut_thresholds_values %>%
          oxyg_debt = str_replace(oxyg_debt, "N", " "),
          oxyg_debt = as.numeric(oxyg_debt))
 
-#select just summer_seccchi target
-secchi_target <- eut_thresholds %>% 
-  dplyr::select(Subbasin = basin, secchi_target = summer_secchi) %>%
-  mutate(Subbasin = str_replace_all(Subbasin, "_", " "),
-         secchi_target = as.factor(secchi_target))   
-
-
 str(eut_thresholds)
 str(basin_lookup_table)
 ```
@@ -173,6 +167,13 @@ str(basin_lookup_table)
 ## read in secchi data
 secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), sep = ";")
 secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
+
+# secchi thresholds
+secchi_target <- eut_thresholds %>% 
+  dplyr::select(Subbasin = basin, secchi_target = summer_secchi) %>%
+  mutate(Subbasin = str_replace_all(Subbasin, "_", " "),
+         secchi_target = as.character(secchi_target))   
+
 ```
 <br/>
 
@@ -276,9 +277,13 @@ new_smhi_unique <- setdiff(dplyr::select(smhi_unique,-supplier), dplyr::select(i
 ## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
 secchi <- bind_rows(ices_unique, new_smhi_unique) %>% 
   distinct() %>% # 146572 tot observations (as for method 2)
-  # select summer months (June-September) and Years >= 2000  
-  filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
-  filter(year >=2000)
+  rename(secchi_m = secchi) 
+
+# Save dataset (bhi-prep)
+readr::write_csv(
+  secchi, 
+  here::here("data", "CW", "eutrophication", version_year, "intermediate", "secchi_merged_rawdata.csv")
+)
 ```
 <br/>
 
@@ -371,52 +376,19 @@ secchi_unique <- secchi %>%
 ```
 <br/>
 
-
-**SECCHI SPATIAL VISUALIZATION**
-```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, out.width = "100%"}
-# assign secchi data to bhi basins
-secchi_rgns_shp <- join_rgns_info(
-  secchi, helcomID_col = "helcom_id", country_col = "country", 
-                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
-                           rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL)
-
-## Merge the secchi target (does not work)!! 
-secchi_rgns_shp <- secchi_rgns_shp %>% 
-  left_join(secchi_target, by = "Subbasin")
-
-# Plot by bhi regions
-ggplot(secchi_rgns_shp) + 
-  geom_point(aes(month, secchi, colour = supplier)) +
-  facet_wrap(~BHI_ID, scales ="free_y")
-
-ggplot(secchi_rgns_shp) + 
-  geom_point(aes(year ,secchi, colour = supplier)) +
-  facet_wrap(~BHI_ID)
-
-# Plot by subbasins
-ggplot(secchi_rgns_shp) + 
-  geom_point(aes(month, secchi, colour = supplier)) +
-  facet_wrap(~Subbasin, scales ="free_y")
-
-ggplot(secchi_rgns_shp) + 
-  geom_point(aes(year, secchi, colour = supplier)) +
-  facet_wrap(~Subbasin, scales ="free_y")
-
-```
-
-
 **Oxygen data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
 ## Check for duplicates in all national datasets
-oxswe_duplicates <- oxswe %>%
+oxden2_duplicates <- oxden2 %>%
   # oxden2_duplicates <- oxden2 %>%
   # oxden3_duplicates <- oxden3 %>%
   # oxden4_duplicates <- oxden4 %>%
   # oxden5_duplicates <- oxden5 %>%
   # oxest_duplicates <- oxest %>%
   # oxfin_duplicates <- oxfin %>%
-  # oxger_duplicates <- oxger %>%
+  # oxger1_duplicates <- oxger1 %>%
+  # oxger2_duplicates <- oxger2 %>%
   # oxlat_duplicates <- oxlat %>%
   # oxlit_duplicates <- oxlit %>%
   # oxpol_duplicates <- oxpol %>%
@@ -428,14 +400,15 @@ oxswe_duplicates <- oxswe %>%
     ungroup()
 
 # Only extract unique observations
-oxswe_unique <- oxswe %>% 
+oxpol_unique <- oxpol %>% 
   # oxden2_unique <- oxden2 %>%
   # oxden3_unique <- oxden3 %>%
   # oxden4_unique <- oxden4 %>%
   # oxden5_unique <- oxden5 %>%
   # oxest_unique <- oxest %>%
   # oxfin_unique <- oxfin %>%
-  # oxger_unique <- oxger %>%
+  # oxger1_unique <- oxger1 %>%
+  # oxger2_unique <- oxger2 %>%
   # oxlat_unique <- oxlat %>%
   # oxlit_unique <- oxlit %>%
   # oxpol_unique <- oxpol %>%
@@ -613,9 +586,9 @@ readr::write_csv(
 ```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, fig.height= 25, fig.width=11}
 # assign secchi data to bhi basins
 oxyg_rgns_shp <- join_rgns_info(
-  oxygen, helcomID_col = "helcom_id", country_col = "country", 
-                           latlon_vars = c("^lat", "^lon"), return_spatial = TRUE, 
-                           rgn_shps_loc = file.path(dir_B, "Spatial"), buffer_shp = NULL)
+  class(oxygen), helcomID_col = "helcom_id", country_col = "country", 
+                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+                           rgn_shps_loc = file.path(dir_B, "Shapefiles"), buffer_shp = NULL)
 
 ## Merge the oxygen target (does not work)!! 
 secchi_rgns_shp <- secchi_rgns_shp %>% 
