@@ -24,4 +24,3 @@ if(!file.exists(dir_B)){
 ## Global ----
 assess_year <- 2019 # CHANGE BHI ASSESSMENT YEAR HERE!
 version_year <- paste0("v", assess_year)
-bhi_version <- "v2019"
