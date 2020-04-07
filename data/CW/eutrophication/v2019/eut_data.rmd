@@ -169,10 +169,9 @@ secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "Secchi
 secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
 
 # secchi thresholds
-secchi_target <- eut_thresholds %>% 
-  dplyr::select(Subbasin = basin, secchi_target = summer_secchi) %>%
-  mutate(Subbasin = str_replace_all(Subbasin, "_", " "),
-         secchi_target = as.character(secchi_target))   
+target_secchi <- eut_thresholds %>% 
+  dplyr::select(subbasin = basin, target_secchi = summer_secchi) %>%
+  mutate(subbasin = str_replace_all(subbasin, "_", " "))
 
 ```
 <br/>
