@@ -1,8 +1,6 @@
 
 <!-- GOAL_DATA.RMD -->
 
-## 2. Data
-
 ```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
 ```
