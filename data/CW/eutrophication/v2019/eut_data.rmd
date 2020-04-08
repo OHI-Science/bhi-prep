@@ -150,12 +150,12 @@ eut_thresholds <- eut_thresholds_values %>%
          summer_chla = Chla.._g.l.1., summer_secchi = Water.clarity..m., oxyg_debt = O2..mg.l.1.) %>% 
   select(basin, winter_DIN, winter_DIP, summer_chla, summer_secchi, oxyg_debt) %>% 
   mutate(basin = str_replace_all(basin,"_",""),
+         basin = str_trim(basin, side = "right"),
          ## ‘N’ means that the indicator is not applicable there, so it will be replaced as NA
          oxyg_debt = str_replace(oxyg_debt, "N", " "),
-         oxyg_debt = as.numeric(oxyg_debt))
+         oxyg_debt = as.numeric(oxyg_debt)) 
 
 str(eut_thresholds)
-str(basin_lookup_table)
 ```
 <br/>
 
@@ -170,8 +170,7 @@ secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "Secchi
 
 # secchi thresholds
 target_secchi <- eut_thresholds %>% 
-  dplyr::select(subbasin = basin, target_secchi = summer_secchi) %>%
-  mutate(subbasin = str_replace_all(subbasin, "_", " "))
+  dplyr::select(subbasin = basin, target_secchi = summer_secchi) 
 
 ```
 <br/>
