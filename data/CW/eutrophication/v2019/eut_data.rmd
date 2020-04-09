@@ -155,7 +155,7 @@ eut_thresholds <- eut_thresholds_values %>%
          oxyg_debt = str_replace(oxyg_debt, "N", " "),
          oxyg_debt = as.numeric(oxyg_debt)) 
 
-str(eut_thresholds)
+
 ```
 <br/>
 
@@ -163,15 +163,9 @@ str(eut_thresholds)
 
 **Secchi data**
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-
 ## read in secchi data
 secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), sep = ";")
 secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
-
-# secchi thresholds
-target_secchi <- eut_thresholds %>% 
-  dplyr::select(subbasin = basin, target_secchi = summer_secchi) 
-
 ```
 <br/>
 
@@ -580,37 +574,6 @@ readr::write_csv(
 ```
 <br/>
 
-**OXYGEN SPATIAL VISUALIZATION**
-```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, fig.height= 25, fig.width=11}
-# assign secchi data to bhi basins
-oxyg_rgns_shp <- join_rgns_info(
-  class(oxygen), helcomID_col = "helcom_id", country_col = "country", 
-                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
-                           rgn_shps_loc = file.path(dir_B, "Shapefiles"), buffer_shp = NULL)
-
-## Merge the oxygen target (does not work)!! 
-secchi_rgns_shp <- secchi_rgns_shp %>% 
-  left_join(secchi_target, by = "Subbasin")
-
-# Plot by bhi regions
-ggplot(oxyg_rgns_shp) + 
-  geom_point(aes(year, oxygen_ml_l), size = 0.3, alpha = 0.4) +
-  facet_grid(cols = vars(country), rows = vars(BHI_ID))
-
-# Plot by subbasins
-ggplot(oxyg_rgns_shp) + 
-  geom_point(aes(year, oxygen_ml_l, colour = country), size = 0.7) +
-  facet_wrap(~Subbasin, scales ="free_y") +
-  
-
-# Plot by country
-ggplot(oxyg_rgns_shp) + 
-  geom_point(aes(year, oxygen_ml_l), size = 0.7) +
-  facet_wrap(~country, scales ="free_y")
-
-```
-
-
 **Chlorophyll a data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
@@ -622,9 +585,9 @@ colnames(nutrient)
 str(nutrient)
 
 chla <- chlorophyll %>% 
-  rename(chl = CHL,  date = OBSDATE, 
-                lat = LATITUDE, lon = LONGITUDE, 
-                cruise = SHIP, id = ID, depth = OBSDEP) %>%
+  rename(chla_ug_l = CHL,  date = OBSDATE, 
+         lat = LATITUDE, lon = LONGITUDE, 
+         cruise = SHIP, id = ID, depth_m = OBSDEP) %>%
   select(-OBSTIME) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"))
