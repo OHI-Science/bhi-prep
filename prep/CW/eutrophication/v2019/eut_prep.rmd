@@ -325,6 +325,52 @@ ggplot(rbind(bhi_status, bhi_trend)) +
 
 NOTE: Look at status transformation from BHI 1.0!!!
 
+### 3.2 Oxygen Debt Indicator
+
+#### 3.2.1 Match BHI regions
+
+**Spatial visualization of Oxygen data**
+```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, fig.height= 25, fig.width=11}
+# assign secchi data to bhi basins
+oxyg_rgns_shp <- join_rgns_info(
+  class(combined_ox_rawdata), helcomID_col = "helcom_id", country_col = "country", 
+                           latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+                           rgn_shps_loc = file.path(dirname(dir_B), "Shapefile"), buffer_shp = NULL)
+
+# Plot by bhi regions
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l), size = 0.3, alpha = 0.4) +
+  facet_grid(cols = vars(country), rows = vars(bhi_id))
+
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l), size = 0.3, alpha = 0.4) +
+  facet_wrap(~bhi_id, scales ="free_y")
+
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(month, oxygen_ml_l), size = 0.3, alpha = 0.4) +
+  facet_wrap(~bhi_id, scales ="free_y")
+
+# Plot by subbasins
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l), size = 0.3, alpha = 0.4) +
+  facet_grid(cols = vars(subbasin), rows = vars(country))
+
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l, colour = country), size = 0.7) +
+  facet_wrap(~Subbasin, scales ="free_y") 
+
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(month, oxygen_ml_l, colour = country), size = 0.7) +
+  facet_wrap(~Subbasin, scales ="free_y") 
+  
+# Plot by country
+ggplot(oxyg_rgns_shp) + 
+  geom_point(aes(year, oxygen_ml_l), size = 0.7) +
+  facet_wrap(~country, scales ="free_y")
+
+```
+
+
 ## 4. Visualizing Data Layers
 
 ### 4.1 Map
