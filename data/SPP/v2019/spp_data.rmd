@@ -227,6 +227,16 @@ insect_check <- intersect(unique(full_obs_checklist_2016$scientific_name), uniqu
 
 length(insect_check)  #99 unique insect species, need to summarise insects to family level
 
+# Use HELCOM species id list to identify insect species with current dataset (Approach 2)
+
+helcom_insect_list <- read.csv(file.path("C:/Users/Chester Gan/Downloads", "species id HELCOM.csv"), stringsAsFactors = FALSE) %>%
+  select(scientific_name, id, class) %>%
+  filter(class == "Insecta")
+
+helcom_insect_check <- intersect(unique(full_obs_checklist_2016$scientific_name), unique(helcom_insect_list$scientific_name))
+
+length(helcom_insect_check) #105 unique insect species, need to summarise to family level
+
 ```
 
 #### 2.4.3 Reorganise into Presence/Absence
