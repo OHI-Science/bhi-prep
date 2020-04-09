@@ -171,20 +171,20 @@ secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "Secchi
 
 **Oxygen**
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-oxden1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2000-2001ox.csv"), sep = ",")
-oxden2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2002-2004ox.csv"), sep = ",")
-oxden3 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2005-2009ox.csv"), sep = ",")
-oxden4 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2010-2014ox.csv"), sep = ",")
-oxden5 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "denmarkox", "denmark2015-2020ox.csv"), sep = ",")
-oxest <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "estoniaox", "estoniaox.csv"), sep = ",")
-oxfin <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "finlandox", "finlandox.csv"), sep = ",")
-oxger1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "germanyox", "germany2000-2009ox.csv"), sep = ",")
-oxger2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "germanyox", "germany2010-2020ox.csv"), sep = ",")
-oxlat <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "latviaox", "latviaox.csv"), sep = ",")
-oxlit <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "lithuaniaox", "lithuaniaox.csv"), sep = ",")
-oxpol <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "polandox", "polandox.csv"), sep = ",")
-oxrus <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "russiaox", "russiaox.csv"), sep = ",")
-oxswe <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "swedenox", "swedenox.csv"), sep = ",")
+oxden1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "denmarkox", "denmark2000-2001ox.csv"), sep = ",")
+oxden2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "denmarkox", "denmark2002-2004ox.csv"), sep = ",")
+oxden3 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "denmarkox", "denmark2005-2009ox.csv"), sep = ",")
+oxden4 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "denmarkox", "denmark2010-2014ox.csv"), sep = ",")
+oxden5 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "denmarkox", "denmark2015-2020ox.csv"), sep = ",")
+oxest <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "estoniaox", "estoniaox.csv"), sep = ",")
+oxfin <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "finlandox", "finlandox.csv"), sep = ",")
+oxger1 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "germanyox", "germany2000-2009ox.csv"), sep = ",")
+oxger2 <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "germanyox", "germany2010-2020ox.csv"), sep = ",")
+oxlat <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "latviaox", "latviaox.csv"), sep = ",")
+oxlit <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "lithuaniaox", "lithuaniaox.csv"), sep = ",")
+oxpol <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "polandox", "polandox.csv"), sep = ",")
+oxrus <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "russiaox", "russiaox.csv"), sep = ",")
+oxswe <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", "oxygen", "swedenox", "swedenox.csv"), sep = ",")
 ```
 <br/>
 
