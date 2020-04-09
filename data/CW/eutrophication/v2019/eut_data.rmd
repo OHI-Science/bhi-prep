@@ -585,10 +585,9 @@ colnames(nutrient)
 str(nutrient)
 
 chla <- chlorophyll %>% 
-  rename(chla_ug_l = CHL,  date = OBSDATE, 
+  rename(chla_ug_l = CHL,  date = OBSDATE, time = OBSTIME,
          lat = LATITUDE, lon = LONGITUDE, 
          cruise = SHIP, id = ID, depth_m = OBSDEP) %>%
-  select(-OBSTIME) %>% 
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"))
 
@@ -599,6 +598,12 @@ chla_duplicates <- chla %>%
     summarise(n = n()) %>%
     filter(n > 1) %>%
     ungroup() #no duplicates
+
+# Save dataset (bhi-prep)
+readr::write_csv(
+  chla, 
+  here::here("data", "CW", "eutrophication", version_year, "intermediate", "chla_rawdata.csv")
+)
 ```
 <br/>
 
