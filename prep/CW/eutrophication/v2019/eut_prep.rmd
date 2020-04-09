@@ -25,6 +25,10 @@ basin_lookup <- basin_lookup_table %>%
   dplyr::select(bhi_id = BHI_ID, subbasin = Subbasin) %>% 
   mutate(subbasin = as.character(subbasin))
 
+dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
+eut_thresholds_values <- read.delim(file.path(dir_rawdata, "eut_threshold_values.csv"), sep = ";")
+
+
 source(here::here("R", "spatial.R"))
 regions_shape()
 buffer_sf <- st_read(
@@ -63,6 +67,16 @@ These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermed
 ```{r load datasets, echo = FALSE, include = FALSE}
 combined_secchi_rawdata <- read_csv(file.path(dirname(data_path), "intermediate", "secchi_merged_rawdata.csv"))
 combined_ox_rawdata <- read_csv(file.path(dirname(data_path), "intermediate", "ox_merged_rawdata.csv"))
+
+eut_thresholds <- eut_thresholds_values %>% 
+  rename(basin = Assessment.units, winter_DIN = DIN.._mol.l.1., winter_DIP = DIP.._mol.l.1., 
+         summer_chla = Chla.._g.l.1., summer_secchi = Water.clarity..m., oxyg_debt = O2..mg.l.1.) %>% 
+  select(basin, winter_DIN, winter_DIP, summer_chla, summer_secchi, oxyg_debt) %>% 
+  mutate(basin = str_replace_all(basin,"_",""),
+         basin = str_trim(basin, side = "right"),
+         ## ‘N’ means that the indicator is not applicable there, so it will be replaced as NA
+         oxyg_debt = str_replace(oxyg_debt, "N", " "),
+         oxyg_debt = as.numeric(oxyg_debt)) 
 ```
 
 ### 3.1 Secchi Indicator
@@ -213,10 +227,13 @@ ggplot(bhi_mean_months_summer) +
 **Plot summer secchi with target values indicated**
 Horizontal lines are HELCOM target values 
 ```{r summer secchi with target }
-target <- left_join(sub_mean_months_summer, target_secchi, by = "subbasin")
+# secchi thresholds
+target_secchi <- eut_thresholds %>% 
+  dplyr::select(subbasin = basin, target_secchi = summer_secchi) 
+sub_target_secchi <- left_join(sub_mean_months_summer, target_secchi, by = "subbasin")
 # head(secchi_target)
 
-ggplot(target) + 
+ggplot(sub_target_secchi) + 
   geom_point(aes(year, mean_secchi)) +
   geom_line(aes(year, target_secchi)) +
   facet_wrap(~subbasin) +
@@ -235,7 +252,7 @@ For these seven basins, their most recent year's data is used for current status
 
 ```{r what is the last year, results = "hide"}
 ## get the last year of non-NA data
-last_year = target %>%
+last_year = sub_target_secchi %>%
   filter(!is.na(mean_secchi)) %>%
   group_by(subbasin) %>%
   summarise(last_year = last(year)) %>%
@@ -260,10 +277,10 @@ future_year = 5        # the year at which we want the likely future status
 min_regr_length = 5    # min actual number of years with data to use for regression.
 
 ## Basin data with target
-target
+sub_target_secchi
 
 ## Calculate basin status = basin_mean/basin_target
-basin_status <- target %>%
+basin_status <- sub_target_secchi %>%
   mutate(., status =  pmin(1, mean_secchi/target_secchi)) %>%
   dplyr::select(subbasin, year, status) 
 
@@ -322,6 +339,7 @@ ggplot(rbind(bhi_status, bhi_trend)) +
   facet_wrap(~dimension, scales = "free_y") +
   xlab("BHI region")
 ```
+<br>
 
 NOTE: Look at status transformation from BHI 1.0!!!
 
@@ -369,7 +387,265 @@ ggplot(oxyg_rgns_shp) +
   facet_wrap(~country, scales ="free_y")
 
 ```
+<br>
 
+### 3.3 Chlorophyll a Indicator
+
+#### 3.3.1 Match BHI regions
+
+```{r assign BHI regions to Secchi data, echo = TRUE, message = FALSE, warning = FALSE}
+# before assigning bhi basins to secchi data, run this function first:
+regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
+ 
+# assign bhi basins to secchi data 
+chla_rgns_shp <- join_rgns_info(
+  chla, helcomID_col = "helcom_id", country_col = "country", 
+  latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefile"), buffer_shp = NULL) %>% 
+  # select summer months (June-September) and Years >= 2000  
+  filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
+  filter(year >=2000,
+         ## filter surface layer (0 - 10 m depth)
+         depth_m <= 10,
+         !is.na(BHI_ID)) %>% 
+  rename(country = rgn_nam,
+         ctry_key = rgn_key,
+         subbasin = Subbasin,
+         helcom_id = HELCOM_ID,
+         bhi_id = BHI_ID,
+         ices_area = ICES_area)
+```
+
+**Spatial Visualization of chlorophyll a data**
+```{r}
+# Plot by bhi regions
+ggplot(chla_rgns_shp) + 
+  geom_point(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
+  facet_grid(cols = vars(country), rows = vars(bhi_id))
+
+ggplot(chla_rgns_shp) + 
+  geom_point(aes(year, chla_ug_l, colour = country), size = 0.3, alpha = 0.4) +
+  facet_wrap(~bhi_id, scales ="free_y")
+
+ggplot(chla_rgns_shp) + 
+  geom_point(aes(month, chla_ug_l, colour = country), size = 0.3, alpha = 0.4) +
+  facet_wrap(~bhi_id, scales ="free_y")
+
+# Plot by subbasins
+ggplot(chla_rgns_shp) + 
+  geom_point(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
+  facet_grid(cols = vars(subbasin), rows = vars(country))
+
+ggplot(chla_rgns_shp) + 
+  geom_point(aes(year, chla_ug_l, colour = country), size = 0.3, alpha = 0.4) +
+  facet_wrap(~subbasin, scales ="free_y")
+
+ggplot(chla_rgns_shp) + 
+  geom_point(aes(month, chla_ug_l, colour = country), size = 0.3, alpha = 0.4) +
+  facet_wrap(~subbasin, scales ="free_y")
+
+```
+
+<br/>
+
+#### 3.3.2 Mean Chl a Calculation
+
+**Calculate mean monthly value for each summer month (subbasin)** 
+basin monthly mean = mean of all samples within month and subbasin
+```{r calculate monthly mean chl a}
+sub_mean_chla_months <- chla_rgns_shp %>% 
+  dplyr::select(year, month, subbasin, chla_ug_l)%>%
+  group_by(year, month, subbasin) %>%
+  summarise(mean_chla = round(mean(chla_ug_l, na.rm = TRUE), 1)) %>%
+  ungroup()
+
+## Plot mean monthly value by subbasin
+ggplot(sub_mean_chla_months) + 
+  geom_point(aes(year, mean_chla, colour = factor(month)), size = 1.2, alpha = 0.4) +
+  geom_line(aes(year, mean_chla, colour = factor (month))) +
+  facet_wrap (~subbasin) +
+  scale_y_continuous(limits = c(0, 10)) +
+  ggtitle("Mean Monthly Chl a")
+
+## There might be some outlier to check (TO-DO)
+```
+
+**Calculate summer mean chl a (subbasin)**
+basin summer mean = mean of basin monthly mean values
+```{r calculate mean summer chl a}
+sub_mean_chla_months_summer <- sub_mean_chla_months %>% 
+  dplyr::select(year, subbasin, mean_chla) %>%
+  group_by(year, subbasin) %>%
+  summarise(mean_chla = round(mean(mean_chla, na.rm = TRUE), 1)) %>%
+  ungroup()  #in mean calculation all some months to have NA, ignore for that years calculation
+
+# Plot summer mean secchi
+ggplot(sub_mean_chla_months_summer) + 
+  geom_point(aes(year, mean_chla)) +
+  geom_line(aes(year, mean_chla)) +
+  facet_wrap(~subbasin) +
+  scale_y_continuous(limits = c(0, 10)) +
+  ggtitle("Mean Summer Chl a")
+
+## Only few outliers to check (TO-DO)
+```
+
+**Calculate mean monthly value for each summer month (bhi basins)** 
+basin monthly mean = mean of all samples within month and bhi basins
+```{r calculate monthly mean chl a}
+bhi_mean_chla_months <- chla_rgns_shp %>% 
+  dplyr::select(year, month, bhi_id, chla_ug_l)%>%
+  group_by(year, month, bhi_id) %>%
+  summarise(mean_chla = round(mean(chla_ug_l, na.rm = TRUE), 1)) %>%
+  ungroup()
+
+## Plot mean monthly value by bhi basin
+ggplot(bhi_mean_chla_months) + 
+  geom_point(aes(year, mean_chla, colour = factor(month)), size = 1.2, alpha = 0.4) +
+  geom_line(aes(year, mean_chla, colour = factor(month)), alpha = 0.3) +
+  facet_wrap (~bhi_id) +
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Monthly Chl a")
+
+## There might be some outlier to check (TO-DO)
+```
+
+**Calculate summer mean chl a (bhi basins)**
+basin summer mean = mean of basin monthly mean values
+```{r calculate mean summer chl a}
+bhi_mean_chla_months_summer <- bhi_mean_chla_months %>% 
+  dplyr::select(year, bhi_id, mean_chla) %>%
+  group_by(year, bhi_id) %>%
+  summarise(mean_chla = round(mean(mean_chla,na.rm = TRUE), 1)) %>%
+  ungroup()  #in mean calculation all some months to have NA, ignore for that years calculation
+
+# Plot summer mean chl a
+ggplot(bhi_mean_chla_months_summer) + 
+  geom_point(aes(year, mean_chla)) +
+  geom_line(aes(year, mean_chla)) +
+  facet_wrap(~bhi_id)+
+  scale_y_continuous(limits = c(0, 10)) +
+  ggtitle("Mean Summer Chl a")
+
+## There might be some outlier to check (TO-DO)
+```
+
+**Plot summer chla with target values indicated**
+Horizontal lines are HELCOM target values 
+```{r summer secchi with target }
+# chla thresholds
+target_chla <- eut_thresholds %>% 
+  dplyr::select(subbasin = basin, target_chla = summer_chla) 
+sub_target_chla <- left_join(sub_mean_chla_months_summer, target_chla, by = "subbasin")
+
+ggplot(sub_target_chla) + 
+  geom_point(aes(year, mean_chla)) +
+  geom_line(aes(year, target_chla)) +
+  facet_wrap(~subbasin) +
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Summer Secchi against Target values")
+```
+<br/>
+
+#### 3.3.3 Status Calculation
+
+##### 3.3.3.1 Explore status years
+
+All basins have data for 2018, which will be used as the status year, except for five basins: 
+- Aland Sea (2017), Bay of Mecklenburg (2010), Great Belt (2014), Kiel Bay (2010), and The Quark (2013).
+
+For these seven basins, their most recent year's data is used for current status calculations. 
+
+```{r what is the last year, results = "hide"}
+## get the last year of non-NA data
+last_year <- sub_target_chla %>%
+  filter(!is.na(mean_chla)) %>%
+  group_by(subbasin) %>%
+  summarise(last_year = last(year)) %>%
+  print(n=15)
+
+## which are not in 2019
+last_year %>% filter(last_year < 2018)
+```
+
+##### 3.3.3.2 Calculate status for each subbasin
+
+**Status calculation with raw (non-modeled) mean summer chl a by subbasin** 
+
+Status must be calculated in data prep because it's calculated on the basin level and then applied to all regions.  
+
+```{r Status calculation}
+## Define constants for status calculation
+min_year = 2000        # earliest year to use as a start for regr_length timeseries
+##data already filtered for 
+regr_length = 10       # number of years to use for regression
+future_year = 5        # the year at which we want the likely future status
+min_regr_length = 5    # min actual number of years with data to use for regression.
+
+## Basin data with target
+sub_target_chla
+
+## Calculate basin status = basin_mean/basin_target
+sub_status_chla <- sub_target_chla %>%
+  mutate(., status =  pmin(1, mean_chla/target_chla)) %>%
+  dplyr::select(subbasin, year, status) 
+
+## Assign basin status to BHI regions
+bhi_status_chla <- sub_status_chla %>%
+  group_by(subbasin) %>%
+  filter(year == max(year)) %>% #select last year of data for status in each basin (this means status year differs by basin)
+  mutate(status = round(status*100)) %>% #status is whole number 0-100
+  ungroup() %>%
+  left_join(basin_lookup, by = "subbasin") %>% #join bhi regions to basins
+  mutate(dimension = 'status') %>%
+  dplyr::select(bhi_id, dimension, score=status)
+
+```
+<br/>
+
+##### 3.3.3.3 Calculate Trend 
+
+```{r trend calculation}
+## Calculate basin trend
+sub_trend_chla <- sub_status_chla %>%
+  group_by(subbasin) %>%
+  do(tail(. , n = regr_length)) %>%  # calculate trend only if there is at least X years of data (min_regr_length) in the last Y years of time serie (regr_length)
+  do({if(sum(!is.na(.$status)) >= min_regr_length)
+    data.frame(trend_score = 
+                 max(-1, min(1, coef(lm(status ~ year, .))['year'] * future_year)))
+    else data.frame(trend_score = NA)}) %>%
+  ungroup() 
+### NA values??
+
+## Assign basin trend to BHI regions
+bhi_trend_chla <- left_join(basin_lookup, sub_trend_chla, by = "subbasin") %>%
+  mutate(score = round(trend_score,2),
+         dimension = "trend")%>%
+  dplyr::select(bhi_id, dimension, score )
+```
+
+
+##### 3.3.3.4 Plot Status and Trend
+
+**Plot basin status**
+Basin status is initially a value between 0 - 1.  Calculated for each year between 2000 and 2018.  
+```{r plot basin status}
+ggplot(sub_status_chla) + 
+  geom_point((aes(year, status))) +
+  facet_wrap(~subbasin) +
+  theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+                                   hjust=.5, vjust=.5, face = "plain"))
+```
+
+**Plot BHI region status and trend values**
+Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
+```{r bhi status and trend plot}
+ggplot(rbind(bhi_status_chla, bhi_trend_chla)) + 
+  geom_point(aes(bhi_id, score), size=2) +
+  facet_wrap(~dimension, scales = "free_y") +
+  xlab("BHI region")
+```
+<br>
 
 ## 4. Visualizing Data Layers
 
