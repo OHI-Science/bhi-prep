@@ -150,12 +150,12 @@ eut_thresholds <- eut_thresholds_values %>%
          summer_chla = Chla.._g.l.1., summer_secchi = Water.clarity..m., oxyg_debt = O2..mg.l.1.) %>% 
   select(basin, winter_DIN, winter_DIP, summer_chla, summer_secchi, oxyg_debt) %>% 
   mutate(basin = str_replace_all(basin,"_",""),
+         basin = str_trim(basin, side = "right"),
          ## ‘N’ means that the indicator is not applicable there, so it will be replaced as NA
          oxyg_debt = str_replace(oxyg_debt, "N", " "),
-         oxyg_debt = as.numeric(oxyg_debt))
+         oxyg_debt = as.numeric(oxyg_debt)) 
 
-str(eut_thresholds)
-str(basin_lookup_table)
+
 ```
 <br/>
 
@@ -163,16 +163,9 @@ str(basin_lookup_table)
 
 **Secchi data**
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-
 ## read in secchi data
 secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), sep = ";")
 secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
-
-# secchi thresholds
-target_secchi <- eut_thresholds %>% 
-  dplyr::select(subbasin = basin, target_secchi = summer_secchi) %>%
-  mutate(subbasin = str_replace_all(subbasin, "_", " "))
-
 ```
 <br/>
 
@@ -535,7 +528,6 @@ oxboxplot <- ggplot(boxplotdf) +
 gridExtra::grid.arrange(oxmap, oxtsplot, oxboxplot, layout_matrix = rbind(c(1,1),c(1,1),c(2,3)))
 ```
 
-
 **Chlorophyll a data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
@@ -547,10 +539,9 @@ colnames(nutrient)
 str(nutrient)
 
 chla <- chlorophyll %>% 
-  rename(chl = CHL,  date = OBSDATE, 
-                lat = LATITUDE, lon = LONGITUDE, 
-                cruise = SHIP, id = ID, depth = OBSDEP) %>%
-  select(-OBSTIME) %>% 
+  rename(chla_ug_l = CHL,  date = OBSDATE, time = OBSTIME,
+         lat = LATITUDE, lon = LONGITUDE, 
+         cruise = SHIP, id = ID, depth_m = OBSDEP) %>%
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
          date =  as.Date(date), month = format(date, "%m"))
 
@@ -561,6 +552,12 @@ chla_duplicates <- chla %>%
     summarise(n = n()) %>%
     filter(n > 1) %>%
     ungroup() #no duplicates
+
+# Save dataset (bhi-prep)
+readr::write_csv(
+  chla, 
+  here::here("data", "CW", "eutrophication", version_year, "intermediate", "chla_rawdata.csv")
+)
 ```
 <br/>
 
