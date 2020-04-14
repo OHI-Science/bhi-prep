@@ -174,39 +174,58 @@ secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "Secchi
 ```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 ## this will read in both the oxygen and CTD datasets from the OxygenDebt_ICES directory
 ## in the same step, this will check for duplicates and then keep only the distinct observations
-lapply(
-  ## lists all subfiles in OxygenDebt_ICES directory, and selects only ones with csv extension
-  list.files(file.path(dir_rawdata, "OxygenDebt_ICES"), pattern = ".csv", recursive = TRUE),
-  ## read in the file and assign to a variable in the global environment
-  function(x){
-    tmp <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", x), sep = ",")
-    
-    ## Check for duplicates in all national datasets
-    duplicates <- tmp %>% 
-      group_by(
-        Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
-        PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.
-      ) %>%
-      summarise(n = n()) %>%
-      filter(n > 1) %>%
-      ungroup()
-    
-    ## Only extract unique observations
-    uniquedat <- tmp %>% 
-      distinct(
-        Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
-        PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.
-      )
-    
-    nam <- x %>% 
-      stringr::str_extract("[a-z0-9\\-]+.csv|[a-z]+.csv") %>% 
-      stringr::str_remove_all(".csv") %>% 
-      stringr::str_remove_all("[0-9]{4}\\-[0-9]{2}")
-    
-    assign(sprintf("ox_%s", nam), uniquedat, envir = .GlobalEnv)
-    assign(sprintf("ox_%s_duplicates", nam), uniquedat, envir = .GlobalEnv)
-  }
-)
+read_ox_data <- function(datasets = "ox"){
+  
+  lapply(
+    ## lists all subfiles in OxygenDebt_ICES directory, and selects only ones with csv extension
+    grep(
+      pattern = datasets, 
+      list.files(file.path(dir_rawdata, "OxygenDebt_ICES"), pattern = ".csv", recursive = TRUE),
+      value = TRUE
+    ),
+    ## read in the file and assign to a variable in the global environment
+    function(x){
+      tmp <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", x), sep = ",", stringsAsFactors = FALSE)
+      
+      ## Check for duplicates in all national datasets
+      
+      # duplicates <- tmp %>% 
+      #   group_by(
+      #     Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
+      #     PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.
+      #   ) %>%
+      #   summarise(n = n()) %>%
+      #   filter(n > 1) %>%
+      #   ungroup()
+      
+      ## Only extract unique observations
+      uniquedat <- tmp %>% 
+        distinct(
+          Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
+          PRES..db., Latitude..degrees_north., Longitude..degrees_east., DOXY..ml.l.
+        )
+      nam <- x %>% 
+        stringr::str_extract("[a-zA-Z_0-9\\-]+.csv|[a-z0-9\\-]+.csv|[a-z]+.csv") %>% 
+        stringr::str_remove_all(".csv") %>% 
+        stringr::str_remove_all("[0-9]{4}\\-[0-9]{2}")
+      ## different ctd and h2s naming conventions...
+      nam <- ifelse(nam == "0410032c", "finlandctd", nam)
+      nam <- ifelse(str_detect(nam, "CTD_"), paste0(str_remove(nam, "CTD_"), "ctd"), nam)
+      nam <- ifelse(str_detect(nam, "H2S_"), paste0(str_remove(nam, "H2S_"), "h2s"), nam)
+      
+      ## assign to names in global environment...
+      if(str_detect(nam, "ox$")){
+        assign(sprintf("ox_%s", nam), uniquedat, envir = .GlobalEnv)
+      }
+      if(str_detect(nam, "ctd$")){
+        assign(sprintf("ctd_%s", nam), uniquedat, envir = .GlobalEnv)
+      }
+      if(str_detect(nam, "h2s$")){
+        assign(sprintf("h2s_%s", nam), uniquedat, envir = .GlobalEnv)
+      }
+    }
+  ) 
+}
 ```
 <br/>
 
@@ -390,103 +409,110 @@ secchi_unique <- secchi %>%
 ```
 <br/>
 
-**Merging Oxygen Datasets**
+#### 2.2.2. Merging Oxygen Datasets
 
 ```{r merge country oxygen data and all CTD country data to make two large datasets with rgn info joined also}
-## Merging unique datasets
+## Merging oxygen datasets, only unique entries
+read_ox_data(datasets = "ox")
 oxdata_to_merge <- ls(pattern = "ox_[a-z].*ox$")
 
 ox_merged <- do.call(rbind, lapply(oxdata_to_merge, function(x){
-  cbind(
-    get(x) %>% 
-      rename(
-        Oxygen = DOXY..ml.l.,
-        Date = yyyy.mm.ddThh.mm, 
-        Latitude = Latitude..degrees_north.,
-        Longitude = Longitude..degrees_east., 
-        Temperature = TEMP..deg.C., 
-        Salinity = PSAL..psu., 
-        Depth = PRES..db., # what is this, pressure or depth?
-        Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-      ) %>%
-      mutate(
-        Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-        Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-        Day = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%d")),
-        Hour = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%H")),
-        Minute = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%M")),
-        Date = as.Date(Date, "%Y-%m-%d"),
-        Station = as.character(Station),
-        Oxygen_Original = Oxygen,
-        Oxygen = as.numeric(Oxygen),
-        Depth = as.numeric(Depth)
-      ),
-    Country = stringr::str_remove_all(x, "ox|_|[0-9]")
+  cbind(get(x), Country = stringr::str_remove_all(x, "ox|_|[0-9]"))
+})) 
+ox_merged <- ox_merged %>%
+  rename(
+    Oxygen = DOXY..ml.l.,
+    Date = yyyy.mm.ddThh.mm, 
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east., 
+    Temperature = TEMP..deg.C., 
+    Salinity = PSAL..psu., 
+    Depth = PRES..db., # what is this, pressure or depth?
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Day = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%d")),
+    Hour = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%H")),
+    Minute = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%M")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Oxygen_Original = as.character(Oxygen),
+    Oxygen = as.numeric(Oxygen_Original),
+    Depth = as.numeric(Depth)
   )
-}))
 ## in some cases oxygen data has non-numeric characters, <0.01 for example...
 ## these become NAs when coerced to numeric
 ## what is the best approach: give value of 0.01, NA, or zero?
-
 ox_merged_w_rgns <- join_rgns_info(
   dataset = ox_merged,
-  rgn_shps_loc = file.path(dir_B, "Shapefiles")
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles")
 )
+
 colnames(ox_merged_w_rgns) <- str_to_title(names(ox_merged_w_rgns))
 ox_merged_w_rgns <- ox_merged_w_rgns %>% 
-  select(-Ices_area, -In_25km_buffer, -Rgn_nam, -Rgn_key, -Oxygen_original, -Date) %>% 
+  filter(!is.na(Helcom_id), !is.na(Oxygen)) %>% 
+  select(-Ices_area, -In_25km_buffer, -Rgn_nam, -Rgn_key, -Oxygen_original, -Date) %>%
   rename(Bot_Depth = Bot_depth, BHI_ID = Bhi_id, Assessment_Unit = Helcom_id)
 
-  
-# ctddata_to_merge <- ls(pattern = "ctd_[a-z].*ctd$")
-# 
-# ctd_merged <- do.call(rbind, lapply(oxdata_to_merge, function(x){
-#   cbind(
-#     get(x) %>% 
-#       rename(
-#         Oxygen = DOXY..ml.l.,
-#         Date = yyyy.mm.ddThh.mm, 
-#         Latitude = Latitude..degrees_north.,
-#         Longitude = Longitude..degrees_east., 
-#         Temperature = TEMP..deg.C., 
-#         Salinity = PSAL..psu., 
-#         Depth = PRES..db., # what is this, pressure or depth?
-#         Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-#       ) %>%
-#       mutate(
-#         Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-#         Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-#         Day = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%d")),
-#         Hour = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%H")),
-#         Minute = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%M")),
-#         Date = as.Date(Date, "%Y-%m-%d"),
-#         Station = as.character(Station),
-#         Depth = as.numeric(Depth)
-#       ),
-#     Country = stringr::str_remove_all(x, "ctd|_|[0-9]")
-#   )
-# }))
-# 
-# ctd_merged_w_rgns <- join_rgns_info(
-#   dataset = ctd_merged,
-#   rgn_shps_loc = file.path(dir_B, "Shapefiles")
-# )
-# colnames(ctd_merged_w_rgns) <- str_to_title(names(ctd_merged_w_rgns))
-# ctd_merged_w_rgns <- ctd_merged_w_rgns %>% 
-  # select(-Ices_area, -In_25km_buffer, -Rgn_nam, -Rgn_key, -Oxygen_original, -Date) %>% 
-  # rename(Bot_Depth = Bot_depth, BHI_ID = Bhi_id, Assessment_Unit = Helcom_id)
+## CTD datasets
+read_ox_data(datasets = "CTD/")
+ctd_data_to_merge <- ls(pattern = "ctd_[a-z].*ctd$")
+## issue with sweden dataset, no oxygen column...
+ctd_data_to_merge <- setdiff(ctd_data_to_merge, "ctd_sweden20ctd")
+
+ctd_merged <- do.call(rbind, lapply(ctd_data_to_merge, function(x){
+  cbind(get(x), Country = stringr::str_remove_all(x, "ctd|_|[0-9]"))
+})) 
+ctd_merged <- ctd_merged %>%
+  rename(
+    Oxygen = DOXY..ml.l.,
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Depth = PRES..db., # what is this, pressure or depth?
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Day = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%d")),
+    Hour = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%H")),
+    Minute = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%M")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Oxygen_Original = as.character(Oxygen),
+    Oxygen = as.numeric(Oxygen_Original),
+    Depth = as.numeric(Depth)
+  )
+rm(ctd_data_to_merge)
+
+ctd_merged_w_rgns <- join_rgns_info(
+  dataset = ctd_merged,
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles")
+)
+
+colnames(ctd_merged_w_rgns) <- str_to_title(names(ctd_merged_w_rgns))
+
+ctd_merged_w_rgns <- ctd_merged_w_rgns %>%
+  filter(!is.na(Helcom_id), !is.na(Oxygen)) %>% 
+  select(-Ices_area, -In_25km_buffer, -Rgn_nam, -Rgn_key, -Oxygen_original, -Date) %>%
+  rename(Bot_Depth = Bot_depth, BHI_ID = Bhi_id, Assessment_Unit = Helcom_id)
 
 ## Save datasets
 dir_interm <- here::here("data", "CW", "eutrophication", version_year, "intermediate")
 
 readr::write_csv(
-  select(ox_merged_w_rgns, -BHI_ID, -Country, -Subbasin), 
+  select(ox_merged_w_rgns, -BHI_ID, -Country, -Subbasin, -Station, -Bot_Depth), 
   file.path(dir_interm, "ox_merged_rawdata.csv")
 )
-# readr::write_csv(
-#   select(ctd_merged_w_rgns, -BHI_ID, -Country, -Subbasin), 
-#   file.path(dir_interm, "ctd_merged_rawdata.csv")
-# )
+readr::write_csv(
+  select(ctd_merged_w_rgns, -BHI_ID, -Country, -Subbasin, -Station, -Bot_Depth),
+  file.path(dir_interm, "ctd_merged_rawdata.csv")
+)
 ```
 <br/>
 
