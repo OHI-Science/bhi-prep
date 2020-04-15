@@ -53,7 +53,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) <br/> Downloaded 6 March 2020 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) (https://sharkweb.smhi.se) <br/> Downloaded 6 March 2020 by Andrea De Cervo")
 ```
 
 <br/>
@@ -276,36 +276,52 @@ ices_unique <- secchi_raw_ices %>%
 ### SMHI data overview
 # colnames(secchi_raw_smhi)
 # str(secchi_raw_smhi)
+# The 'Value' and 'Unit' columns are partly switched, so need to be fixed
+fixed_data_smhi <- secchi_raw_smhi %>% 
+  filter(str_detect(Value, "Secchi")) %>% 
+  select(-Parameter)
+
+colnames(fixed_data) <- setdiff(colnames(secchi_raw_smhi), "Quality.flag")
+## bind back together with rows that are ok and fix the column classes
+all_secchi_smhi <- bind_rows(
+  mutate(fixed_data, Quality.flag = NA),
+  filter(secchi_raw_smhi, !str_detect(Value, "Secchi"))
+)
+
+# when making 'Value' as numveric, all the values within that column change
+all_secchi_smhi <- all_secchi %>% 
+  mutate(Value = as.numeric(as.character(Value)), Parameter = as.character(Parameter))
 
 # Check for duplicates in smhi
-smhi_duplicates <- secchi_raw_smhi %>%
-    group_by(Station.name, Value, Sample.latitude..DD., 
+smhi_duplicates <- all_secchi_smhi %>%
+    group_by(Station.name, Value, Unit, Sample.latitude..DD., 
              Sample.longitude..DD., Sampling.date, Shark.sample.id.MD5) %>%
     summarise(n = n()) %>%
     filter(n > 1) %>%
     ungroup()
 
 # Only extract unique observations
-smhi_unique <- secchi_raw_smhi %>% 
+smhi_unique <- all_secchi_smhi %>% 
   mutate(supplier = 'smhi') %>% 
-  distinct(Station.name, Value, Sample.latitude..DD., 
+  distinct(Station.name, Value, Unit, Sample.latitude..DD., 
            Sample.longitude..DD., Sampling.date, Year, Shark.sample.id.MD5, Station.ID..VISS., 
            HELCOM.OSPAR.area, Station.water.depth, supplier) %>% 
-   rename(secchi = Value, date = Sampling.date, year = Year, 
-           # use the decimal degrees for lat and lon (as for ICES)
-           lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
-           # don't find the "cruise" variable?? (chose "Station.ID..VISS." as example)
-           cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
-    mutate(date =  as.Date(date), month = format(date, "%m"),
-           secchi = as.numeric(secchi), year = as.character(year)) %>%  
- ## remove OSPAR rows
-    filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
-    dplyr::select(cruise, station, date, year, month,
-                  lat, lon, secchi, bottom_m, supplier)
+  rename(secchi = Value, date = Sampling.date, year = Year, 
+         # use the decimal degrees for lat and lon (as for ICES)
+         lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
+         # don't find the "cruise" variable?? (chose "Station.ID..VISS." as example)
+         # 'Station.water.depth' cosidered as 'Bottom depth'?
+         cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
+  mutate(date =  as.Date(date), month = format(date, "%m"),
+         year = as.character(year)) %>% 
+  ## remove OSPAR rows
+  filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
+  dplyr::select(cruise, station, date, year, month,
+                lat, lon, secchi, bottom_m, supplier)
 
 ## Use setdiff() to indentify data smhi not in ices  
-new_smhi_unique <- setdiff(dplyr::select(smhi_unique,-supplier), dplyr::select(ices_unique,-supplier)) %>%
-  mutate(supplier = "smhi")
+new_smhi_unique <- setdiff(dplyr::select(smhi_unique, -supplier), dplyr::select(ices_unique, -supplier)) %>%
+  mutate(supplier = "smhi") 
 
 ## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
 secchi <- bind_rows(ices_unique, new_smhi_unique) %>% 
