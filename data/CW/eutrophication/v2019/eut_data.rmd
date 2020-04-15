@@ -505,6 +505,7 @@ ctd_merged_w_rgns <- ctd_merged_w_rgns %>%
 ## Save datasets
 dir_interm <- here::here("data", "CW", "eutrophication", version_year, "intermediate")
 
+## maybe in future look into using for big files: https://docs.ropensci.org/piggyback/
 readr::write_csv(
   select(ox_merged_w_rgns, -BHI_ID, -Country, -Subbasin, -Station, -Bot_Depth), 
   file.path(dir_interm, "ox_merged_rawdata.csv")
