@@ -163,7 +163,7 @@ ggplot(secchi_rgns_shp) +
 
 #### 3.1.2 Mean secchi Calculation
 
-```{r calculate monthly mean secchi by subbasins, results = "show", echo = TRUE, fig.width = 9.5}
+```{r calculate monthly mean secchi by subbasins}
 # Calculate mean monthly value for each summer month (subbasin)
 secchi_subbasin_mean_months <- secchi_rgns_shp %>% 
   dplyr::select(year, month, subbasin, secchi_m)%>%
@@ -317,8 +317,9 @@ secchi_subbasin_trend1 <- secchi_subbasin_status %>%
 secchi_bhi_trend1 <- left_join(basin_lookup, secchi_subbasin_trend1, by = "subbasin") %>%
   mutate(score = round(trend_score, 2),
          dimension = "trend",
-         region = paste(subbasin, rgn_nam, sep = ", ")) %>%
-  dplyr::select(bhi_id, dimension, score, region, subbasin)
+         region = paste(subbasin, rgn_nam, sep = ", "),
+         indicator = "secchi") %>%
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region, dimension, score, indicator)
 ```
 
 **METHOD 2 (Ellie)**
@@ -354,8 +355,9 @@ subbasin_trend_secchi2 <- secchi_lm_estim %>%
 secchi_bhi_trend2 <- left_join(basin_lookup, subbasin_trend_secchi2, by = "subbasin") %>%
   mutate(score = round(trend, 2),
          dimension = "trend",
+         region = paste(subbasin, rgn_nam, sep = ", "),
          indicator = "secchi") %>%
-  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score, indicator)
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region, dimension, score, indicator)
 ```
 
 #### 3.1.5 Plot Status and Trend
@@ -378,13 +380,13 @@ Status values can range from 0-100 -- this is the status for the *most recent* y
 ## Method 1
 # secchi_bhi_status <- as.data.frame(secchi_bhi_status)
 ggplot(rbind(secchi_bhi_status, secchi_bhi_trend1)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 
 ## Method 2
 ggplot(rbind(secchi_bhi_status, secchi_bhi_trend2)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 ```
@@ -594,7 +596,7 @@ ggplot(chla_subbasin_status, aes(region, status, fill = subbasin)) +
   ggtitle("Chl a Status by subbasins")
 
 # Plot the status (by bhi regions)
-ggplot(chla_bhi_status, aes(region, score, fill = bhi_id)) +
+ggplot(chla_bhi_status, aes(region, score, fill = BHI_ID)) +
   geom_col(position = position_dodge(), color = "grey", alpha = 0.7, show.legend = FALSE) + 
   coord_flip() +
   labs(x = NULL, y = NULL) +
@@ -622,8 +624,9 @@ chla_subbasin_trend1 <- chla_subbasin_status %>%
 chla_bhi_trend1 <- left_join(basin_lookup, chla_subbasin_trend1, by = "subbasin") %>%
   mutate(score = round(trend_score, 2),
          dimension = "trend",
+         indicator = "chla",
          region = paste(subbasin, rgn_nam, sep = ", ")) %>%
-  dplyr::select(bhi_id, dimension, score, region, subbasin)
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score, region, indicator)
 
 ```
 
@@ -662,8 +665,9 @@ chla_subbasin_trend2 <- chla_lm_estim %>%
 chla_bhi_trend2 <- left_join(basin_lookup, chla_subbasin_trend2, by = "subbasin") %>%
   mutate(score = round(trend, 2),
          dimension = "trend",
-         indicator = "chla") %>%
-  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score, indicator)
+         indicator = "chla",
+         region = paste(subbasin, rgn_nam, sep = ", ")) %>%
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region, dimension, score, indicator)
 
 ```
 
@@ -684,15 +688,16 @@ ggplot(chla_subbasin_status) +
 
 Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
 ```{r bhi status and trend plot, results = "show", echo = TRUE, fig.width = 9.5}
-# Method 1
+## Method 1
+# chla_bhi_status <- as.data.frame(chla_bhi_status)
 ggplot(rbind(chla_bhi_status, chla_bhi_trend1)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 
-# Method 2
+## Method 2
 ggplot(rbind(chla_bhi_status, chla_bhi_trend2)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 ```
