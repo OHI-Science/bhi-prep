@@ -716,7 +716,8 @@ mapdf_secchi <- bind_rows(
   secchi_bhi_status %>% 
     select(-region),
   
-  secchi_bhi_trend2
+  secchi_bhi_trend2 %>% 
+    select(-region)
     )
   
 mapsf_secchi <- left_join(bhi_rgns_simple, mapdf_secchi, by = c("Subbasin", "BHI_ID"))
@@ -752,7 +753,8 @@ mapdf_chla <- bind_rows(
   chla_bhi_status %>% 
     select(-region),
   
-  chla_bhi_trend2
+  chla_bhi_trend2 %>% 
+    select(-region)
     )
   
 mapsf_chla <- left_join(bhi_rgns_simple, mapdf_chla, by = c("Subbasin", "BHI_ID"))
@@ -789,12 +791,14 @@ mapdf <- bind_rows(
   secchi_bhi_status %>% 
     select(-region),
   
-  secchi_bhi_trend2,
+  secchi_bhi_trend2 %>% 
+    select(-region),
   
   chla_bhi_status %>% 
     select(-region),
   
-  chla_bhi_trend2
+  chla_bhi_trend2 %>% 
+    select(-region)
     )
   
 mapsf <- left_join(bhi_rgns_simple, mapdf, by = c("Subbasin", "BHI_ID"))
