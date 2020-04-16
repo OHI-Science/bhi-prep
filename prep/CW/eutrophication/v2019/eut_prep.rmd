@@ -406,7 +406,9 @@ chla_rgns_shp <- join_rgns_info(
                            rgn_shps_loc = file.path(dirname(dir_B), "Shapefile"), buffer_shp = NULL) %>% 
   # select summer months (June-September) and Years >= 2000  
   filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
-  filter(year >=2000) %>% 
+  filter(year >=2000, 
+         # filter surface layer (0 - 10 m depth)
+         depth_m <= 10) %>% 
   rename(country = rgn_nam,
          ctry_key = rgn_key,
          subbasin = Subbasin,
