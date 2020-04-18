@@ -44,7 +44,7 @@ This prep document is used to generate and explore the following data layers:
 - `cw_con_dioxin_bhi2019.csv` 
 - `cw_con_penalty_bhi2019.csv` 
 
-These are saved to the `layers/v2019` folder. Intermediate datasets saved to `data/CW/contaminants/v2019/intermediate` include: `pcb_bio_cleaned.csv`, `pcb_sed_cleaned.csv`, `pfos_bio_cleaned.csv`, `dioxin_bio_cleaned.csv` and `dioxin_sed_cleaned.csv`. All these are derived from or informed by the following raw datasets.
+These are saved to the `layers` folder. Intermediate datasets saved to `data/CW/contaminants/v2019/intermediate` include: `pcb_bio_cleaned.csv`, `pcb_sed_cleaned.csv`, `pfos_bio_cleaned.csv`, `dioxin_bio_cleaned.csv` and `dioxin_sed_cleaned.csv`. All these are derived from or informed by the following raw datasets.
 
 
 ```{r Data, child = data_path, results = "asis", echo = FALSE}
@@ -941,7 +941,7 @@ write_csv(
       value = sum_congeners_datemean, 
       matrix = Matrix
     ), 
-  file.path(dir_layers, version_year, sprintf("cw_con_pcb_bhi%s.csv", assess_year))
+  file.path(dir_layers, sprintf("cw_con_pcb_bhi%s.csv", assess_year))
 )
 ```
 
@@ -1209,7 +1209,7 @@ write_csv(
       value = sum_congeners_datemean, 
       matrix = Matrix
     ), 
-  file.path(dir_layers, version_year, sprintf("cw_con_pfos_bhi%s.csv", assess_year))
+  file.path(dir_layers, sprintf("cw_con_pfos_bhi%s.csv", assess_year))
 )
 ```
 
@@ -1841,7 +1841,7 @@ write_csv(
       value = total_teq, 
       matrix = Matrix
     ), 
-  file.path(dir_layers, version_year, sprintf("cw_con_dioxin_bhi%s.csv", assess_year))
+  file.path(dir_layers, sprintf("cw_con_dioxin_bhi%s.csv", assess_year))
 )
 ```
 
@@ -2072,7 +2072,7 @@ write_csv(
       monitored, 
       substance
     ), 
-  file.path(dir_layers, version_year, sprintf("cw_con_penalty_bhi%s.csv", assess_year))
+  file.path(dir_layers, sprintf("cw_con_penalty_bhi%s.csv", assess_year))
 )
 ```
 
