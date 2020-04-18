@@ -163,7 +163,7 @@ ggplot(secchi_rgns_shp) +
 
 #### 3.1.2 Mean secchi Calculation
 
-```{r calculate monthly mean secchi by subbasins, results = "show", echo = TRUE, fig.width = 9.5}
+```{r calculate monthly mean secchi by subbasins}
 # Calculate mean monthly value for each summer month (subbasin)
 secchi_subbasin_mean_months <- secchi_rgns_shp %>% 
   dplyr::select(year, month, subbasin, secchi_m)%>%
@@ -276,8 +276,9 @@ secchi_bhi_status <- secchi_subbasin_status %>%
   group_by(subbasin) %>%
   filter(year == max(year)) %>% #select last year of data for status in each basin (this means status year differs by basin)
   mutate(status = round(status*100)) %>% #status is whole number 0-100
-  mutate(dimension = 'status') %>% 
-  dplyr::select(bhi_id, dimension, score=status, region)
+  mutate(dimension = 'status',
+         indicator = "secchi") %>% 
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score=status, region, indicator)
 
 # Plot the status (by subbasin)
 ggplot(secchi_subbasin_status, aes(region, status, fill = subbasin)) +
@@ -289,7 +290,7 @@ ggplot(secchi_subbasin_status, aes(region, status, fill = subbasin)) +
     ggtitle("Secchi Status by subbasins")
 
 # Plot the status (by bhi regions)
-ggplot(secchi_bhi_status, aes(region, score, fill = bhi_id)) +
+ggplot(secchi_bhi_status, aes(region, score, fill = BHI_ID)) +
   geom_col(position = position_dodge(), color = "grey", alpha = 0.7, show.legend = FALSE) + 
   coord_flip() +
   labs(x = NULL, y = NULL) +
@@ -316,8 +317,9 @@ secchi_subbasin_trend1 <- secchi_subbasin_status %>%
 secchi_bhi_trend1 <- left_join(basin_lookup, secchi_subbasin_trend1, by = "subbasin") %>%
   mutate(score = round(trend_score, 2),
          dimension = "trend",
-         region = paste(subbasin, rgn_nam, sep = ", ")) %>%
-  dplyr::select(bhi_id, dimension, score, region, subbasin)
+         region = paste(subbasin, rgn_nam, sep = ", "),
+         indicator = "secchi") %>%
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region, dimension, score, indicator)
 ```
 
 **METHOD 2 (Ellie)**
@@ -353,8 +355,9 @@ subbasin_trend_secchi2 <- secchi_lm_estim %>%
 secchi_bhi_trend2 <- left_join(basin_lookup, subbasin_trend_secchi2, by = "subbasin") %>%
   mutate(score = round(trend, 2),
          dimension = "trend",
-         region = paste(subbasin, rgn_nam, sep = ", ")) %>%
-  dplyr::select(bhi_id, dimension, score, region, subbasin)
+         region = paste(subbasin, rgn_nam, sep = ", "),
+         indicator = "secchi") %>%
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region, dimension, score, indicator)
 ```
 
 #### 3.1.5 Plot Status and Trend
@@ -377,13 +380,13 @@ Status values can range from 0-100 -- this is the status for the *most recent* y
 ## Method 1
 # secchi_bhi_status <- as.data.frame(secchi_bhi_status)
 ggplot(rbind(secchi_bhi_status, secchi_bhi_trend1)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 
 ## Method 2
 ggplot(rbind(secchi_bhi_status, secchi_bhi_trend2)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 ```
@@ -403,7 +406,9 @@ chla_rgns_shp <- join_rgns_info(
                            rgn_shps_loc = file.path(dirname(dir_B), "Shapefile"), buffer_shp = NULL) %>% 
   # select summer months (June-September) and Years >= 2000  
   filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
-  filter(year >=2000) %>% 
+  filter(year >=2000, 
+         # filter surface layer (0 - 10 m depth)
+         depth_m <= 10) %>% 
   rename(country = rgn_nam,
          ctry_key = rgn_key,
          subbasin = Subbasin,
@@ -579,8 +584,9 @@ chla_bhi_status <- chla_subbasin_status %>%
   filter(year == max(year)) %>% #select last year of data for status in each basin (this means status year differs by basin)
   mutate(status = round(status*100)) %>% #status is whole number 0-100
   ungroup() %>%
-  mutate(dimension = 'status') %>%
-  dplyr::select(bhi_id, dimension, score=status, region, subbasin)
+  mutate(dimension = 'status',
+         indicator = "chla") %>%
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score=status, region, indicator)
 
 # Plot the status (by subbasin)
 ggplot(chla_subbasin_status, aes(region, status, fill = subbasin)) +
@@ -592,7 +598,7 @@ ggplot(chla_subbasin_status, aes(region, status, fill = subbasin)) +
   ggtitle("Chl a Status by subbasins")
 
 # Plot the status (by bhi regions)
-ggplot(chla_bhi_status, aes(region, score, fill = bhi_id)) +
+ggplot(chla_bhi_status, aes(region, score, fill = BHI_ID)) +
   geom_col(position = position_dodge(), color = "grey", alpha = 0.7, show.legend = FALSE) + 
   coord_flip() +
   labs(x = NULL, y = NULL) +
@@ -620,8 +626,9 @@ chla_subbasin_trend1 <- chla_subbasin_status %>%
 chla_bhi_trend1 <- left_join(basin_lookup, chla_subbasin_trend1, by = "subbasin") %>%
   mutate(score = round(trend_score, 2),
          dimension = "trend",
+         indicator = "chla",
          region = paste(subbasin, rgn_nam, sep = ", ")) %>%
-  dplyr::select(bhi_id, dimension, score, region, subbasin)
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score, region, indicator)
 
 ```
 
@@ -660,8 +667,9 @@ chla_subbasin_trend2 <- chla_lm_estim %>%
 chla_bhi_trend2 <- left_join(basin_lookup, chla_subbasin_trend2, by = "subbasin") %>%
   mutate(score = round(trend, 2),
          dimension = "trend",
+         indicator = "chla",
          region = paste(subbasin, rgn_nam, sep = ", ")) %>%
-  dplyr::select(bhi_id, dimension, score, region, subbasin)
+  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region, dimension, score, indicator)
 
 ```
 
@@ -682,15 +690,16 @@ ggplot(chla_subbasin_status) +
 
 Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
 ```{r bhi status and trend plot, results = "show", echo = TRUE, fig.width = 9.5}
-# Method 1
+## Method 1
+# chla_bhi_status <- as.data.frame(chla_bhi_status)
 ggplot(rbind(chla_bhi_status, chla_bhi_trend1)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 
-# Method 2
+## Method 2
 ggplot(rbind(chla_bhi_status, chla_bhi_trend2)) + 
-  geom_point(aes(bhi_id, score),size=2)+
+  geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
   xlab("BHI region")
 ```
@@ -700,6 +709,171 @@ ggplot(rbind(chla_bhi_status, chla_bhi_trend2)) +
 ## 4. Visualizing Data Layers
 
 ### 4.1 Map
+
+**Secchi Status Maps**
+```{r secchi status map, results = "show", echo = TRUE, fig.width = 9.5}
+mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+
+mapdf_secchi <- bind_rows(
+  secchi_bhi_status %>% 
+    select(-region),
+  
+  secchi_bhi_trend2 %>% 
+    select(-region)
+    )
+  
+mapsf_secchi <- left_join(bhi_rgns_simple, mapdf_secchi, by = c("Subbasin", "BHI_ID"))
+
+basemap <- ggplot2::ggplot() + 
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", color = "lightsteelblue",
+    size = 0.1, alpha = 0.8
+  ) +
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+status_secchi_map <- basemap + 
+  geom_sf(data = filter(mapsf_secchi, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
+  facet_wrap(~ indicator) +
+  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  labs(fill = "Score")
+```
+
+**Chl a Status Maps**
+```{r chla status map, results = "show", echo = TRUE, fig.width = 9.5}
+mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+
+mapdf_chla <- bind_rows(
+  chla_bhi_status %>% 
+    select(-region),
+  
+  chla_bhi_trend2 %>% 
+    select(-region)
+    )
+  
+mapsf_chla <- left_join(bhi_rgns_simple, mapdf_chla, by = c("Subbasin", "BHI_ID"))
+
+basemap <- ggplot2::ggplot() + 
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", color = "lightsteelblue",
+    size = 0.1, alpha = 0.8
+  ) +
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+status_chla_map <- basemap + 
+  geom_sf(data = filter(mapsf_chla, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
+  facet_wrap(~ indicator) +
+  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  labs(fill = "Score")
+```
+
+
+**Secchi and Chl a Status Maps**
+```{r eutrophication status map, results = "show", echo = TRUE, fig.width = 9.5}
+mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+
+mapdf <- bind_rows(
+  secchi_bhi_status %>% 
+    select(-region),
+  
+  secchi_bhi_trend2 %>% 
+    select(-region),
+  
+  chla_bhi_status %>% 
+    select(-region),
+  
+  chla_bhi_trend2 %>% 
+    select(-region)
+    )
+  
+mapsf <- left_join(bhi_rgns_simple, mapdf, by = c("Subbasin", "BHI_ID"))
+
+basemap <- ggplot2::ggplot() + 
+  geom_sf(
+    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
+      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
+    fill = "ivory", color = "lightsteelblue",
+    size = 0.1, alpha = 0.8
+  ) +
+  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+statusmap <- basemap + 
+  geom_sf(data = filter(mapsf, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
+  facet_wrap(~ indicator) +
+  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  labs(fill = "Score")
+```
+<br>
+
+**Trend Maps**
+```{r trend plots, results = "show", echo = TRUE, fig.width = 9.5}
+trendsdf <- left_join(
+  cw_con %>% 
+    select(-rgn_nam) %>% 
+    filter(dimension == "trend") %>% 
+    tidyr::pivot_wider(names_from = indicator, values_from = score),
+  cw_con_w_penalty %>% 
+    filter(dimension == "trend") %>% 
+    select(-proportion_monitored, -Subbasin),
+  by = c("BHI_ID", "dimension")
+)
+trendsdf <- trendsdf %>% 
+  tidyr::pivot_longer(
+    cols = c("pcb", "pfos", "dioxin", "score"), 
+    names_to = "indicator",
+    values_to = "score"
+  ) %>% 
+  left_join(
+    read_csv(here::here("supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+      select(Subbasin = subbasin, subbasin_order, BHI_ID = region_id, subbasin_order),
+    by = c("Subbasin", "BHI_ID")
+  ) %>% 
+  mutate(
+    score_na = ifelse(is.na(score), 1, score),
+    indicator = ifelse(indicator == "score", "average_trend", indicator)
+  ) %>% 
+  arrange(desc(subbasin_order))
+
+trendsdf$Subbasin <- factor(
+  trendsdf$Subbasin,
+  levels = unique(trendsdf$Subbasin)
+)
+
+trendplots <- ggplot(trendsdf, aes(Subbasin, score_na, fill = score)) +
+  geom_bar(stat = "identity", position = position_dodge(), show.legend = FALSE) +
+  geom_hline(yintercept = 0, color = "grey") +
+  scale_fill_gradientn(colors = rev(mapcols), limits = c(-1, 1), na.value = "gainsboro") +
+  facet_wrap(~ indicator, nrow = 1) +
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  guides() +
+  theme_bw()
+```
+
 
 ```{r SOME MAAP, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 library(leaflet)
