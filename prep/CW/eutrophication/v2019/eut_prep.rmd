@@ -117,6 +117,98 @@ secchi_rgns_shp <- join_rgns_info(
 
 ```
 
+
+**Remove coastal observations**
+```{r  remove coastal data points, results = "hide"}
+## Select only data with coastal code "0"  
+dim(secchi) # 156221    
+
+## Do any observations have NA for coast_code
+secchi %>% 
+  filter(is.na(HELCOM_COASTAL_CODE) & is.na(BHI_ID)) %>% 
+  dim() # 112185   
+
+secchi %>% 
+  filter(is.na(HELCOM_COASTAL_CODE) & !is.na(BHI_ID)) %>% 
+  dim() #  0 
+
+## 5604 observations with no coast_code or BHI_ID
+loc_no_coastcode_nobhi <- secchi %>% 
+  filter(is.na(HELCOM_COASTAL_CODE) & is.na(BHI_ID))%>%
+  dplyr::select(Latitude, Longitude)%>%
+  distinct() # 5604
+
+## check locations
+library('ggmap')
+map <- get_map(location = c(8.5, 53, 32, 67.5))
+
+ plot_map1 <- ggmap(map) +
+   geom_point(aes(x = Longitude, y = Latitude), data = loc_no_coastcode_nobhi, size = 0.5)
+ plot_map1
+## these locations are very coastal or outside of the Baltic Sea
+
+### observations with NA for the coast_code but have BHI_ID
+loc_no_coastcode_bhi <- secchi %>% 
+  filter(is.na(HELCOM_COASTAL_CODE) & !is.na(BHI_ID)) %>% 
+  dplyr::select(Latitude, Longitude) %>%
+  distinct()
+
+ plot_map2 <- ggmap(map) +
+   geom_point(aes(x = Longitude, y = Latitude), data = loc_no_coastcode_bhi, size = 1.5)
+plot_map2
+## these are clearly coastal stations
+
+## What are coastal codes for The Sound (BHI regions 5,6)
+## Region 6
+secchi %>% 
+  filter(BHI_ID %in% 6) %>% 
+  dplyr::select(BHI_ID, Year, Date, Latitude, Longitude, HELCOM_COASTAL_CODE, supplier) %>%
+  arrange(desc(Year)) %>% 
+  distinct(.)
+
+secchi %>% 
+  filter(BHI_ID %in% 6) %>% 
+  dplyr::select(HELCOM_COASTAL_CODE, supplier) %>% 
+  distinct(.) # one region is offshore
+
+## Region 5
+secchi %>% 
+  filter(BHI_ID %in% 5) %>% 
+  dplyr::select(BHI_ID, Year, Date, Latitude, Longitude, HELCOM_COASTAL_CODE, supplier) %>% 
+  arrange(desc(Year)) %>% 
+  distinct(.)
+
+secchi %>% 
+  filter(BHI_ID %in% 5) %>% 
+  dplyr::select(HELCOM_COASTAL_CODE, supplier) %>% 
+  distinct(.)
+## All region 5 codes are coastal
+
+
+## Filter data that are only offshore, coast_code == 0
+secchi_offshore <- secchi %>% 
+  filter(HELCOM_COASTAL_CODE == 0)
+
+dim(secchi_offshore) # 17182   14 
+
+offshore <- ggmap(map) +
+   geom_point(aes(x = Longitude, y = Latitude), data = secchi_offshore, size = 0.5)
+ offshore
+## This is a substantial reduction in the number of observations
+
+## Check the difference with the complete dataset, including coast_code having NA
+ secchi_coast <- secchi %>% 
+  filter(!(HELCOM_COASTAL_CODE == 0))
+
+dim(secchi_coast) # 26854   14 
+
+coastal_secchi <- ggmap(map) +
+   geom_point(aes(x = Longitude, y = Latitude), data = secchi_coast, size = 0.5)
+coastal_secchi
+
+```
+<br/>
+
 **Spatial Visualization of Secchi data**
 ```{r secchi timeseries yearly and monthly by bhi regions and subbasins, results = "show", echo = TRUE, fig.width = 9.5}
 # Plot by bhi regions

@@ -167,25 +167,23 @@ eut_thresholds <- eut_thresholds_values %>%
 May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data. 
 
 ```{r to match areas with bhi regions, echo = TRUE}
-## Create an additional lookup table from the dataset used in the BHI 1.0 ('ices_secchi')
-basin_additional_lookup_table <- ices_secchi %>%
-  select(-X1, -secchi, -Month, -Year, -Date, -Station)
-  
+## Create an additional lookup table from the datasets used in the BHI 1.0 
+## ('ices_secchi' and 'smhi_secchi')
+basin_additional_lookup_table <- rbind(
+  ices_secchi %>%
+    select(-X1, -secchi, -Month, -Year, -Date, -Station, -Cruise), 
+#    mutate(Station = str_replace(Station, "^0+", " "))
+  smhi_secchi %>% 
+    select(-X1, -value, -Month, -Year, -Date, -unit, 
+           -Stationsnamn, -Provtagningstillfaelle.id) %>% 
+#    rename(Station = Stationsnamn, Cruise = Provtagningstillfaelle.id) %>% 
+    mutate("Assessment_unit" = " ")
+)  
+
 readr::write_csv(
   basin_additional_lookup_table, 
-  file.path(dir_lookup, "ices_basin_add_lookup_table.csv")
+  file.path(dir_lookup, "basin_add_lookup_table.csv")
 )
-
-## Create an additional lookup table from the dataset used in the BHI 1.0 ('smhi_secchi')
-basin_add_lookup_table_smhi <- smhi_secchi %>%
-  select(-X1, -value, -unit, -Month, -Year, -Date) %>% 
-  rename(Station = Stationsnamn, Visit_event_id = Provtagningstillfaelle.id)
-  
-#readr::write_csv(
-  #basin_additional_lookup_table, 
-  #file.path(dir_lookup, "basin_add_lookup_table.csv")
-#)
-
 ```
 
 
@@ -268,67 +266,63 @@ nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutri
 
 #### 2.2.1. Secchi datasets
 
-ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records
+**Duplicates in the Data** 
 
-**METHOD 1 (duplicates) - ICES**
+ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records.
+
+**Coastal data**  
+
+- non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
+- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
+- Coastal data are removed from the analysis.  
+- This should result in a similar dataset used as Fleming-Lehtinen and Laamanen 2012 (see map). 
+
+**ICES secchi data**
 ```{r}
-## METHOD 1
-
-## 1) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
-## 2) Use setdiff() to indentify data smhi not in ices 
-## 3) Create a new Secchi dataset by only binding the new_smhi_unique object to ices_unique
+## 1) Merge the additional basin lookup table to both datasets
+## 2) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
+## 3) Use setdiff() to indentify data smhi not in ices 
+## 4) Create a new Secchi dataset by only binding the new_smhi_unique object to ices_unique
 
 ### ICES Data overview
-# colnames(secchi_raw_ices)
-# str(secchi_raw_ices)
+# colnames(ices_raw_ices)
+# str(ices_raw_ices)
 
-# Check for duplicates in ices
-ices_duplicates <- secchi_raw_ices %>%
-  group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
-           Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-# Only extract unique observations
-ices_unique <- secchi_raw_ices %>% 
-  mutate(supplier = 'ices') %>%  
-  distinct(yyyy.mm.ddThh.mm, Latitude..degrees_north., Longitude..degrees_east., 
-           Secchi.Depth..m., Bot..Depth..m., Station, Cruise, supplier) %>% 
+# Merge the add basin lookup table to ices dataset
+ices <- secchi_raw_ices %>% 
   rename(secchi = Secchi.Depth..m.,  Date = yyyy.mm.ddThh.mm, 
          Latitude = Latitude..degrees_north., Longitude = Longitude..degrees_east., 
          bottom_m = Bot..Depth..m.) %>%
   mutate(Date =  as.Date(Date), Year = format(Date, "%Y"), 
          Date =  as.Date(Date), Month = format(Date, "%m"),
-         Month = str_replace(Month, "^0+" ,""),
-         bottom_m = as.numeric(bottom_m))
+         Month = str_replace(Month, "^0+", ""),
+         bottom_m = as.numeric(bottom_m)) %>%
+  select(-Type) %>% 
+  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 31.236.646 
 
-# Merge ices secchi data with helcom coastal codes
-all_ices_secchi <- basin_add_lookup_table %>% 
-  left_join(ices_unique, by = c("Latitude", "Longitude", "Cruise"))  
-
-# Check for duplicates from the merged dataset
-all_ices_duplicates <- all_ices_secchi %>%
-  group_by(Date, Latitude, Longitude, Assessment_unit, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Cruise, Station, secchi, Year, Month, bottom_m) %>%
+#### Look for duplicate data 
+# Check for duplicates in ices
+ices_duplicates <- ices %>%
+  group_by(Latitude, Longitude, Cruise, Station, Date, secchi) %>%
   summarise(n = n()) %>%
   filter(n > 1) %>%
   ungroup() 
 
-all_ices_unique <- all_ices_secchi %>% 
-  distinct(Date, Latitude, Longitude, Assessment_unit, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Cruise, Station, secchi, Year, Month, bottom_m) %>% 
-    mutate(supplier = 'ices') 
+# Only extract unique observations
+ices_unique <- ices %>% 
+  distinct(Cruise, Station, Date, Latitude, Longitude, BHI_ID, Assessment_unit,
+           HELCOM_COASTAL_CODE, HELCOM_ID, Year, Month, secchi, bottom_m) %>% 
+  mutate(supplier = 'ices') # 104773
 
 ## Which ices data have BHI_ID of NA?
-ices.na <- all_ices_unique %>%
+ices.na <- ices_unique %>%
   filter(is.na(BHI_ID))
-dim(ices.na) # 497 14
+dim(ices.na) # 64450 14
 
 ices.na.loc <- ices.na %>% 
   dplyr::select(Latitude, Longitude) %>% 
   distinct() ## unique locations
-dim(ices.na.loc) # 86  2
+dim(ices.na.loc) # 2142  2
 
 ices.na %>% 
   dplyr::select(HELCOM_COASTAL_CODE) %>% 
@@ -341,7 +335,7 @@ ices.na %>%
 ```
 <br/>
 
-**METHOD 1 - SMHI**
+**SMHI secchi data**
 ```{r}
 ### SMHI data overview
 # colnames(secchi_raw_smhi)
@@ -353,123 +347,77 @@ fixed_data_smhi <- secchi_raw_smhi %>%
 
 colnames(fixed_data_smhi) <- setdiff(colnames(secchi_raw_smhi), "Quality.flag")
 ## bind back together with rows that are ok and fix the column classes
-all_secchi_smhi <- bind_rows(
+new_secchi_smhi <- bind_rows(
   mutate(fixed_data_smhi, Quality.flag = NA),
   filter(secchi_raw_smhi, !str_detect(Value, "Secchi"))
 )
 
 # when making 'Value' as numveric, all the values within that column change
-all_secchi_smhi <- all_secchi_smhi %>% 
+new_secchi_smhi <- new_secchi_smhi %>% 
   mutate(Value = as.numeric(as.character(Value)), Parameter = as.character(Parameter))
 
-# Check for duplicates in smhi
-smhi_duplicates <- all_secchi_smhi %>%
-    group_by(Station.name, Value, Unit, Sample.latitude..DD., 
-             Sample.longitude..DD., Sampling.date, Shark.sample.id.MD5) %>%
-    summarise(n = n()) %>%
-    filter(n > 1) %>%
-    ungroup()
-
-# Only extract unique observations
-smhi_unique <- all_secchi_smhi %>% 
-  distinct(Station.name, Value, Unit, Sample.latitude..DD., 
-           Sample.longitude..DD., Sampling.date, Year, Shark.sample.id.MD5, Station.ID..VISS., 
-           HELCOM.OSPAR.area, Station.water.depth, Visit.event.identifier) %>% 
-  rename(secchi = Value, Date = Sampling.date, Visit_event_id = Visit.event.identifier,
+# Merge the add basin lookup table to secchi dataset
+smhi <- new_secchi_smhi %>% 
+  rename(secchi = Value, Date = Sampling.date, Cruise = Visit.event.identifier,
          # use the decimal degrees for lat and lon (as for ICES)
          Latitude = Sample.latitude..DD., Longitude = Sample.longitude..DD.,
-         # don't find the "cruise" variable?? (chose "Station.ID..VISS." as example)
          # 'Station.water.depth' cosidered as 'Bottom depth'?
-         Cruise = Station.ID..VISS., Station = Station.name, bottom_m = Station.water.depth) %>%
-  select(-Unit, -Shark.sample.id.MD5, -HELCOM.OSPAR.area) %>% 
-  mutate(Date =  as.Date(Date), Month = format(Date, "%m"),
+         Station = Station.name, bottom_m = Station.water.depth) %>%
+  mutate(Date =  as.Date(Date), Year = format(Date, "%Y"),
+         Date =  as.Date(Date), Month = format(Date, "%m"),
          Month = str_replace(Month, "^0+" ,""),
-         Year = as.character(Year)) 
+         Year = as.character(Year),
+         bottom_m = as.numeric(bottom_m),
+         Cruise = as.character(Cruise),
+         Station = as.character(Station)) %>%  
+  select(Cruise, Station, Date, Latitude, Longitude, secchi, bottom_m, Year, Month) %>% 
+  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 10.649.226
 
-# Merge smhi secchi data with helcom coastal codes
-all_smhi_secchi11 <- basin_add_lookup_table %>% 
-  select(-Cruise) %>% 
-  full_join(smhi_unique, by = c("Latitude", "Longitude"))  
-
-all_smhi_secchi22 <- basin_add_lookup_table_smhi %>% 
-  select(-Visit_event_id, -Station) %>% 
-  full_join(smhi_unique, by = c("Latitude", "Longitude"))
-
-# Check for duplicates from the merged dataset (1)
-all_smhi_duplicates11 <- all_smhi_secchi11 %>%
-  group_by(Date, Latitude, Longitude, Assessment_unit, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Cruise, Station, secchi, Year, Month, bottom_m) %>%
+#### Look for duplicate data 
+# Check for duplicates in ices
+smhi_duplicates <- smhi %>%
+  group_by(Latitude, Longitude, Cruise, Station, Date, secchi) %>%
   summarise(n = n()) %>%
   filter(n > 1) %>%
   ungroup() 
 
-all_smhi_unique11 <- all_smhi_secchi11 %>% 
-  distinct(Date, Latitude, Longitude, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Visit_event_id = Cruise, Station, secchi, Year, Month, bottom_m) %>% 
-  mutate(supplier = 'smhi')
-
-# Check for duplicates from the merged dataset (2)
-all_smhi_duplicates22 <- all_smhi_secchi22 %>%
-  group_by(Date, Latitude, Longitude, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Visit_event_id, Station, secchi, Year, Month, bottom_m) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-all_smhi_unique22 <- all_smhi_secchi22 %>% 
-  distinct(Date, Latitude, Longitude, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Visit_event_id, Station, secchi, Year, Month, bottom_m) %>% 
-  mutate(supplier = 'smhi')
-
-all_smhi_unique3 <- rbind(
-  all_smhi_secchi11, all_smhi_secchi22
-)
-##### Check Extra duplicates 
-# Check for duplicates from the merged dataset (2)
-all_smhi_duplicates3 <- smhi_secchi %>%
-  group_by(X1, Date, Latitude, Longitude, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Provtagningstillfaelle.id, Stationsnamn, value) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-all_smhi_unique22 <- all_smhi_secchi22 %>% 
-  distinct(Date, Latitude, Longitude, HELCOM_COASTAL_CODE, HELCOM_ID, 
-           BHI_ID, Visit_event_id, Station, secchi, Year, Month, bottom_m) %>% 
-  mutate(supplier = 'smhi')
+# Only extract unique observations
+smhi_unique <- smhi %>% 
+  distinct(Cruise, Station, Date, Latitude, Longitude, BHI_ID, Assessment_unit,
+           HELCOM_COASTAL_CODE, HELCOM_ID, Year, Month, secchi, bottom_m) %>% 
+  mutate(supplier = 'smhi') # 51448
 
 ## is na smhi
-smhi.na2 <- all_smhi_unique22 %>%
+smhi.na <- smhi_unique %>%
   filter(is.na(BHI_ID))
-dim(smhi.na1) # 49882  14
+dim(smhi.na) # 49123  14
 
-smhi.na.loc2 <- smhi.na2 %>% 
+smhi.na.loc <- smhi.na %>% 
   dplyr::select(Latitude, Longitude) %>% 
   distinct() ## unique locations
-dim(smhi.na.loc1) # 3762   2
+dim(smhi.na.loc) # 3619   2
 
-smhi.na2 %>% 
+smhi.na %>% 
   dplyr::select(HELCOM_COASTAL_CODE)%>% 
   distinct()  ## none are offshore
 
-smhi.na2 %>% 
+smhi.na %>% 
   filter(HELCOM_COASTAL_CODE == 0)
-# no coast code =0 (smhi.na2)
+
 #################################################
-  
-## remove OSPAR rows
-  filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
-  dplyr::select(cruise, station, date, year, month,
-                lat, lon, secchi, bottom_m, supplier)
+  ## remove OSPAR rows
+#  filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
+#  dplyr::select(cruise, station, date, year, month,
+#                lat, lon, secchi, bottom_m, supplier)
 
 ## Use setdiff() to indentify data smhi not in ices  
 new_smhi_unique <- setdiff(dplyr::select(smhi_unique, -supplier), dplyr::select(ices_unique, -supplier)) %>%
   mutate(supplier = "smhi") 
 
 ## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
-secchi <- bind_rows(ices_unique, new_smhi_unique) %>% 
-  distinct() %>% # 146572 tot observations (as for method 2)
-  rename(secchi_m = secchi) 
+secchi <- bind_rows(ices_unique, smhi_unique) %>% 
+  distinct() %>% # 231545 tot observations 
+  rename(secchi_m = secchi)
 
 # Save dataset (bhi-prep)
 readr::write_csv(
@@ -478,95 +426,8 @@ readr::write_csv(
 )
 ```
 
-
-**METHOD 2 (duplicates)**
-```{r}
-## METHOD 2
-
-## 1) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
-## 2) Merge the two datasets
-## 3) Check duplicates from the merged datasets and distinct 
-## 4) Need to add the 'supplier' column
-
-### ICES Data overview
-# colnames(secchi_raw_ices)
-# str(secchi_raw_ices)
-
-# Check for duplicates in ices
-ices_duplicates <- secchi_raw_ices %>%
-  group_by(Station, Cruise, Secchi.Depth..m., Latitude..degrees_north., 
-           Longitude..degrees_east.,yyyy.mm.ddThh.mm) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-# Only extract unique observations
-ices_unique <- secchi_raw_ices %>% 
-  mutate(supplier = 'ices') %>%  
-  distinct(yyyy.mm.ddThh.mm, Latitude..degrees_north., Longitude..degrees_east., 
-           Secchi.Depth..m., Bot..Depth..m., Station, Cruise, supplier) 
-
-### SMHI data overview
-# colnames(secchi_raw_smhi)
-# str(secchi_raw_smhi)
-
-# Check for duplicates in smhi
-smhi_duplicates <- secchi_raw_smhi %>%
-    group_by(Station.name, Value, Sample.latitude..DD., 
-             Sample.longitude..DD., Sampling.date, Shark.sample.id.MD5) %>%
-    summarise(n = n()) %>%
-    filter(n > 1) %>%
-    ungroup()
-
-# Only extract unique observations
-smhi_unique <- secchi_raw_smhi %>% 
-  mutate(supplier = 'smhi') %>% 
-  distinct(Station.name, Value, Sample.latitude..DD., 
-           Sample.longitude..DD., Sampling.date, Year, Shark.sample.id.MD5, Station.ID..VISS., 
-           HELCOM.OSPAR.area, Station.water.depth, supplier)
-
-### Merging the two datasets
-secchi <- bind_rows( 
-   # smhi
-  smhi_unique %>% 
-    rename(secchi = Value, date = Sampling.date, year = Year, 
-           # use the decimal degrees for lat and lon (as for ICES)
-           lat = Sample.latitude..DD., lon = Sample.longitude..DD.,
-           # don't find the "cruise" variable?? (chose "Station.ID..VISS." as example)
-           cruise = Station.ID..VISS., station = Station.name, bottom_m = Station.water.depth) %>%
-    mutate(date =  as.Date(date), month = format(date, "%m"),
-           secchi = as.numeric(secchi), year = as.character(year)) %>% 
-    ## remove OSPAR rows
-    filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
-    dplyr::select(cruise, station, date, year, month,
-                  lat, lon, secchi, bottom_m),
-  # ices
-  ices_unique %>% 
-    rename(secchi = Secchi.Depth..m.,  date = yyyy.mm.ddThh.mm, 
-           lat = Latitude..degrees_north., lon = Longitude..degrees_east., 
-           cruise = Cruise, station = Station, bottom_m = Bot..Depth..m.) %>%
-    mutate(date =  as.Date(date), year = format(date, "%Y"), 
-           date =  as.Date(date), month = format(date, "%m"),
-           bottom_m = as.numeric(bottom_m)))
-        
-
-## Check for duplicates in the combined dataset
-secchi_duplicates <- secchi %>%
-    group_by(cruise, station, date, year, 
-             month, lat, lon, secchi, bottom_m) %>%
-    summarise(n = n()) %>%
-    filter(n > 1) %>%
-    ungroup()
-
-## Only extract unique observations
-secchi_unique <- secchi %>% 
-  distinct(cruise, station, date, year, 
-             month, lat, lon, secchi, bottom_m) # %>% 
-  # select summer months (June-September) and Years >= 2000  
-  # filter(month == "06" | month == "07" | month == "08" | month == "09") %>% 
-  # filter(year >=2000)
-```
 <br/>
+
 
 #### 2.2.2. Merging Oxygen Datasets
 
