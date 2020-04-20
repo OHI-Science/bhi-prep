@@ -164,7 +164,6 @@ for(g in goal_stocks){
     write_csv(
       file.path(
         dir_layers, 
-        paste0("v", assess_year), 
         sprintf("%s_bbmsy_bhi%s.csv", str_to_lower(g), assess_year)
       )
     )
@@ -174,7 +173,6 @@ for(g in goal_stocks){
     write_csv(
       file.path(
         dir_layers, 
-        paste0("v", assess_year), 
         sprintf("%s_ffmsy_bhi%s.csv", str_to_lower(g), assess_year)
       )
     )
@@ -186,7 +184,6 @@ for(g in goal_stocks){
     write_csv(
       file.path(
         dir_layers, 
-        paste0("v", assess_year), 
         sprintf("%s_landings_bhi%s.csv", str_to_lower(g), assess_year)
       )
     )
@@ -208,19 +205,16 @@ This involves matching current and prior ICES stock assessment areas, joining th
 ## load layers
 fis_bbmsy <- read_csv(file.path(
   dir_layers, 
-  sprintf("v%s", assess_year), 
   sprintf("fis_bbmsy_bhi%s.csv", assess_year)
 )) %>% rename(bbmsy = value)
 
 fis_ffmsy <- read_csv(file.path(
   dir_layers, 
-  sprintf("v%s", assess_year), 
   sprintf("fis_ffmsy_bhi%s.csv", assess_year)
 )) %>% rename(ffmsy = value)
 
 fis_landings <- read_csv(file.path(
   dir_layers, 
-  sprintf("v%s", assess_year), 
   sprintf("fis_landings_bhi%s.csv", assess_year)
 ))
 
@@ -613,7 +607,7 @@ write_csv(
   cod_penalty_rollmean %>% 
     dplyr::filter(num_samp > 3) %>% 
     dplyr::select(region_id, year, penalty_factor = ma5),
-  file.path(dir_layers, bhi_version, sprintf("fis_cod_penalty_bhi%s.csv", assess_year))
+  file.path(dir_layers, sprintf("fis_cod_penalty_bhi%s.csv", assess_year))
 )
 ```
 <br>

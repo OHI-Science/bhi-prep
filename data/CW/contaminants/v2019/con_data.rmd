@@ -197,7 +197,7 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
 
-2.1.4 Concerning Substances Datasets
+#### 2.1.4 Concerning Substances Datasets
 
 <!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_ConcerningSubstances -->
 <!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_ConcerningSubstances -->
