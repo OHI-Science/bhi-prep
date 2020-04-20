@@ -6,11 +6,11 @@ library(sf)
 library(R.utils)
 ```
 
-### 2.1 Datasets with Sources
+### 2.1 Datasets with Sources {-}
 <br/>
 
 
-#### 2.1.1 Rainbow trout mariculture Sweden
+#### 2.1.1 Rainbow trout mariculture Sweden {-}
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_se/rbt_se.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -21,12 +21,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Jorbruksverket database](https://www.scb.se/hitta-statistik/statistik-efter-amne/jord-och-skogsbruk-fiske/vattenbruk/vattenbruk/) <br/> [Jorbruksverket](https://www.scb.se/contentassets/cef2fb103630496bb532e76c98f747e6/jo1201_2018a01_sm_jo60sm1901.pdf) Downloaded 2019-10-09 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [Jorbruksverket database](https://www.scb.se/hitta-statistik/statistik-efter-amne/jord-och-skogsbruk-fiske/vattenbruk/vattenbruk/) <br/> from [document](https://www.scb.se/contentassets/cef2fb103630496bb532e76c98f747e6/jo1201_2018a01_sm_jo60sm1901.pdf) Downloaded 2019-10-09 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br/>
 
-#### 2.1.2 Rainbow trout mariculture Denmark
+#### 2.1.2 Rainbow trout mariculture Denmark {-}
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk/rbt_dk.csv -->
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_dk/rbt_dk_2005.csv -->
 
@@ -38,13 +39,14 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Ministry of Environment and Food of Denmark database](https://fiskeristyrelsen.dk/fiskeristatistik/akvakulturstatistik/) <br/> Downloaded 2019-10-11 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [Ministry of Environment and Food of Denmark database](https://fiskeristyrelsen.dk/fiskeristatistik/akvakulturstatistik/) <br/> Downloaded 2019-10-11 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 
 <br/>
 
-#### 2.1.3 Mariculture in Finland
+#### 2.1.3 Mariculture in Finland {-}
 
 **Mariculture by Species (Rainbow Trout)**
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_fi/rbt_fi.csv -->
@@ -60,7 +62,8 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2019-10-10 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2019-10-10 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br>
@@ -78,12 +81,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2020-1-20 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f) <br/> Downloaded 2020-1-20 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br/>
 
-#### 2.1.4 Rainbow trout mariculture Germany
+#### 2.1.4 Rainbow trout mariculture Germany {-}
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/rbt_de/rbt_de.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -93,12 +97,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Email from plant manager](tassilo@jaeger-kleinicke.de) <br/> Received 2019-10-30")
+knitr::kable(tab, format = "html", caption = "Source: [Email from plant manager](tassilo@jaeger-kleinicke.de) <br/> Received 2019-10-30") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br/>
 
-#### 2.1.5 Finfish Mariculture
+#### 2.1.5 Finfish Mariculture {-}
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/Finfish_mariculture/Finfish_mariculture.shp -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -109,12 +114,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [HELCOM database](http://maps.helcom.fi/website/mapservice/?datasetID=3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> (http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> Downloaded 2019-10-09 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [HELCOM database](http://maps.helcom.fi/website/mapservice/?datasetID=3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> [metadata](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/3cfa469a-6a78-4913-b82f-57fd0e7f4dc0) <br/> Downloaded 2019-10-09 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br/>
 
-#### 2.1.6 All Baltic countries, Aquaculture Production (FAO)
+#### 2.1.6 All Baltic countries, Aquaculture Production (FAO) {-}
 <!-- dataset save location BHI_share/2.0/Goals/FP/Mariculture/FAO_fishstat/FAO_fishstat.csv -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -125,12 +131,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/statistics/software/fishstatj/en#downlApp) <br/> Downloaded 2019-10-16 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [FAO FishStatJ](http://www.fao.org/fishery/statistics/software/fishstatj/en#downlApp) <br/> Downloaded 2019-10-16 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br/>
 
-#### 2.1.7 Reference Point: maximum nutrient discharge (N and P)
+#### 2.1.7 Reference Point: maximum nutrient discharge (N and P) {-}
 
 In 2016 HELCOM Contracting Parties adopted Recommendation 37/3 on ["Sustainable aquaculture in the Baltic Sea Region"](http://www.helcom.fi/Recommendations/Rec%2037-3.pdf). 
 
@@ -148,9 +155,9 @@ Therefore, estimates for all other datasets will be made.
 
 <br>
 
-### 2.2 Centralization & Normalization
+### 2.2 Centralization & Normalization {-}
 
-```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
+```{r load raw mariculture data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "FP", "MAR") # list.files(dir_rawdata)
 
@@ -181,11 +188,12 @@ st_geometry(finfish_mariculture_raw) <- NULL
 finfish_mariculture_raw[, 1:28] <- sapply(finfish_mariculture_raw[, 1:28], as.character)
 finfish_mariculture_raw[, 8:28] <- sapply(finfish_mariculture_raw[, 8:28], as.numeric)
 ```
+
 --- 
 
 <br>
 
-#### 2.2.1 Spatial regions of the Data
+#### 2.2.1 Spatial regions of the Data {-}
 
 **Create lookup tab for matching areas with bhi regions.**   
 May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data. 
@@ -314,7 +322,7 @@ knitr::include_graphics(file.path(MARareasMap, "mar_areas_maps.png"))
 
 <br>
 
-#### 2.2.2 Finish datasets: use total-mariculture-by-region to downscale Rainbow Trout data
+#### 2.2.2 Finish datasets: use total-mariculture-by-region to downscale Rainbow Trout data {-}
 
 Data were available both as total marine production by region within Finlnd, and also as total production nation-wide per fish species. Rainbow trout dominated the total fish production (over 90%). Following Ginnette's approach from the first assessment, we convert the total production by region to rainbow trout production by region by using the country wide percent rainbow trout of the marine production in each year. Other minor contributions to total production were European whitefish, Trout, other species, Roe of rainbow trout, roe of european whitefish.
 
@@ -433,7 +441,7 @@ gridExtra::grid.arrange(hist_finland, boxplot_finland, nrow = 1, widths = c(2, 1
 
 <br>
 
-#### 2.2.3 Merge datasets
+#### 2.2.3 Merge datasets {-}
 
 **National and FAO datasets**
 
@@ -662,18 +670,21 @@ finfish_gather_yr <- as_tibble(finfish_raw) %>%
 
 ```{r merge all raw data together, echo = TRUE}
 combined_rawdata <- rbind(rbt_raw, finfish_gather_yr)
+```
 
+```{r save merged data, echo = TRUE, eval = FALSE}
 readr::write_csv(
   combined_rawdata, 
   here::here("data", "MAR", version_year, "intermediate", "mar_merged_rawdata.csv")
 )
 ```
 
+
 ---
 
 <br>
 
-#### 2.2.4 Standardize Units: Production regions and BHI Region assignments
+#### 2.2.4 Standardize Units: Production regions and BHI Region assignments {-}
 
 Note: where multiple BHI regions exist within the areas reported for mariculture data (e.g. "Ne_coast" for Sweden contains BHI regions 37, 39, and 41), the data values are split among the regions based on region sizes, i.e. with the assumption that each unit area is equally likely to contain the given mariculture farm... For future assessments, if adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles).  
 
@@ -742,8 +753,9 @@ combined_w_rgns <- combined_w_rgns %>%
     rgn_area_km2 = Area_km2, area_fraction = area_frac,
     split_production, split_N, split_P
   )
+```
 
-## save the full merged data with assigned BHI regions
+```{r save the full merged data with assigned BHI regions, echo = TRUE, eval = FALSE}
 readr::write_csv(
   combined_w_rgns, 
   here::here("data", "MAR", version_year, "intermediate", "mar_combined_w_rgns.csv")
@@ -754,7 +766,7 @@ readr::write_csv(
 
 <br/>
 
-### 2.3 Initial Data Exploration
+### 2.3 Initial Data Exploration {-}
 
 **Data by Source**
 

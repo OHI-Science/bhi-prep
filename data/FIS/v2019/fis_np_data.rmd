@@ -4,11 +4,9 @@ source(here::here("R", "setup.R"))
 # source(file.path(here::here(), "R", "data.R"))
 ```
 
-### 2.1 Datasets with Sources
-<br/>
+### 2.1 Datasets with Sources {-}
 
-#### 2.1.1 Landings (for F/FMSY) and SSB (for B/BMSY) Data
-<br/>
+#### 2.1.1 Landings (for F/FMSY) and SSB (for B/BMSY) Data {-}
 
 **Cod in subdivisions 22-24, western Baltic stock**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/FP/FIS/cod_SDs22_24/cod_SDs22_24.csv -->
@@ -24,9 +22,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10446) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10446) <br/> Downloaded 2019-10-07 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
+
+<br>
 
 **Cod in subdivisions 24-32, eastern Baltic stock**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/FP/FIS/cod_SDs24_32/cod_SDs24_32.csv -->
@@ -42,9 +42,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12941) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12941) <br/> Downloaded 2019-10-07 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
+
+<br>
 
 **Herring in subdivisions 20-24 -Skagerrak, Kattegat and western Batic-**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/FP/FIS/herring_SDs20_24/herring_SDs20_24.csv -->
@@ -60,9 +62,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12592) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12592) <br/> Downloaded 2019-10-07 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
+
+<br>
 
 **Herring in subdivisions 25-29,32 -central Baltic Sea (excluding Gulf of Riga)-**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/FP/FIS/herring_SDs25_29_32/herring_SDs25_29_32.csv -->
@@ -78,9 +82,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10408) <br/> Downloaded 2019-10-07 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10408) <br/> Downloaded 2019-10-07 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
+
+<br>
 
 **Herring in subdivision 28.1 (Gulf of Riga)**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/FP/FIS/herring_SD_28.1/herring_SD_28.1.csv -->
@@ -96,9 +102,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10404) <br/> Downloaded 2019-10-08 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=10404) <br/> Downloaded 2019-10-08 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
+
+<br>
 
 **Herring in subdivisions 30-31 (Gulf of Bothnia)**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/FP/FIS/herring_SDs30_31/herring_SDs30_31.csv -->
@@ -114,9 +122,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12738) <br/> Downloaded 2019-10-08 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12738) <br/> Downloaded 2019-10-08 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
+
+<br>
 
 **Sprat in subdivisions 22-32 (Baltic Sea)**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/NP/sprat_SDs22_32/sprat_SDs22_32.csv -->
@@ -132,16 +142,18 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12942) <br/> Downloaded 2019-10-08 by Andrea De Cervo")
+knitr::kable(tab, format = "html", caption = "Source: [ICES database](http://standardgraphs.ices.dk/ViewCharts.aspx?key=12942) <br/> Downloaded 2019-10-08 by Andrea De Cervo") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
-<br/>
 
-#### 2.1.2 Cod Trawl Survey
+<br>
+
+#### 2.1.2 Cod Trawl Survey {-}
 
 **Baltic International Trawl Survey (BITS) Cod Length and Weight - ICES subdivisions 21-29**  
 <!-- dataset save location BHI_share/2.0/Goals/FP/FIS/SMALK_2019-10-22 16_34_01/SMALK_2019-10-22_16_34_01.csv -->
 
-```{r cod trawl data to calculate fultons K}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Data Product:", "SMALK"),
   c("Survey:", "BITS (Baltic International Trawl Survey)"),
@@ -152,13 +164,16 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES DATRAS database](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 2019-10-22 by Eleanore Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES DATRAS database](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 2019-10-22 by Eleanore Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
+
+<br>
 
 **Baltic International Trawl Survey (BITS) Cod CPUE - ICES subdivisions 21-29**  
 <!-- dataset save location BHI_share/2.0/Goals/FP/FIS/CPUE_per_length_per_haul_per_hour_2019-11-07_13_36_17/CPUE_per_length_per_haul_per_hour_2019-11-07_13_36_17.csv -->
 
-```{r cod trawl CPUE data}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Data Product:", "CPUE per length per haul per hour"),
   c("Survey:", "BITS (Baltic International Trawl Survey)"),
@@ -172,12 +187,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES DATRAS database](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 2019-11-07 by Eleanore Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES DATRAS database](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 2019-11-07 by Eleanore Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
-<br/>
+<br>
 
-#### 2.1.3 FMSY and BMSY Reference Points
+#### 2.1.3 FMSY and BMSY Reference Points {-}
 
 **Cod (Gadus morhua) in subdivisions 22–24, western Baltic stock (western Baltic Sea)** [Reference points](http://ices.dk/sites/pub/Publication%20Reports/Advice/2019/2019/cod.27.22-24.pdf): 
 BMSY: 21 876 ; FMSY (Ftotal 2020): 0.26  
@@ -201,14 +217,14 @@ BMSY 140 998 ; FMSY 0.15
 BMSY 570 000 ; FMSY 0.26
 
 
-### 2.2 Centralization & Normalization
+### 2.2 Centralization & Normalization {-}
 
 
 Each assessed stock has its own raw datafile. Cod and herring data are saved under `Goals/FP/FIS` and sprat data are saved in the `Goals/NP` folder.
 
 The MSY values (FMSY and BMSY for each assessed stock) are taken from the ICES advice reports, linked in the `standardgraphs.ices.dk` aspx pages. No table is saved with these values- they are entered directly into a dataframe in the code below.
 
-```{r load raw data, message = FALSE, warning = FALSE, echo = TRUE}
+```{r load fisheries raw data, message = FALSE, warning = FALSE, echo = TRUE}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "FP", "FIS") # list.files(dir_rawdata)
 
@@ -269,7 +285,7 @@ msy_data <- as_tibble(msy_data)
 ```
 
 
-#### 2.2.0 Merge datasets and calculate F/FMSY and B/BMSY ratios
+#### 2.2.0 Merge datasets and calculate F/FMSY and B/BMSY ratios {-}
 
 ```{r merge datasets and calculate ffmsy bbmsy ratios, echo = TRUE}
 combined_rawdata <- rbind(
@@ -346,7 +362,7 @@ combined_rawdata <- rbind(
 
 <br>
 
-#### 2.2.1 Standardize Units: Match BHI Regions to ICES Subdivisions
+#### 2.2.1 Standardize Units: Match BHI Regions to ICES Subdivisions {-}
 
 [Map of ICES regions.](https://www.ices.dk/marine-data/Documents/Maps/ICES-Ecoregions-hybrid-statistical-areas.png)
 The map below shows the overlap between ICES subdivisions and the BHI regions:
@@ -515,9 +531,9 @@ combined_w_rgns <- combined_w_rgns %>%
 ```
 <br>
 
-#### 2.2.2 Save Datasets
+#### 2.2.2 Save Datasets {-}
 
-```{r save full merged dataset with raw data and calculated MSY ratios, echo = TRUE}
+```{r save full merged dataset with raw data and calculated MSY ratios, echo = TRUE, eval = FALSE}
 ## full merged dataset with MSY and raw data, as well as calculated ratios
 ## this will be used for the shiny app among other things!
 write_csv(
@@ -526,7 +542,7 @@ write_csv(
 )
 ```
 
-```{r save Eastern cod fultons K dataset, echo = TRUE}
+```{r save Eastern cod fultons K dataset, echo = TRUE, eval = FALSE, eval = FALSE}
 ## full merged dataset with MSY and raw data, as well as calculated ratios
 ## this will be used for the shiny app among other things!
 write_csv(

@@ -1,18 +1,18 @@
 
-```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
+```{r con preamble data, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
 ```
 
 
-### 2.1 Datasets with Sources
+### 2.1 Datasets with Sources {-}
 <br/>
 
-#### 2.1.1 PCB Data
+#### 2.1.1 PCB Data {-}
 
 **PCB Data in Biota**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_PCBs.csv -->
 <!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_20Feb07_PCBs.csv -->
-```{r PCB biota data, echo = FALSE, results = "asis"}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1990-2017"),
   c("Purpose of monitoring", "All"),
@@ -26,12 +26,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 **PCB Congeners**
 <!-- reference codes found here: https://vocab.ices.dk/?CodeID=26983 -->
-```{r PCB congeners table, echo = FALSE}
+```{r echo = FALSE, results = "asis"}
 pcb_congeners <- t(data.frame(
   c("CB180", "2,2',3,4,4',5,5'-heptachlorobiphenyl"),
   c("SCB7", "sum of CBs.- Sum of"),
@@ -81,13 +82,13 @@ pcb_congeners <- t(data.frame(
 
 colnames(pcb_congeners) <- c("Data Code", "")
 rownames(pcb_congeners) <- NULL
-htmlTable::htmlTable(pcb_congeners, align = "lr", col.rgroup = c("none", "#F7F7F7"))
+htmlTable::htmlTable(pcb_congeners, align = "lr", col.rgroup = c("none", "#8D909E"))
 ```
 <br/>
 
 **PCBs in Sediment**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_PCBs/ContaminantsSediment_PCBs.csv -->
-```{r PCB sediment data, echo = FALSE, results = "asis"}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "All8"),
   c("Purpose of monitoring", "All"),
@@ -101,16 +102,17 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 <br/>
 
-#### 2.1.2 PFOS Data
+#### 2.1.2 PFOS Data {-}
 
 **PFOS in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_PFOS.csv -->
 <!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_20Feb07_PFOS.csv -->
-```{r PFOS biota data, echo = FALSE, results = "asis"}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "2005-2017  (2005 earliest allowed)"),  
   c("Purpose of monitoring", "All"), 
@@ -124,17 +126,18 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 <br/>
 
-#### 2.1.3 Dioxin Data
+#### 2.1.3 Dioxin Data {-}
 
 **Dioxins in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_Dioxins.csv -->
 <!-- w/ one year more...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_20Feb07_Dioxins.csv -->
-```{r dioxin biota data, echo = FALSE, results = "asis"}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "1998-2017  (1998 earliest allowed)"),  
   c("Purpose of monitoring", "All"), 
@@ -148,12 +151,13 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
 **Dioxin Congeners**
 <!-- reference codes found here: https://vocab.ices.dk/?CodeID=26986 -->
-```{r dioxin congeners table, echo = FALSE}
+```{r echo = FALSE, results = "asis"}
 dioxin_congeners <- t(data.frame(
   c("CDD1N", "1 2 3 7 8-pentachlorodibenzo-p-dioxin"),  
   c("CDD4X", "1 2 3 4 7 8-hexachlorodibenzo-p-dioxin"), 
@@ -174,13 +178,13 @@ dioxin_congeners <- t(data.frame(
 
 colnames(dioxin_congeners) <- c("Data Code", "")
 rownames(dioxin_congeners) <- NULL
-htmlTable::htmlTable(dioxin_congeners, align = "lr", col.rgroup = c("none", "#F7F7F7"))
+htmlTable::htmlTable(dioxin_congeners, align = "lr", col.rgroup = c("none", "#8D909E"))
 ```
 <br>
 
 **Dioxins in Sediment**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_Dioxins/ContaminantsSediment_Dioxins.csv -->
-```{r dioxin sediment data, echo = FALSE, results = "asis"}
+```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Year", "All"),  
   c("Purpose of monitoring", "All"), 
@@ -194,10 +198,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
+knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
 ```
 
-#### 2.1.4 Concerning Substances Datasets
+#### 2.1.4 Concerning Substances Datasets {-}
 
 <!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_ConcerningSubstances -->
 <!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_ConcerningSubstances -->
@@ -209,7 +214,7 @@ A list of concerning substances was obtained from [European Chemical Agency Cand
 
 <br>
 
-### 2.2 Centralization & Normalization
+### 2.2 Centralization & Normalization {-}
 <!-- note: remainder of this document incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections: -->
 <!-- raw_pcb_data_prep.R, raw_dioxin_data_prep.R, and raw_pfos_data_prep.R -->
 <!-- station_attribute_prep.R, congener_description.R -->
@@ -260,9 +265,9 @@ lapply(
 ```
 
 
-##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills}
+##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills} {-}
 
-###### PCBs
+###### PCBs {-}
 
 ```{r check number of years sample by country in pcb data, results  = "show"}
 ## check number of dates and years sample by country, PCBs data from ICES
@@ -284,7 +289,7 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
 ***
 <br>
 
-###### PFOS 
+###### PFOS {-}
 
 ```{r check number of dates and years sample by country in pfos data,  results  = "show"}
 do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(country){
@@ -304,7 +309,7 @@ do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(countr
 ***
 <br>
 
-###### Dioxins
+###### Dioxins {-}
 
 ```{r check number of dates and years sample by country in dioxin data,  results  = "show"}
 do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(country){
@@ -324,11 +329,11 @@ do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(coun
 ***
 <br>
 
-#### 2.2.1 Rename Fields/Variables
+#### 2.2.1 Rename Fields/Variables {-}
 
 Renaming columns and some variables within columns for clarity. See references: [Contaminants in Biota](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20biota.pdf) and [Contaminants in Sediment](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20sediment.pdf). For more information about the ICES reporting format for environmental data see [this document](http://ices.dk/marine-data/Documents/ENV/ERF3.2.doc), also referenced in [this document from HELCOM BalticBOOST workshop](https://portal.helcom.fi/meetings/HELCOM%20BalticBOOST%20HZ%20WS%201-2016-323/MeetingDocuments/1-9%20Comparison%20of%20COMBINE%20data%20fields%20to%20EIONET%20data%20fields.pdf) on the HOLAS II hazardous substance assessment.
 
-```{r rename fields for data, echo = TRUE, results = "hide"}
+```{r rename fields for contaminants data, echo = TRUE, results = "hide"}
 rename_vars <- function(dataset){
   
   df_vars_renamed <- dataset %>% 
@@ -413,7 +418,7 @@ lapply(
 
 ---
 
-#### 2.2.2 Standardize Units
+#### 2.2.2 Standardize Units {-}
 
 
 The main objective of the code below is to clean the contaminants datases set so they contain only values based on wet weight for biota or dry weight for sediment-matrix measurements, in standardized units of ug/kg.
@@ -496,7 +501,7 @@ gridExtra::grid.arrange(
 
 <!-- the following code chunks are modified from raw_data_prep.r scripts in bhi-1.0-archive/baltic2015/prep/CW/contaminants -->
 
-```{r standardize units in biota datasets, echo = TRUE}
+```{r standardize units in con datasets, echo = TRUE}
 
 standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
   
@@ -942,14 +947,14 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
 
 <br>
 
-#### 2.2.3 Wrangle all and Save
+#### 2.2.3 Wrangle all and Save {-}
 
 Apply the Standardization function defined above to all 5 Contaminants datasets and save the cleaned, harmonized data for later analysis.
 For PCBs in biota data, remove PCB, SCB, SCB7 variables as these are summarized data or depreciated codes; for PCBs in sediments remove PCB and SCB. 
 
 <!-- ideally at this stage we would save to a postgres+postgis database; still in the process of building this database now -->
 
-```{r save cleaned datasets, echo = TRUE, message = FALSE, warning = FALSE, results = "hide"}
+```{r save cleaned con datasets, echo = TRUE, message = FALSE, warning = FALSE, results = "hide", eval = FALSE}
 dir_interm <- here::here("data", "CW", "contaminants", version_year, "intermediate")
 
 lapply(
@@ -992,9 +997,9 @@ lapply(
 
 ---
 
-### 2.3 Initial Data Exploration
+### 2.3 Initial Data Exploration {-}
 
-```{r combining data for initial exploration, echo = TRUE, warning = FALSE, message = FALSE}
+```{r combining con data for initial exploration, echo = TRUE, warning = FALSE, message = FALSE}
 ## to start running code from here, will need to load in cleaned  datasets...
 
 # dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
@@ -1060,11 +1065,11 @@ plotdf <- bind_rows(
 
 <br>
 
-#### 2.3.2 Spatial Distributions of Measurements {.tabset .tabset-fade .tabset-pills}
+#### 2.3.2 Spatial Distributions of Measurements {.tabset .tabset-fade .tabset-pills} {-}
 
 The maps below show data distribution spatially. Size and color correspond to number of distinct dates measurements were collected for a variable, for the given location within the specified time period (2016 through 2019); larger points with more yellow color indicate greater number of observations while smaller more red points indicate fewer observations. Opacity corresponds to number of years with greater transparency indicating fewer years of data. These faceted plots are created for multiple species; the species selected for visualization are those with the greatest number of measurements recorded across the three indicators.
 
-```{r make plotting dataframe, echo = TRUE, warning = FALSE, message = FALSE}
+```{r make cw con plotting dataframe, echo = TRUE, warning = FALSE, message = FALSE}
 make_map <- function(mapdata){
   
   ## make data spatial using lat/lon columns
@@ -1111,7 +1116,7 @@ make_map <- function(mapdata){
 
 <br>
 
-##### Clupea Harengus
+##### Clupea Harengus {-}
 
 ```{r sampling maps herring, results = "show", echo = TRUE, fig.width = 11, fig.height = 26.7}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus")))
@@ -1120,7 +1125,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus"
 ***
 <br>
 
-##### Zoarces Viviparus
+##### Zoarces Viviparus {-}
 
 ```{r sampling maps eelpout, results = "show", echo = TRUE, fig.width = 11, fig.height = 22.55}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparus")))
@@ -1129,7 +1134,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparu
 ***
 <br>
 
-##### Perca Fluviatilis
+##### Perca Fluviatilis {-}
 
 ```{r sampling maps perch, results = "show", echo = TRUE, fig.width = 11, fig.height = 26.7}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatilis")))
@@ -1138,7 +1143,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatili
 ***
 <br>
 
-##### Platichthys Flesus
+##### Platichthys Flesus {-}
 
 ```{r sampling maps flounder, results = "show", echo = TRUE, fig.width = 11, fig.height = 20.6}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys flesus")))
@@ -1147,7 +1152,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys fles
 ***
 <br>
 
-##### Mytilus Edulis
+##### Mytilus Edulis {-}
 
 ```{r sampling maps blue muscles, results = "show", echo = TRUE, fig.width = 11, fig.height = 16.4}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")))
@@ -1156,7 +1161,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")
 ***
 <br>
 
-##### Uria Aalge
+##### Uria Aalge {-}
 
 ```{r sampling maps common murre, results = "show", echo = TRUE, fig.width = 11, fig.height = 16.4}
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
@@ -1165,7 +1170,7 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
 ***
 <br>
 
-##### Sediments
+##### Sediments {-}
 
 ```{r sampling maps sediments, results = "show", echo = TRUE, fig.width = 11, fig.height = 16.4}
 make_map(filter(plotdf, matrix == "sediment"))

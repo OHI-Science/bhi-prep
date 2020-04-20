@@ -1,14 +1,5 @@
----
-title: "Wild-Caught Fisheries - Food Provision Subgoal"
-output:
-  html_document:
-    toc: true
-    toc_depth: 4
----
 
-<br>
-
-```{r preamble prep, message = FALSE}
+```{r fis preamble prep, message = FALSE}
 loc <- here::here("prep", "FIS")
 
 source(here::here("R", "setup.R"))
@@ -25,14 +16,14 @@ stocks_cols <- RColorBrewer::brewer.pal(6, "Paired") %>% str_replace("#1F78B4", 
 
 <br>
 
-## 1. Background
+## 1. Background {-}
 
-```{r background, child = bkgd_path, results = "asis", echo = FALSE}
+```{r fis background, child = bkgd_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
 
-## 2. Data
+## 2. Data {-}
 
 This prep document is used to generate and explore the following data layers: 
 
@@ -48,14 +39,14 @@ This prep document is used to generate and explore the following data layers:
 
 These are saved to the `layers/v2019` folder. Intermediate datasets saved to `data/FIS/v2019/intermediate` include: `fis_full_merged_dataset.csv` and`fis_cod_fultonsK.csv`. All these are derived from or informed by the following raw datasets.
 
-```{r data, child = data_path, results = "asis", echo = FALSE, fig.width = 9.5}
+```{r fis data, child = data_path, results = "asis", echo = FALSE, fig.width = 9.5}
 ```
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
-### 3.1 Reorganizing/wrangling
+### 3.1 Reorganizing/wrangling {-}
 
 This section prepares data layers for FIS and NP at the same time, separating the fish stocks for each:
 
@@ -63,7 +54,7 @@ This section prepares data layers for FIS and NP at the same time, separating th
 - NP stocks: spr_22-32
 
 
-#### 3.1.1 Wrangle and save layers for FIS and NP Goals
+#### 3.1.1 Wrangle and save layers for FIS and NP Goals {-}
 
 The F/FMSY, B/BMSY, and landings data are the ICES stock assessment area values, expanded to have all years rows per BHI region within the stock assessment area, and row-bound to include all stocks in one table.
 
@@ -191,16 +182,16 @@ for(g in goal_stocks){
 ```
 
 
-### 3.2 Evaluate data & sampling patterns
+### 3.2 Evaluate data & sampling patterns {-}
 
-#### 3.2.1 Comparing with previous BHI Assessment
+#### 3.2.1 Comparing with previous BHI Assessment {-}
 
 The code below loads FIS layers from current and prior BHI assessments so the raw metrics can be compared before scores are calculated-- an early check which can help catch data quality issues, and helpful to suss out how changes in original data might be reflected in final goal scores.
 
 This involves matching current and prior ICES stock assessment areas, joining the datasets, and plotting values of one BHI version against the other, per metric and stock. These plots can be used to e.g. identify outliers. Values for which the ICES areas changed are highlighted so as to effects of this can be visually inspected.
 
 
-```{r compare to data used in last assessment, fig.height = 3.8}
+```{r compare to fis data used in last assessment, fig.height = 3.8}
 
 ## load layers
 fis_bbmsy <- read_csv(file.path(
@@ -296,7 +287,7 @@ gridExtra::grid.arrange(compare_ffmsy_plot, compare_bbmsy_plot, nrow = 1, widths
 
 <br>
 
-#### 3.2.2 Proportions of total catch over time
+#### 3.2.2 Proportions of total catch over time {-}
 
 Of all the fisheries landings that occurred in a given area and year, what proportion is made up by each stock?  
 How have these proportions changed over time?
@@ -338,12 +329,12 @@ ggplot(filter(yearly_rgn_props, year >= 1995)) +
 <br>
 <br>
 
-#### 3.2.3 Regions map for stock proportions (most recent year) of total catch
+#### 3.2.3 Regions map for stock proportions (most recent year) of total catch {-}
 
 These proportions are the weights used for combining statuses of multiple stock into one status value for the region.
 
 
-```{r map values by bhi and ICES regions, results = "show"}
+```{r map stock values by bhi and ICES regions, results = "show"}
 ## combine wrangled data with spatial info for mapping
 map_format_data <- yearly_rgn_props %>% 
       filter(year == max(yearly_rgn_props$year)) %>%
@@ -428,7 +419,7 @@ ggplot2::ggplot(rgns_sp_df) +
 
 <br>
 
-### 3.3 Status and trend
+### 3.3 Status and trend {-}
 
 Calculating status consists of the following steps:
 - derive Eastern Baltic cod penalty factor
@@ -443,15 +434,15 @@ The formulas for calculating F and B scores are based on [this paper](https://do
 <br>
 
 
-#### 3.3.1 Eastern Baltic cod condition penalty factor
+#### 3.3.1 Eastern Baltic cod condition penalty factor {-}
 
 Biomass and mortality are not sufficient to characterize the status of the Eastern Baltic cod, as it is condition not just populations which have significantly declined. Fulton's K is used as a measure of condition. The following method based on [Casini et al. 2016](https://doi.org/10.1098/rsos.160416) :
 
-- Individual body condition (Fulton's K) estimated as K = W/(L^3) × 100 
+- Individual body condition (Fulton's K) estimated as K = W/(L^3) × 100 
 - W = the total weight (g) of the fish
 - L = total length (cm) of the fish
 - condition averaged per length-class for each region, year
-- lengths < 10 cm and ≥60 cm excluded-- not enough data
+- lengths < 10 cm and ≥60 cm excluded-- not enough data
 - focused on quarter 4 as it corresponds to the main feeding season
 
 
@@ -610,6 +601,7 @@ write_csv(
   file.path(dir_layers, sprintf("fis_cod_penalty_bhi%s.csv", assess_year))
 )
 ```
+
 <br>
 
 ```{r cod penalty rolling mean plot, fig.width = 9.5, fig.height = 9}
@@ -632,7 +624,7 @@ ggplot(cod_penalty_rollmean) +
 
 <br>
 
-#### 3.3.2 F-Scores, B-Scores, Weights
+#### 3.3.2 F-Scores, B-Scores, Weights {-}
 
 Status and trend are calculated by `functions.R` when the full BHI index is calculated. The calculations are included here also, so that parameters and results (sensitivity) can be explored. Scores are calculated in two ways (B-scores and F-scores) for each stock in a region, which are then averaged, weighted by a penalty factor if they correspond to Eastern Baltic cod, and combined for all stocks in a region as the geometric mean using catch proportions of total.
 
@@ -793,7 +785,7 @@ Use F and B scores to calculate overall `FIS` goal status:
 2. Apply Eastern Baltic cod condition penalty factor
 3. Take geometric mean weighted by proportion each stock comprises of total catch in each region
 
-```{r calculate scores penalized by poor condition and scores aggregated by BHI region}
+```{r calculate scores penalized by poor cod condition and scores aggregated by BHI region}
 
 ## WEIGHTS
 ## calculate weights with landing data
@@ -828,9 +820,9 @@ weights <- yearly_rgn_props %>%
 
 <br>
 
-#### 3.3.3 Status
+#### 3.3.3 Status {-}
 
-```{r calculate status}
+```{r calculate fis status}
 
 ## geometric mean weighted by proportion (hence the weights df) of catch in each region
 status_with_penalty <- weights %>% 
@@ -866,7 +858,7 @@ scores <- status_with_penalty %>%
 
 <br> 
 
-```{r evaluate goal model and data, fig.width = 10, fig.height = 8}
+```{r evaluate fis goal model and data, fig.width = 10, fig.height = 8}
 ## visualize scores/status results
 ggplot(status_with_penalty, aes(x = year)) + 
   geom_ribbon(aes(ymin = F_score, ymax = B_score, fill = stock), alpha = 0.3) + 
@@ -881,43 +873,42 @@ ggplot(status_with_penalty, aes(x = year)) +
 ```
 
 
-
-### 3.4 Gapfilling
+### 3.4 Gapfilling {-}
 
 The F/FMSY and B/BMSY data processing for FIS and NP goals do not include any gapfilling or interpolation. However, the matching ICES subdivisions to BHI regions is not exact, and...
 
 The calculation of the Eastern Baltic Cod penalty factor does involve some gapfilling. Specifically, no data was reported in for cod in the [Baltic International Trawl survey (BITS)](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) for ICES areas 30, 31, 32 or in ICES area 29 except for Estonia. While...
 
 
-### 3.5 Methods discussion
+### 3.5 Methods discussion {-}
 
 <br>
 
-#### 3.5.1 Adjustment of Cod scores Based on Body Weight and Length
+#### 3.5.1 Adjustment of Cod scores Based on Body Weight and Length {-}
 
 Source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
 
 
-#### 3.5.2 Matching ICES stock assessment areas to  BHI Regions
+#### 3.5.2 Matching ICES stock assessment areas to BHI Regions {-}
 
 <br>
 
-#### 3.5.3 Setting F-Score and B-score parameters
+#### 3.5.3 Setting F-Score and B-score parameters {-}
 
-```{r, out.width = "70%", results = "show", echo = FALSE}
-knitr::include_graphics("../fis-fscores-formula.png")
+```{r fis fscores formula, out.width = "70%", results = "show", echo = FALSE}
+knitr::include_graphics(file.path(dir_prep, "prep", "FIS", "fis-fscores-formula.png"))
 ```
 
 
-## 4. Visualizing Data Layers
+## 4. Visualizing Data Layers {-}
 
-### 4.1 Goal Status Map
+### 4.1 Goal Status Map {-}
 
 Below is a map of the `FIS` goal status scores. These are not the finalized BHI scores with pressure, resilience, or trend included- just status.
 Spatially, data inputs are the same value per year per stock, across the BHI regions in which the stock exists.  
 BHI status and trend scores differ spatially across regions as they are combinations of multiple stocks status weighted by landings proportions.
 
-```{r goal status map, results = "show"}
+```{r fis goal status map, results = "show"}
 ## combine with spatial info for mapping
 scores_shp <- bhi_rgns_shp %>% 
   dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2) %>% 
@@ -952,13 +943,15 @@ leaflet::leaflet(data = scores_shp) %>%
 
 <br>
 
-## 5. Considerations for `BHI3.0`
+## 5. Considerations for `BHI3.0` {-}
 
 Implement strong sustainability concept e.g. with a BMSY reference representing 'ideal' (near pristine) environmental conditions (e.g. historic extent of anoxic bottom)
 
 <br>
 
-```{r References, child = refs_path, results = "asis", echo = FALSE}
+## 6. References {-}
+
+```{r fis references, child = refs_path, results = "asis", echo = FALSE}
 ```
 
 <br>
