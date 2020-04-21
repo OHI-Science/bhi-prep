@@ -79,6 +79,65 @@ knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydCh
 
 <br/>
 
+**CTD ICES**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Period:", "2000-2020"), 
+  c("Parameter:", "CTD"),
+  c("Country:", "(choose each Baltic country at a time)"),
+  c("Ship:", "Any")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo")
+# each dataset has been extracted by country, Denmark split into three (3) and Germany into five (5) because too big. No CTD found for Lithuania
+```
+*The maximum number of stations per download is 20000*
+
+<br/>
+
+**Hydrogen Sulphide ICES**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Period:", "2000-2020"), 
+  c("Parameter:", "Hydrogen Sulphide"),
+  c("Country:", "(choose each Baltic country at a time)"),
+  c("Ship:", "Any")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo")
+
+```
+*The maximum number of stations per download is 20000*
+
+<br/>
+
+**CTD SMHI**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Datatype:", "Physical and Chemical"), 
+  c("Parameter:", "Dissolved oxygen O2 CTD"),
+  c("Months:", "All"),
+  c("Years:", "2000-2020"),
+  c("Decimal/fält-avgränsare (decimal/delimiter):", "punkt/semikolon (period/semicolon)"),
+  c("Teckenkodning:", "UTF-8"),
+  c("Rubrikrad:", "Englelska (English)")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 16 April 2020 by Andrea De Cervo")
+
+```
+
+<br/>
+
 #### 2.1.3. Chlorophyll a, and Nutrients (DIN and DIP)
 
 **Chlorophyll a, and Nutrients, Baltic Nest**
