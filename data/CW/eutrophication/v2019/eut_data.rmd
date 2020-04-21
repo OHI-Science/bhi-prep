@@ -323,7 +323,7 @@ nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutri
 <br/>
 
 
-#### 2.2.1. Secchi datasets
+#### 2.2.2 Secchi datasets
 
 **Duplicates in the Data** 
 
@@ -369,14 +369,15 @@ ices_duplicates <- ices %>%
 
 # Only extract unique observations
 ices_unique <- ices %>% 
-  distinct(Cruise, Station, Date, Latitude, Longitude, BHI_ID, Assessment_unit,
-           HELCOM_COASTAL_CODE, HELCOM_ID, Year, Month, secchi, bottom_m) %>% 
-  mutate(supplier = 'ices') # 104773
+  distinct(Cruise, Station, Date, Latitude, Longitude, secchi, bottom_m, 
+           BHI_ID, HELCOM_COASTAL_CODE, HELCOM_ID, Year, Month) %>% 
+# removed 'Assessment_unit'
+  mutate(supplier = 'ices') # 102881
 
 ## Which ices data have BHI_ID of NA?
 ices.na <- ices_unique %>%
   filter(is.na(BHI_ID))
-dim(ices.na) # 64450 14
+dim(ices.na) # 64437
 
 ices.na.loc <- ices.na %>% 
   dplyr::select(Latitude, Longitude) %>% 
@@ -442,14 +443,15 @@ smhi_duplicates <- smhi %>%
 
 # Only extract unique observations
 smhi_unique <- smhi %>% 
-  distinct(Cruise, Station, Date, Latitude, Longitude, BHI_ID, Assessment_unit,
-           HELCOM_COASTAL_CODE, HELCOM_ID, Year, Month, secchi, bottom_m) %>% 
-  mutate(supplier = 'smhi') # 51448
+  distinct(Cruise, Station, Date, Latitude, Longitude, secchi, bottom_m, 
+           BHI_ID, HELCOM_COASTAL_CODE, HELCOM_ID, Year, Month, ) %>% 
+# removed 'Assessment_unit'
+  mutate(supplier = 'smhi') # 50696
 
 ## is na smhi
 smhi.na <- smhi_unique %>%
   filter(is.na(BHI_ID))
-dim(smhi.na) # 49123  14
+dim(smhi.na) # 49121  14
 
 smhi.na.loc <- smhi.na %>% 
   dplyr::select(Latitude, Longitude) %>% 
@@ -475,7 +477,7 @@ new_smhi_unique <- setdiff(dplyr::select(smhi_unique, -supplier), dplyr::select(
 
 ## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
 secchi <- bind_rows(ices_unique, smhi_unique) %>% 
-  distinct() %>% # 231545 tot observations 
+  distinct() %>% # 153577 tot observations 
   rename(secchi_m = secchi)
 
 # Save dataset (bhi-prep)
@@ -488,7 +490,7 @@ readr::write_csv(
 <br/>
 
 
-#### 2.2.2. Merging Oxygen Datasets
+#### 2.2.3. Merging Oxygen Datasets
 
 ```{r merge country oxygen data and all CTD country data to make two large datasets with rgn info joined also}
 ## Merging oxygen datasets, only unique entries
@@ -634,6 +636,16 @@ oxboxplot <- ggplot(boxplotdf) +
 gridExtra::grid.arrange(oxmap, oxtsplot, oxboxplot, layout_matrix = rbind(c(1,1),c(1,1),c(2,3)))
 ```
 
+
+#### 2.2.4. Chlorophyll a Wrangling
+
+**Coastal data**  
+
+- non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
+- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
+- Coastal data are removed from the analysis.  
+- This should result in a similar dataset used as Fleming-Lehtinen and Laamanen 2012 (see map). 
+
 **Chlorophyll a data**
 ```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
 
@@ -646,22 +658,48 @@ str(nutrient)
 
 chla <- chlorophyll %>% 
   rename(chla_ug_l = CHL,  date = OBSDATE, time = OBSTIME,
-         lat = LATITUDE, lon = LONGITUDE, 
+         Latitude = LATITUDE, Longitude = LONGITUDE, 
          cruise = SHIP, id = ID, depth_m = OBSDEP) %>%
   mutate(date =  as.Date(date), year = format(date, "%Y"), 
-         date =  as.Date(date), month = format(date, "%m"))
+         date =  as.Date(date), month = format(date, "%m")) %>% 
+  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 31.236.646 
 
 ## Check for duplicates 
 chla_duplicates <- chla %>%
-    group_by(id, cruise, date, year, month, lat,
-             lon, chl, depth) %>%
+    group_by(id, cruise, date, year, month, Latitude,
+             Longitude, chla_ug_l, depth_m) %>%
     summarise(n = n()) %>%
     filter(n > 1) %>%
     ungroup() #no duplicates
 
+# Only extract unique observations
+chla_unique <- chla %>% 
+  distinct(id, cruise, date, year, month, Latitude, Longitude, chla_ug_l, 
+           depth_m, BHI_ID, HELCOM_COASTAL_CODE, HELCOM_ID) 
+# 44071
+
+## Which ices data have BHI_ID of NA?
+chla.na <- chla_unique %>%
+  filter(is.na(BHI_ID))
+dim(chla.na) # 21591 
+
+chla.na.loc <- chla.na %>% 
+  dplyr::select(Latitude, Longitude) %>% 
+  distinct() ## unique locations
+dim(chla.na.loc) # 1448  2
+
+chla.na %>% 
+  dplyr::select(HELCOM_COASTAL_CODE) %>% 
+  distinct()  ## no locations off shore
+
+chla.na %>% 
+  filter(HELCOM_COASTAL_CODE == 0)
+
+## will need to manually add BHI_ID for site with NA values and coastal code of 0
+
 # Save dataset (bhi-prep)
 readr::write_csv(
-  chla, 
+  chla_unique, 
   here::here("data", "CW", "eutrophication", version_year, "intermediate", "chla_rawdata.csv")
 )
 ```
