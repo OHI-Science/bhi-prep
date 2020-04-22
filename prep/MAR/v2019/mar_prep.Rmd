@@ -1,15 +1,5 @@
----
-title: "Mariculture - Food Provision Subgoal"
-output:
-  html_document:
-    toc: true
-    toc_depth: 4
----
 
-<br>
-<br>
-
-```{r preamble prep, message = FALSE}
+```{r mar preamble prep, message = FALSE}
 loc <- here::here("prep", "MAR")
 
 source(here::here("R", "setup.R"))
@@ -22,14 +12,14 @@ refs_path <- file.path(loc, "mar_references.Rmd")
 
 <br>
 
-## 1. Background
+## 1. Background {-}
 
-```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```{r mar background, child = bkgd_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
 
-## 2. Data
+## 2. Data {-}
 
 **Rainbow trout production (Denmark, Sweden and Finland) and Finfish (Denmark, Germany, Sweden and Finland)**
 
@@ -44,25 +34,25 @@ These are saved to the `layers/v2019` folder. Saved to `data/MAR/v2019/intermedi
 <br>
 
 <!-- ## 2. Data --- header in the child  document -->
-```{r Data, child = data_path, results = "asis", echo = FALSE}
+```{r mar data, child = data_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
-```{r load datasets, echo = FALSE, include = FALSE}
+```{r load mar raw datasets, echo = FALSE, include = FALSE}
 combined_rawdata <- read_csv(file.path(dirname(data_path), "intermediate", "mar_merged_rawdata.csv"))
 combined_w_rgns <- read_csv(file.path(dirname(data_path), "intermediate", "mar_combined_w_rgns.csv"))
 lgl2dbl <- c("n_kg", "p_kg", "split_N", "split_P")
 combined_w_rgns[,lgl2dbl] <- sapply(combined_w_rgns[, lgl2dbl], as.numeric) 
 ```
 
-### 3.1 Reorganizing/wrangling
+### 3.1 Reorganizing/wrangling {-}
 
-### 3.2 Imputation/Gapfilling of merged datasets
+### 3.2 Imputation/Gapfilling of merged datasets {-}
 
-#### 3.2.1 Investigate estimates with linear models
+#### 3.2.1 Investigate estimates with linear models {-}
 
 ```{r investigate nutrient estimates with linear models, echo = TRUE}
 ## gapfill using raw merged data, 
@@ -101,9 +91,9 @@ ggplot(plotdf) +
 
 <br>
 
-#### 3.2.2 Gapfill and save MAR layers
+#### 3.2.2 Gapfill and save MAR layers {-}
 
-```{r gapfilling and save datasets, echo = TRUE}
+```{r mar gapfilling and save datasets, echo = TRUE}
 ## create dataset with nutrient ESTIMATES (kg) from COMBINED data
 mar_gapfilling <- combined_w_rgns %>% 
 
@@ -156,7 +146,9 @@ mar_datalayers <- mar_gapfilling %>%
     n_ratio = ifelse(produced_tonnes == 0, 0, n_kg/produced_tonnes),
     p_ratio = ifelse(produced_tonnes == 0, 0, p_kg/produced_tonnes)
   )
+```
 
+```{r save mar intermediate datasets, echo = TRUE, eval = FALSE}
 ## save gapfilled dataset and dataset recording where gapfilling occurred
 write_csv(mar_gapfilling, here::here("data", "MAR", version_year, "intermediate", "mar_gapfilling.csv"))
 
@@ -172,16 +164,15 @@ write_csv(
 )
 ```
 
-
 ---
 
 <br>
 
-## 4. Visualizing Data Layers
+## 4. Visualizing Data Layers {-}
 
 <br/>
 
-### 4.1 Nutrient Use
+### 4.1 Nutrient Use {-}
 
 As noted above, the HELCOM recommnedation is 50gN and 7kgP per kg of fish. The plots below explore differences between recorded and recommended nutrient use. The histogram plots show the distributions of differences with max allowable nutrients minus actual or estimated, so negative values are in excess of the recommendation.
 
@@ -241,7 +232,7 @@ histP_yrs <- ggplot(histdf %>%
 
 **Nutrient Use: Recommended minus Reported Use (g/kg Fish)**
 
-```{r nutrients histograms, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
+```{r mar nutrients histograms, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
 gridExtra::grid.arrange(hist_all, hist_lessthan0, histN_yrs, histP_yrs, nrow = 1)
 ```
 
@@ -249,9 +240,9 @@ gridExtra::grid.arrange(hist_all, hist_lessthan0, histN_yrs, histP_yrs, nrow = 1
 
 <br>
 
-### 4.2 Timeseries Plots
+### 4.2 Timeseries Plots {-}
 
-```{r explore data by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
+```{r explore mar data by country, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 ## time series of production and nutrient use by country
 timeseriesdf <- plotdf %>% 
   group_by(Year, country) %>% 
@@ -302,7 +293,7 @@ nutrientTimeseries
 
 <br/>
 
-### 4.3 Map of Mariculture Data
+### 4.3 Map of Mariculture Data {-}
 
 Below is a map with the `MAR` goal data. Included in the map are data on production (tonnes), nutrient use (grams per kg fish produced), percentage of data gapfilled for (1) production and (2) nutrient use.
 
@@ -395,9 +386,9 @@ leaflet(data = plotshp) %>%
 
 <br>
 
-### 4.4 Gapfilling percentages by Country and Region
+### 4.4 Gapfilling percentages by Country and Region {-}
 
-```{r gapfilled percentages by country and region id, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
+```{r mar data gapfilled percentages by country and region id, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4}
 percentagegf <- ggplot(
   mar_datalayers %>% 
     left_join(
@@ -422,15 +413,15 @@ percentagegf +
 
 <br>
 
-## 5. Considerations for `BHI3.0`
+## 5. Considerations for `BHI3.0` {-}
 
 If more adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles). In particular, regarding Sweden, there are reports (e.g. [page 8, table 9](https://www.scb.se/contentassets/8964475d3a8b4aa88af32e4fcbc248eb/jo1201_2014a01_sm_jo60sm1501.pdf)) where information about rainbow trout production in "other coasts" is split into two areas: sounth-eastern coast and south-western coast. However, these data are only available until 2014.  
 
 <br>
 
-## 6. References
+## 6. References {-}
 
-```{r References, child = refs_path, results = "asis", echo = FALSE}
+```{r mar references, child = refs_path, results = "asis", echo = FALSE}
 ```
 
 <br>
