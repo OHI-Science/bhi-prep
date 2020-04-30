@@ -616,6 +616,8 @@ shared_list <- bind_rows(shared_species_no_insect,
          red_list_category,
          assessment_year_red_list) # Removed species-specific rows
 
+dim(shared_list) # 916 entries
+
 # Plot by threat category
 
 shared_list_threat_n = shared_list %>%
@@ -628,11 +630,198 @@ ggplot(shared_list_threat_n, aes(x=species_group, y=n, fill=red_list_category)) 
 
 ```
 
+### 2.8 Export shared_list object
+
+For use in ICO status calculation, does not contain red_list_category numeric. To check with Ellie if numeric score is needed and for exact file locations.
+
+```{r export for use in ICO calculation}
+
+# Write to two locations - SPP folder and ICO folder
+
+write.csv(shared_list, file.path(dir_spp,'checklist_redlist_data_for_status.csv'),row.names=FALSE)  
+
+write.csv(shared_list, file.path(dir_prep,'ICO/data_database/checklist_redlist_data_for_status.csv'),row.names=FALSE)
+
+```
+
 <br/>
 
-### 2.8 Data Analysis
+### 2.9 Data Analysis
 
-#### 2.8.1 
+#### 2.9.1 Select Data for Analysis and Plot Excluded and Included Data
+
+```{r exclude threat categories without score}
+
+# Check threat categories in shared_list
+
+shared_list %>% select(red_list_category) %>% distinct() # NE, NA and DD to be removed
+
+# Save excluded species in separate object
+
+shared_list_excluded <- shared_list %>%
+  filter(red_list_category %in% c("DD - Data Deficient", "NE - Not Evaluated", "NA - Not Applicable"))
+
+dim(shared_list_excluded) # 64 entries
+
+# Plot excluded data
+
+shared_list_excluded_n = shared_list_excluded %>%
+                       count(species_group, red_list_category)
+
+ggplot(shared_list_excluded_n, aes(x=species_group, y=n, fill=red_list_category))+
+  geom_bar(stat="identity")+
+  ggtitle("Count of excluded species ")
+
+# New shared_list excluding DD, NA and NE threat categories
+
+shared_list_included <- shared_list %>%
+  filter(!red_list_category %in% c("DD - Data Deficient", "NE - Not Evaluated", "NA - Not Applicable"))
+
+dim(shared_list_included) # 852 (correct as = 916 - 64)
+
+# Plot included data (without DD, NA and NE) by species_group and red_list_category
+
+shared_list_included_n = shared_list_included %>%
+                       count(species_group, red_list_category)
+
+ggplot(shared_list_included_n, aes(x=species_group, y=n, fill=red_list_category))+
+  geom_bar(stat="identity")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of species in each IUCN category")
+
+# Plot included data along with basin
+
+shared_list_included_n_loc = shared_list_included %>%
+                             count(Subbasin,species_group,red_list_category)%>%
+                             ungroup()
+
+ggplot(shared_list_included_n_loc, aes(x=species_group, y=n, fill=red_list_category))+
+  geom_bar(stat="identity")+
+  facet_wrap(~Subbasin, scales="free_y")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of species in each IUCN category")
+
+```
+
+#### 2.9.2 Plots by species_group and Subbasin
+
+```{r plots species_group Subbasin}
+
+## Plot species_group excluding threat category
+
+shared_list_included_n_loc_no_category = shared_list_included %>%
+                                         count(Subbasin, species_group) %>% 
+                                         ungroup()
+
+ggplot(shared_list_included_n_loc_no_category, aes(x=species_group, y=n))+
+  geom_bar(stat="identity")+
+  facet_wrap(~Subbasin)+
+  #facet_wrap(~basin, scales="free_y")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of species by taxa group in each basin")
+
+# Plot distribution for each species_group separately by subbasin & threat category
+
+# Benthnic Invertebrates
+
+## color to highlight Gulf of Finland
+
+col_gof = rep(c(rep("black",9),"red",rep("black",7)),4)
+
+ggplot(filter(shared_list_included_n_loc, species_group=="Benthic Invertebrates"))+
+    # geom_point(aes(Subbasin, n), size=2.5, colour=col_gof)+
+  facet_wrap(~red_list_category, scales="free_y")+
+  ylab("Count of species")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of Benthic Invertebrate species in each IUCN category by Subbasin")
+
+## limit the number of Subbasins
+
+data_filtered_plot = shared_list_included_n_loc %>% filter(species_group=="Benthic Invertebrates")%>% filter(Subbasin %in% c("Bothnian Bay", "Bothnian Sea","Aland Sea","The Quark","Gulf of Finland"))
+
+ggplot(data_filtered_plot)+
+    geom_point(aes(Subbasin,n), size=2.5)+
+  facet_wrap(~red_list_category, scales="free_y")+
+  ylab("Count of species")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of Benthic Invertebrate species in each IUCN category Northern Subbasins")
+
+# Birds
+
+ggplot(filter(shared_list_included_n_loc, species_group=="Birds"))+
+    geom_point(aes(Subbasin,n))+
+  facet_wrap(~red_list_category, scales="free_y")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of Bird species in each IUCN category by Subbasin")
+
+# Macrophytes
+
+ggplot(filter(shared_list_included_n_loc, species_group=="Macrophytes"))+
+    geom_point(aes(Subbasin,n))+
+  facet_wrap(~red_list_category, scales="free_y")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of Macrophytes species in each IUCN category by Subbasin")
+
+# Fish and Lampreys
+
+ggplot(filter(shared_list_included_n_loc, species_group=="Fish and Lamprey"))+
+    geom_point(aes(Subbasin,n))+
+  facet_wrap(~red_list_category, scales="free_y")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of Fish and Lamprey species in each IUCN category by Subbasin")
+
+# Mammals
+
+ggplot(filter(shared_list_included_n_loc, species_group=="Mammals"))+
+    geom_point(aes(Subbasin,n))+
+  facet_wrap(~red_list_category, scales="free_y")+
+   theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6))+
+  ggtitle("Count of Mammal species in each IUCN category by Subbasin")
+
+```
+
+#### 2.9.3 Assign BHI Vulnerability Score to Threat Categories
+
+This step highlights a current issue with using just presence data. Regionally extinct and extinct species cannot be detected as they are not present.
+
+```{r BHI score threat category}
+
+# Create vulnerability lookup table
+
+redlist %>% select(red_list_category) %>% distinct() # check all categories 
+
+vuln_lookup <- shared_list_included %>%
+  select(red_list_category) %>%
+  distinct() %>%
+  mutate(red_list_category_numeric = ifelse(red_list_category == 'EX - Extinct', 1,
+                                     ifelse(red_list_category == 'RE - Regionally Extinct', 1,
+                                     ifelse(red_list_category == 'CR - Critically Endangered', 0.8,
+                                     ifelse(red_list_category == 'EN - Endangered', 0.6,
+                                     ifelse(red_list_category == 'VU - Vulnerable', 0.4,
+                                     ifelse(red_list_category == 'NT - Near Threatened', 0.2,
+                                     ifelse(red_list_category == 'LC - Least Concern', 0, NA)))))))) # added all categories in case
+
+vuln_lookup # Only LC, NT, VU and EN
+
+# Add vulnerability score to shared_list_included
+
+shared_list_vuln <- left_join(shared_list_included, vuln_lookup)
+
+dim(shared_list_vuln) # same no of rows, 1 extra column so correct
+
+```
+
+#### 2.9.4 Status Calculation by Subbasin
+
+Data is portrayed on the HOLAS basin scale. Biodiversity status will be calculated by Subbasin and then applied to BHI regions.
+*Note, this will mean that the data layer sent to layers and what is registered in layers.csv is very different than what is done if use the spatial data layers from HELCOM where status is directly calculated for BHI regions and this is done formally in functions.r*  
+
+##### 2.9.4.1 Calulate SPP status using checklist and redlist data with all species weighted equally
+
+Do a single calculation including all species. This result will be compared to an the approach of calculating for each taxa group and then taking the geometric mean (See Section 2.9.4.2)
+
+
+
 
 
 
