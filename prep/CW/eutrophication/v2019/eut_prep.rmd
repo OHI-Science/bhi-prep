@@ -105,27 +105,30 @@ offshore_codes <- offshore_codes %>%
   rename(Subbasin = level_2, helcom_coastal_code = coastal) %>% 
   select(-level_3, -country)  
 
+combined_secchi_rawdata <- combined_secchi_rawdata %>% 
+  rename(lat = Latitude, lon = Longitude)
+
+# assign helcom offshore codes
+secchi_rgns_tmp <- sf::st_as_sf(
+  combined_secchi_rawdata,
+  crs = 4326,
+  coords = c("lon","lat"),
+  remove = FALSE) %>%  
+  sf::st_join(sf::st_transform(offshore_codes, 4326)) 
+st_geometry(secchi_rgns_tmp) <- NULL
+
+secchi_rgns_tmp <- secchi_rgns_tmp %>% 
+  select(-Subbasin, -HELCOM_ID)
+
 # assign bhi basins to secchi data 
-secchi_rgns_tmp <- join_rgns_info(
-  secchi, helcomID_col = "helcom_id", country_col = "country", 
+secchi_rgns <- join_rgns_info(
+  secchi_rgns_tmp, helcomID_col = "helcom_id", country_col = "country", 
                            latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
                            rgn_shps_loc = file.path(dirname(dir_B), "Shapefile"), 
   buffer_shp = NULL) %>% 
   # select summer months (June-September) and Years >= 2000  
   filter(month == "6" | month == "7" | month == "8" | month == "9") %>% 
-  filter(year >=2000) %>% 
-  rename(lat = latitude, lon = longitude) %>% 
-  select(-Subbasin, -HELCOM_ID)
-
-# assign helcom offshore codes
-secchi_rgns <- sf::st_as_sf(
-  secchi_rgns_tmp,
-  crs = 4326,
-  coords = c("lon","lat"),
-  remove = FALSE) %>%  
-  sf::st_join(sf::st_transform(offshore_codes, 4326)) %>% 
-  mutate(Subbasin = str_replace(Subbasin, "Åland", "Aland"))
-st_geometry(secchi_rgns) <- NULL
+  filter(year >=2000) 
 
 ##secchi_rgns_shp <- join_rgns_info(
   ##secchi, helcomID_col = "helcom_id", country_col = "country", 
@@ -300,9 +303,16 @@ ggplot(subbasin_target_secchi, aes(year, mean_secchi, group = 1)) +
   geom_line(aes(year, target_secchi), colour = "red") +
   facet_wrap(~Subbasin)+
   scale_y_continuous(limits = c(0,10)) +
-  ggtitle("Mean Summer Secchi against Targe values") +
+  ggtitle("Mean Summer Secchi against Targe values (offshore)") +
   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
                                    hjust=.5, vjust=.5, face = "plain"))
+
+ggplot(subbasin_target_secchi, aes(year, mean_secchi, group = 1)) + 
+  geom_col() +
+  geom_line(aes(year, target_secchi), colour = "red") +
+  facet_wrap(~Subbasin)+
+  scale_y_continuous(limits = c(0,10)) +
+  ggtitle("Mean Summer Secchi against Targe values (offshore)")
 ```
 <br/>
 
@@ -338,7 +348,8 @@ future_year = 5        # the year at which we want the likely future status
 min_regr_length = 5    # min actual number of years with data to use for regression.
 
 ## Basin data with target
-subbasin_target_secchi
+subbasin_target_secchi <- subbasin_target_secchi %>% 
+  filter(year >=2010)
 
 ## Calculate basin status = basin_mean/basin_target
 secchi_subbasin_status <- subbasin_target_secchi %>%
@@ -584,26 +595,26 @@ ggmap(map) +
 # Plot by bhi regions
 # Dasets to be used: 'chla_whole', 'chla_coast' and 'chla_offshore'
 
-ggplot(chla_whole) + 
+ggplot(chla_offshore) + 
   geom_point(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
   facet_grid(cols = vars(rgn_nam), rows = vars(BHI_ID)) +
   labs(x = "Year", y = "Chl a (ug/L)") +
   ggtitle("Yearly Chl a by bhi regions")
 
-ggplot(chla_whole) + 
+ggplot(chla_offshore) + 
   geom_point(aes(year, chla_ug_l, colour = supplier), size = 0.3, alpha = 0.4) +
   facet_wrap(~BHI_ID, scales ="free_y") +
   labs(x = "Year", y = "Chl a (ug/L)") +
   ggtitle("Yearly Chl a by bhi regions")
 
-ggplot(chla_whole) + 
+ggplot(chla_offshore) + 
   geom_point(aes(month, chla_ug_l, colour = supplier), size = 0.3, alpha = 0.4) +
   facet_wrap(~BHI_ID, scales ="free_y") +
   labs(x = "Month", y = "Chl a (ug/L)") +
   ggtitle("Monthly Chl a by bhi regions")
 
 # Plot by subbasins
-ggplot(chla_whole) + 
+ggplot(chla_offshore) + 
   geom_point(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
   facet_grid(cols = vars(Subbasin), rows = vars(rgn_nam)) +
   labs(x = "Year", y = "Chl a (ug/L)") +
@@ -628,7 +639,7 @@ ggplot(chla_whole) +
 **Mean Chl a Calculation**
 ```{r calculate monthly and summer mean chl a by subbasins}
 # Calculate mean monthly value for each summer month (subbasin)
-chla_subbasin_mean_months <- chla_whole %>% 
+chla_subbasin_mean_months <- chla_coast %>% 
   dplyr::select(year, month, Subbasin, chla_ug_l)%>%
   group_by(year, month, Subbasin) %>%
   summarise(mean_chla = round(mean(chla_ug_l, na.rm=TRUE), 1)) %>%
@@ -647,7 +658,7 @@ chla_subbasin_mean_months_summer <- chla_subbasin_mean_months %>%
 
 ```{r calculate monthly mean chl a by bhi regions, results = "show", echo = TRUE, fig.width = 9.5}
 # Calculate mean monthly value for each summer month (bhi basins)
-chla_bhi_mean_months <- chla_whole %>% 
+chla_bhi_mean_months <- chla_coast %>% 
   dplyr::select(year, month, BHI_ID, chla_ug_l)%>%
   group_by(year, month, BHI_ID) %>%
   summarise(mean_chla = round(mean(chla_ug_l, na.rm=TRUE), 1)) %>%
@@ -679,8 +690,8 @@ Horizontal lines are HELCOM target values
 target_chla <- eut_thresholds %>% 
   select(Subbasin = basin, target_chla = summer_chla)
 
-subbasin_target_chla <- left_join(chla_subbasin_mean_months_summer, target_chla, by = "Subbasin") %>% 
-  filter(year >=2010)
+subbasin_target_chla <- left_join(chla_subbasin_mean_months_summer, target_chla, by = "Subbasin") 
+# %>% filter(year >=2010)
 
 ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) + 
   geom_point() +
@@ -693,11 +704,10 @@ ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) +
 
 ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) + 
   geom_col() +
-  geom_line(aes(year, mean_chla), colour = "blue") +
   geom_line(aes(year, target_chla), colour = "red") +
   facet_wrap(~Subbasin)+
   scale_y_continuous(limits = c(0,10)) +
-  ggtitle("Mean Summer Chl a against Targe values (coastal)")
+  ggtitle("Mean Summer Chl a against Targe values (whole)")
 
 ```
 <br/>
@@ -736,21 +746,23 @@ regr_length = 10       # number of years to use for regression
 future_year = 5        # the year at which we want the likely future status
 min_regr_length = 5    # min actual number of years with data to use for regression.
 
-## Basin data with target
-subbasin_target_chla
+## Basin data with target (mean by subbasin, as HELCOM)
+subbasin_target_chla <- subbasin_target_chla2 %>% 
+  group_by(Subbasin, target_chla) %>% 
+  summarise(mean_chla = round(mean(mean_chla, na.rm=TRUE), 1)) 
 
-## Calculate basin status = basin_mean/basin_target
-chla_subbasin_status <- subbasin_target_chla %>%
+## Calculate basin status = basin_target/basin_mean
+chla_subbasin_status <- subbasin_target_chla2 %>%
   rename(subbasin = Subbasin) %>% 
-  mutate(., status =  pmin(1, mean_chla/target_chla)) %>%
+  mutate(., status =  pmin(1, target_chla/mean_chla)) %>%
   left_join(basin_lookup, by = "subbasin") %>% 
   mutate(region = paste(subbasin, rgn_nam, sep = ", "))
 #  dplyr::select(subbasin, year, status) 
 
 ## Assign basin status to BHI regions
 chla_bhi_status <- chla_subbasin_status %>%
-  group_by(subbasin) %>%
-  filter(year == max(year)) %>% #select last year of data for status in each basin (this means status year differs by basin)
+  group_by(subbasin) %>% 
+#  filter(year == max(year)) %>% #select last year of data for status in each basin (this means status year differs by basin)
   mutate(status = round(status*100)) %>% #status is whole number 0-100
   ungroup() %>%
   mutate(dimension = 'status',
@@ -773,7 +785,7 @@ ggplot(chla_bhi_status, aes(region, score, fill = Subbasin)) +
   labs(x = NULL, y = NULL) +
   theme_bw() +
   theme(axis.text.y = element_text(size = 7)) +
-      ggtitle("Chl a Status by Subbasins (coastal)")
+      ggtitle("Chl a Status by Subbasins (coastal) [average 2010-2020]")
 
 ```
 
@@ -806,7 +818,7 @@ chla_bhi_trend1 <- left_join(basin_lookup, chla_subbasin_trend1, by = "subbasin"
 ## Calculate basin trend
 trendyrs <- min_year:(min_year + regr_length)
 
-chla_lm_estim <- chla_whole %>% 
+chla_lm_estim <- chla_offshore %>% 
   filter(year %in% trendyrs) %>% 
   group_by(Subbasin) %>% 
   mutate(
@@ -871,7 +883,10 @@ ggplot(rbind(chla_bhi_status, chla_bhi_trend1)) +
 ggplot(rbind(chla_bhi_status, chla_bhi_trend2)) + 
   geom_point(aes(BHI_ID, score),size=2)+
   facet_wrap(~dimension, scales="free_y")+
-  xlab("BHI region")
+  xlab("BHI region") +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 7)) +
+      ggtitle("Chl a Status and Trend by bhi regions (offshore)")
 ```
 
 <br>
