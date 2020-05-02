@@ -811,14 +811,267 @@ dim(shared_list_vuln) # same no of rows, 1 extra column so correct
 
 ```
 
-#### 2.9.4 Status Calculation by Subbasin
+#### 2.9.4 Status Calculation by Subbasin with All Species Weighted Equally (Approach 1)
 
-Data is portrayed on the HOLAS basin scale. Biodiversity status will be calculated by Subbasin and then applied to BHI regions.
+Data is portrayed on the HOLAS basin scale. Biodiversity status will be calculated by subbasin and then applied to BHI regions. Unlike BHI 1.0, current iteration considers birds as well as they have been designated locations.
 *Note, this will mean that the data layer sent to layers and what is registered in layers.csv is very different than what is done if use the spatial data layers from HELCOM where status is directly calculated for BHI regions and this is done formally in functions.r*  
 
-##### 2.9.4.1 Calulate SPP status using checklist and redlist data with all species weighted equally
+In Approach 1, a single calculation is made including all species. This result will be compared to Approach 2 where a calculation is made for each taxa group before taking the geometric mean (See Section 2.9.5). The comparison between the two approaches can be found in Section 2.9.6.
 
-Do a single calculation including all species. This result will be compared to an the approach of calculating for each taxa group and then taking the geometric mean (See Section 2.9.4.2)
+##### 2.9.4.1 Calculate status
+
+```{r status calculation approach 1}
+
+# Sum threat weights for each subbasin
+
+sum_wi_basin <- shared_list_vuln %>%
+                select(Subbasin,red_list_category_numeric) %>%
+                dplyr::rename(weights = red_list_category_numeric) %>%
+                group_by(Subbasin) %>%
+                summarise(sum_wi =sum(weights)) %>%
+                ungroup()
+
+dim(sum_wi_basin) # 17 2
+
+# Count number of species in each BHI region
+
+sum_spp_basin <- shared_list_vuln %>%
+                 select(Subbasin, scientific_name) %>%
+                 dplyr::count(Subbasin)
+
+dim(sum_spp_basin) # 17 2
+
+# Check if species count code worked
+
+shared_list_vuln %>% filter(Subbasin == "Aland Sea") %>% nrow() ## 43 rows
+
+head(sum_spp_basin) # Aland Sea has 43 also
+
+# Calculate status per Subbasin
+
+spp_status_basin <- full_join(sum_wi_basin,sum_spp_basin, by="Subbasin") %>%
+                    mutate(wi_spp = sum_wi/n,
+                    status = 1 - wi_spp)
+
+```
+
+##### 2.9.4.2 Scale lower end to zero if 75% extinct
+
+Currently, dataset only includes presence data so no way to tell percentage of extinct species. Code was left in to be adapted for future BHI iterations when data can differentiate between unsuitable species and species that become regionally extinct. If no subbasins have 75% extinct species, there should be no change.
+
+```{r scale for 75 percent extinct for Subbasin}
+
+# Filter regionally extinct species
+
+spp_ex_basin <- shared_list_vuln %>%
+                # Add code here to only consider species that are supposed to be present (suitable for habitat)
+                dplyr::rename(weights = red_list_category_numeric) %>%
+                filter(weights == 1) # Filters out regionally extinct species (supposed to be present but absent)
+spp_ex_basin
+
+# Identify regionally extinct species
+
+spp_ex_basin %>% select(scientific_name) %>% distinct() 
+
+# Number of extinct species per basin
+
+spp_ex_basin_n <- spp_ex_basin %>%
+                  select(Subbasin,scientific_name) %>%
+                  dplyr::count(Subbasin) %>%
+                  dplyr::rename(n_extinct = n)
+
+# Join to spp_status_basin
+
+spp_status_basin <- spp_status_basin %>%
+                    full_join(.,spp_ex_basin_n, by="Subbasin") %>%
+                    mutate(n_extinct = ifelse(is.na(n_extinct),0,n_extinct))
+
+# calculate % extinct in each subbasin and assign status score of 0 if >75%
+
+spp_status_basin <- spp_status_basin %>%
+                    mutate(prop_extinct = n_extinct / n,
+                           status = ifelse(prop_extinct >= 0.75, 0, status))
+
+```
+
+##### 2.9.4.3 Plot status by basin
+
+```{r plot basin status}
+
+# Plot status
+
+ggplot(spp_status_basin) +
+  geom_point(aes(Subbasin, round(status*100)), size=3) +
+  ylim(0,100) +
+  ylab("Status") + 
+  xlab("Subbasin") +
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y = element_text(colour="grey20",size=6)) +
+  ggtitle("SPP status by Subbasin")
+
+# Size points based on number of species in a region
+
+ggplot(spp_status_basin)+
+  geom_point(aes(Subbasin, round(status*100), size=n)) +
+  ylim(0,100) +
+  ylab("Status") + 
+  xlab("Subbasin") +
+  scale_size(breaks =c(1200,1400,1600,1800), labels=c("1200","1400","1600","1800"))+
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y =  element_text(colour="grey20",size=6))+
+  ggtitle("SPP status by Subbasin, n= species richness")
+
+```
+
+#### 2.9.5 Status Calculation by Subbasin With Species Group and Regional Geometric Mean (Approach 2)
+
+Status of subbasins was obtained by first calculating statuses according to species groups and taking the geometric mean for each basin. As with Approach 1, birds were not excluded.
+
+##### 2.9.5.1 Calculate status by species group and plot
+
+```{r species group status calculation}
+
+# Sum threat weights for each subbasin by species_group
+
+sum_wi_basin_species_group <- shared_list_vuln %>%
+              select(Subbasin, species_group, red_list_category_numeric) %>%
+              dplyr::rename(weights = red_list_category_numeric) %>%
+              group_by(Subbasin, species_group) %>%
+              summarise(sum_wi =sum(weights)) %>%
+              ungroup()
+
+dim(sum_wi_basin_species_group) # 52  3
+
+# Count number of species in each subbasin by species group
+
+sum_spp_basin_species_group <- shared_list_vuln %>%
+                select(Subbasin, species_group, scientific_name) %>%
+                dplyr::count(Subbasin, species_group)
+
+dim(sum_spp_basin_species_group) # 52 3
+
+# Calculate status of species_group for each subbasin
+
+spp_status_basin_species_group <- full_join(sum_wi_basin_species_group,
+                                        sum_spp_basin_species_group, by=c("Subbasin","species_group")) %>%
+             mutate(wi_spp_taxa = sum_wi/n,
+                    status_taxa = 1 - wi_spp_taxa)
+
+# Plot status by species_group (before scaling lower end)
+
+ggplot(spp_status_basin_species_group)+
+  geom_point(aes(species_group,status_taxa,size=n)) +
+  facet_wrap(~Subbasin) +
+  ylim(0,1.5) +
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y =  element_text(colour="grey20",size=6))+
+  ggtitle("Species_group Status by Subbasin, n = species richness")
+
+```
+
+##### 2.9.5.2 For each species group - Scale lower end to zero if 75% extinct
+
+Currently, dataset only includes presence data so no way to tell percentage of extinct species. Code was left in to be adapted for future BHI iterations when data can differentiate between unsuitable species and species that become regionally extinct. If no subbasins have 75% extinct species, there should be no change.
+
+```{r scale for each species group if 75 percent extinct for subbasin}
+
+# Filter regionally extinct species according to species_group
+
+spp_ex_basin_species_group <- shared_list_vuln %>%
+              # Add code here to only consider species that are supposed to be present (suitable for habitat)
+              dplyr::rename(weights = red_list_category_numeric) %>%
+              group_by(species_group) %>% 
+              filter(weights == 1) %>%  # Check with Ellie what grouping before filtering does
+              ungroup()
+
+spp_ex_basin_species_group
+
+# Identify regionally extinct species
+
+spp_ex_basin_species_group %>% select(scientific_name) %>% distinct()
+
+
+# Calculate number of extinct species per species group per subbasin
+
+spp_ex_basin_n_species_group <- spp_ex_basin_species_group %>%
+                  select(Subbasin, species_group,scientific_name)%>%
+                  dplyr::count(Subbasin,species_group)%>%
+                  dplyr::rename(n_extinct = n)
+
+
+# Join to spp_status_basin_species_group
+
+spp_status_basin_species_group <- spp_status_basin_species_group %>%
+                   full_join(., spp_ex_basin_n_species_group, by=c("Subbasin", "species_group")) %>%
+                   mutate(n_extinct = ifelse(is.na(n_extinct),0,n_extinct))
+
+# calculate % extinct in each subbasin and assign status score of 0 if >75%
+
+spp_status_basin_species_group <- spp_status_basin_species_group  %>%
+                  mutate(prop_extinct = n_extinct / n,
+                         status_taxa = ifelse(prop_extinct>=0.75, 0, status_taxa))
+
+```
+
+##### 2.9.5.3 Plot Final Status by Species_group
+
+```{r plot species_group status}
+
+ggplot(spp_status_basin_species_group) +
+  geom_point(aes(species_group,status_taxa,size=n)) +
+  facet_wrap(~Subbasin) +
+  ylim(0,1.5) +
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y =  element_text(colour="grey20",size=6)) +
+  ggtitle("Species group Status by Basin, n= species richness")
+
+```
+
+##### 2.9.5.4 Calculate Geometric Mean of Status for Subbasin
+
+```{r geometric mean status subbasin}
+
+spp_status_basin_geo <- spp_status_basin_species_group %>%
+                        select(Subbasin, status_taxa) %>%
+                        group_by(Subbasin) %>%
+                        summarise(status_basin =exp(mean(log(status_taxa)))) %>%
+                        ungroup()
+```
+
+##### 2.9.5.5 Plot Geometric Mean for Subbasin Status
+
+```{r plot subbasin status from geometric mean}
+
+ggplot(spp_status_basin_geo)+
+  geom_point(aes(Subbasin, status_basin),size=2)+
+  ylim(0,1)+
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y =  element_text(colour="grey20",size=6))+
+  ggtitle("SPP subbasin status from geometric mean of species group")
+
+```
+
+#### 2.9.6 Compare Alternative Approaches to Subbasin level SPP status calculation
+
+```{r comparsion of subbasin level spp status}
+
+spp_status_basin <- spp_status_basin %>%
+                    select(Subbasin,status) %>%
+                    mutate(status_type = "all species")
+
+spp_status_basin_geo <- spp_status_basin_geo %>%
+                        dplyr::rename(status=status_basin) %>%
+                        mutate(status_type = "species_group geometric mean")
+
+basin_status_compare <- bind_rows(spp_status_basin, spp_status_basin_geo)
+
+
+ggplot(basin_status_compare) +
+  geom_point(aes(Subbasin, status, colour=status_type,shape=status_type),size=2) +
+  ylim(0,1) +
+  theme(axis.text.x = element_text(colour="grey20",size=8,angle=90,hjust=.5,vjust=.5,face="plain"),axis.text.y =  element_text(colour="grey20",size=6)) +
+  ggtitle("SPP Subbasin status Method Comparison")
+
+```
+
+
+
+
 
 
 
