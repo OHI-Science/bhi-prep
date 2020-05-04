@@ -891,6 +891,22 @@ ggplot(rbind(chla_bhi_status, chla_bhi_trend2)) +
 
 <br>
 
+### 3.3 Nutrients Indicator
+
+#### 3.3.1 Match BHI regions
+
+```{r read in eut nutrient data and match with BHI regions}
+
+```
+
+#### 3.3.2 Mean nutrients calculations
+
+```{r}
+
+```
+
+<br>
+
 ## 4. Visualizing Data Layers
 
 ### 4.1 Map
