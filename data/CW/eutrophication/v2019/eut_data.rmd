@@ -20,10 +20,9 @@ For the Eutrophication sub-goal five indicators were included:
 #### 2.1.1. Secchi Depth data
 
 **Secchi Depth, ICES**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_ICES -->
 
 Extraction from ICES database is classified into HELCOM Assessment Units – HELCOM sub basins with coastal WFD water bodies or water types
-
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Dataset set:", "Oceanographic (per Parameter)"), 
@@ -157,7 +156,7 @@ knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/da
 <br/>
 
 **Chlorophyll a SMHI**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/ -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Datatype:", "Physical and Chemical"), 
@@ -174,7 +173,24 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) (https://sharkweb.smhi.se) <br/> Downloaded 24 April 2020 by Andrea De Cervo")
 
 ```
+<br/>
 
+**Chlorophyll a ICES**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/Chla_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Period:", "2000-2020"), 
+  c("Parameter:", "Chlorophyll.a"),
+  c("Country:", "(choose each Baltic country at a time)"),
+  c("Ship:", "Any")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 April 2020 by Andrea De Cervo")
+
+```
+*The maximum number of stations per download is 20000*
 <br/>
 
 **Nutrients, Baltic Nest**
@@ -348,6 +364,23 @@ nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutri
 ```
 <br/>
 
+**ICES chla data**
+```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+## this will read in the chla datasets from the Chla_ICES directory
+## in the same step, this will check for duplicates and then keep only the distinct observations
+chla_den1 <- read.delim(file.path(dir_rawdata, "Chla_ICES", "denmark_chla", "denmark_chla_2000-2005.csv"), sep = ",")
+chla_den2 <- read.delim(file.path(dir_rawdata, "Chla_ICES", "denmark_chla", "denmark_chla_2006-2017.csv"), sep = ",")
+chla_den3 <- read.delim(file.path(dir_rawdata, "Chla_ICES", "denmark_chla", "denmark_chla_2018-2020.csv"), sep = ",")
+chla_est <- read.delim(file.path(dir_rawdata, "Chla_ICES", "estonia_chla", "estonia_chla_2000-2020.csv"), sep = ",")
+chla_fin <- read.delim(file.path(dir_rawdata, "Chla_ICES", "finland_chla", "finland_chla_2000-2020.csv"), sep = ",")
+chla_ger <- read.delim(file.path(dir_rawdata, "Chla_ICES", "germany_chla", "germany_chla_2000-2020.csv"), sep = ",")
+chla_lat <- read.delim(file.path(dir_rawdata, "Chla_ICES", "latvia_chla", "latvia_chla_2000-2020.csv"), sep = ",")
+chla_lit <- read.delim(file.path(dir_rawdata, "Chla_ICES", "lithuania_chla", "lithuania_chla_2000-2020.csv"), sep = ",")
+chla_pol <- read.delim(file.path(dir_rawdata, "Chla_ICES", "poland_chla", "poland_chla_2000-2020.csv"), sep = ",")
+chla_rus <- read.delim(file.path(dir_rawdata, "Chla_ICES", "russia_chla", "russia_chla_2000-2020.csv"), sep = ",")
+chla_swe <- read.delim(file.path(dir_rawdata, "Chla_ICES", "sweden_chla", "sweden_chla_2000-2020.csv"), sep = ",")
+```
+<br/>
 
 #### 2.2.2 Secchi datasets
 
@@ -356,7 +389,6 @@ nutrient <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_winter_nutri
 ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records.
 
 **Coastal data**  
-
 - non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
 - HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
 - Coastal data are removed from the analysis.  
@@ -730,6 +762,293 @@ chla.na %>%
 ```
 <br/>
 
+**ICES chla data**
+```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+chla_raw_ices <- bind_rows(
+  chla_den1 %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "denmark",
+  ),
+  chla_den2 %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "denmark",
+  ),
+  chla_den3 %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "denmark",
+  ),
+  chla_est %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "estonia",
+  ),
+  chla_fin %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "finland",
+  ),
+  chla_ger %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+     # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "germany",
+  ),
+  chla_lat %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "latvia",
+  ),
+  chla_lit %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "lithiania",
+  ),
+  chla_pol %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "poland",
+  ),
+  chla_rus %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "russia",
+  ),
+  chla_swe %>% 
+    rename(
+    Date = yyyy.mm.ddThh.mm,
+    Latitude = Latitude..degrees_north.,
+    Longitude = Longitude..degrees_east.,
+    Temperature = TEMP..deg.C.,
+    Salinity = PSAL..psu.,
+    Pressure = PRES..db., 
+    Chla_ug_l = CPHL..ug.l.,
+    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
+  ) %>%
+  mutate(
+    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
+    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
+    Date = as.Date(Date, "%Y-%m-%d"),
+    Station = as.character(Station),
+    Pressure = as.numeric(Pressure),
+    Bot_Depth = as.numeric(Bot_Depth),
+    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
+    # keep the values or set a range lower than that?
+    Chla_ug_l = as.numeric(Chla_ug_l),
+    Country = "sweden",
+  )
+)
+
+# Save raw and merged dataset (bhi-prep)
+# readr::write_csv(
+#  chla_ices, 
+#  here::here("data", "CW", "eutrophication", version_year, "intermediate", "chla_ices.csv")
+#)
+
+#### Look for duplicate data 
+# Check for duplicates in ices
+ices_duplicates <- chla_raw_ices %>%
+  group_by(cruise = Cruise, date = Date, Latitude, Longitude, chla_ug_l = Chla_ug_l, 
+           depth_m = Bot_Depth, year = Year, month = Month) %>%
+  summarise(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup() 
+
+# Only extract unique observations
+chla_ices_unique <- chla_raw_ices %>% 
+  distinct(cruise = Cruise, date = Date, Latitude, Longitude, chla_ug_l = Chla_ug_l, 
+           depth_m = Bot_Depth, year = Year, month = Month) %>% 
+  mutate(supplier = 'ices',
+         year = as.character(year),
+         month = as.character(month),
+         month = str_replace(month, "6", "06"),
+         month = str_replace(month, "7", "07"),
+         month = str_replace(month, "8", "08"),
+         month = str_replace(month, "9", "09")) 
+
+```
+<br/>
 
 **SMHI chla data**
 ```{r}
@@ -770,7 +1089,8 @@ chla_smhi <- new_chla_smhi %>%
          # use the decimal degrees for lat and lon (as for ICES)
          Latitude = Sample.latitude..DD., Longitude = Sample.longitude..DD.,
          # 'Station.water.depth' cosidered as 'Bottom depth'?
-         Station = Station.name, depth_m = Station.water.depth) %>%
+         Station = Station.name, depth_m = Sample.maximum.depth) %>%
+  # is this the right variable for depth?
   mutate(date =  as.Date(date), year = format(date, "%Y"),
          date =  as.Date(date), month = format(date, "%m"),
          #         Month = str_replace(Month, "^0+" ,""),
@@ -825,8 +1145,9 @@ new_chla_smhi_unique <- setdiff(dplyr::select(chla_smhi_unique, -supplier), dply
   mutate(supplier = "smhi") 
 
 ## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
-chla <- bind_rows(chla_smhi_unique, chla_nest_unique) %>% 
-  distinct() # 153577 tot observations 
+chla <- bind_rows(chla_smhi_unique, chla_nest_unique, chla_ices_unique) %>% 
+  rename(lat = Latitude, lon = Longitude) %>% 
+  distinct() # 259480 tot observations 
 
 # Save dataset (bhi-prep)
 readr::write_csv(

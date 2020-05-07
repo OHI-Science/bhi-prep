@@ -26,6 +26,8 @@ basin_lookup <- basin_lookup_table %>%
   mutate(subbasin = as.character(subbasin),
          rgn_nam = as.character(rgn_nam))
 
+add_lookup_table <-  read.csv(file.path(dir_lookup, "basin_add_lookup_table.csv"), sep=",")
+
 source(here::here("R", "data.R"))
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
@@ -36,6 +38,14 @@ buffer_sf <- st_read(
   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
   "BHI_shapefile_25km_buffer"
 )
+# import offshore helcom codes
+offshore_codes <-sf::st_read(file.path(dir_B, "Goals", "CW", "EUT", "HELCOM_subbasins_with_coastal_and_offshore_division_2018", "HELCOM_subbasins_with_coastal_and_offshore_division_2018.shp"))
+
+offshore_codes <- offshore_codes %>% 
+  filter(country == "Opensea") %>% 
+  rename(Subbasin = level_2, helcom_coastal_code = coastal) %>% 
+  select(-level_3, -country)  
+
 bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 fullpal <- c(
   RColorBrewer::brewer.pal(8, "Dark2"),
@@ -95,15 +105,6 @@ eut_thresholds <- eut_thresholds_values %>%
 ```{r assign BHI regions to Secchi data, echo = TRUE, message = FALSE, warning = FALSE}
 # before assigning bhi basins to secchi data, run this function first:
 regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
-
-# import offshore helcom codes
-offshore_codes <-sf::st_read(file.path(dir_B, "Goals", "CW", "EUT", "HELCOM_subbasins_with_coastal_and_offshore_division_2018", "HELCOM_subbasins_with_coastal_and_offshore_division_2018.shp"))
-# st_geometry(coast_codes) <- NULL
-
-offshore_codes <- offshore_codes %>% 
-  filter(country == "Opensea") %>% 
-  rename(Subbasin = level_2, helcom_coastal_code = coastal) %>% 
-  select(-level_3, -country)  
 
 combined_secchi_rawdata <- combined_secchi_rawdata %>% 
   rename(lat = Latitude, lon = Longitude)
@@ -485,19 +486,20 @@ ggplot(rbind(secchi_bhi_status, secchi_bhi_trend2)) +
 
 ```{r assign BHI regions to Secchi data, echo = TRUE, message = FALSE, warning = FALSE}
 # before assigning bhi basins to secchi data, run this function first:
+# library(stringr)
 regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
 
-chla_rawdata <- chla_rawdata %>% 
-  rename(lat = Latitude, lon = Longitude)
+# # nrow(filter(dataset, is.na(lat) | is.na(lon))) # check if any lat/lon have NAs
 
 # # assign helcom offshore codes
-chla_rgns_tmp <- sf::st_as_sf(
-  chla_rawdata,
+chla_rgns_tmp <- chla %>% 
+  filter(!is.na(lat) & !is.na(lon)) %>%
+  sf::st_as_sf(
   crs = 4326,
-  coords = c("lon","lat"),
+  coords = c("lon", "lat"),
   remove = FALSE) %>%  
   sf::st_join(sf::st_transform(offshore_codes, 4326)) 
-st_geometry(chla_rgns_tmp) <- NULL
+sf::st_geometry(chla_rgns_tmp) <- NULL
 
 chla_rgns_tmp <- chla_rgns_tmp %>% 
   select(-Subbasin, -HELCOM_ID)
@@ -524,18 +526,18 @@ chla_rgns <- join_rgns_info(
 **Distinguish coastal and offshore observations**
 ```{r  remove coastal data points, results = "hide"}
 ## Select only data with coastal code "0"  
-dim(chla_rgns) # 26310   
+dim(chla_rgns) # 58485  
 
 ## Do any observations have NA for coast_code
 chla_rgns %>% 
   filter(is.na(helcom_coastal_code) & is.na(BHI_ID)) %>% 
-  dim() # 5667 
+  dim() # 15197
 
-## 441 observations with no coast_code or BHI_ID
+## observations with no coast_code or BHI_ID
 loc_no_coastcode_nobhi <- chla_rgns %>% 
   filter(is.na(helcom_coastal_code) & is.na(BHI_ID))%>%
   dplyr::select(lat, lon)%>%
-  distinct() # 441
+  distinct() # 790
 
 ## check locations
 library('ggmap')
@@ -549,7 +551,7 @@ ggmap(map) +
 loc_no_coastcode_bhi <- chla_rgns %>% 
   filter(is.na(helcom_coastal_code) & !is.na(BHI_ID)) %>% 
   dplyr::select(lat, lon) %>%
-  distinct()
+  distinct() # 2106
 
 ggmap(map) +
    geom_point(aes(x = lon, y = lat), data = loc_no_coastcode_bhi, size = 0.7)
@@ -559,31 +561,30 @@ ggmap(map) +
 chla_offshore <- chla_rgns %>% 
   filter(helcom_coastal_code == 0)
 
-dim(chla_offshore) # 4879
+dim(chla_offshore) # 9871
 
 ggmap(map) +
-   geom_point(aes(x = lon, y = lat), data = chla_offshore, size = 0.5)
+   geom_point(aes(x = lon, y = lat, colour = supplier), data = chla_offshore, size = 0.8)
 ## This is a substantial reduction in the number of observations, especially in the northern Baltic 
 
 ## Check the difference with the complete dataset, including coast_code having NA
 chla_coast <- chla_rgns %>% 
   filter(is.na(helcom_coastal_code) & !is.na(BHI_ID))
 
-dim(chla_coast) # 15764
-# looks like there are some offshore locations in the Danish basins
+dim(chla_coast) # 33417
 
 ggmap(map) +
-   geom_point(aes(x = lon, y = lat), data = chla_coast, size = 0.5)
+   geom_point(aes(x = lon, y = lat, colour = supplier), data = chla_coast, size = 0.8)
 
 ## Look at the complete dataset, including both coastal and offshore locations
 chla_whole <- chla_rgns %>% 
   filter(!is.na(BHI_ID))
 
-dim(chla_whole) # 20638
+dim(chla_whole) # 43278
 # looks like there are some offshore locations in the Danish basins
 
 ggmap(map) +
-   geom_point(aes(x = lon, y = lat), data = chla_whole, size = 0.5)
+   geom_point(aes(x = lon, y = lat, colour = supplier), data = chla_whole, size = 0.8)
 
 ```
 <br/>
@@ -591,46 +592,56 @@ ggmap(map) +
 #### 3.2.2 Chrorophyll a (all data)
 
 **Spatial Visualization of Chl a data (whole)**
-```{r chl a timeseries yearly and monthly by bhi regions and subbasins, results = "show", echo = TRUE, fig.width = 9.5}
+```{r chl a timeseries yearly and monthly by bhi regions and subbasins, results = "show", echo = TRUE, fig.width = 12.5}
 # Plot by bhi regions
 # Dasets to be used: 'chla_whole', 'chla_coast' and 'chla_offshore'
 
-ggplot(chla_offshore) + 
+ggplot(chla_coast) + 
   geom_point(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
   facet_grid(cols = vars(rgn_nam), rows = vars(BHI_ID)) +
   labs(x = "Year", y = "Chl a (ug/L)") +
   ggtitle("Yearly Chl a by bhi regions")
 
-ggplot(chla_offshore) + 
+ggplot(chla_coast) + 
   geom_point(aes(year, chla_ug_l, colour = supplier), size = 0.3, alpha = 0.4) +
   facet_wrap(~BHI_ID, scales ="free_y") +
   labs(x = "Year", y = "Chl a (ug/L)") +
   ggtitle("Yearly Chl a by bhi regions")
 
-ggplot(chla_offshore) + 
+ggplot(chla_coast) + 
   geom_point(aes(month, chla_ug_l, colour = supplier), size = 0.3, alpha = 0.4) +
   facet_wrap(~BHI_ID, scales ="free_y") +
   labs(x = "Month", y = "Chl a (ug/L)") +
   ggtitle("Monthly Chl a by bhi regions")
 
 # Plot by subbasins
-ggplot(chla_offshore) + 
+ggplot(chla_coast) + 
   geom_point(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
   facet_grid(cols = vars(Subbasin), rows = vars(rgn_nam)) +
   labs(x = "Year", y = "Chl a (ug/L)") +
   ggtitle("Yearly Chl a by subbasins")
 
-ggplot(chla_whole) + 
+ggplot(chla_offshore) + 
   geom_point(aes(year, chla_ug_l, colour = supplier), size = 0.3, alpha = 0.4) +
-  facet_wrap(~Subbasin, scales ="free_y") +
+  facet_wrap(rgn_nam~Subbasin, scales ="free_y") +
   labs(x = "Year", y = "Chl a (ug/L)") +
-  ggtitle("Yearly Chl a by subbasins")
+  ggtitle("Yearly Chl a by subbasins (offshore)") +
+  theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+                                   hjust=.5, vjust=.5, face = "plain"))
 
-ggplot(chla_whole) + 
+ggplot(chla_coast) + 
   geom_point(aes(month, chla_ug_l, colour = supplier), size = 0.3, alpha = 0.4) +
   facet_wrap(~Subbasin, scales ="free_y") +
   labs(x = "Month", y = "Chl a (ug/L)") +
   ggtitle("Monthly Chl a by subbasins")
+
+ggplot(chla_whole) + 
+  geom_boxplot(aes(year, chla_ug_l), size = 0.3, alpha = 0.4) +
+  facet_wrap(~Subbasin, scales ="free_y") +
+  labs(x = "Year", y = "Chl a (ug/L)") +
+  ggtitle("Yearly Chl a by subbasins") +
+   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+                                   hjust=.5, vjust=.5, face = "plain"))
 
 ```
 
@@ -639,7 +650,7 @@ ggplot(chla_whole) +
 **Mean Chl a Calculation**
 ```{r calculate monthly and summer mean chl a by subbasins}
 # Calculate mean monthly value for each summer month (subbasin)
-chla_subbasin_mean_months <- chla_coast %>% 
+chla_subbasin_mean_months <- chla_whole %>% 
   dplyr::select(year, month, Subbasin, chla_ug_l)%>%
   group_by(year, month, Subbasin) %>%
   summarise(mean_chla = round(mean(chla_ug_l, na.rm=TRUE), 1)) %>%
@@ -658,7 +669,7 @@ chla_subbasin_mean_months_summer <- chla_subbasin_mean_months %>%
 
 ```{r calculate monthly mean chl a by bhi regions, results = "show", echo = TRUE, fig.width = 9.5}
 # Calculate mean monthly value for each summer month (bhi basins)
-chla_bhi_mean_months <- chla_coast %>% 
+chla_bhi_mean_months <- chla_whole %>% 
   dplyr::select(year, month, BHI_ID, chla_ug_l)%>%
   group_by(year, month, BHI_ID) %>%
   summarise(mean_chla = round(mean(chla_ug_l, na.rm=TRUE), 1)) %>%
@@ -686,12 +697,19 @@ ggplot(chla_bhi_mean_months_summer, aes(year, mean_chla, group = 1)) +
 
 **Plot summer secchi with target values indicated**
 Horizontal lines are HELCOM target values 
-```{r summer chl a with target, results = "show", echo = TRUE, fig.width = 9.5}
+```{r summer chl a with target, results = "show", echo = TRUE, fig.width = 12.5}
 target_chla <- eut_thresholds %>% 
   select(Subbasin = basin, target_chla = summer_chla)
 
-subbasin_target_chla <- left_join(chla_subbasin_mean_months_summer, target_chla, by = "Subbasin") 
+subbasin_target_chla <- left_join(chla_subbasin_mean_months_summer, target_chla, 
+                                  by = "Subbasin") 
 # %>% filter(year >=2010)
+
+## Basin data with target (mean by subbasin, as HELCOM)
+subbasin_target_chla2 <- subbasin_target_chla %>% 
+  group_by(Subbasin, target_chla) %>% 
+  summarise(mean_chla_yrs = round(mean(mean_chla, na.rm=TRUE), 1)) %>% 
+  left_join(subbasin_target_chla, by = c("Subbasin", "target_chla"))
 
 ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) + 
   geom_point() +
@@ -699,15 +717,20 @@ ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) +
   geom_line(aes(year, target_chla), colour = "red") +
   facet_wrap(~Subbasin)+
   scale_y_continuous(limits = c(0,10)) +
-  ggtitle("Mean Summer Chl a against Targe values (offshore)")
+  ggtitle("Mean Summer Chl a against Targe values (offshore)") +
+  theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+                                   hjust=.5, vjust=.5, face = "plain"))
 
 
-ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) + 
+ggplot(subbasin_target_chla2, aes(year, mean_chla, group = 1)) + 
   geom_col() +
+  geom_line(aes(year, mean_chla_yrs), colour = "black") +
   geom_line(aes(year, target_chla), colour = "red") +
   facet_wrap(~Subbasin)+
   scale_y_continuous(limits = c(0,10)) +
-  ggtitle("Mean Summer Chl a against Targe values (whole)")
+  ggtitle("Mean Summer Chl a against Targe values (offshore)") +
+  theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+                                   hjust=.5, vjust=.5, face = "plain"))
 
 ```
 <br/>
@@ -716,8 +739,7 @@ ggplot(subbasin_target_chla, aes(year, mean_chla, group = 1)) +
 
 **Explore status years**
 
-Only two basins have data for 2019 (Bothnian Bay and Kattegat), which will be used as the status year, while seven (7) have data for 2018 and the remaining four (4) basins: 
-Bay of Mecklenburg (2010), Great Belt (2014), Kiel Bay (2010), and The Quark (2013).
+Only five (5) basins have data for 2019, which will be used as the status year, while six (6) have data for 2018 and two (4) for 2016. 
 For these basins, their most recent year's data is used for current status calculations
 ```{r what is the last year, results = "hide"}
 
@@ -746,15 +768,10 @@ regr_length = 10       # number of years to use for regression
 future_year = 5        # the year at which we want the likely future status
 min_regr_length = 5    # min actual number of years with data to use for regression.
 
-## Basin data with target (mean by subbasin, as HELCOM)
-subbasin_target_chla <- subbasin_target_chla2 %>% 
-  group_by(Subbasin, target_chla) %>% 
-  summarise(mean_chla = round(mean(mean_chla, na.rm=TRUE), 1)) 
-
 ## Calculate basin status = basin_target/basin_mean
 chla_subbasin_status <- subbasin_target_chla2 %>%
   rename(subbasin = Subbasin) %>% 
-  mutate(., status =  pmin(1, target_chla/mean_chla)) %>%
+  mutate(., status =  pmin(1, target_chla/mean_chla_yrs)) %>%
   left_join(basin_lookup, by = "subbasin") %>% 
   mutate(region = paste(subbasin, rgn_nam, sep = ", "))
 #  dplyr::select(subbasin, year, status) 
@@ -785,7 +802,7 @@ ggplot(chla_bhi_status, aes(region, score, fill = Subbasin)) +
   labs(x = NULL, y = NULL) +
   theme_bw() +
   theme(axis.text.y = element_text(size = 7)) +
-      ggtitle("Chl a Status by Subbasins (coastal) [average 2010-2020]")
+      ggtitle("Chl a Status by Subbasins (offshore) [average 2010-2020]")
 
 ```
 
@@ -819,6 +836,7 @@ chla_bhi_trend1 <- left_join(basin_lookup, chla_subbasin_trend1, by = "subbasin"
 trendyrs <- min_year:(min_year + regr_length)
 
 chla_lm_estim <- chla_offshore %>% 
+  mutate(year = as.numeric(year)) %>% 
   filter(year %in% trendyrs) %>% 
   group_by(Subbasin) %>% 
   mutate(
