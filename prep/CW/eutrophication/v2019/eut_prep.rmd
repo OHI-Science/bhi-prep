@@ -1420,219 +1420,125 @@ For details on data preparation for oxygen debt layer, see [this github reposito
 
 ## 4. Visualizing Data Layers
 
-### 4.1 Map
+### 4.1 Status and Trend Maps by Subbasin
 
-**Secchi Status Maps**
-```{r secchi status map, results = "show", echo = TRUE, fig.width = 9.5}
-mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
-
-mapdf_secchi <- bind_rows(
-  secchi_bhi_status %>% 
-    select(-region),
-  
-  secchi_bhi_trend2 %>% 
-    select(-region)
-    )
-  
-mapsf_secchi <- left_join(bhi_rgns_simple, mapdf_secchi, by = c("Subbasin", "BHI_ID"))
-
-basemap <- ggplot2::ggplot() + 
-  geom_sf(
-    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", color = "lightsteelblue",
-    size = 0.1, alpha = 0.8
-  ) +
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
+```{r basemap and color palletes for status and trend maps}
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) +
   theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
 
+statusmapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+trendmapcols <- c("indianred", "coral", "white", "lightblue", "steelblue")
+```
+
+
+**Secchi Status and Trend Maps**
+
+```{r secchi status and trend maps, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
+mapdf_secchi <- left_join(
+  bhi_rgns_simple %>% 
+    mutate(Subbasin = as.character(Subbasin)),
+  rbind(secchi_status, secchi_trend) %>% 
+    select(Subbasin = subbasin, BHI_ID = bhi_id, score, dimension, region),
+  by = c("Subbasin", "BHI_ID")
+)
 status_secchi_map <- basemap + 
-  geom_sf(data = filter(mapsf_secchi, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
-  facet_wrap(~ indicator) +
-  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
+  geom_sf(data = filter(mapdf_secchi, dimension == "status"), aes(fill = score), size = 0.1, alpha = 0.7) +
+  scale_fill_gradientn(colors = statusmapcols, limits = c(0, 100), na.value = "gainsboro") +
   theme(
     legend.background = element_rect(color = "grey"),
     legend.position = c(0.15, 0.75)
   ) +
   labs(fill = "Score")
+
+trend_secchi_map <- basemap + 
+  geom_sf(data = filter(mapdf_secchi, dimension == "trend"), aes(fill = score), size = 0.1, alpha = 0.7) +
+  scale_fill_gradientn(colors = trendmapcols, limits = c(-0.5, 0.5), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  labs(fill = "Score")
+
+gridExtra::grid.arrange(status_secchi_map, trend_secchi_map, nrow = 1)
 ```
 
-**Chl a Status Maps**
-```{r chla status map, results = "show", echo = TRUE, fig.width = 9.5}
-mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 
-mapdf_chla <- bind_rows(
-  chla_bhi_status %>% 
-    select(-region),
-  
-  chla_bhi_trend2 %>% 
-    select(-region)
-    )
-  
-mapsf_chla <- left_join(bhi_rgns_simple, mapdf_chla, by = c("Subbasin", "BHI_ID"))
+**Chl a Status and Trend Maps**
 
-basemap <- ggplot2::ggplot() + 
-  geom_sf(
-    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", color = "lightsteelblue",
-    size = 0.1, alpha = 0.8
-  ) +
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
-  scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
-
+```{r chla status and trend maps, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
+mapdf_chla <- left_join(
+  bhi_rgns_simple %>% 
+    mutate(Subbasin = as.character(Subbasin)),
+  rbind(chla_status, chla_trend) %>% 
+    select(Subbasin = subbasin, BHI_ID = bhi_id, score, dimension, region),
+  by = c("Subbasin", "BHI_ID")
+)
 status_chla_map <- basemap + 
-  geom_sf(data = filter(mapsf_chla, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
-  facet_wrap(~ indicator) +
-  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
+  geom_sf(data = filter(mapdf_chla, dimension == "status"), aes(fill = score), size = 0.1, alpha = 0.7) +
+  scale_fill_gradientn(colors = statusmapcols, limits = c(0, 100), na.value = "gainsboro") +
   theme(
     legend.background = element_rect(color = "grey"),
     legend.position = c(0.15, 0.75)
   ) +
   labs(fill = "Score")
+
+trend_chla_map <- basemap + 
+  geom_sf(data = filter(mapdf_chla, dimension == "trend"), aes(fill = score), size = 0.1, alpha = 0.7) +
+  scale_fill_gradientn(colors = trendmapcols, limits = c(-0.5, 0.5), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  labs(fill = "Score")
+
+gridExtra::grid.arrange(status_chla_map, trend_chla_map, nrow = 1)
 ```
 
+**Chl a Status and Trend Maps**
 
-**Secchi and Chl a Status Maps**
-```{r eutrophication status map, results = "show", echo = TRUE, fig.width = 9.5}
-mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
-
-mapdf <- bind_rows(
-  secchi_bhi_status %>% 
-    select(-region),
-  
-  secchi_bhi_trend2 %>% 
-    select(-region),
-  
-  chla_bhi_status %>% 
-    select(-region),
-  
-  chla_bhi_trend2 %>% 
-    select(-region)
+```{r nutrients status and trend maps, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
+mapdf_nut <- left_join(
+  bhi_rgns_simple %>% 
+    mutate(Subbasin = as.character(Subbasin)),
+  rbind(nut_status, nut_trend) %>% 
+    select(Subbasin = subbasin, BHI_ID = bhi_id, score, dimension, indicator, region),
+  by = c("Subbasin", "BHI_ID")
+)
+lapply(
+  list(
+    list("status", "din", "statusmapcols"), list("trend", "din", "trendmapcols"),
+    list("status", "dip", "statusmapcols"), list("trend", "dip", "trendmapcols")
+  ),
+  function(x){
+    if(x[[1]] == "status"){lims = c(0, 100)} else {lims = c(-0.5, 0.5)}
+    assign(
+      sprintf("%s_%s_map", x[[1]], x[[2]]), 
+      basemap + 
+        geom_sf(
+          data = filter(mapdf_nut, dimension == x[[1]], indicator == x[[2]]), 
+          aes(fill = score), 
+          size = 0.1, alpha = 0.7
+        ) +
+        scale_fill_gradientn(
+          colors = get(x[[3]]), 
+          limits = lims, 
+          na.value = "gainsboro"
+        ) +
+        theme(
+          legend.background = element_rect(color = "grey"),
+          legend.position = c(0.15, 0.75)
+        ) +
+        labs(fill = "Score"), 
+      envir = .GlobalEnv
     )
-  
-mapsf <- left_join(bhi_rgns_simple, mapdf, by = c("Subbasin", "BHI_ID"))
-
-basemap <- ggplot2::ggplot() + 
-  geom_sf(
-    data = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
-      sf::st_crop(xmin = 0, xmax = 40, ymin = 53, ymax = 67),
-    fill = "ivory", color = "lightsteelblue",
-    size = 0.1, alpha = 0.8
-  ) +
-  geom_sf(data = bhi_rgns_simple, fill = NA, size = 0.15, color = "lightsteelblue") +
-  scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
-
-statusmap <- basemap + 
-  geom_sf(data = filter(mapsf, indicator == "score"), aes(fill = score), size = 0.1, alpha = 0.85) +
-  facet_wrap(~ indicator) +
-  scale_fill_gradientn(colors = mapcols, limits = c(0, 1), na.value = "gainsboro") +
-  theme(
-    legend.background = element_rect(color = "grey"),
-    legend.position = c(0.15, 0.75)
-  ) +
-  labs(fill = "Score")
-```
-<br>
-
-**Trend Maps**
-```{r trend plots, results = "show", echo = TRUE, fig.width = 9.5}
-trendsdf <- left_join(
-  cw_con %>% 
-    select(-rgn_nam) %>% 
-    filter(dimension == "trend") %>% 
-    tidyr::pivot_wider(names_from = indicator, values_from = score),
-  cw_con_w_penalty %>% 
-    filter(dimension == "trend") %>% 
-    select(-proportion_monitored, -Subbasin),
-  by = c("BHI_ID", "dimension")
+    createdplots <- sprintf("%s_%s_map", x[[1]], x[[2]])
+  }
 )
-trendsdf <- trendsdf %>% 
-  tidyr::pivot_longer(
-    cols = c("pcb", "pfos", "dioxin", "score"), 
-    names_to = "indicator",
-    values_to = "score"
-  ) %>% 
-  left_join(
-    read_csv(here::here("supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
-      select(Subbasin = subbasin, subbasin_order, BHI_ID = region_id, subbasin_order),
-    by = c("Subbasin", "BHI_ID")
-  ) %>% 
-  mutate(
-    score_na = ifelse(is.na(score), 1, score),
-    indicator = ifelse(indicator == "score", "average_trend", indicator)
-  ) %>% 
-  arrange(desc(subbasin_order))
-
-trendsdf$Subbasin <- factor(
-  trendsdf$Subbasin,
-  levels = unique(trendsdf$Subbasin)
-)
-
-trendplots <- ggplot(trendsdf, aes(Subbasin, score_na, fill = score)) +
-  geom_bar(stat = "identity", position = position_dodge(), show.legend = FALSE) +
-  geom_hline(yintercept = 0, color = "grey") +
-  scale_fill_gradientn(colors = rev(mapcols), limits = c(-1, 1), na.value = "gainsboro") +
-  facet_wrap(~ indicator, nrow = 1) +
-  coord_flip() +
-  labs(x = NULL, y = NULL) +
-  guides() +
-  theme_bw()
-```
-
-
-```{r SOME MAAP, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-library(leaflet)
-source(here::here("R", "spatial.R"))
-regions_shape()
-
-## join datalayers with simplified spatial data for mapping
-plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
-  sf::st_as_sf() %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, region_id = BHI_ID, Area_km2) %>% 
-  left_join(
-    DATALAYERS,
-    by = "region_id"
-  )
-  
-pal <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
-
-## create map
-leaflet(data = plotshp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5) %>% 
-  addMapPane("popup", zIndex = 450) %>% 
-  
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palProd(DATALAYER),
-    group = "GROUPNAME"
-  ) %>% 
-  
-  ## layers controls, popup layer, and formatting
-  addLayersControl(
-    baseGroups = c(
-      BASEGROUPS
-    ),
-    options = layersControlOptions(collapsed = FALSE)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      plotshp$Name, "</h5>",
-      "<h5><strong>", "BHI Region ID:", "</strong>",
-      plotshp$region_id, "</h5>"
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    options = pathOptions(pane = "popup")
-  )
+gridExtra::grid.arrange(status_din_map, trend_din_map, nrow = 1)
+gridExtra::grid.arrange(status_dip_map, trend_dip_map, nrow = 1)
 ```
 
 <br>
