@@ -1,4 +1,15 @@
 
+
+```{r eut data preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(here::here("R", "data.R"))
+source(here::here("R", "spatial.R"))
+
+## root location of the raw data
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Goals", "CW", "TRA")
+```
+
+
 ## 2. Data
 
 ```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
@@ -9,7 +20,7 @@ source(here::here("R", "setup.R"))
 <br/>
 
 **Plastic Marine Pollution Global Dataset**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/ -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/Eriksen_PlasticMarine -->
 
 Dataset posted on 03.05.2014, 13:14 by Marcus Eriksen. *This is a global dataset of 1571 locations where surface manta tows were conducted.  Samples were divided into 4 size categories. Weights and particle counts were recoreded for each category.* Dataset supplement to paper [Plastic Pollution in the World's Oceans: More than 5 Trillion Plastic Pieces Weighing over 250,000 Tons Afloat at Sea](https://doi.org/10.1371/journal.pone.0111913) by Marcus Eriksen et al.
 
@@ -30,14 +41,61 @@ knitr::kable(tab, caption = "Source: [Plastic Marine Pollution Global Dataset, s
 
 <br/>
 
+**Litter Exchange Data = (HH and LT) – continuously updated**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/DATRAS -->
 
-### 2.2 Centralization & Normalization
+For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining. [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Data products:", "Litter exchange data"), 
+  c("Survey:", "BITS (Baltic International Trawl Survey)"),
+  c("Quarter(s):", "All"),
+  c("Year(s):", "All")))
+
+colnames(tab) <- c("Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database (DATRAS)](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 8 May 2020 by Andrea De Cervo")
+```
+
+---
+
+<br/>
+
+**Litter Assessment Output (OSPAR) = (merged HH, LT, and GIS-info) – updated once a year** 
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/DATRAS -->
+
+For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining. [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Data products:", "Litter Assessment Output"), 
+  c("Survey:", "BITS (Baltic International Trawl Survey)"),
+  c("Quarter(s):", "All"),
+  c("Year(s):", "All")))
+
+colnames(tab) <- c("Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database (DATRAS)](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 8 May 2020 by Andrea De Cervo")
+```
+
+---
+
+<br/>
+
+### 2.2 Centralization & Normalization {-}
 
 ```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "TRA")
 marinepastic_raw <- readr::read_csv(file.path(dir_rawdata, "Eriksen_PlasticMarine", "marineplastic_eriksen.csv"))
+litterdata_raw <- readr::read_csv(file.path(dir_rawdata, "DATRAS", "Litter Exchange Data", "litter_exchange_data.csv"))
+litterassess_raw <- readr::read_csv(file.path(dir_rawdata, "DATRAS", "Litter Assessment Output", "litter_assessment_output.csv"))
 ```
+
+
 
 #### 2.2.1 Rename Fields/Variables
 
