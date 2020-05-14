@@ -44,16 +44,6 @@ offshore_codes <- offshore_codes %>%
   rename(Subbasin = level_2, helcom_coastal_code = coastal) %>% 
   select(-level_3, -country)  
 
-# add_lookup_table <- read.csv(file.path(dir_lookup, "basin_add_lookup_table.csv"), sep = ",")
-# source(here::here("R", "spatial.R"))
-# regions_shape()
-# buffer_sf <- st_read(
-#   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"), 
-#   "BHI_shapefile_25km_buffer"
-# )
-# bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
-
-# dir_lookup <- file.path(dir_prep, "supplement", "lookup_tabs")
 basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
   read_csv() %>%
   select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
@@ -257,16 +247,15 @@ gridExtra::grid.arrange(plot_secchi_basin_ts, plot_secchi_basin_box, nrow = 1)
 ```{r calculate monthly mean secchi with target, results = "hide"}
 for(r in c("Subbasin", "BHI_ID")){
   
-  ## Calculate mean value for each summer month
+  ## Calculate mean monthly value for each summer month
+  ## using only offshore data for secchi indicator
   secchi_monthly_means <- secchi_offshore %>% 
-    group_by(year, Subbasin, !!!syms(r)) %>%
-    mutate(secchi_sd = sd(secchi_m, na.rm = TRUE)) %>%
-    group_by(year, month, secchi_sd, Subbasin, !!!syms(r)) %>%
+    group_by(year, month, Subbasin, !!!syms(r)) %>%
     summarise(
       mean_secchi = mean(secchi_m, na.rm = TRUE),
+      secchi_sd = sd(secchi_m, na.rm = TRUE),
       n_pts = n()
     ) %>%
-    ungroup() %>% 
     mutate(secchi_sd = ifelse(is.na(secchi_sd), 0, secchi_sd))
   # filter(secchi_monthly_means, is.na(mean_secchi)|is.nan(mean_secchi))
   ## what prop. of data where mean is based on <4 data points?
@@ -274,20 +263,22 @@ for(r in c("Subbasin", "BHI_ID")){
   
   ## Calculate summer mean secchi (subbasin)
   secchi_summer_months_mean <- secchi_monthly_means %>% 
-    group_by(year, secchi_sd, Subbasin, !!!syms(r)) %>%
+    group_by(year, Subbasin, !!!syms(r)) %>%
     summarise(
       mean_secchi = mean(mean_secchi, na.rm = TRUE),
+      secchi_sd = sqrt(mean((secchi_sd^2), na.rm = TRUE)),
       n_pts = sum(n_pts)
-    ) %>%
-    mutate(
-      secchi_min = mean_secchi-secchi_sd, 
-      secchi_max = mean_secchi+secchi_sd
-    ) %>% 
+    ) 
+  
+  ## calculate min and max, and rolling 5 year mean
+  secchi_summer_months_mean <- secchi_summer_months_mean %>% 
     arrange(!!!syms(r), year) %>% 
     group_by(!!!syms(r)) %>%
     mutate(ma5yr = zoo::rollapply(mean_secchi, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+    mutate(secchi_min = mean_secchi-secchi_sd, secchi_max = mean_secchi+secchi_sd) %>% 
     ungroup() # in mean calculation some months have NA, ignore for that year's calculation
   
+  ## join with basin-specific eutrophication secchi targets
   secchi_summer_months_mean <- eut_thresholds %>% 
     select(Subbasin = basin, target_secchi = summer_secchi) %>% 
     right_join(secchi_summer_months_mean, by = "Subbasin")
@@ -300,8 +291,9 @@ for(r in c("Subbasin", "BHI_ID")){
       alpha = 0.6, size = 0.2, width = 0.2
     ) +
     geom_point() +
-    geom_line(size = 0.2) +
     # geom_line(aes(year, ma5yr), size = 0.2) +
+    geom_line(size = 0.2) +
+    ## helcom target value
     geom_line(aes(y = target_secchi), colour = "tomato", size = 0.4) +
     facet_wrap(vars(!!!syms(r))) +
     scale_y_continuous(limits = c(0, 10)) +
@@ -666,13 +658,13 @@ expandcases <- tidyr::expand(chla_whole, tidyr::nesting(Subbasin, BHI_ID, year, 
 lapply(
   plotinfo,
   function(x){
-    ## evaluate data by source
+    ## 1. evaluate data by source
     plottimeseries <- ggplot(full_join(get(x[[1]]), expandcases)) +
       geom_point(aes(year, chla_ug_l, color = supplier), size = 0.5, alpha = 0.5) +
       labs(x = "Year", y = "Chl a (ug/L)", color = "Data Source", title = x[[3]]) +
       scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
     
-    ## evaluate coastal/offshore data
+    ## 2. evaluate data by by coastal/offshore
     # plottimeseries <- ggplot(chla_whole) + 
     #   geom_point(aes(year, chla_ug_l, color = coastal), size = 0.5, alpha = 0.5) +
     #   labs(x = "Year", y = "Chl a (ug/L)", color = "Coastal/Offshore", title = x[[3]]) +
@@ -691,13 +683,13 @@ lapply(
 lapply(
   plotinfo,
   function(x){
-    ## evaluate data by source
+    ## 1. evaluate data by source
     plotboxplot <- ggplot(get(x[[1]]) %>% full_join(expandcases) %>% mutate(month = as.factor(month))) +
       geom_boxplot(aes(month, chla_ug_l, fill = supplier), size = 0.2, outlier.size = 0.3, alpha = 0.4) +
       labs(x = "Month", y = "Chl a (ug/L)", fill = "Data Source", title = x[[3]]) +
       scale_fill_manual(values = c("tomato", "aquamarine2", "gold"))
     
-    ## evaluate coastal/offshore data
+    ## 2. evaluate data by by coastal/offshore
     # plotboxplot <- ggplot(mutate(chla_whole, month = as.factor(month))) +
     #   geom_boxplot(aes(month, chla_ug_l, fill = coastal), size = 0.2, outlier.size = 0.3, alpha = 0.4) +
     #   labs(x = "Month", y = "Chl a (ug/L)", fill = "Coastal/Offshore", title = x[[3]]) +
@@ -716,7 +708,8 @@ lapply(
 )
 gridExtra::grid.arrange(plot_chla_offshore_basin_ts, plot_chla_coastal_basin_ts, nrow = 1)
 gridExtra::grid.arrange(plot_chla_offshore_basin_box, plot_chla_coastal_basin_box, nrow = 1)
-# gridExtra::grid.arrange(plot_chla_offshore_bhi_ts, plot_chla_coastal_bhi_ts, nrow = 1)
+# gridExtra::grid.arrange(plot_chla_offshore_bhi_box, plot_chla_coastal_bhi_ts, nrow = 1)
+# gridExtra::grid.arrange(plot_chla_offshore_bhi_box, plot_chla_coastal_bhi_box, nrow = 1)
 ```
 
 <br>
@@ -724,8 +717,8 @@ gridExtra::grid.arrange(plot_chla_offshore_basin_box, plot_chla_coastal_basin_bo
 #### 3.2.3 Mean Chllorophyl a Calculation
 
 ```{r calculate monthly and summer mean chl a with target, results = "hide"}
-
 for(r in c("Subbasin", "BHI_ID")){
+  
   ## Calculate mean monthly value for each summer month
   ## For coastal and offshore separately and then combine in a later step
   chla_monthly_means <- chla_whole %>% 
@@ -738,7 +731,7 @@ for(r in c("Subbasin", "BHI_ID")){
     mutate(chla_sd = ifelse(is.na(chla_sd), 0, chla_sd))
   
   ## Calculate summer mean chl a
-  ## each month will have two means, coastal and offshore
+  ## each year will have two means, coastal and offshore
   ## https://stats.stackexchange.com/questions/25848/how-to-sum-a-standard-deviation
   chla_summer_months_mean <- chla_monthly_means %>% 
     group_by(year, coastal, Subbasin, !!!syms(r)) %>%
@@ -766,6 +759,7 @@ for(r in c("Subbasin", "BHI_ID")){
     mutate(ma5yr = zoo::rollapply(mean_chla, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
     mutate(chla_min = mean_chla-chla_sd, chla_max = mean_chla+chla_sd)
   
+  ## join with basin-specific eutrophication chlorophyl a targets
   chla_summer_months_mean <- eut_thresholds %>% 
     select(Subbasin = basin, target_chla = summer_chla) %>% 
     right_join(chla_summer_months_mean, by = "Subbasin")
@@ -779,6 +773,7 @@ for(r in c("Subbasin", "BHI_ID")){
       alpha = 0.6, size = 0.2, width = 0.2
     ) +
     geom_point() +
+    # geom_line(aes(year, ma5yr), size = 0.2) +
     geom_line(size = 0.2) +
     ## helcom target value
     geom_line(aes(y = target_chla), colour = "tomato", size = 0.4) +
@@ -1045,9 +1040,14 @@ nut_rgns_w_offshore_code <- nutrients_rawdata %>%
   sf::st_drop_geometry()
 
 ## assign bhi basins to nutrients data 
+buffer_sf <- st_read(
+  file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"),
+  "BHI_shapefile_25km_buffer"
+)
 nut_rgns_shp <- join_rgns_info(
   nut_rgns_w_offshore_code, 
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles")
+  # buffer_shp = buffer_sf
 )
 
 ## confirm only winter months (December-February) are included
@@ -1057,21 +1057,153 @@ nut_rgns <- nut_rgns_shp %>%
   filter(month == "12" | month == "01" | month == "02") %>% 
   filter(depth_m <= 10) %>% 
   filter(year >= 2000) %>% 
-  mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore"))
+  mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore")) %>% 
+  select(latitude, longitude, Subbasin, BHI_ID, coastal, year, month, time, depth_m, din, dip) %>% 
+  tidyr::pivot_longer(c("din", "dip"), names_to = "nutrient", values_to = "value") %>% 
+  mutate(nutrient = stringr::str_to_upper(nutrient))
 ```
+
+```{r eut nutrients map of raw data points, results = "show", fig.width = 9.5, fig.height = 7}
+## make basemap
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+
+nutrients_obs_mapdf <- nut_rgns %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
+  filter(year %in% 2010:2019) %>% 
+  mutate(no_bhi_id = is.na(BHI_ID))
+
+basemap +
+  geom_sf(data = bhi_rgns_simple, fill = "white", size = 0.2, color = "burlywood") +
+  # geom_sf(data = nutrients_obs_mapdf, aes(color = no_bhi_id), size = 1.8, alpha = 0.7, show.legend = FALSE) +
+  geom_sf(data = nutrients_obs_mapdf, aes(color = coastal), size = 1.2, alpha = 0.3) +
+  scale_color_manual(values = c("darkseagreen", "salmon")) +
+  labs(color = "Offshore or Coastal Measurement") +
+  theme_bw() +
+  theme(legend.position = c(0.1, 0.9), legend.background = element_rect(fill = "ghostwhite"))
+```
+
+```{r nutrients data check coastal versus offshore, results = "show", fig.width = 11}
+## make dataframe to use in plotting
+expandcases <- tidyr::expand(nut_rgns, tidyr::nesting(Subbasin, BHI_ID, year, month, nutrient))
+plotdf <- nut_rgns %>% 
+  full_join(expandcases) %>%
+  filter(!(is.na(Subbasin) & is.na(nutrient)))
+
+for(r in c("Subbasin", "BHI_ID")){
+  ## timeseries plots
+  plottimeseries <- ggplot(plotdf) +
+    geom_point(aes(year, value, color = coastal), size = 0.5, alpha = 0.3) +
+    labs(x = "Year", y = NULL, color = "Coastal/Offshore") +
+    scale_color_manual(values = c("darkseagreen", "salmon")) +
+    facet_wrap(c("nutrient", r), scales = "free_y") +
+    theme(axis.text.x = element_text(size = 7, angle = 90))
+  assign(sprintf("plot_nut_%s_ts", stringr::str_to_lower(r)), plottimeseries, envir = .GlobalEnv)
+  
+  ## boxplots comparing coastal/offshore by region or subbasin
+  plotboxplot <- ggplot(mutate(plotdf, month = as.factor(month))) +
+    geom_boxplot(aes(month, value, fill = coastal), size = 0.2, outlier.size = 0.3, alpha = 0.4) +
+    labs(x = "Month", y = NULL, fill = "Coastal/Offshore") +
+    scale_fill_manual(values = c("darkseagreen", "salmon")) +
+    facet_wrap(c("nutrient", r), scales = "free_y")
+    assign(sprintf("plot_nut_%s_box", stringr::str_to_lower(r)), plotboxplot, envir = .GlobalEnv)
+}
+
+gridExtra::grid.arrange(plot_nut_subbasin_ts, plot_nut_subbasin_box, nrow = 1)
+# gridExtra::grid.arrange(plot_nut_bhi_id_ts, plot_nut_bhi_id_box, nrow = 1)
+```
+
+<br>
 
 #### 3.3.2 Mean nutrients Calculations
 
 ```{r calculate monthly mean nutrients with target, results = "hide"}
-
+for(r in c("Subbasin", "BHI_ID")){
+  
+  ## Calculate DIN and DIP mean monthly values for each winter month
+  ## For coastal and offshore separately and then combine in a later step
+  nutrient_monthly_means <- nut_rgns %>% 
+    filter(!is.na(Subbasin), !is.na(BHI_ID)) %>% 
+    group_by(year, month, coastal, nutrient, Subbasin, !!!syms(r)) %>%
+    summarise(
+      nut_mean = mean(value, na.rm = TRUE),
+      nut_sd = sd(value, na.rm = TRUE),
+      n_pts = n()
+    ) %>% 
+    mutate(nut_sd = ifelse(is.na(nut_sd), 0, nut_sd))
+  
+  ## Calculate winter DIN and DIP means
+  nutrient_winter_months_mean <- nutrient_monthly_means %>% 
+    group_by(year, coastal, nutrient, Subbasin, !!!syms(r)) %>%
+    summarise(
+      nut_mean = mean(nut_mean, na.rm = TRUE), 
+      nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
+      n_pts = sum(n_pts)
+    )
+  
+  ## take averages of offshore and coastal means and standard deviations
+  ## calculate min and max, and rolling 5 year mean
+  ## bind to coastal and offshore rows
+  nutrient_winter_months_mean <- nutrient_winter_months_mean %>% 
+    group_by(year, nutrient, Subbasin, !!!syms(r)) %>% 
+    summarize(
+      nut_mean = mean(nut_mean, na.rm = TRUE),
+      nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
+      n_pts = sum(n_pts)
+    ) %>% 
+    mutate(coastal = "Both") %>% 
+    ungroup() %>% 
+    bind_rows(nutrient_winter_months_mean) %>% 
+    arrange(!!!syms(r), nutrient, coastal, year) %>% 
+    group_by(!!!syms(r), nutrient, coastal) %>%
+    mutate(ma5yr = zoo::rollapply(nut_mean, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+    mutate(nut_min = nut_mean-nut_sd, nut_max = nut_mean+nut_sd)
+  
+  ## join with basin-specific eutrophication chlorophyl a targets
+  nutrient_winter_months_mean <- eut_thresholds %>% 
+    select(Subbasin = basin, DIN = winter_DIN, DIP = winter_DIP) %>% 
+    tidyr::pivot_longer(c("DIN", "DIP"), names_to = "nutrient", values_to = "target") %>% 
+    right_join(nutrient_winter_months_mean, by = c("Subbasin", "nutrient"))
+  ## make subbasin_target_nut and bhi_id_target_nut dataframes
+  assign(paste0(str_to_lower(r), "_target_nut"), nutrient_winter_months_mean)
+  
+  ## Plot winter mean nutrients
+  for(n in c("DIN", "DIP")){
+    meansplot <- ggplot(filter(nutrient_winter_months_mean, nutrient == n), aes(year, nut_mean, group = 1)) + 
+      geom_errorbar(
+        aes(x = year, ymin = nut_min, ymax = nut_max), 
+        alpha = 0.6, size = 0.2, width = 0.2
+      ) +
+      geom_point() +
+      # geom_line(aes(year, ma5yr), size = 0.2) +
+      geom_line(size = 0.2) +
+      ## helcom target value
+      geom_line(aes(y = target), colour = "tomato", size = 0.4) +
+      facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal)) +
+      labs(x = NULL, y = NULL)
+    
+    if(n == "DIN"){
+      meansplot <- meansplot + scale_y_continuous(limits = c(0, 25))
+    } else {
+      meansplot <- meansplot + scale_y_continuous(limits = c(0, 2))
+    }
+    assign(sprintf("%s_%s_meansplot", str_to_lower(n), str_to_lower(r)), meansplot)
+  }
+}
 ```
 
 **Plot winter nutrients with target values indicated**
 
 Horizontal lines are HELCOM target values 
 
-```{r winter nutrients with target, results = "show", echo = TRUE, fig.width = 9.5}
-
+```{r winter nutrients with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 14}
+din_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Nitrogen (Dec-Feb) against Target values")
+dip_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Phosphorus (Dec-Feb) against Target values")
 ```
 
 <br>
