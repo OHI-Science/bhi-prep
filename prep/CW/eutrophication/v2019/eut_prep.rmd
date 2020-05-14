@@ -477,7 +477,10 @@ secchi_trend <- secchi_trend %>%
 Basin status is initially a value between 0 and 1. Calculated for each year between 2000 and 2020.
 
 ```{r timeseries plot of basin eut secchi status, results = "show", echo = TRUE, fig.width = 9.5}
-ggplot(secchi_status_allyrs) + 
+plotdf <- secchi_status_allyrs %>% 
+  distinct(subbasin, year, status, n_pts) %>% 
+  mutate(year = as.factor(year))
+ggplot(plotdf) + 
   geom_col(aes(year, status, fill = n_pts), alpha = 0.7) +
   facet_wrap(~subbasin) +
   scale_fill_viridis_c() +
@@ -494,7 +497,7 @@ ggplot(rbind(secchi_status, secchi_trend)) +
   geom_col(aes(region, score, fill = subbasin), alpha = 0.5, show.legend = FALSE) +
   coord_flip() +
   facet_wrap(~dimension, scales = "free_x", nrow = 1) +
-  labs(x = "BHI Region ID\n", y = NULL) +
+  labs(x = "BHI Region\n", y = NULL) +
   scale_fill_manual(values = statuspal)
 ```
 
@@ -751,7 +754,7 @@ for(r in c("Subbasin", "BHI_ID")){
       chla_sd = sqrt(mean((chla_sd^2), na.rm = TRUE)),
       n_pts = sum(n_pts)
     ) %>% 
-    mutate(coastal = "Both") %>% 
+    mutate(coastal = "Both Combined") %>% 
     ungroup() %>% 
     bind_rows(chla_summer_months_mean) %>% 
     arrange(!!!syms(r), coastal, year) %>% 
@@ -806,8 +809,8 @@ Only five (5) basins have data for 2019, which will be used as the status year, 
 ```{r what is the last year, results = "hide"}
 ## get the last year of non-NA data
 chla_last_year <- subbasin_target_chla %>%
-  filter(!is.na(mean_chla)) %>%
-  group_by(Subbasin)%>%
+  filter(!is.na(mean_chla), coastal == "Both Combined") %>%
+  group_by(Subbasin) %>%
   summarise(last_year = last(year)) %>%
   print(n = 15)
 
@@ -834,35 +837,26 @@ chla_status_allyrs <- subbasin_target_chla %>%
   rename(subbasin = Subbasin) %>% 
   # mutate(status = pmin(1, target_chla/mean_chla)) %>%
   ## or use five year rolling means (moving average) rather than annual mean?
-  mutate(status = pmin(1, target_chla/ma5yr)) %>%
-  filter(year >= min_year) %>% 
-  left_join(basin_lookup, by = "subbasin") %>% 
-  mutate(region = rgn_nam)
-
-## select last year of data for status in each basin, this means status year differs by basin
-chla_status <- chla_status_allyrs %>%
-  group_by(subbasin) %>%
-  filter(year == max(year)) %>% 
-  mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
-  ungroup %>% 
-  mutate(dimension = "status", indicator = "chla") %>% 
-  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score = status, region, indicator, coastal)
+  mutate(status = pmin(1, target_chla/ma5yr))
+chla_status <- group_by(chla_status_allyrs, coastal, subbasin)
 
 ## Alternative status calculation: Status calculated using BHI region means
 # chla_status_allyrs <- bhi_id_target_chla %>%
 #   rename(subbasin = Subbasin, bhi_id = BHI_ID) %>%
-#   mutate(status = pmin(1, target_chla/mean_chla)) %>%
-#   ## or use five year rolling means rather than annual mean?
-#   # mutate(status = pmin(1, target_chla/ma5yr)) %>%
-#   left_join(basin_lookup, by = c("subbasin", "bhi_id")) %>%
-#   mutate(region = rgn_nam)
-# chla_status <- chla_status_allyrs %>%
-#   group_by(bhi_id) %>%
-#   filter(year == max(year)) %>%
-#   mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
-#   ungroup %>%
-#   mutate(dimension = "status", indicator = "chla") %>%
-#   dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, dimension, score = status, region, indicator, coastal)
+#   # mutate(status = pmin(1, target_chla/mean_chla)) %>%
+#   ## or use five year rolling means (moving average) rather than annual mean?
+#   mutate(status = pmin(1, target_chla/ma5yr))
+# chla_status <- group_by(chla_status_allyrs, bhi_id)
+
+## select last year of data for status in each basin, this means status year differs by basin
+chla_status <- chla_status %>% 
+  filter(year == max(year)) %>% 
+  mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
+  ungroup() %>% 
+  dplyr::select(score = status, coastal, !!!syms(intersect(c("subbasin", "bhi_id"), names(chla_status)))) %>% 
+  mutate(dimension = "status", indicator = "chla") %>% 
+  left_join(basin_lookup) %>%
+  mutate(region = as.factor(rgn_nam))
 
 ## plot the status
 ## BHI region plots will look the same, as BHI status are taken from subbasin means
@@ -870,9 +864,9 @@ chla_status <- chla_status_allyrs %>%
 set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
-ggplot(mutate(chla_status, region = as.factor(region))) +
+ggplot(chla_status) +
   geom_col(
-    aes(region, score, fill = Subbasin),
+    aes(region, score, fill = subbasin),
     position = position_dodge(), 
     color = "grey", 
     alpha = 0.6,
@@ -887,7 +881,7 @@ ggplot(mutate(chla_status, region = as.factor(region))) +
   scale_fill_manual(values = statuspal) +
   ggtitle("Chlorophyl a Status by Region, for Coastal, Offshore, and Combined data")
 
-chla_status <- chla_status %>% filter(coastal == "Both")
+chla_status <- chla_status %>% filter(coastal == "Both Combined") %>% select(-coastal)
 ```
 
 #### 3.2.4 Trend Calculations: Coastal & Offshore {-}
@@ -895,16 +889,17 @@ chla_status <- chla_status %>% filter(coastal == "Both")
 ```{r eut chl a trend calculation, results = "hide", fig.width = 9.5}
 ## basin trend regression ----
 chla_trend <- chla_status_allyrs %>%
-  filter(coastal == "Both") %>% 
+  filter(coastal == "Both Combined") %>% 
+  distinct(subbasin, year, status) %>%
   group_by(subbasin) %>%
   ## calculate trend only if:
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
   do(tail(., n = regr_length)) %>%  
   do({
     if(sum(!is.na(.$status)) >= min_regr_length){
-      data.frame(score = max(-1, min(1, coef(lm(status ~ year, .))["year"]*future_year)))
+      data.frame(trend_score = max(-1, min(1, coef(lm(status ~ year, .))["year"]*future_year)))
     } else {
-      data.frame(score = NA)
+      data.frame(trend_score = NA)
     }
   }) %>%
   ungroup() 
@@ -950,8 +945,13 @@ chla_coastal_lm_plot_subbasin
 ## assign basin trend to BHI regions
 chla_trend <- chla_trend %>% 
   right_join(basin_lookup, by = "subbasin") %>% 
-  mutate(dimension = "trend", indicator = "chla") %>%
-  dplyr::select(Subbasin = subbasin, BHI_ID = bhi_id, region = rgn_nam, dimension, score, indicator)
+  mutate(
+    score = round(trend_score, 3),
+    region = rgn_nam,
+    dimension = "trend",
+    indicator = "chla"
+  ) %>% 
+  select(-trend_score)
 ```
 
 #### 3.2.5 Status and Trend Timeseries Plots {-}
@@ -962,12 +962,9 @@ Basin status is initially a value between 0 and 1. Calculated for each year betw
 
 ```{r timeseries plot of basin eut chla status, results = "show", echo = TRUE, fig.width = 9.5}
 plotdf <- chla_status_allyrs %>% 
-  filter(coastal == "Both") %>% 
-  distinct(subbasin, year, status, n_pts) %>% 
-  mutate(year = as.factor(year))
+  filter(coastal == "Both Combined") %>% 
+  distinct(subbasin, year, status, n_pts)
 ggplot(plotdf) + 
-  # geom_line((aes(year, status)), color = "grey80", alpha = 0.5) +
-  # geom_smooth((aes(year, status)), color = "grey80", alpha = 0.1, size = 0.2) +
   geom_col(aes(year, status, fill = n_pts), alpha = 0.7) +
   facet_wrap(~subbasin) +
   scale_fill_viridis_c() +
@@ -980,15 +977,11 @@ ggplot(plotdf) +
 Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
 
 ```{r secchi status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
-plotdf <- chla_status %>% 
-  filter(coastal == "Both") %>% 
-  select(-coastal) %>% 
-  bind_rows(chla_trend)
-ggplot(plotdf) + 
-  geom_col(aes(region, score, fill = Subbasin), alpha = 0.5, show.legend = FALSE) +
+ggplot(rbind(chla_status, chla_trend)) + 
+  geom_col(aes(region, score, fill = subbasin), alpha = 0.5, show.legend = FALSE) +
   coord_flip() +
   facet_wrap(~dimension, scales = "free_x", nrow = 1) +
-  labs(x = "BHI Region ID\n", y = NULL) +
+  labs(x = "BHI Region\n", y = NULL) +
   scale_fill_manual(values = statuspal)
 ```
 
@@ -1052,13 +1045,19 @@ nut_rgns_shp <- join_rgns_info(
 
 ## confirm only winter months (December-February) are included
 ## surface layer (0 - 10 m depth) and years >= 2000
+## also need to account for fact that winter spans across new year
 nut_rgns <- nut_rgns_shp %>% 
   mutate(month = stringr::str_pad(month, 2, "left", "0")) %>% 
   filter(month == "12" | month == "01" | month == "02") %>% 
   filter(depth_m <= 10) %>% 
-  filter(year >= 2000) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  mutate(winterofyear = ifelse(month == 12, year, year-1)) %>% 
+  filter(winterofyear >= 2000)
+
+## reshape some for next steps
+nut_rgns <- nut_rgns %>% 
   mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore")) %>% 
-  select(latitude, longitude, Subbasin, BHI_ID, coastal, year, month, time, depth_m, din, dip) %>% 
+  select(latitude, longitude, Subbasin, BHI_ID, coastal, winterofyear, month, time, depth_m, din, dip) %>% 
   tidyr::pivot_longer(c("din", "dip"), names_to = "nutrient", values_to = "value") %>% 
   mutate(nutrient = stringr::str_to_upper(nutrient))
 ```
@@ -1075,7 +1074,7 @@ bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_s
 
 nutrients_obs_mapdf <- nut_rgns %>% 
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
-  filter(year %in% 2010:2019) %>% 
+  filter(winterofyear %in% 2010:2019) %>% 
   mutate(no_bhi_id = is.na(BHI_ID))
 
 basemap +
@@ -1090,7 +1089,7 @@ basemap +
 
 ```{r nutrients data check coastal versus offshore, results = "show", fig.width = 11}
 ## make dataframe to use in plotting
-expandcases <- tidyr::expand(nut_rgns, tidyr::nesting(Subbasin, BHI_ID, year, month, nutrient))
+expandcases <- tidyr::expand(nut_rgns, tidyr::nesting(Subbasin, BHI_ID, winterofyear, month, nutrient))
 plotdf <- nut_rgns %>% 
   full_join(expandcases) %>%
   filter(!(is.na(Subbasin) & is.na(nutrient)))
@@ -1098,8 +1097,8 @@ plotdf <- nut_rgns %>%
 for(r in c("Subbasin", "BHI_ID")){
   ## timeseries plots
   plottimeseries <- ggplot(plotdf) +
-    geom_point(aes(year, value, color = coastal), size = 0.5, alpha = 0.3) +
-    labs(x = "Year", y = NULL, color = "Coastal/Offshore") +
+    geom_point(aes(winterofyear, value, color = coastal), size = 0.5, alpha = 0.3) +
+    labs(x = "Winter of Year", y = NULL, color = "Coastal/Offshore") +
     scale_color_manual(values = c("darkseagreen", "salmon")) +
     facet_wrap(c("nutrient", r), scales = "free_y") +
     theme(axis.text.x = element_text(size = 7, angle = 90))
@@ -1129,7 +1128,7 @@ for(r in c("Subbasin", "BHI_ID")){
   ## For coastal and offshore separately and then combine in a later step
   nutrient_monthly_means <- nut_rgns %>% 
     filter(!is.na(Subbasin), !is.na(BHI_ID)) %>% 
-    group_by(year, month, coastal, nutrient, Subbasin, !!!syms(r)) %>%
+    group_by(winterofyear, month, coastal, nutrient, Subbasin, !!!syms(r)) %>%
     summarise(
       nut_mean = mean(value, na.rm = TRUE),
       nut_sd = sd(value, na.rm = TRUE),
@@ -1138,8 +1137,8 @@ for(r in c("Subbasin", "BHI_ID")){
     mutate(nut_sd = ifelse(is.na(nut_sd), 0, nut_sd))
   
   ## Calculate winter DIN and DIP means
-  nutrient_winter_months_mean <- nutrient_monthly_means %>% 
-    group_by(year, coastal, nutrient, Subbasin, !!!syms(r)) %>%
+  nut_winter_months_mean <- nutrient_monthly_means %>% 
+    group_by(winterofyear, coastal, nutrient, Subbasin, !!!syms(r)) %>%
     summarise(
       nut_mean = mean(nut_mean, na.rm = TRUE), 
       nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
@@ -1149,49 +1148,44 @@ for(r in c("Subbasin", "BHI_ID")){
   ## take averages of offshore and coastal means and standard deviations
   ## calculate min and max, and rolling 5 year mean
   ## bind to coastal and offshore rows
-  nutrient_winter_months_mean <- nutrient_winter_months_mean %>% 
-    group_by(year, nutrient, Subbasin, !!!syms(r)) %>% 
+  nut_winter_months_mean <- nut_winter_months_mean %>% 
+    group_by(winterofyear, nutrient, Subbasin, !!!syms(r)) %>% 
     summarize(
       nut_mean = mean(nut_mean, na.rm = TRUE),
       nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
       n_pts = sum(n_pts)
     ) %>% 
-    mutate(coastal = "Both") %>% 
+    mutate(coastal = "Both Combined") %>% 
     ungroup() %>% 
-    bind_rows(nutrient_winter_months_mean) %>% 
-    arrange(!!!syms(r), nutrient, coastal, year) %>% 
+    bind_rows(nut_winter_months_mean) %>% 
+    arrange(!!!syms(r), nutrient, coastal, winterofyear) %>% 
     group_by(!!!syms(r), nutrient, coastal) %>%
     mutate(ma5yr = zoo::rollapply(nut_mean, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
     mutate(nut_min = nut_mean-nut_sd, nut_max = nut_mean+nut_sd)
   
   ## join with basin-specific eutrophication chlorophyl a targets
-  nutrient_winter_months_mean <- eut_thresholds %>% 
+  nut_winter_months_mean <- eut_thresholds %>% 
     select(Subbasin = basin, DIN = winter_DIN, DIP = winter_DIP) %>% 
     tidyr::pivot_longer(c("DIN", "DIP"), names_to = "nutrient", values_to = "target") %>% 
-    right_join(nutrient_winter_months_mean, by = c("Subbasin", "nutrient"))
+    right_join(nut_winter_months_mean, by = c("Subbasin", "nutrient"))
   ## make subbasin_target_nut and bhi_id_target_nut dataframes
-  assign(paste0(str_to_lower(r), "_target_nut"), nutrient_winter_months_mean)
+  assign(paste0(str_to_lower(r), "_target_nut"), nut_winter_months_mean)
   
   ## Plot winter mean nutrients
   for(n in c("DIN", "DIP")){
-    meansplot <- ggplot(filter(nutrient_winter_months_mean, nutrient == n), aes(year, nut_mean, group = 1)) + 
+    meansplot <- ggplot(filter(nut_winter_months_mean, nutrient == n), aes(winterofyear, nut_mean, group = 1)) + 
       geom_errorbar(
-        aes(x = year, ymin = nut_min, ymax = nut_max), 
+        aes(x = winterofyear, ymin = nut_min, ymax = nut_max), 
         alpha = 0.6, size = 0.2, width = 0.2
       ) +
       geom_point() +
-      # geom_line(aes(year, ma5yr), size = 0.2) +
+      # geom_line(aes(winterofyear, ma5yr), size = 0.2) +
       geom_line(size = 0.2) +
       ## helcom target value
       geom_line(aes(y = target), colour = "tomato", size = 0.4) +
-      facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal)) +
+      facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal), scales = "free_y") +
+      scale_y_continuous(limits = c(0, NA)) +
       labs(x = NULL, y = NULL)
-    
-    if(n == "DIN"){
-      meansplot <- meansplot + scale_y_continuous(limits = c(0, 25))
-    } else {
-      meansplot <- meansplot + scale_y_continuous(limits = c(0, 2))
-    }
     assign(sprintf("%s_%s_meansplot", str_to_lower(n), str_to_lower(r)), meansplot)
   }
 }
@@ -1212,24 +1206,168 @@ dip_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Phosphorus (De
 
 **Explore status years**
 
-```{r what is the last year in nutrients subbasin means dataframe, results = "hide"}
-
+```{r what are the last yeasr in nutrients subbasin means dataframe, results = "hide"}
+## get the last year of non-NA data
+nut_last_year <- subbasin_target_nut %>%
+  filter(!is.na(nut_mean), coastal == "Both Combined") %>%
+  group_by(Subbasin, nutrient) %>%
+  summarise(last_year = last(winterofyear)) %>%
+  tidyr::pivot_wider(names_from = nutrient, values_from = last_year, names_prefix = "last_year_") %>% 
+  print(n = 15)
 ```
 
 **Status calculation with raw (non-modeled) mean winter nutrients by basin** 
 
 Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
 
-```{r eut nutrients indicator status calculation, results = "show", echo = TRUE, fig.width = 9.5}
+```{r eut nutrients status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 8}
 
+## Define constants for status and trend calculations
+min_year <- 2009 # earliest year to use as a start for regr_length timeseries
+regr_length <- 10 # number of years to use for regression
+future_year <- 5 # the year at which we want the likely future status
+min_regr_length <- 5 # min actual number of years with data to use for regression
+
+
+## Calculate basin status as: basin_target/basin_mean, constraining values to 1 as maximum score
+## joining to basin lookup to expand from subbasins to one row per BHI region
+nut_status_allyrs <- subbasin_target_nut %>%
+  rename(subbasin = Subbasin) %>% 
+  # mutate(status = pmin(1, target/nut_mean)) %>%
+  ## or use five year rolling means (moving average) rather than annual mean?
+  mutate(status = pmin(1, target/ma5yr))
+nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin)
+
+## Alternative status calculation: Status calculated using BHI region means
+# nut_status_allyrs <- bhi_id_target_nut %>%
+#   rename(subbasin = Subbasin, bhi_id = BHI_ID) %>%
+#   # mutate(status = pmin(1, target/nut_mean)) %>%
+#   ## or use five year rolling means (moving average) rather than annual mean?
+#   mutate(status = pmin(1,  target/ma5yr))
+# nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin, bhi_id)
+
+## select last year of data for status in each basin, this means status year differs by basin
+nut_status <- nut_status %>% 
+  filter(winterofyear == max(winterofyear)) %>% 
+  mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
+  ungroup() %>% 
+  mutate(
+    dimension = "status", 
+    indicator = ifelse(nutrient == "DIP", "dip", "din")
+  ) %>% 
+  dplyr::select(
+    score = status, indicator, dimension, coastal,
+    !!!syms(intersect(c("subbasin", "bhi_id"), names(nut_status)))
+  ) %>% 
+  left_join(basin_lookup) %>%
+  mutate(region = as.factor(rgn_nam))
+
+## plot the status
+## BHI region plots will look the same, as BHI status are taken from subbasin means
+## unless alternative calculation is used, based on BHI region means rather than subbasin means
+set.seed(2)
+statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
+
+ggplot(mutate(nut_status, indicator = ifelse(indicator  == "dip", "DIP", "DIN"))) +
+  geom_col(
+    aes(region, score, fill = subbasin),
+    position = position_dodge(), 
+    color = "grey", 
+    alpha = 0.6,
+    size = 0.2,
+    show.legend = FALSE
+  ) + 
+  coord_flip() +
+  facet_grid(cols = vars(coastal), rows = vars(indicator)) +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 10)) +
+  scale_fill_manual(values = statuspal) +
+  ggtitle("DIN and DIP indicators Status by Region, for Coastal, Offshore, and Combined data")
+
+nut_status <- nut_status %>% filter(coastal == "Both Combined") %>% select(-coastal)
 ```
 
 <br>
 
 #### 3.3.4 Trend Calculation {-}
 
-```{r eut nutrients indicator trend calculation, results = "hide", echo = TRUE, fig.width = 9.5}
+```{r eut nutrients indicators trend calculation, results = "hide", echo = TRUE, fig.width = 9.5}
+## basin trend regression ----
+nut_trend <- nut_status_allyrs %>%
+  filter(coastal == "Both Combined") %>% 
+  distinct(subbasin, winterofyear, nutrient, status) %>%
+  group_by(subbasin, nutrient) %>%
+  ## calculate trend only if:
+  ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
+  do(tail(., n = regr_length)) %>%  
+  do({
+    if(sum(!is.na(.$status)) >= min_regr_length){
+      data.frame(trend_score = max(-1, min(1, coef(lm(status ~ winterofyear, .))["winterofyear"]*future_year)))
+    } else {
+      data.frame(trend_score = NA)
+    }
+  }) %>%
+  ungroup() 
 
+## change relative to threshold from observation values ----
+trendyrs <- min_year:(min_year + regr_length)
+lapply(
+  list(
+    list("Offshore", "DIN"), list("Coastal", "DIN"),
+    list("Offshore", "DIP"), list("Coastal", "DIP")
+  ),
+  function(x){
+    nut_lm_estim <- nut_rgns %>% 
+      filter(winterofyear %in% trendyrs, coastal == x[[1]], nutrient == x[[2]]) %>% 
+      group_by(Subbasin) %>% 
+      mutate(trendcalc_nyrs = n_distinct(winterofyear), num_obs = n()) %>% 
+      ## how much data is enough data to calculate short-term trends?
+      filter((trendcalc_nyrs >= 6 & num_obs > 18)||trendcalc_nyrs > 8) %>%
+      do(trend_mdl = lm(value ~ winterofyear, data = .)) %>% 
+      left_join(select(eut_thresholds, Subbasin = basin, threshold = ends_with(x[[2]]))) %>% 
+      mutate(
+        ## change w.r.t. thresholds...
+        expectedchange5yrs = coef(trend_mdl)["winterofyear"]*future_year,
+        score = -expectedchange5yrs/threshold,
+        ## plotting variables, to visualize
+        current = predict(trend_mdl, data.frame(winterofyear = max(trendyrs))),
+        prj = predict(trend_mdl, data.frame(winterofyear = max(trendyrs) + future_year))
+      )
+    plotdf <- nut_rgns %>% 
+      filter(winterofyear %in% trendyrs, coastal == x[[1]], nutrient == x[[2]]) %>% 
+      left_join(select(nut_lm_estim, Subbasin, current, prj))
+    
+    p <- ggplot(plotdf) +
+      geom_point(aes(x = winterofyear, y = value), size = 0.2, alpha = 0.4) +
+      geom_vline(xintercept = max(trendyrs), size = 0.2) +
+      geom_vline(xintercept = max(trendyrs) + future_year, size = 0.2) +
+      geom_hline(aes(yintercept = prj), color = "tomato") +
+      geom_hline(aes(yintercept = current), alpha = 0.3) +
+      facet_wrap(~Subbasin, scales = "free") +
+      labs(x = NULL, y = NULL)
+    
+    assign(stringr::str_to_lower(sprintf("%s_lm_plot_%s", x[[1]], x[[2]])), p, envir = .GlobalEnv)
+    createdplots <- stringr::str_to_lower(sprintf("%s_lm_plot_%s", x[[1]], x[[2]]))
+  }
+)
+offshore_lm_plot_din
+coastal_lm_plot_din
+offshore_lm_plot_dip
+coastal_lm_plot_dip
+
+## trend score dataframe ----
+## assign basin trend to BHI regions
+nut_trend <- nut_trend %>% 
+  right_join(basin_lookup, by = "subbasin") %>% 
+  mutate(
+    score = round(trend_score, 3),
+    region = rgn_nam,
+    dimension = "trend",
+    nutrient = stringr::str_to_lower(nutrient)
+  ) %>% 
+  rename(indicator = nutrient) %>% 
+  select(-trend_score)
 ```
 
 <br>
@@ -1242,18 +1380,32 @@ Status is calculated on the basin level and then applied to all regions. It is c
 Basin status is initially a value between 0 and 1. Calculated for each year between 2000 and 2020.
 
 ```{r timeseries plot of basin eut nutrients status, results = "show", echo = TRUE, fig.width = 9.5}
-
+plotdf <- nut_status_allyrs %>% 
+  filter(coastal == "Both Combined") %>% 
+  distinct(subbasin, winterofyear, nutrient, status, n_pts)
+ggplot(filter(plotdf, nutrient == "DIN")) + 
+  geom_col(aes(winterofyear, status, fill = n_pts), alpha = 0.7) +
+  facet_wrap(~subbasin) +
+  scale_fill_viridis_c() +
+  geom_hline(yintercept = 1) +
+  labs(x = NULL, y = "DIN Indicator Status\n", fill = "Num. Contributing of Points")
+ggplot(filter(plotdf, nutrient == "DIP")) + 
+  geom_col(aes(winterofyear, status, fill = n_pts), alpha = 0.7) +
+  facet_wrap(~subbasin) +
+  scale_fill_viridis_c() +
+  geom_hline(yintercept = 1) +
+  labs(x = NULL, y = "DIP Indicator Status\n", fill = "Num. Contributing of Points")
 ```
 
 **Plot region Status and Trend values**
 
 Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
 
-```{r nutrient status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
-ggplot(rbind(nutrient_status, nutrient_trend)) + 
+```{r nutrient status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 6}
+ggplot(rbind(nut_status, nut_trend) %>% mutate(indicator = stringr::str_to_upper(indicator))) + 
   geom_col(aes(region, score, fill = subbasin), alpha = 0.5, show.legend = FALSE) +
   coord_flip() +
-  facet_wrap(~dimension, scales = "free_x", nrow = 1) +
+  facet_grid(cols = vars(dimension), rows = vars(indicator), scales = "free_x") +
   labs(x = "BHI Region ID\n", y = NULL) +
   scale_fill_manual(values = statuspal)
 ```
