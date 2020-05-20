@@ -10,11 +10,11 @@ dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
 
 For the Eutrophication sub-goal five indicators were included:
 
--   winter (December-February) dissolved inorganic nitrogen (DIN) concentrations in the surface layer (0 - 10 m depth)
--   winter (December-February) dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth)
--   summer (June-September) chlorophyll a concentration in the surface layer (0 - 10 m depth)
--   summer (June-September) Secchi depth
--   oxygen debt (hypoxic area below the halocline)
+- winter (December-February) dissolved inorganic nitrogen (DIN) concentrations in the surface layer (0 - 10 m depth)
+- winter (December-February) dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth)
+- summer (June-September) chlorophyll a concentration in the surface layer (0 - 10 m depth)
+- summer (June-September) Secchi depth
+- oxygen debt (hypoxic area below the halocline)
 
 
 ### 2.1 Datasets with Sources {-}
@@ -22,16 +22,16 @@ For the Eutrophication sub-goal five indicators were included:
 
 #### 2.1.1 Secchi Depth {-}
 
-**ICES Secchi Depth**
+**ICES Secchi Depth Data**
 
+Extraction from ICES database is classified into HELCOM Assessment Units – HELCOM sub basins with coastal WFD water bodies or water types.
 
-Extraction from ICES database is classified into HELCOM Assessment Units – HELCOM sub basins with coastal WFD water bodies or water types
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Dataset set:", "Oceanographic (per Parameter)"), 
-  c("Parameter:", "secchi depth (Download)")))
-
+  c("Parameter:", "secchi depth (Download)")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
@@ -41,7 +41,7 @@ knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ice
 
 <br/>
 
-**SMHI Secchi Depth**  
+**SMHI Secchi Depth Data**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_SMHI -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -63,39 +63,43 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 
 #### 2.1.2 Oxygen Debt {-}
 
-**ICES Oxygen Debt**
+**ICES Oxygen Data**
+
+Each dataset has been extracted by country and Denmark split into five (5) because too big otherwise.
+
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Period:", "2000-2020"), 
   c("Parameter:", "Oxygen"),
   c("Country:", "(choose each Baltic country at a time)"),
-  c("Ship:", "Any")))
-
+  c("Ship:", "Any")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 March 2020 by Andrea De Cervo")
-# each dataset has been extracted by country and Denmark split into five (5) because too big
 ```
 *The maximum number of stations per download is 20000*
 
 <br/>
 
 **ICES CTD Data**
+
+Each dataset has been extracted by country, Denmark split into three (3) and Germany into five (5) because too big otherewise. No CTD found for Lithuania.
+
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Period:", "2000-2020"), 
   c("Parameter:", "CTD"),
   c("Country:", "(choose each Baltic country at a time)"),
-  c("Ship:", "Any")))
-
+  c("Ship:", "Any")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo")
-# each dataset has been extracted by country, Denmark split into three (3) and Germany into five (5) because too big. No CTD found for Lithuania
 ```
 *The maximum number of stations per download is 20000*
 
@@ -108,13 +112,12 @@ tab <- t(data.frame(
   c("Period:", "2000-2020"), 
   c("Parameter:", "Hydrogen Sulphide"),
   c("Country:", "(choose each Baltic country at a time)"),
-  c("Ship:", "Any")))
-
+  c("Ship:", "Any")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo")
-
 ```
 *The maximum number of stations per download is 20000*
 
@@ -130,8 +133,8 @@ tab <- t(data.frame(
   c("Years:", "2000-2020"),
   c("Decimal/fält-avgränsare (decimal/delimiter):", "punkt/semikolon (period/semicolon)"),
   c("Teckenkodning:", "UTF-8"),
-  c("Rubrikrad:", "Englelska (English)")))
-
+  c("Rubrikrad:", "Englelska (English)")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
@@ -143,15 +146,15 @@ knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydCh
 
 #### 2.1.3 Chlorophyll a, and Nutrients (DIN and DIP) {-}
 
-**Baltic Nest datasets Chlorophyll a, and Nutrients**
+**Baltic Nest Datasets**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/NestData/nestdata_winter_nutrients.csv -->
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/NestData/nestdata_summer_chlorophyl.csv -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Latitude/Longitude Begin/End:", "Baltic Sea"), 
   c("Dates Begin/End:", "Jan 1, 2005 to Dec 31, 2019"), 
-  c("Parameters:", "PO4P, NO3N, NO2N, NO23N, NH4N, CHL")))
-
+  c("Parameters:", "PO4P, NO3N, NO2N, NO23N, NH4N, CHL")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
@@ -159,9 +162,28 @@ knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/da
 ```
 <br/>
 
-Retrieve Baltic Nest Nutrients datasets:
+Retrieving Baltic Nest Nutrients datasets:
 
-**SMHI Chlorophyll a**
+```{r using get_nest_data function to download winter nutrient data, eval = FALSE}
+get_nest_data(
+  date_range = c(20050101,20191231), 
+  months = c(11,12,1:3), 
+  param_codes = c("NO3N","NO2N","NO23N","NH4N","TOTN","PO4P")
+) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_winter_nutrients.csv"))
+```
+<br/>
+
+Retrieve Baltic Nest Chlorophyll a datasets:
+```{r using get_nest_data function to download summer chlorophyll a data, eval = FALSE}
+get_nest_data(
+  date_range = c(20050101, 20191231), 
+  months = 5:10, 
+  param_codes = c("CHL")
+) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_summer_chlorophyl.csv"))
+```
+<br/>
+
+**Chlorophyll a Data from SMHI**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -177,11 +199,10 @@ colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/klimatdata/oceanografi/havsmiljodata/marina-miljoovervakningsdata) (https://sharkweb.smhi.se) <br/> Downloaded 24 April 2020 by Andrea De Cervo")
-
 ```
 <br/>
 
-**Chlorophyll a ICES**
+**Chlorophyll a Data from ICES**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/Chla_ICES -->
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -194,89 +215,46 @@ colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 April 2020 by Andrea De Cervo")
-
 ```
 *The maximum number of stations per download is 20000*
-<br/>
 
-**Baltic Nest Nutrients**
-
-```{r using get_nest_data function to download winter nutrient data, eval = FALSE}
-dir_B <- "/home/ellie/data/bhi_share/BHI 2.0"
-get_nest_data(
-  date_range = c(20050101,20191231), 
-  months = c(11,12,1:3), 
-  param_codes = c("NO3N","NO2N","NO23N","NH4N","TOTN","PO4P")
-) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_winter_nutrients.csv"))
-```
-<br/>
-
-Retrieve Baltic Nest Chlorophyll a datasets:
-```{r using get_nest_data function to download summer chlorophyl A data, eval = FALSE}
-get_nest_data(
-  date_range = c(20050101, 20191231), 
-  months = 5:10, 
-  param_codes = c("CHL")
-) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_summer_chlorophyl.csv"))
-```
 <br/>
 
 #### 2.1.4 HELCOM HOLAS Basin {-}
 
 These basins are the relevant physical units.  
-Secchi data will be first assessed at this level and then assigned to BHI region. EEZ divisions may result in some BHI regions that have no data but they are physically the same basin as a BHI region with data.
-Also, the dataset 'HELCOM Subbasins with coastal and offshore division 2018' will be used for Secchi to assign 'coastal' and 'offshore' locations.
+
+Secchi data will be first assessed at this level and then assigned to BHI region. EEZ divisions may result in some BHI regions that have no data but they are physically the same basin as a BHI region with data. Also, the dataset `HELCOM Subbasins with coastal and offshore division 2018` will be used for Secchi as well as Chlorophyll a, DIN and DIP, to assign 'coastal' and 'offshore' locations.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("HELCOM Map and Data service:", "Monitoring"), 
-  c("Assessment units:", "HELCOM Subbasins with coastal and offshore division 2018")))
-
+  c("Assessment units:", "HELCOM Subbasins with coastal and offshore division 2018")
+))
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [HELCOM](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/e5a59af9-c244-4069-9752-be3acc5dabed) <br/> Downloaded 23 April 2020 by Andrea De Cervo")
 ```
 
-
-```{r eut basin lookup}
-dir_lookup <- file.path(dir_prep, "supplement", "lookup_tabs")
-basin_lookup_table <-  read.csv(file.path(dir_lookup, "bhi_basin_country_lookup.csv"), sep=";")
-basin_lookup <- basin_lookup_table %>% 
-  select(bhi_id = BHI_ID, basin = Subbasin, rgn_nam) %>% 
-  mutate(basin = as.character(basin),
-         rgn_nam = as.character(rgn_nam))
-  
-```
 <br/>
-
 
 #### 2.1.5 Reference Values {-}
 
 The threshold values have been agreed on by HELCOM and by Heads of Delegation (HOD) and the applied threshold values for core and pre-core indicators in the HELCOM open sea assessment units are presented in the [Baltic Sea Environment Proceedings no.156](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2019/09/BSEP156-Eutrophication.pdf) (p.10, Table 2).
 
-```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-## root location of the raw data
-dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
-dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
-eut_thresholds_values <- read.delim(file.path(dir_rawdata, "eut_threshold_values.csv"), sep = ";")
-# eut_thresholds <- eut_thresholds_values %>% 
-#   rename(
-#     basin = Assessment.units, 
-#     winter_DIN = DIN.._mol.l.1., 
-#     winter_DIP = DIP.._mol.l.1., 
-#     summer_chla = Chla.._g.l.1., 
-#     summer_secchi = Water.clarity..m., 
-#     oxyg_debt = O2..mg.l.1.
-#   ) %>% 
-#   select(basin, winter_DIN, winter_DIP, summer_chla, summer_secchi, oxyg_debt) %>% 
-#   mutate(
-#     basin = str_replace_all(basin,"_",""),
-#     basin = str_trim(basin, side = "right"),
-#     ## ‘N’ means that the indicator is not applicable there, so it will be replaced as NA
-#     oxyg_debt = str_replace(oxyg_debt, "N", " "),
-#     oxyg_debt = as.numeric(oxyg_debt)
-#   ) 
+```{r review reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+## eutrophication thresholds data
+## Note: this table exists in its original form on the bhi internal shared server 
+## read.delim(file.path(dir_rawdata, "eut_threshold_values.csv"), sep = ";")
+## obtained originally from (?)
+## with columns:  
+## basin = str_trim(str_replace_all(Assessment.units,"_",""), side = "right"),
+## oxyg_debt = as.numeric(str_replace(O2..mg.l.1., "N", " ")),
+## winter_DIN = DIN.._mol.l.1., winter_DIP = DIP.._mol.l.1.,
+## summer_chla = Chla.._g.l.1., summer_secchi = Water.clarity..m. 
+
+eut_thresholds <- read_csv(file.path(dir_prep, "prep", "CW", "eutrophication", "eut_threshold_values.csv"))
 ```
 <br/>
 
@@ -284,47 +262,264 @@ eut_thresholds_values <- read.delim(file.path(dir_rawdata, "eut_threshold_values
 
 #### 2.2.1 Spatial regions of the Data {-}
 
-**Create lookup tab for matching areas with bhi regions and helcom coastal codes.**   
-May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data. 
+**Create lookup tab for matching areas with bhi regions and helcom coastal codes.**
+
+May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data.
+
 **MAYBE DELETE IT???!!! **
-```{r to match areas with bhi regions, echo = TRUE}
-## Create an additional lookup table from the datasets used in the BHI 1.0 
+
+```{r to match areas with bhi regions, echo = TRUE, eval = FALSE}
+## Create an additional lookup table from the datasets used in the BHI 1.0
 ## ('ices_secchi' and 'smhi_secchi')
+# ices_secchi <- "where is this??"
+# smhi_secchi <- "where is this??"
 basin_additional_lookup_table <- rbind(
   ices_secchi %>%
-    select(-X1, -secchi, -Month, -Year, -Date, -Station, -Cruise), 
-#    mutate(Station = str_replace(Station, "^0+", " "))
-  smhi_secchi %>% 
-    select(-X1, -value, -Month, -Year, -Date, -unit, 
-           -Stationsnamn, -Provtagningstillfaelle.id) %>% 
-#    rename(Station = Stationsnamn, Cruise = Provtagningstillfaelle.id) %>% 
+    select(-X1, -secchi, -Month, -Year, -Date, -Station, -Cruise),
+  # mutate(Station = str_replace(Station, "^0+", " "))
+  smhi_secchi %>%
+    select(-X1, -value, -Month, -Year, -Date, -unit, -Stationsnamn, -Provtagningstillfaelle.id) %>%
+    # rename(Station = Stationsnamn, Cruise = Provtagningstillfaelle.id) %>%
     mutate("Assessment_unit" = " ")
-)  
-
+)
 readr::write_csv(
-  basin_additional_lookup_table, 
+  basin_additional_lookup_table,
   file.path(dir_lookup, "basin_add_lookup_table.csv")
 )
 ```
 
+<br>
 
-#### 2.2.2 Read data for Initial Cleaning and Merging {-}
+#### 2.2.2 Secchi Datasets {-}
 
-**Secchi data**
-
-```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+```{r read raw secchi datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 ## read in secchi data
-secchi_raw_ices <- read.delim(file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), sep = ";")
-secchi_raw_smhi <- read.delim(file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), sep = ";")
-## need to find a way to open and properly read the txt file
-# secchi_raw_smhi2 <- read.csv(file.path(dir_rawdata, "SecchiDepth_SMHI", "sharkweb_data_secchi.txt"), sep = "\t")
-basin_add_lookup_table <-  read.csv(file.path(dir_lookup, "basin_add_lookup_table.csv"))
+secchi_raw_ices <- read.delim(
+  file.path(dir_rawdata, "SecchiDepth_ICES", "SecchiDepth_ICES.csv"), 
+  sep = ";",
+  stringsAsFactors = FALSE
+)
+secchi_raw_smhi <- read.delim(
+  file.path(dir_rawdata, "SecchiDepth_SMHI", "SecchiDepth_SMHI.csv"), 
+  sep = ";",
+  stringsAsFactors = FALSE
+)
+basin_add_lookup_table <- read.csv(file.path(dir_prep, "supplement", "lookup_tabs", "basin_add_lookup_table.csv"))
+```
+
+**Duplicates in the Data** 
+
+ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records.
+
+**Coastal data**  
+
+- Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
+- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
+- Coastal data are later removed from the analysis  
+- This should result in a similar dataset (see map) used as Fleming-Lehtinen and Laamanen 2012  
+
+**Steps in Merging ICES and SMHI Secchi Datasets**
+
+1) Merge the additional basin lookup table to both datasets
+2) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
+3) Combine SMHI and ICES data, identifying and eliminating overlaps
+4) Create a new Secchi dataset by only binding the new_smhi_unique object to ices_unique
+
+**ICES Secchi Data**
+
+```{r cleaning secchi ices raw data, echo = TRUE, results = "hide", eval = FALSE}
+## ICES Data overview
+# colnames(secchi_raw_ices)
+# str(secchi_raw_ices)
+
+## Merge the add basin lookup table to ices dataset
+ices_secchi <- secchi_raw_ices %>% 
+  rename(
+    secchi = Secchi.Depth..m.,
+    latitude = Latitude..degrees_north.,
+    longitude = Longitude..degrees_east., 
+    bottom_m = Bot..Depth..m.
+  ) %>%
+  mutate(
+    date =  as.Date(yyyy.mm.ddThh.mm), 
+    year = format(date, "%Y"), 
+    month = format(date, "%m"),
+    month = str_replace(month, "^0+", ""),
+    cruise = as.character(Cruise),
+    station = as.character(Station),
+    bottom_m = as.numeric(bottom_m)
+  ) %>%
+  select(-Type, -yyyy.mm.ddThh.mm) 
+
+## Look for Duplicates in the Data:
+## check for duplicates in ices
+ices_duplicates <- ices_secchi %>%
+  group_by(
+    cruise, station, date, year, month, 
+    latitude, longitude, 
+    secchi, bottom_m
+  ) %>%
+  summarise(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup() 
+
+## Only extract unique observations
+secchi_ices_unique <- ices_secchi %>% 
+  distinct(
+    cruise, station, date, year, month, 
+    latitude, longitude, 
+    secchi, bottom_m
+  ) %>% 
+  ## removed 'Assessment_unit'
+  mutate(supplier = "ices") # nrow(ices_unique) 102881
 ```
 <br/>
 
-**Oxygen and CTD**
+**SMHI secchi data**
 
-```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+```{r cleaning smhi secchi raw data, echo = TRUE, results = "hide"}
+## SMHI data overview
+# colnames(secchi_raw_smhi)
+# str(secchi_raw_smhi)
+
+## ADJUST ROWS
+## three extra columns starting with 'X' indicate some weird column shifts
+
+## correct where Sample depths columns have been shifted one or two columns over 
+depth_measurement <- "^[0-9]{0,3}\\.[0-9]+$|^[0-9]{1,3}$"
+fix_data_smhi <- secchi_raw_smhi %>% 
+  filter(!str_detect(Sample.minimum.depth, depth_measurement)) %>% 
+  mutate(Sample.maximum.depth = as.character(Sample.maximum.depth)) %>%
+  mutate(Sampling.laboratory = as.numeric(as.character(Sampling.laboratory))) %>%
+  select(-Sample.minimum.depth)
+colnames(fix_data_smhi) <- setdiff(colnames(secchi_raw_smhi), "Sample.comment")
+
+## bind corrected rows back to the other rows
+secchi_smhi_correctcols <- secchi_raw_smhi %>% 
+  filter(str_detect(Sample.minimum.depth, depth_measurement)) %>% 
+  bind_rows(mutate(fix_data_smhi, Sample.comment = NA))
+
+fix_data_smhi <- secchi_smhi_correctcols %>% 
+  filter(is.na(Sample.minimum.depth), str_detect(Sampling.laboratory, depth_measurement)) %>% 
+  mutate(Sample.maximum.depth = as.character(Sample.maximum.depth)) %>%
+  mutate(Sampling.laboratory = as.numeric(as.character(Sampling.laboratory))) %>%
+  select(-Sample.minimum.depth)
+colnames(fix_data_smhi) <- setdiff(colnames(secchi_smhi_correctcols), "Species.flag")
+secchi_smhi_correctcols <- secchi_smhi_correctcols %>% 
+  filter(!(is.na(Sample.minimum.depth) & str_detect(Sampling.laboratory, depth_measurement))) %>% 
+  bind_rows(mutate(fix_data_smhi, Species.flag = NA))
+
+## rows where parameter, values, and units are shifted
+## cols to right of parameter column are shifted one or two to the right
+fix_data_smhi <- secchi_smhi_correctcols %>%
+  filter(str_detect(Value, "Secchi depth")) %>%
+  select(-Parameter)
+colnames(fix_data_smhi) <- setdiff(colnames(secchi_smhi_correctcols), "Data.set.name")
+secchi_smhi_correctcols <- bind_rows(
+  mutate(fix_data_smhi, Data.set.name = NA),
+  filter(secchi_smhi_correctcols, !str_detect(Value, "Secchi depth"))
+)
+fix_data_smhi <- secchi_smhi_correctcols %>%
+  filter(str_detect(Unit, "Secchi depth")) %>%
+  select(-Parameter, -Value)
+colnames(fix_data_smhi) <- setdiff(colnames(secchi_smhi_correctcols), c("File.name",  "Data.set.name"))
+secchi_smhi_correctcols <- bind_rows(
+  mutate(fix_data_smhi, File.name = NA, Data.set.name = NA),
+  filter(secchi_smhi_correctcols, !str_detect(Unit, "Secchi depth"))
+)
+
+## check result of column shift corrections
+# dim(secchi_raw_smhi)
+# dim(secchi_smhi_correctcols)
+# for(col in c("Sample.minimum.depth", "Sample.maximum.depth", "Parameter", "Unit")){
+#   print(unique(secchi_smhi_correctcols[[col]]))
+# }
+# summary(as.numeric(unique(secchi_smhi_correctcols[["Value"]])))
+# dim(filter(secchi_smhi_correctcols, Parameter != "Secchi depth"))
+
+
+secchi_smhi <- secchi_smhi_correctcols %>% 
+  filter(Parameter == "Secchi depth") %>% 
+  mutate(
+    Value = as.numeric(as.character(Value)), 
+    Parameter = as.character(Parameter)
+  ) %>% 
+  rename(
+    secchi = Value, 
+    date = Sampling.date, 
+    cruise = Visit.event.identifier, 
+    station = Station.name, 
+    ## use the decimal degrees for lat and lon
+    latitude = Sample.latitude..DD., 
+    longitude = Sample.longitude..DD.,
+    ## 'Station.water.depth' or 'Sample.maximum.depth' cosidered as 'Bottom depth'?
+    bottom_m = Station.water.depth # Sample.maximum.depth??
+  ) %>% 
+  mutate(
+    date = as.Date(date), 
+    year = as.character(format(date, "%Y")),
+    month = format(date, "%m"),
+    month = str_replace(month, "^0+" ,""),
+    bottom_m = as.numeric(bottom_m),
+    station = as.character(station),
+    cruise = as.character(cruise)
+  ) %>% 
+  select(cruise, station, date, year, month, latitude, longitude, secchi, bottom_m) 
+
+## Look for duplicate data points
+secchi_smhi_duplicates <- secchi_smhi %>%
+  group_by(
+    cruise, station, date, year, month, 
+    latitude, longitude, 
+    secchi, bottom_m
+  ) %>%
+  summarise(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup()
+# sum(secchi_smhi_duplicates$n)-nrow(secchi_smhi_duplicates)
+
+## extract only unique observations
+secchi_smhi_unique <- secchi_smhi %>% 
+  distinct(
+    cruise, station, date, year, month, 
+    latitude, longitude, 
+    secchi, bottom_m
+  ) %>% 
+  mutate(supplier = "smhi") 
+# nrow(secchi_smhi)-nrow(secchi_smhi_unique)
+```
+
+<br/>
+
+**Combined Secchi data**
+
+```{r combine all secchi datasets, echo = TRUE, results = "hide", eval = FALSE}
+merge_secchi_datasets <- bind_rows(secchi_smhi_unique, secchi_ices_unique) %>% 
+  ## prefer first ices, then smhi data where there are overlaps
+  mutate(supplier_num = ifelse(supplier == "ices", 2, 1)) %>% 
+  group_by(date, year, month, latitude, longitude, secchi, bottom_m) %>% 
+  top_n(n = 1)
+
+# summary(as.factor(merge_secchi_datasets$supplier))
+# tmp <- merge_secchi_datasets %>%
+#   group_by(cruise, station, date, year, month, latitude, longitude, secchi, bottom_m) %>%
+#   mutate(count = n())
+# unique(tmp$count)
+
+secchi <- rename(merge_secchi_datasets, lat = latitude, lon = longitude, secchi_m = secchi)
+# nrow(distinct(secchi))
+
+## Save merged dataset
+# readr::write_csv(
+#   secchi,
+#   here::here("data", "CW", "eutrophication", version_year, "intermediate", "secchi_merged_rawdata.csv")
+# )
+```
+<br/>
+
+#### 2.2.4 Merging Oxygen Datasets {-}
+
+```{r function to read raw oxygen datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 ## this will read in both the oxygen and CTD datasets from the OxygenDebt_ICES directory
 ## in the same step, this will check for duplicates and then keep only the distinct observations
 read_ox_data <- function(datasets = "ox"){
@@ -341,7 +536,6 @@ read_ox_data <- function(datasets = "ox"){
       tmp <- read.delim(file.path(dir_rawdata, "OxygenDebt_ICES", x), sep = ",", stringsAsFactors = FALSE)
       
       ## Check for duplicates in all national datasets
-      
       # duplicates <- tmp %>% 
       #   group_by(
       #     Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
@@ -351,7 +545,7 @@ read_ox_data <- function(datasets = "ox"){
       #   filter(n > 1) %>%
       #   ungroup()
       
-      ## Only extract unique observations
+      ## Extract only unique observations
       uniquedat <- tmp %>% 
         distinct(
           Cruise, Station, yyyy.mm.ddThh.mm, Bot..Depth..m., TEMP..deg.C., PSAL..psu.,
@@ -382,225 +576,7 @@ read_ox_data <- function(datasets = "ox"){
 ```
 <br/>
 
-**Chlorophyll a and Nutrients**
-
-```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-chla_raw_nest <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_summer_chlorophyl.csv"), sep = ",")
-chla_raw_smhi <- read.delim(file.path(dir_rawdata, "chla_rawdata_smhi.csv"), sep = ";")
-## need to find a way to open and properly read the txt file
-# chla_raw_smhi2 <- read.csv(file.path(dir_rawdata, "sharkweb_data_chla.txt"), sep = "\t")
-
-## read Nutrients raw dataset
-nutrients_rawdata <- read.delim(
-  file.path(dir_rawdata, "NestData", "nestdata_winter_nutrients.csv"), 
-  sep = ",", 
-  stringsAsFactors = FALSE
-)
-```
-<br/>
-
-**ICES chla data**
-```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-## this will read in the chla datasets from the Chla_ICES directory
-## in the same step, this will check for duplicates and then keep only the distinct observations
-chla_den1 <- read.delim(file.path(dir_rawdata, "Chla_ICES", "denmark_chla", "denmark_chla_2000-2005.csv"), sep = ",")
-chla_den2 <- read.delim(file.path(dir_rawdata, "Chla_ICES", "denmark_chla", "denmark_chla_2006-2017.csv"), sep = ",")
-chla_den3 <- read.delim(file.path(dir_rawdata, "Chla_ICES", "denmark_chla", "denmark_chla_2018-2020.csv"), sep = ",")
-chla_est <- read.delim(file.path(dir_rawdata, "Chla_ICES", "estonia_chla", "estonia_chla_2000-2020.csv"), sep = ",")
-chla_fin <- read.delim(file.path(dir_rawdata, "Chla_ICES", "finland_chla", "finland_chla_2000-2020.csv"), sep = ",")
-chla_ger <- read.delim(file.path(dir_rawdata, "Chla_ICES", "germany_chla", "germany_chla_2000-2020.csv"), sep = ",")
-chla_lat <- read.delim(file.path(dir_rawdata, "Chla_ICES", "latvia_chla", "latvia_chla_2000-2020.csv"), sep = ",")
-chla_lit <- read.delim(file.path(dir_rawdata, "Chla_ICES", "lithuania_chla", "lithuania_chla_2000-2020.csv"), sep = ",")
-chla_pol <- read.delim(file.path(dir_rawdata, "Chla_ICES", "poland_chla", "poland_chla_2000-2020.csv"), sep = ",")
-chla_rus <- read.delim(file.path(dir_rawdata, "Chla_ICES", "russia_chla", "russia_chla_2000-2020.csv"), sep = ",")
-chla_swe <- read.delim(file.path(dir_rawdata, "Chla_ICES", "sweden_chla", "sweden_chla_2000-2020.csv"), sep = ",")
-```
-<br/>
-
-#### 2.2.3 Secchi Datasets {-}
-
-**Duplicates in the Data** 
-
-ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records.
-
-**Coastal data**  
-- Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
-
-- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
-- Coastal data are removed from the analysis.  
-- This should result in a similar dataset used as Fleming-Lehtinen and Laamanen 2012 (see map). 
-
-**ICES secchi data**
-
-```{r cleaning raw ICES secchi data, results = "hide"}
-## 1) Merge the additional basin lookup table to both datasets
-## 2) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
-## 3) Use setdiff() to indentify data smhi not in ices 
-## 4) Create a new Secchi dataset by only binding the new_smhi_unique object to ices_unique
-
-### ICES Data overview
-# colnames(ices_raw_ices)
-# str(ices_raw_ices)
-
-# Merge the add basin lookup table to ices dataset
-ices <- secchi_raw_ices %>% 
-  rename(secchi = Secchi.Depth..m.,  Date = yyyy.mm.ddThh.mm, 
-         Latitude = Latitude..degrees_north., Longitude = Longitude..degrees_east., 
-         bottom_m = Bot..Depth..m.) %>%
-  mutate(Date =  as.Date(Date), Year = format(Date, "%Y"), 
-         Date =  as.Date(Date), Month = format(Date, "%m"),
-         Month = str_replace(Month, "^0+", ""),
-         Cruise = as.character(Cruise),
-         Station = as.character(Station),
-         bottom_m = as.numeric(bottom_m)) %>%
-  select(-Type) 
-# %>% 
-#  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 31.236.646 
-
-
-## Look for Duplicates in the Data:
-## check for duplicates in ices
-ices_duplicates <- ices %>%
-  group_by(Latitude, Longitude, Cruise, Station, Date, secchi) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-## Only extract unique observations
-ices_unique <- ices %>% 
-  distinct(
-    Cruise, Station, Latitude, Longitude, 
-    bottom_m, secchi, 
-    Date, Year, Month
-  ) %>% 
-  ## removed 'Assessment_unit'
-  mutate(supplier = 'ices') # 102881
-```
-
-```{r which ices data have bhi id of NA, eval = FALSE}
-ices.na <- ices_unique %>%
-  filter(is.na(BHI_ID))
-dim(ices.na) # 64437
-
-ices.na.loc <- ices.na %>% 
-  dplyr::select(Latitude, Longitude) %>% 
-  distinct() ## unique locations
-dim(ices.na.loc) # 2142  2
-
-ices.na %>% 
-  dplyr::select(HELCOM_COASTAL_CODE) %>% 
-  distinct()  ## at least one location is off shore
-
-ices.na %>% 
-  filter(HELCOM_COASTAL_CODE == 0)
-
-## will need to manually add BHI_ID for site with NA values and coastal code of 0
-```
-
-<br/>
-
-**SMHI secchi data**
-
-```{r cleaning raw SMHI secchi data, results = "hide"}
-### SMHI data overview
-# colnames(secchi_raw_smhi)
-# str(secchi_raw_smhi)
-# The 'Value' and 'Unit' columns are partly switched, so need to be fixed
-fixed_data_smhi <- secchi_raw_smhi %>% 
-  filter(str_detect(Value, "Secchi")) %>% 
-  select(-Parameter)
-
-colnames(fixed_data_smhi) <- setdiff(colnames(secchi_raw_smhi), "Quality.flag")
-## bind back together with rows that are ok and fix the column classes
-new_secchi_smhi <- bind_rows(
-  mutate(fixed_data_smhi, Quality.flag = NA),
-  filter(secchi_raw_smhi, !str_detect(Value, "Secchi"))
-)
-
-# when making 'Value' as numveric, all the values within that column change
-new_secchi_smhi <- new_secchi_smhi %>% 
-  mutate(Value = as.numeric(as.character(Value)), Parameter = as.character(Parameter))
-
-# Merge the add basin lookup table to secchi dataset
-smhi <- new_secchi_smhi %>% 
-  rename(secchi = Value, Date = Sampling.date, Cruise = Visit.event.identifier,
-         # use the decimal degrees for lat and lon (as for ICES)
-         Latitude = Sample.latitude..DD., Longitude = Sample.longitude..DD.,
-         # 'Station.water.depth' cosidered as 'Bottom depth'?
-         Station = Station.name, bottom_m = Station.water.depth) %>%
-  mutate(Date =  as.Date(Date), Year = format(Date, "%Y"),
-         Date =  as.Date(Date), Month = format(Date, "%m"),
-         Month = str_replace(Month, "^0+" ,""),
-         Year = as.character(Year),
-         bottom_m = as.numeric(bottom_m),
-         Cruise = as.character(Cruise),
-         Station = as.character(Station)) %>%  
-  select(Cruise, Station, Date, Latitude, Longitude, secchi, bottom_m, Year, Month) 
-# %>% 
-#  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 10.649.226
-
-#### Look for duplicate data 
-# Check for duplicates in ices
-smhi_duplicates <- smhi %>%
-  group_by(Cruise, Station, Date, Latitude, Longitude, secchi, 
-           bottom_m, Year, Month) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-# Only extract unique observations
-smhi_unique <- smhi %>% 
-  distinct(Cruise, Station, Date, Latitude, Longitude, secchi, bottom_m, 
-           Year, Month) %>% 
-# removed 'Assessment_unit'
-  mutate(supplier = 'smhi') # 50696
-
-####################################################################
-## is na smhi
-smhi.na <- smhi_unique %>%
-  filter(is.na(BHI_ID))
-dim(smhi.na) # 49121  14
-
-smhi.na.loc <- smhi.na %>% 
-  dplyr::select(Latitude, Longitude) %>% 
-  distinct() ## unique locations
-dim(smhi.na.loc) # 3619   2
-
-smhi.na %>% 
-  dplyr::select(HELCOM_COASTAL_CODE)%>% 
-  distinct()  ## none are offshore
-
-smhi.na %>% 
-  filter(HELCOM_COASTAL_CODE == 0)
-
-#################################################
-  ## remove OSPAR rows
-#  filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
-#  dplyr::select(cruise, station, date, year, month,
-#                lat, lon, secchi, bottom_m, supplier)
-
-## Use setdiff() to indentify data smhi not in ices  
-new_smhi_unique <- setdiff(dplyr::select(smhi_unique, -supplier), dplyr::select(ices_unique, -supplier)) %>%
-  mutate(supplier = "smhi") 
-
-## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
-secchi <- bind_rows(smhi_unique, ices_unique) %>% 
-  distinct() %>% # 153577 tot observations 
-  rename(secchi_m = secchi)
-
-# Save dataset (bhi-prep)
-readr::write_csv(
-  secchi, 
-  here::here("data", "CW", "eutrophication", version_year, "intermediate", "secchi_merged_rawdata.csv")
-)
-```
-
-<br/>
-
-
-#### 2.2.4 Merging Oxygen Datasets {-}
-
-```{r merge country oxygen data and all CTD country data to make two large datasets with rgn info joined also}
+```{r merge country oxygen data and all CTD country data to make 2 df with rgn info, eval = FALSE}
 ## Merging oxygen datasets, only unique entries
 read_ox_data(datasets = "ox")
 oxdata_to_merge <- ls(pattern = "ox_[a-z].*ox$")
@@ -690,14 +666,16 @@ ctd_merged_w_rgns <- ctd_merged_w_rgns %>%
   filter(!is.na(Helcom_id), !is.na(Oxygen)) %>% 
   select(-Ices_area, -In_25km_buffer, -Rgn_nam, -Rgn_key, -Oxygen_original, -Date) %>%
   rename(Bot_Depth = Bot_depth, BHI_ID = Bhi_id, Assessment_Unit = Helcom_id)
+```
 
+```{r save ctd and bottle oxygen datasets, eval = FALSE}
 ## Save datasets
 dir_interm <- here::here("data", "CW", "eutrophication", version_year, "intermediate")
 
 ## maybe in future look into using for big files: 
 ## https://docs.ropensci.org/piggyback/
 readr::write_csv(
-  select(ox_merged_w_rgns, -BHI_ID, -Country, -Subbasin, -Station, -Bot_Depth), 
+  select(ox_merged_w_rgns, -BHI_ID, -Country, -Subbasin, -Station, -Bot_Depth),
   file.path(dir_interm, "ox_merged_rawdata.csv")
 )
 readr::write_csv(
@@ -705,65 +683,30 @@ readr::write_csv(
   file.path(dir_interm, "ctd_merged_rawdata.csv")
 )
 ```
-<br/>
-
-**OXYGEN SPATIAL VISUALIZATION**
-
-```{r map showing datasets overlaps, results = "show", message = FALSE, echo = TRUE, fig.height = 9, fig.width = 9.5}
-## quick map of measurements by subbasin for selected year
-plotsf <- ox_merged_w_rgns %>% 
-  filter(Year == 2018, !is.na(Code)) %>% 
-  sf::st_as_sf(coords = c("Longitude", "Latitude"))
-oxmap <- ggplot(plotsf) + geom_sf(aes(color = Code), show.legend = FALSE)
-
-
-## plot by subbasins
-boxplotdf <- ox_merged_w_rgns %>% 
-  filter(!is.na(BHI_ID)) %>% 
-  mutate(Year = factor(Year))
-
-oxtsplot <- ggplot(boxplotdf) + 
-  geom_point(aes(Year, Oxygen), size = 0.2, alpha = 0.1) +
-  facet_wrap(
-    c("BHI_ID", "Subbasin"), 
-    labeller = label_wrap_gen(width = 35, multi_line = FALSE)
-  ) +
-  labs(x = NULL, y = "Dissolved Oxygen (ml/l)") +
-  theme(axis.text.x = element_text(angle = 90))
-
-  
-oxboxplot <- ggplot(boxplotdf) + 
-  geom_boxplot(aes(Year, Oxygen), outlier.shape = NA, size = 0.2) +
-  facet_wrap(
-    c("BHI_ID", "Subbasin"), 
-    labeller = label_wrap_gen(width = 35, multi_line = FALSE)
-  )  +
-  labs(x = NULL, y = "Dissolved Oxygen (ml/l)") +
-  theme(axis.text.x = element_text(angle = 90))
-
-
-gridExtra::grid.arrange(oxmap, oxtsplot, oxboxplot, layout_matrix = rbind(c(1,1),c(1,1),c(2,3)))
-```
-
 
 #### 2.2.4 Chlorophyll a Wrangling
+
+```{r read raw smhi and nest chla datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+chla_raw_nest <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_summer_chlorophyl.csv"), sep = ",")
+chla_raw_smhi <- read.delim(file.path(dir_rawdata, "chla_rawdata_smhi.csv"), sep = ";")
+```
 
 **Coastal data**  
 
 - Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
 - HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
-- Coastal data are removed from the analysis.  
+- Coastal data are removed later from the analysis  
 - This should result in a similar dataset used as Fleming-Lehtinen and Laamanen 2012 (see map). 
 
-**Nest chl a data**
 
-```{r merge two finish datasets, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
+**Nest chlorophyll a data**
 
+```{r cleaning chla nest raw data, results = "hide", message = FALSE, echo = TRUE}
 chla_nest <- chla_raw_nest %>% 
   rename(
     chla_ug_l = CHL,  
     date = OBSDATE, time = OBSTIME,
-    Latitude = LATITUDE, Longitude = LONGITUDE, 
+    latitude = LATITUDE, longitude = LONGITUDE, 
     cruise = SHIP, id = ID, depth_m = OBSDEP
   ) %>%
   mutate(
@@ -773,471 +716,330 @@ chla_nest <- chla_raw_nest %>%
     cruise = as.character(cruise)
   ) %>% 
   select(-id, -time)
-# %>% 
-#  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 31.236.646 
 
 ## Check for duplicates 
-chla_duplicates <- chla_nest %>%
-    group_by(
-      cruise, date, year, month, Latitude,
-      Longitude, chla_ug_l, depth_m
-    ) %>%
-    summarise(n = n()) %>%
-    filter(n > 1) %>%
-    ungroup() # no duplicates
+chla_nest_duplicates <- chla_nest %>%
+  group_by(
+    cruise, date, year, month, 
+    latitude, longitude, 
+    chla_ug_l, depth_m
+  ) %>%
+  summarise(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup()
+# sum(chla_nest_duplicates$n)-nrow(chla_nest_duplicates)
 
 ## Only extract unique observations
 chla_nest_unique <- chla_nest %>% 
-  distinct(cruise, date, year, month, Latitude, Longitude, chla_ug_l, 
-           depth_m) %>% 
-  mutate(supplier = 'nest')
-# 44071
+  distinct(
+    cruise, date, year, month, 
+    latitude, longitude, 
+    chla_ug_l, depth_m
+  ) %>% 
+  mutate(supplier = "nest") # 44071
+# nrow(chla_nest)-nrow(chla_nest_unique)
 ```
 
-```{r which ices data have BHI_ID of NA, eval = FALSE}
-chla.na <- chla_unique %>%
-  filter(is.na(BHI_ID))
-dim(chla.na) # 21591 
+**SMHI chlorophyll a data**
 
-chla.na.loc <- chla.na %>% 
-  dplyr::select(Latitude, Longitude) %>% 
-  distinct() ## unique locations
-dim(chla.na.loc) # 1448  2
+```{r cleaning chla smhi raw data, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+## SMHI data overview
+# colnames(chla_raw_smhi)
+# str(chla_raw_smhi)
 
-chla.na %>% 
-  dplyr::select(HELCOM_COASTAL_CODE) %>% 
-  distinct()  ## no locations off shore
+## ADJUST ROWS
+## three extra columns starting with 'X' indicate some weird column shifts
 
-chla.na %>% 
-  filter(HELCOM_COASTAL_CODE == 0)
+## correct where Sample depths columns have been shifted one or two columns over 
+depth_measurement <- "^[0-9]{0,3}\\.[0-9]+$|^[0-9]{1,3}$"
+fix_data_smhi <- chla_raw_smhi %>% 
+  filter(!str_detect(Sample.minimum.depth, depth_measurement)) %>% 
+  mutate(Sample.maximum.depth = as.character(Sample.maximum.depth)) %>%
+  mutate(Sampling.laboratory = as.numeric(as.character(Sampling.laboratory))) %>%
+  select(-Sample.minimum.depth)
+colnames(fix_data_smhi) <- setdiff(colnames(chla_raw_smhi), "Sample.comment")
 
-## will need to manually add BHI_ID for site with NA values and coastal code of 0
-```
-
-<br/>
-
-**ICES chla data**
-```{r read raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-chla_raw_ices <- bind_rows(
-  chla_den1 %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "denmark",
-  ),
-  chla_den2 %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "denmark",
-  ),
-  chla_den3 %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "denmark",
-  ),
-  chla_est %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "estonia",
-  ),
-  chla_fin %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "finland",
-  ),
-  chla_ger %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-     # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "germany",
-  ),
-  chla_lat %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "latvia",
-  ),
-  chla_lit %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "lithiania",
-  ),
-  chla_pol %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "poland",
-  ),
-  chla_rus %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "russia",
-  ),
-  chla_swe %>% 
-    rename(
-    Date = yyyy.mm.ddThh.mm,
-    Latitude = Latitude..degrees_north.,
-    Longitude = Longitude..degrees_east.,
-    Temperature = TEMP..deg.C.,
-    Salinity = PSAL..psu.,
-    Pressure = PRES..db., 
-    Chla_ug_l = CPHL..ug.l.,
-    Bot_Depth = Bot..Depth..m. # so many NAs in this variable....
-  ) %>%
-  mutate(
-    Year = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%Y")),
-    Month = as.numeric(format(strptime(Date, "%Y-%m-%dT%H:%M"), "%m")),
-    Date = as.Date(Date, "%Y-%m-%d"),
-    Station = as.character(Station),
-    Pressure = as.numeric(Pressure),
-    Bot_Depth = as.numeric(Bot_Depth),
-    Chla_ug_l = str_replace(Chla_ug_l, "<", ""),
-    # keep the values or set a range lower than that?
-    Chla_ug_l = as.numeric(Chla_ug_l),
-    Country = "sweden",
-  )
+## bind corrected rows back to the other rows
+chla_smhi_correctcols <- bind_rows(
+  mutate(fix_data_smhi, Sample.comment = NA),
+  filter(chla_raw_smhi, str_detect(Sample.minimum.depth, depth_measurement))
 )
 
-# Save raw and merged dataset (bhi-prep)
-# readr::write_csv(
-#  chla_ices, 
-#  here::here("data", "CW", "eutrophication", version_year, "intermediate", "chla_ices.csv")
-#)
-
-#### Look for duplicate data 
-# Check for duplicates in ices
-ices_duplicates <- chla_raw_ices %>%
-  group_by(cruise = Cruise, date = Date, Latitude, Longitude, chla_ug_l = Chla_ug_l, 
-           depth_m = Bot_Depth, year = Year, month = Month) %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup() 
-
-# Only extract unique observations
-chla_ices_unique <- chla_raw_ices %>% 
-  distinct(cruise = Cruise, date = Date, Latitude, Longitude, chla_ug_l = Chla_ug_l, 
-           depth_m = Bot_Depth, year = Year, month = Month) %>% 
-  mutate(supplier = 'ices',
-         year = as.character(year),
-         month = as.character(month),
-         month = str_replace(month, "6", "06"),
-         month = str_replace(month, "7", "07"),
-         month = str_replace(month, "8", "08"),
-         month = str_replace(month, "9", "09")) 
-
-```
-<br/>
-
-**SMHI chla data**
-```{r}
-### SMHI data overview
-# colnames(secchi_raw_smhi)
-# str(secchi_raw_smhi)
-# The 'Value' and 'Unit' columns are partly switched, so need to be fixed
-fixed_data_smhi <- chla_raw_smhi %>% 
-  filter(str_detect(Unit, "Chlorophyll-a bottle")) %>% 
-  select(-Parameter)
-
-colnames(fixed_data_smhi) <- setdiff(colnames(chla_raw_smhi), "Quality.flag")
-## bind back together with rows that are ok and fix the column classes
-new_chla_smhi1 <- bind_rows(
-  mutate(fixed_data_smhi, Quality.flag = NA),
-  filter(chla_raw_smhi, !str_detect(Unit, "Chlorophyll-a bottle"))
+fix_data_smhi <- chla_smhi_correctcols %>% 
+  filter(is.na(Sample.minimum.depth), str_detect(Sampling.laboratory, depth_measurement)) %>% 
+  mutate(Sample.maximum.depth = as.character(Sample.maximum.depth)) %>% 
+  mutate(Sampling.laboratory = as.numeric(as.character(Sampling.laboratory))) %>% 
+  select(-Sample.minimum.depth)
+colnames(fix_data_smhi) <- setdiff(colnames(chla_smhi_correctcols), "X.3")
+chla_smhi_correctcols <- bind_rows(
+  mutate(fix_data_smhi, X.3 = NA),
+  filter(chla_smhi_correctcols, !(is.na(Sample.minimum.depth) & str_detect(Sampling.laboratory, depth_measurement)))
 )
 
-####################################
-fixed_data_smhi <- new_chla_smhi1 %>% 
+## rows where parameter and values are shifted
+## cols to right of parameter column are shifted one or two to the right
+fix_data_smhi <- chla_smhi_correctcols %>% 
   filter(str_detect(Value, "Chlorophyll-a bottle")) %>% 
   select(-Parameter)
-
-colnames(fixed_data_smhi) <- setdiff(colnames(new_chla_smhi1), "Unit")
-## bind back together with rows that are ok and fix the column classes
-new_chla_smhi2 <- bind_rows(
-  mutate(fixed_data_smhi, Unit = NA),
-  filter(new_chla_smhi1, !str_detect(Value, "Chlorophyll-a bottle"))
+colnames(fix_data_smhi) <- setdiff(colnames(chla_smhi_correctcols), "X.3")
+chla_smhi_correctcols <- bind_rows(
+  mutate(fix_data_smhi, X.3 = NA),
+  filter(chla_smhi_correctcols, !str_detect(Value, "Chlorophyll-a bottle"))
 )
-####################################
-# when making 'Value' as numveric, all the values within that column change
-new_chla_smhi <- new_chla_smhi2 %>% 
-  mutate(Value = as.numeric(as.character(Value)), Parameter = as.character(Parameter))
+fix_data_smhi <- chla_smhi_correctcols %>% 
+  filter(str_detect(Unit, "Chlorophyll-a bottle")) %>% 
+  select(-Parameter, -Value)
+colnames(fix_data_smhi) <- setdiff(colnames(chla_smhi_correctcols), c("X.2","X.3"))
+chla_smhi_correctcols <- bind_rows(
+  mutate(fix_data_smhi, X.2 = NA, X.3 = NA),
+  filter(chla_smhi_correctcols, !str_detect(Unit, "Chlorophyll-a bottle"))
+)
 
-# Merge the add basin lookup table to secchi dataset
-chla_smhi <- new_chla_smhi %>% 
-  rename(chla_ug_l = Value, date = Sampling.date, cruise = Visit.event.identifier,
-         # use the decimal degrees for lat and lon (as for ICES)
-         Latitude = Sample.latitude..DD., Longitude = Sample.longitude..DD.,
-         # 'Station.water.depth' cosidered as 'Bottom depth'?
-         Station = Station.name, depth_m = Sample.maximum.depth) %>%
-  # is this the right variable for depth?
-  mutate(date =  as.Date(date), year = format(date, "%Y"),
-         date =  as.Date(date), month = format(date, "%m"),
-         #         Month = str_replace(Month, "^0+" ,""),
-         year = as.character(year),
-         depth_m = as.numeric(depth_m),
-         cruise = as.character(cruise)) %>% 
-  #         Station = as.character(Station)) %>%  
-  select(cruise, date, Latitude, Longitude, chla_ug_l, depth_m, year, month) 
-# %>% 
-#  left_join(basin_add_lookup_table, by = c("Latitude", "Longitude")) # 10.649.226
+## check result of column shift corrections
+# for(col in c("Sample.minimum.depth", "Sample.maximum.depth", "Parameter", "Unit")){
+#   print(unique(chla_smhi_correctcols[[col]]))
+# }
+# summary(as.numeric(unique(chla_smhi_correctcols[["Value"]])))
+# dim(filter(chla_smhi_correctcols, Parameter != "Chlorophyll-a bottle"))
 
-#### Look for duplicate data 
-# Check for duplicates in ices
-smhi_duplicates <- chla_smhi %>%
-  group_by(cruise, date, Latitude, Longitude, chla_ug_l, depth_m, year, month) %>%
+
+chla_smhi <- chla_smhi_correctcols %>% 
+  filter(Parameter == "Chlorophyll-a bottle") %>% 
+  mutate(
+    Value = as.numeric(as.character(Value)), 
+    Parameter = as.character(Parameter)
+  ) %>% 
+  rename(
+    chla_ug_l = Value, 
+    date = Sampling.date, 
+    cruise = Visit.event.identifier, 
+    station = Station.name, 
+    ## use the decimal degrees for lat and lon
+    latitude = Sample.latitude..DD., 
+    longitude = Sample.longitude..DD.,
+    ## 'Station.water.depth' or 'Sample.maximum.depth' cosidered as 'Bottom depth'?
+    depth_m = Sample.maximum.depth
+  ) %>% 
+  mutate(
+    date = as.Date(date), 
+    year = as.character(format(date, "%Y")),
+    month = format(date, "%m"),
+    # month = str_replace(Month, "^0+" ,""),
+    depth_m = as.numeric(depth_m),
+    # station = as.character(station),
+    cruise = as.character(cruise)
+  ) %>% 
+  select(cruise, date, year, month, latitude, longitude, chla_ug_l, depth_m) 
+
+## Look for duplicate data points
+chla_smhi_duplicates <- chla_smhi %>%
+  group_by(
+    cruise, date, year, month, 
+    latitude, longitude, 
+    chla_ug_l, depth_m
+  ) %>%
   summarise(n = n()) %>%
   filter(n > 1) %>%
-  ungroup() 
+  ungroup()
+# sum(chla_smhi_duplicates$n)-nrow(chla_smhi_duplicates)
 
-# Only extract unique observations
+## extract only unique observations
 chla_smhi_unique <- chla_smhi %>% 
-  distinct(cruise, date, year, month, Latitude, Longitude, chla_ug_l, 
-           depth_m) %>% 
-  mutate(supplier = 'smhi') 
-
-######################################################
-## is na smhi
-smhi.na <- smhi_unique %>%
-  filter(is.na(BHI_ID))
-dim(smhi.na) # 49121  14
-
-smhi.na.loc <- smhi.na %>% 
-  dplyr::select(Latitude, Longitude) %>% 
-  distinct() ## unique locations
-dim(smhi.na.loc) # 3619   2
-
-smhi.na %>% 
-  dplyr::select(HELCOM_COASTAL_CODE)%>% 
-  distinct()  ## none are offshore
-
-smhi.na %>% 
-  filter(HELCOM_COASTAL_CODE == 0)
-
-#################################################
-  ## remove OSPAR rows
-#  filter(!(HELCOM.OSPAR.area == "OSPAR")) %>% 
-#  dplyr::select(cruise, station, date, year, month,
-#                lat, lon, secchi, bottom_m, supplier)
-
-## Use setdiff() to indentify data smhi not in ices  
-new_chla_smhi_unique <- setdiff(dplyr::select(chla_smhi_unique, -supplier), dplyr::select(chla_nest_unique, -supplier)) %>%
+  distinct(
+    cruise, date, year, month, 
+    latitude, longitude, 
+    chla_ug_l, depth_m
+  ) %>% 
   mutate(supplier = "smhi") 
+# nrow(chla_smhi)-nrow(chla_smhi_unique)
+```
 
-## Create a new secchi dataset by only binding the new_smhi_unique object to ices_unique
-chla <- bind_rows(chla_smhi_unique, chla_nest_unique, chla_ices_unique) %>% 
-  rename(lat = Latitude, lon = Longitude) %>% 
-  distinct() # 259480 tot observations 
+**ICES Chlorophyll a data**
 
-# Save dataset (bhi-prep)
+```{r cleaning chla ices raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+## this will read in the chl a datasets from our Chla_ICES directory and bind them into one
+chla_raw_ices <- do.call(rbind, lapply(
+  grep(list.files(file.path(dir_rawdata, "Chla_ICES"), recursive = TRUE), pattern = ".csv", value =  TRUE),
+  function(x){
+    cbind(
+      read.delim(file.path(dir_rawdata, "Chla_ICES", x), sep = ","), 
+      country = str_extract(x, pattern = "^[a-z]*")
+    )
+  }
+))
+chla_ices <- chla_raw_ices %>% 
+  select(-Type) %>% 
+  rename(
+    date = yyyy.mm.ddThh.mm,
+    latitude = Latitude..degrees_north.,
+    longitude = Longitude..degrees_east.,
+    station = Station, 
+    cruise = Cruise, 
+    temperature = TEMP..deg.C.,
+    salinity = PSAL..psu.,
+    pressure = PRES..db., 
+    chla_ug_l = CPHL..ug.l.,
+    depth_m = Bot..Depth..m. # so many NAs in this variable....
+  ) %>% 
+  mutate(
+    year = format(strptime(date, "%Y-%m-%dT%H:%M"), "%Y"),
+    month = format(strptime(date, "%Y-%m-%dT%H:%M"), "%m"),
+    date = as.Date(date, "%Y-%m-%d"),
+    station = as.character(station),
+    pressure = as.numeric(pressure),
+    depth_m = as.numeric(depth_m),
+    chla_ug_l = str_replace(chla_ug_l, "<", ""),
+    ## keep the values or set a range lower than that?
+    chla_ug_l = as.numeric(chla_ug_l)
+  )
+
+## Check for duplicates in ICES secchi data
+ices_duplicates <- chla_ices %>%
+  group_by(
+    cruise, station, latitude, longitude, 
+    date, year, month,
+    chla_ug_l, depth_m
+  ) %>%
+  summarize(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup() 
+# sum(ices_duplicates$n)-nrow(ices_duplicates) # 22595
+
+## Extract only unique observations
+chla_ices_unique <- chla_ices %>% 
+  distinct(
+    cruise, station, latitude, longitude, 
+    date, year, month,
+    chla_ug_l, depth_m
+  ) %>% 
+  mutate(supplier = "ices") 
+# nrow(chla_ices)-nrow(chla_ices_unique) # 22595
+```
+
+**Combined Chlorophyll a data**
+
+```{r combine all chla datasets, warning = FALSE, message = FALSE, echo = TRUE, results = "hide"}
+merge_chla_datasets <- bind_rows(chla_nest_unique, chla_smhi_unique, chla_ices_unique) %>% 
+  filter(chla_ug_l >= 0) %>% 
+  ## prefer first ices, then smhi, then nest data where there are overlaps
+  mutate(supplier_num = ifelse(supplier == "ices", 3, ifelse(supplier == "smhi", 2, 1))) %>% 
+  group_by(date, year, month, latitude, longitude, chla_ug_l, depth_m) %>% 
+  top_n(n = 1)
+
+# summary(as.factor(merge_chla_datasets$supplier))
+# tmp <- merge_chla_datasets %>%
+#   group_by(cruise, station, date, year, month, latitude, longitude, chla_ug_l, depth_m) %>%
+#   mutate(count = n())
+# unique(tmp$count)
+```
+
+```{r save merged chla dataset, eval = FALSE}
+chla <- rename(merge_chla_datasets, lat = latitude, lon = longitude)
+# nrow(distinct(chla))
+
+## Save merged dataset
 readr::write_csv(
-  chla, 
+  chla,
   here::here("data", "CW", "eutrophication", version_year, "intermediate", "chla_rawdata.csv")
 )
 ```
 
 <br/>
 
-**Nutrients data**
+### 2.3 Initial Data Exploration {-}
 
-```{r eut nutrient data}
-nutrients <- nutrients_rawdata %>% 
-  rename(
-    no3 = NO3N, no2 = NO2N, nh4 = NH4N, po4 = PO4P, 
-    date = OBSDATE, 
-    lat = LATITUDE, lon = LONGITUDE, 
-    cruise = SHIP, depth = OBSDEP
-  ) %>%
-  select(-OBSTIME, -NO23N, -TOTN) %>% 
-  mutate(
-    date = as.Date(date), 
-    year = format(date, "%Y"), 
-    month = format(date, "%m")
-  )
+#### 2.3.1 Maps of SMHI datasets
 
-## Check for duplicates 
-nutrients_duplicates <- nutrients %>%
-  group_by_all() %>%
-  summarise(n = n()) %>%
-  filter(n > 1) %>%
-  ungroup()
+```{r basemap to be used in spatial plotting, echo = TRUE}
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
 ```
 
-<!-- ### 2.3 Initial Data Exploration {-} -->
+```{r chla raw datasets, results = "show", echo = TRUE, fig.height = 5, fig.width = 9.5}
+smhi_secchi_map <- basemap +
+  geom_sf(
+    size = 0.8, alpha = 0.5,
+    mapping = aes(color = HELCOM.OSPAR.area), 
+    data = sf::st_as_sf(
+      filter(secchi_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM")), 
+      coords = c("Sample.longitude..DD.", "Sample.latitude..DD."), 
+      crs = 4326
+    )
+  ) +
+  labs(color = "Assessement Area") +
+  theme(legend.position = c(0.1, 0.9))
+
+smhi_chla_map <- basemap +
+  geom_sf(
+    size = 0.8, alpha = 0.5,
+    mapping = aes(color = HELCOM.OSPAR.area), 
+    data = sf::st_as_sf(
+      filter(chla_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM")), 
+      coords = c("Sample.longitude..DD.", "Sample.latitude..DD."), 
+      crs = 4326
+    )
+  ) +
+  labs(color = "Assessement Area") +
+  theme(legend.position = c(0.1, 0.9))
+
+gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1)
+```
+<br>
+
+#### 2.3.2 Oxygen data
+
+```{r map showing oxygen datasets, results = "show", warning = FALSE, echo = TRUE, fig.height = 8, fig.width = 10}
+dir_interm <- here::here("data", "CW", "eutrophication", version_year, "intermediate")
+ox_merged_w_rgns <- readr::read_csv(file.path(dir_interm, "ox_merged_rawdata.csv"))
+
+## quick map of measurements by subbasin for selected year
+plotsf <- ox_merged_w_rgns %>% 
+  filter(Year == 2018) %>% 
+  sf::st_as_sf(crs = 4326, coords = c("Longitude", "Latitude"))
+oxmap <- basemap + geom_sf(data = plotsf, size = 0.8, alpha = 0.02)
+
+## plot by subbasins
+plotdf <- ox_merged_w_rgns %>% 
+  filter(!is.na(Assessment_Unit)) %>% 
+  # group_by(Assessment_Unit) %>% 
+  # sample_n(6000) %>% 
+  mutate(Date = as.Date(paste(Year, Month, Day, sep = "-")))
+
+oxplot <- ggplot(plotdf, aes(Oxygen, Depth, color = Year)) + 
+  geom_point(alpha = 0.02, size = 0.3, show.legend = FALSE) +
+  facet_wrap(~Assessment_Unit, scales = "free_y")  +
+  labs(x = "Dissolved Oxygen (ml/l)", y = "Depth (m)") +
+  scale_y_reverse() +
+  scale_color_viridis_c(option = "plasma")
+
+## timeseries plot
+oxtsplot <- ggplot(plotdf, aes(Date, Oxygen, color = Year)) + 
+  geom_point(size = 0.2, alpha = 0.02, show.legend = FALSE) +
+  facet_wrap(~Assessment_Unit, ncol = 3) +
+  labs(x = NULL, y = "Dissolved Oxygen (ml/l)") +
+  scale_color_viridis_c(option = "plasma")
+
+gridExtra::grid.arrange(oxmap, oxplot, nrow = 1, widths = c(1, 1.2))
+```
+<br/>
+
+#### 2.3.3 Comparing chl a data Sources
+
+```{r chlorophyl a data source histograms, results = "show", fig.width = 9.5, fig.height = 6}
+pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(12)
+plotdf <- filter(merge_chla_datasets, chla_ug_l < 50, year %in% 2000:2019)
+
+ggplot(plotdf) + 
+  geom_histogram(aes(chla_ug_l, fill = month), alpha = 0.8, bins = 80, size = 0.2) +
+  facet_grid(rows = vars(supplier)) +
+  labs(x = "Chlorophyll a (ug/l)", y = NULL, fill = "Month") +
+  scale_fill_manual(values = pal)+
+  theme(legend.position = c(0.95, 0.3))
+```
+
 
 <!-- #### 2.3.1 Compare versus Previous Years Data {-} -->
 
