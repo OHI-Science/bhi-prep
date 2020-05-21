@@ -4,6 +4,7 @@ output:
   github_document:
     toc: true
     toc_depth: 3
+    code_folding: hide
 ---
 
 <br>
@@ -80,7 +81,7 @@ These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermed
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
-```{r load eut datasets, echo = FALSE, include = FALSE}
+```{r load eut datasets, echo = TRUE}
 ## secchi, oxygen, and chlorophyll a datasets, 
 ## previously merged in 'data/CW/eutrophication/eut_data.R' script
 combined_secchi_rawdata <- read_csv(file.path(dirname(data_path), "intermediate", "secchi_merged_rawdata.csv"))
@@ -106,6 +107,8 @@ eut_thresholds <- read_csv(file.path(loc, "eut_threshold_values.csv"))
 ```
 <br/>
 
+**The basin-specific thresholds used in calculating the five Eutrophication indicators**
+
 ```{r eutrophication thresholds, results = "show", fig.width = 9.5}
 tab <- eut_thresholds
 newnames <- colnames(tab) %>% 
@@ -115,11 +118,13 @@ newnames <- colnames(tab) %>%
 colnames(tab) <- newnames
 knitr::kable(tab)
 ```
-
+<br>
 
 ### 3.1 Secchi Indicator {-}
 
 #### 3.1.1 Match BHI regions {-}
+
+The raw secchi data (consisting  of merged ICES and SMHI data) must be assigned to their respective Subbasins (with HELCOM Coastal/Offshore division codes) and BHI Regions based on their latitude/longitude coordinates. Then the data are subsetted to assure only summer months (June-September) and years 2000 onward are included.
 
 ```{r assign BHI regions to Secchi data, echo = TRUE, message = FALSE, warning = FALSE}
 ## before assigning bhi regions to secchi data, run this function first, to load required shapefiles:
@@ -158,6 +163,8 @@ secchi_rgns <- secchi_rgns_shp %>%
 <br>
 
 **Remove coastal observations**
+
+For the secchi depth indicator, only offshore data points will be used. These are identified using [HELCOM Coastal and Offshore divisions (2018 version)](https://maps.helcom.fi/arcgis/rest/services/MADS/Sea_environmental_monitoring/MapServer/4).
 
 ```{r remove coastal data points, results = "hide", echo = TRUE, fig.width = 16, fig.height = 8}
 ## Select only data with coastal code "0"  
@@ -209,23 +216,34 @@ dim(secchi_offshore) # 8015
 
 <br>
 
+#### 3.1.2 Visualize Secchi Depth Data {-}
+
 **Spatial Visualization of Secchi data**
+
+The four plots generated in this section show temporal trends in offshore secchi depth (right) and monthly distributions (left) by BHI regions (top) or subbasins (bottom), with data source indicated by color. Pink points correspond to ICES data, and turquoise points to SMHI data. 
 
 ```{r secchi timeseries yearly and monthly, results = "show", echo = TRUE, fig.width = 11, fig.height = 5}
 ## Plot by BHI regions and year
 plot_secchi_bhi_ts <- ggplot(secchi_offshore) + 
-  geom_point(aes(year, secchi_m, color = supplier), size = 1, alpha = 0.3) +
+  geom_point(
+    aes(year, secchi_m, color = supplier), 
+    size = 1, alpha = 0.3, show.legend = FALSE
+  ) +
   facet_wrap(
       c("Subbasin", "rgn_nam"), 
       labeller = label_wrap_gen(width = 35, multi_line = FALSE), 
       scales = "free_y"
   ) +
+  theme(axis.text.x = element_text(angle = 90)) +
   labs(x = NULL, y = "Secchi depth (m)", color = "Data Source") +
   ggtitle("Yearly Secchi by BHI regions")
 
 ## Month boxplots, by BHI region
 plot_secchi_bhi_box <- ggplot(mutate(secchi_offshore, month = as.factor(month))) + 
-  geom_boxplot(aes(month, secchi_m, fill = supplier), size = 0.2, outlier.size = 0.3, alpha = 0.6) +
+  geom_boxplot(
+    aes(month, secchi_m, fill = supplier), 
+    size = 0.2, outlier.size = 0.3, alpha = 0.6, show.legend = FALSE
+  ) +
   facet_wrap(
       c("BHI_ID", "Subbasin", "rgn_nam"), 
       labeller = label_wrap_gen(width = 35, multi_line = FALSE), 
@@ -236,7 +254,10 @@ plot_secchi_bhi_box <- ggplot(mutate(secchi_offshore, month = as.factor(month)))
 
 ## Plot by subbasins and year
 plot_secchi_basin_ts <- ggplot(secchi_offshore) + 
-  geom_point(aes(year, secchi_m, color = supplier), size = 1, alpha = 0.3) +
+  geom_point(
+    aes(year, secchi_m, color = supplier),
+    size = 1, alpha = 0.3, show.legend = FALSE
+  ) +
   # geom_point(aes(year, secchi_m), size = 0.3, alpha = 0.4) +
   facet_wrap(~Subbasin, scales = "free_y") +
   labs(x = NULL, y = "Secchi depth (m)", color = "Data Source") +
@@ -244,18 +265,28 @@ plot_secchi_basin_ts <- ggplot(secchi_offshore) +
 
 ## Month boxplots, by Subbasin region
 plot_secchi_basin_box <- ggplot(mutate(secchi_offshore, month = as.factor(month))) + 
-  geom_boxplot(aes(month, secchi_m, fill = supplier), size = 0.2, outlier.size = 0.3, alpha = 0.6) +
+  geom_boxplot(
+    aes(month, secchi_m, fill = supplier), 
+    size = 0.2, outlier.size = 0.3, alpha = 0.6, show.legend = FALSE
+  ) +
   facet_wrap(~Subbasin, scales = "free_y") +
   labs(x = "Month", y = "Secchi depth (m)", fill = "Data Source") +
   ggtitle("Monthly Secchi by Subbasins")
 
-gridExtra::grid.arrange(plot_secchi_bhi_ts, plot_secchi_bhi_box, nrow = 1)
-gridExtra::grid.arrange(plot_secchi_basin_ts, plot_secchi_basin_box, nrow = 1)
+gridExtra::grid.arrange(
+  plot_secchi_bhi_ts, plot_secchi_bhi_box,
+  plot_secchi_basin_ts, plot_secchi_basin_box, 
+  nrow = 2
+)
 ```
 
 <br/>
 
-#### 3.1.2 Mean secchi Calculation {-}
+#### 3.1.3 Mean secchi depth Calculation {-}
+
+Mean secchi depths are calculated per basin or BHI region, using only offshore secchi depth measurements. Means are first calculated within each summer month, then those monthly means are averaged to get an overall summer mean. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region. This is presented as a standard deviation (square root of variance across months) on the plots below.
+
+Along with the mean secchi calculation, we calculate a five-year moving average for each year in the dataset. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
 
 ```{r calculate monthly mean secchi with target, results = "hide"}
 for(r in c("Subbasin", "BHI_ID")){
@@ -301,9 +332,9 @@ for(r in c("Subbasin", "BHI_ID")){
   secchimeansplot <- ggplot(secchi_summer_months_mean, aes(year, mean_secchi, group = 1)) + 
     geom_errorbar(
       aes(x = year, ymin = secchi_min, ymax = secchi_max), 
-      alpha = 0.6, size = 0.2, width = 0.2
+      alpha = 0.6, size = 0.3, width = 0.3
     ) +
-    geom_point() +
+    geom_point(size = 0.3) +
     # geom_line(aes(year, ma5yr), size = 0.2) +
     geom_line(size = 0.2) +
     ## helcom target value
@@ -320,47 +351,60 @@ for(r in c("Subbasin", "BHI_ID")){
 
 **Plot summer secchi with target values indicated**
 
-Horizontal lines are HELCOM target values 
+The following shows yearly mean summer secchi depths in meters. Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3.
 
-```{r summer secchi with target, results = "show", echo = TRUE, fig.width = 9.5}
+```{r summer secchi with targets, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 10}
 ## adding onto/calling plots made in code chunk above
-secchimeansplotsubbasin + ggtitle("Mean Summer Secchi by Subbasin (June-Sept, Offshore) against Target Values")
-secchimeansplotbhi_id + ggtitle("Mean Summer Secchi by BHI Region (June-Sept, Offshore) against Target Values")
+gridExtra::grid.arrange(
+  secchimeansplotsubbasin + 
+    ggtitle("Mean Summer Secchi by Subbasin (June-Sept, Offshore) against Target Values"),
+  secchimeansplotbhi_id + 
+    ggtitle("Mean Summer Secchi by BHI Region (June-Sept, Offshore) against Target Values"),
+  nrow = 2
+)
 ```
 
 <br>
 
-#### 3.1.3 Status Calculation {-}
+#### 3.1.4 Status Calculation {-}
 
-**Explore status years**
+**Explore data years to available for status calculation**
 
-Only five basins have data for 2019, which will be used as the status year, eight basins have data for 2018 and four basins for 2017 and for these basins, their most recent year's data is used for current status calculations.
+Only five basins have data for 2019, which will be used as the status year, nine basins have data for 2018 and three basins for 2017 and for these basins, their most recent year's data is used for current status calculations.
 
-```{r what is the last year in secchi subbasin means dataframe, results = "hide"}
+```{r what is the last year in secchi subbasin means dataframe, results = "show"}
 ## get the last year of non-NA data
 secchi_last_year <- subbasin_target_secchi %>%
   filter(!is.na(mean_secchi)) %>%
   group_by(Subbasin)%>%
-  summarise(last_year = last(year)) %>%
-  print(n = 15)
+  summarise(last_year = last(year))
+
+knitr::kable(
+  secchi_last_year %>% 
+    group_by(last_year) %>%
+    summarize(num_basins_w_year = n(), basins = paste(Subbasin, collapse = ", "))
+)
 
 ## which are not in 2019
-filter(secchi_last_year, last_year < 2019)
+# filter(secchi_last_year, last_year < 2019)
 ```
 <br>
 
 **Status calculation with raw (non-modeled) mean summer secchi by basin** 
 
-Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in `functions.R` of the relevant bhi repository assessment folder.
+Status is calculated on the basin level and then applied to all regions. It is calculated here for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in `functions.R` of the relevant bhi repository assessment folder.
 
-```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 9.5}
+Status for the secchi indicator is calculated as `basin summer mean` divided by `basin target`, with the value capped at 1. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the summer means calculation), and also indicates which data year the status is based on.
 
+```{r constants for eut secchi status and trend calculations, echo = TRUE}
 ## Define constants for status and trend calculations
 min_year <- 2009 # earliest year to use as a start for regr_length timeseries
 regr_length <- 10 # number of years to use for regression
 future_year <- 5 # the year at which we want the likely future status
 min_regr_length <- 5 # min actual number of years with data to use for regression
+```
 
+```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 9.5}
 ## Basin data with target
 subbasin_target_secchi <- filter(subbasin_target_secchi, year >= min_year)
 
@@ -394,7 +438,7 @@ secchi_status <- secchi_status %>%
 set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
-ggplot(secchi_status) +
+ggplot(secchi_status %>% left_join(secchi_last_year, by = c("subbasin" = "Subbasin"))) +
   geom_col(
     aes(region, score, fill = subbasin),
     position = position_dodge(), 
@@ -403,6 +447,7 @@ ggplot(secchi_status) +
     size = 0.2,
     show.legend = FALSE
   ) + 
+  geom_text(aes(region, score, label = last_year)) +
   coord_flip() +
   labs(x = NULL, y = NULL) +
   theme_bw() +
@@ -410,86 +455,91 @@ ggplot(secchi_status) +
   scale_fill_manual(values = statuspal) +
   ggtitle("Secchi Indicator Status by Region")
 ```
+<br>
 
-#### 3.1.4 Trend Calculation {-}
+#### 3.1.5 Trend Calculation {-}
+
+In our approach here, we use a 10 year period to calculate the trend with a minimum of 5 data points. In most cases, the BHI framework uses a 5 year period for the trend, but as secchi is a slow response variable, we use a longer time period. The trend value is the slope of the linear regression (mean offshore summer secchi depth vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
+
+The trend plots show secchi depth measurements by basin, with a red line indicating where the linear model predicts mean secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
 
 ```{r eut secchi indicator trend calculation, results = "hide", echo = TRUE, fig.width = 9.5}
-## method 1, from the mean values ----
+trendyrs <- min_year:(min_year + regr_length)
 
-## basin trend
-secchi_trend <- secchi_status_allyrs %>%
-  distinct(subbasin, year, status) %>%
+## linear model method 1, from the basin mean secchi values ----
+
+secchi_lm_estim <- secchi_status_allyrs %>%
+  distinct(subbasin, year, mean_secchi) %>%
   group_by(subbasin) %>%
   ## calculate trend only if:
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
-  do(tail(., n = regr_length)) %>%  
-  do({
-    if(sum(!is.na(.$status)) >= min_regr_length){
-      data.frame(trend_score = max(-1, min(1, coef(lm(status ~ year, .))["year"]*future_year)))
-    } else {
-      data.frame(trend_score = NA)
-    }
-  }) %>%
-  ungroup() 
+  do(tail(., n = regr_length)) %>%
+  do(data.frame(enough_data = ifelse(sum(!is.na(.$mean_secchi)) >= min_regr_length, TRUE, FALSE))) %>% 
+  right_join(secchi_status_allyrs, by  = "subbasin") %>% 
+  group_by(subbasin, enough_data, target_secchi) %>%
+  do(trend_mdl = lm(mean_secchi ~ year, data = .))
 
-## method 2, from observation values ----
+## linear model method 2, from observation values ----
 
-trendyrs <- min_year:(min_year + regr_length)
-secchi_lm_estim <- secchi_offshore %>% 
-  filter(year %in% trendyrs) %>% 
-  group_by(Subbasin) %>% 
-  mutate(trendcalc_nyrs = n_distinct(year), num_obs = n()) %>% 
-  ## how much data is enough data to calculate short-term trends?
-  filter((trendcalc_nyrs >= 6 & num_obs > 18)||trendcalc_nyrs > 8) %>%
-  do(trend_mdl = lm(secchi_m ~ year, data = .)) %>%
-  left_join(select(eut_thresholds, Subbasin = basin, threshold = summer_secchi)) %>% 
-  mutate(
-    ## change w.r.t. thresholds...
-    expectedchange5yrs = coef(trend_mdl)["year"]*future_year,
-    trend_score = -expectedchange5yrs/threshold,
-    ## plotting variables, to visualize
-    current = predict(trend_mdl, data.frame(year = max(trendyrs))),
-    prj = predict(trend_mdl, data.frame(year = max(trendyrs) + future_year))
-  )
-ggplot(left_join(filter(secchi_offshore, year %in% trendyrs), select(secchi_lm_estim, Subbasin, current, prj))) +
+# secchi_lm_estim <- secchi_offshore %>%
+#   filter(year %in% trendyrs) %>%
+#   rename(subbasin = Subbasin) %>%
+#   group_by(subbasin) %>%
+#   mutate(trendcalc_nyrs = n_distinct(year), num_obs = n()) %>%
+#   ## how much data is enough data to calculate short-term trends?
+#   filter((trendcalc_nyrs >= 6 & num_obs > 18)||trendcalc_nyrs > 8) %>%
+#   do(trend_mdl = lm(secchi_m ~ year, data = .)) %>%
+#   left_join(select(eut_thresholds, subbasin = basin, target_secchi = summer_secchi))
+
+## trend plots ----
+
+trendplotdf <- left_join(
+  secchi_offshore %>% 
+    rename(subbasin = Subbasin) %>% 
+    filter(year %in% trendyrs),
+  secchi_lm_estim %>%
+    mutate(
+      current = predict(trend_mdl, data.frame(year = max(trendyrs))),
+      prj = predict(trend_mdl, data.frame(year = max(trendyrs) + future_year))
+    ),
+  by = "subbasin"
+)
+ggplot(trendplotdf) +
   geom_point(aes(x = year, y = secchi_m), size = 0.2, alpha = 0.4) +
   geom_vline(xintercept = max(trendyrs), size = 0.2) +
   geom_vline(xintercept = max(trendyrs) + future_year, size = 0.2) +
   geom_hline(aes(yintercept = prj), color = "tomato") +
-  geom_hline(aes(yintercept = current), alpha = 0.3) +
-  facet_wrap(~Subbasin, scales = "free") +
+  geom_hline(aes(yintercept = current), color = "lightsteelblue") +
+  facet_wrap(~subbasin) +
   labs(x = NULL, y = NULL) +
-  ggtitle("Offshore Secchi with 5 Years in Future and Current Estimates (Red and Grey lines Respectively)")
-
-## basin trend
-## alternative calculation, using relative change w.r.t. basin threshold
-# secchi_trend <- secchi_lm_estim %>% 
-#   rename(subbasin = Subbasin) %>% 
-#   ungroup() %>% 
-#   select(-trend_mdl) %>% 
-#   group_by(subbasin) %>% 
-#   summarize(trend = mean(trend_score, na.rm = TRUE) %>% round(3)) %>%
-#   ## constrain trend values between one and negative one
-#   mutate(trend = ifelse(-1 <= trend & trend <= 1, trend, trend*abs(1/trend)))
+  ggtitle("Offshore Secchi with 5 Years in Future and Current Estimates (Red and Blue lines Respectively)")
 
 ## trend score dataframe ----
+
 ## assign basin trend to BHI regions
-secchi_trend <- secchi_trend %>% 
+secchi_trend <- secchi_lm_estim %>% 
+    mutate(
+      expectedchange5yrs = coef(trend_mdl)["year"]*future_year,
+      trend_score = max(-1, min(1, expectedchange5yrs))
+      ## alternatively, could calculate as relative change w.r.t subbasin threshold:
+      # trend_score = max(-1, min(1, expectedchange5yrs/target_secchi))
+    ) %>%
   right_join(basin_lookup, by = "subbasin") %>% 
   mutate(
-    score = round(trend_score, 3),
+    score = round(ifelse(enough_data, trend_score, NA), 3),
     region = rgn_nam,
     dimension = "trend",
     indicator = "secchi"
   ) %>% 
-  select(-trend_score)
+  select(score, subbasin, dimension, indicator, bhi_id, rgn_nam, HELCOM_ID, region)
 ```
+<br>
 
 #### 3.1.5 Status and Trend Timeseries Plots {-}
 
 **Basin status**
 
-Basin status is initially a value between 0 and 1. Calculated for each year between 2000 and 2020.
+Basin status is initially a value between 0 and 1, later rescaled to the 0 to 100 range. The status is calculated for each (data) year between 2000 and 2019.
 
 ```{r timeseries plot of basin eut secchi status, results = "show", echo = TRUE, fig.width = 9.5}
 plotdf <- secchi_status_allyrs %>% 
@@ -500,13 +550,15 @@ ggplot(plotdf) +
   facet_wrap(~subbasin) +
   scale_fill_viridis_c() +
   geom_hline(yintercept = 1) +
+  theme(axis.text.x = element_text(angle = 90)) +
   labs(x = NULL, y = "Secchi Indicator Status\n", fill = "Num. Contributing of Points") +
   ggtitle("Yearly Secchi Status by Subbasin")
 ```
+<br>
 
 **Plot region Status and Trend values**
 
-Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
+Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019.
 
 ```{r secchi status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
 ggplot(rbind(secchi_status, secchi_trend)) + 
@@ -523,6 +575,8 @@ ggplot(rbind(secchi_status, secchi_trend)) +
 ### 3.2 Chlorophyll a Indicator {-}
 
 #### 3.2.1 Match BHI regions {-}
+
+The raw chlorophyll a data (consisting of merged ICES, SMHI, and Baltic Nest data) must be assigned to their respective Subbasins (with HELCOM Coastal/Offshore division codes) and BHI Regions based on their latitude/longitude coordinates. Then the data are subsetted to assure only summer months (June-September), years 2000 onward, and measurements from the surface layer (0 - 10 m depth) are included.
 
 ```{r assign BHI regions to Chl a data, echo = TRUE, message = FALSE, warning = FALSE}
 ## assign helcom offshore codes
@@ -558,6 +612,8 @@ chla_rgns <- chla_rgns_shp %>%
 <br>
 
 **Distinguish coastal and offshore observations**
+
+For the chlorophyll a indicator, coasta and offshore data points will be used. These are distinguished using [HELCOM Coastal and Offshore divisions (2018 version)](https://maps.helcom.fi/arcgis/rest/services/MADS/Sea_environmental_monitoring/MapServer/4).
 
 ```{r remove coastal data points from chla dataset, results = "hide", echo = TRUE}
 dim(chla_rgns) # 38386
@@ -646,7 +702,7 @@ dim(chla_whole) # 28723
 #   scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
 ```
 
-```{r chla offshore coastal data maps, results = "show", echo = TRUE, fig.width = 15, fig.height = 5}
+```{r chla offshore coastal data maps, results = "show", echo = FALSE, fig.width = 15, fig.height = 5}
 # gridExtra::grid.arrange(
 #   no_coastal_or_bhi_id, 
 #   no_coastal_id, 
@@ -663,6 +719,8 @@ dim(chla_whole) # 28723
 
 **Visualization of Chl a data (whole Baltic i.e. both Coastal and Offshore)**
 
+The four plots generated in this section show temporal trends (top) and monthly distributions (bottom) by subbasin, for Offshore (right) and Coastal (left) chlorophyll a, with data source indicated by color. Pink points correspond to ICES data, turquoise points to Nest data, and gold to SMHI data. 
+
 ```{r chl a timeseries yearly and monthly, results = "hide", echo = TRUE}
 plotinfo <- list(
   ## by BHI regions
@@ -674,13 +732,18 @@ plotinfo <- list(
   list("chla_offshore", "Subbasin", "Chlorophyll a (Offshore) by Subbasin", "basin"),
   list("chla_whole", "Subbasin", "Chlorophyll a by Subbasin", "basin")
 )
+
+## expand cases for equal number of offshore and coastal plots, so visual comparison is easier 
 expandcases <- tidyr::expand(chla_whole, tidyr::nesting(Subbasin, BHI_ID, year, month, coastal))
 lapply(
   plotinfo,
   function(x){
     ## 1. evaluate data by source
     plottimeseries <- ggplot(full_join(get(x[[1]]), expandcases)) +
-      geom_point(aes(year, chla_ug_l, color = supplier), size = 0.5, alpha = 0.5) +
+      geom_point(
+        aes(year, chla_ug_l, color = supplier), 
+        size = 0.5, alpha = 0.5, show.legend = FALSE
+      ) +
       labs(x = "Year", y = "Chl a (ug/L)", color = "Data Source", title = x[[3]]) +
       scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
     
@@ -705,7 +768,10 @@ lapply(
   function(x){
     ## 1. evaluate data by source
     plotboxplot <- ggplot(get(x[[1]]) %>% full_join(expandcases) %>% mutate(month = as.factor(month))) +
-      geom_boxplot(aes(month, chla_ug_l, fill = supplier), size = 0.2, outlier.size = 0.3, alpha = 0.4) +
+      geom_boxplot(
+        aes(month, chla_ug_l, fill = supplier), 
+        size = 0.2, outlier.size = 0.3, alpha = 0.4, show.legend = FALSE
+      ) +
       labs(x = "Month", y = "Chl a (ug/L)", fill = "Data Source", title = x[[3]]) +
       scale_fill_manual(values = c("tomato", "aquamarine2", "gold"))
     
@@ -728,16 +794,26 @@ lapply(
 )
 ```
 
-```{r coastal and offshore chla plots by basin, results = "show", echo = TRUE, fig.width = 12.5, fig.height = 7}
-gridExtra::grid.arrange(plot_chla_offshore_basin_ts, plot_chla_coastal_basin_ts, nrow = 1)
-gridExtra::grid.arrange(plot_chla_offshore_basin_box, plot_chla_coastal_basin_box, nrow = 1)
-# gridExtra::grid.arrange(plot_chla_offshore_bhi_box, plot_chla_coastal_bhi_ts, nrow = 1)
-# gridExtra::grid.arrange(plot_chla_offshore_bhi_box, plot_chla_coastal_bhi_box, nrow = 1)
+```{r coastal and offshore chla plots by basin, results = "show", echo = TRUE, fig.width = 12, fig.height = 13}
+# gridExtra::grid.arrange(
+#   plot_chla_offshore_bhi_ts, plot_chla_coastal_bhi_ts,
+#   plot_chla_offshore_bhi_box, plot_chla_coastal_bhi_box, 
+#   nrow = 2
+# )
+gridExtra::grid.arrange(
+  plot_chla_offshore_basin_ts, plot_chla_coastal_basin_ts,
+  plot_chla_offshore_basin_box, plot_chla_coastal_basin_box, 
+  nrow = 2
+)
 ```
 
 <br>
 
 #### 3.2.3 Mean Chllorophyl a Calculation
+
+_Chlorophyll a_ concentration averages are calculated per basin or BHI region, using coastal and offshore measurements in separate categories. Means are calculated for each coastal and offshore categories, first within each summer month. Then monthly means are averaged to get an overall summer mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
+
+Along with the mean calculation, we calculate five-year moving averages for each year in the dataset. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
 
 ```{r calculate monthly and summer mean chl a with target, results = "hide"}
 for(r in c("Subbasin", "BHI_ID")){
@@ -793,15 +869,15 @@ for(r in c("Subbasin", "BHI_ID")){
   chla_meansplot <- ggplot(chla_summer_months_mean, aes(year, mean_chla, group = 1)) + 
     geom_errorbar(
       aes(x = year, ymin = chla_min, ymax = chla_max), 
-      alpha = 0.6, size = 0.2, width = 0.2
+      alpha = 0.6, size = 0.3, width = 0.3
     ) +
-    geom_point() +
+    geom_point(size = 0.3) +
     # geom_line(aes(year, ma5yr), size = 0.2) +
     geom_line(size = 0.2) +
     ## helcom target value
     geom_line(aes(y = target_chla), colour = "tomato", size = 0.4) +
-    facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal)) +
-    scale_y_continuous(limits = c(0, 10)) +
+    facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal), scales = "free_y") +
+    scale_y_continuous(limits = c(0, NA)) +
     labs(x = NULL, y = "Chlorophyll a (ug/L)") +
     ggtitle(sprintf("Mean Summer (June-Sept) Chlorophyll a by %s", r))
   assign(paste0("chla_meansplot_", str_to_lower(r)), chla_meansplot)
@@ -813,7 +889,7 @@ for(r in c("Subbasin", "BHI_ID")){
 
 **Plot summer chlorophyll a with target values indicated**
 
-Horizontal lines are HELCOM target values 
+The following plot shows yearly mean summer chlorophyll a concentrations (ug/l). Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3. With one row per subbasin, the three columns show Coastal, Offshore, and Combined summer mean chlorophyll a concentrations. 
 
 ```{r summer chl a with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 14}
 chla_meansplot_subbasin + ggtitle("Mean Summer Chlorophyll a (June-Sept) against Target values")
@@ -825,32 +901,42 @@ chla_meansplot_subbasin + ggtitle("Mean Summer Chlorophyll a (June-Sept) against
 
 **Explore status years**
 
-Only five (5) basins have data for 2019, which will be used as the status year, while six (6) have data for 2018 and two (4) for 2016. For these basins, their most recent year's data is used for current status calculations
+Only two basins have data for 2019, which will be used as the status year, while thirteen have data for 2018 and two for 2016. For these basins, their most recent year's data is used for current status calculations
 
-```{r what is the last year, results = "hide"}
+```{r what is the last year for chla, results = "show"}
 ## get the last year of non-NA data
 chla_last_year <- subbasin_target_chla %>%
   filter(!is.na(mean_chla), coastal == "Both Combined") %>%
   group_by(Subbasin) %>%
-  summarise(last_year = last(year)) %>%
-  print(n = 15)
+  summarise(last_year = last(year))
+
+knitr::kable(
+  chla_last_year %>% 
+    group_by(last_year) %>%
+    summarize(num_basins_w_year = n(), basins = paste(Subbasin, collapse = ", "))
+)
 
 ## which are not in 2019
-filter(chla_last_year, last_year < 2019)
+# filter(chla_last_year, last_year < 2019)
 ```
+
+<br>
 
 **Status calculation with mean summer chla by basin, from in situ measurements** 
 
 Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
 
-```{r eut chla status calculation, results = "show", echo = TRUE, fig.width = 9.5}
+Status for the _chlorophyll a_ indicator is calculated as `basin target` divided by `basin summer mean`, with the value capped at 1. We calculate status for each Coastal, Offshore, and Combined categories for evaluation, but select the Combined version for the _chlorophyll a_ indicator status. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the summer means calculation), and also indicates which data year the status is based on.
 
+```{r constants for eut secchi status and trend calculations, echo = TRUE}
 ## Define constants for status and trend calculations
 min_year <- 2009 # earliest year to use as a start for regr_length timeseries
 regr_length <- 10 # number of years to use for regression
 future_year <- 5 # the year at which we want the likely future status
 min_regr_length <- 5 # min actual number of years with data to use for regression
+```
 
+```{r eut chla status calculation, results = "show", echo = TRUE, fig.width = 9.5}
 ## Calculate basin status as: basin_target/basin_mean, constraining values to 1 as maximum score
 ## ratio inverted compared to secchi because levels of chl a above target are undesireable
 ## joining to basin lookup to expand from subbasins to one row per BHI region
@@ -885,7 +971,7 @@ chla_status <- chla_status %>%
 set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
-ggplot(chla_status) +
+ggplot(chla_status %>% left_join(chla_last_year, by = c("subbasin" = "Subbasin"))) +
   geom_col(
     aes(region, score, fill = subbasin),
     position = position_dodge(), 
@@ -894,6 +980,7 @@ ggplot(chla_status) +
     size = 0.2,
     show.legend = FALSE
   ) + 
+  geom_text(aes(region, score, label = last_year)) +
   coord_flip() +
   facet_grid(cols = vars(coastal)) +
   labs(x = NULL, y = NULL) +
@@ -909,76 +996,98 @@ chla_status <- chla_status %>%
 
 #### 3.2.4 Trend Calculations: Coastal & Offshore {-}
 
-```{r eut chl a trend calculation, results = "hide", fig.width = 9.5}
-## basin trend regression ----
-chla_trend <- chla_status_allyrs %>%
-  filter(coastal == "Both Combined") %>% 
-  distinct(subbasin, year, status) %>%
-  group_by(subbasin) %>%
+In our approach here, we use a 10 year period to calculate the trend with a minimum of 5 data points. In most cases, the BHI framework uses a 5 year period for the trend, but as _chlorophyll a_ is a slower response variable, we use a longer time period. The trend value is the slope of the linear regression (mean summer chlorophyll vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
+
+The trend plots show chlorophyll a measurements by basin, with a red line indicating where the linear model predicts mean secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
+
+```{r eut chl a trend calculation, results = "show", warning = FALSE, fig.width = 9.5, fig.height = 14}
+trendyrs <- min_year:(min_year + regr_length)
+
+## linear model method 1, from the basin mean secchi values ----
+
+chla_lm_estim <- chla_status_allyrs %>%
+  distinct(subbasin, year, coastal, mean_chla) %>%
+  group_by(subbasin, coastal) %>%
   ## calculate trend only if:
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
-  do(tail(., n = regr_length)) %>%  
-  do({
-    if(sum(!is.na(.$status)) >= min_regr_length){
-      data.frame(trend_score = max(-1, min(1, coef(lm(status ~ year, .))["year"]*future_year)))
-    } else {
-      data.frame(trend_score = NA)
-    }
-  }) %>%
-  ungroup() 
+  do(tail(., n = regr_length)) %>%
+  do(data.frame(enough_data = ifelse(sum(!is.na(.$mean_chla)) >= min_regr_length, TRUE, FALSE))) %>% 
+  right_join(chla_status_allyrs, by = c("subbasin", "coastal")) %>% 
+  group_by(subbasin, coastal, enough_data, target_chla) %>%
+  do(trend_mdl = lm(mean_chla ~ year, data = .))
 
-## change relative to threshold from observation values ----
-trendyrs <- min_year:(min_year + regr_length)
-lapply(
-  list(list("chla_offshore", "Subbasin"), list("chla_coastal", "Subbasin")),
-  function(x){
-    chla_lm_estim <- get(x[[1]]) %>% 
-      filter(year %in% trendyrs) %>% 
-      group_by(!!!syms(x[[2]])) %>% 
-      mutate(trendcalc_nyrs = n_distinct(year), num_obs = n()) %>% 
-      ## how much data is enough data to calculate short-term trends?
-      filter((trendcalc_nyrs >= 6 & num_obs > 18)||trendcalc_nyrs > 8) %>%
-      do(trend_mdl = lm(chla_ug_l ~ year, data = .)) %>%
-      left_join(select(eut_thresholds, Subbasin = basin, threshold = summer_chla)) %>% 
-      mutate(
-        ## change w.r.t. thresholds...
-        expectedchange5yrs = coef(trend_mdl)["year"]*future_year,
-        score = -expectedchange5yrs/threshold,
-        ## plotting variables, to visualize
-        current = predict(trend_mdl, data.frame(year = max(trendyrs))),
-        prj = predict(trend_mdl, data.frame(year = max(trendyrs) + future_year))
-      )
-    
-    p <- ggplot(left_join(filter(get(x[[1]]), year %in% trendyrs), select(chla_lm_estim, Subbasin, current, prj))) +
-      geom_point(aes(x = year, y = chla_ug_l), size = 0.2, alpha = 0.4) +
-      geom_vline(xintercept = max(trendyrs), size = 0.2) +
-      geom_vline(xintercept = max(trendyrs) + future_year, size = 0.2) +
-      geom_hline(aes(yintercept = prj), color = "tomato") +
-      geom_hline(aes(yintercept = current), alpha = 0.3) +
-      facet_wrap(vars(!!!syms(x[[2]])), scales = "free") +
-      labs(x = NULL, y = NULL) +
-      ggtitle(paste(
-        str_to_title(str_remove(x[[1]], "chla_")), 
-        "Chlorophyll a with 5 Years in Future and Current Estimates (Red and Grey lines Respectively)"
-      ))
-    assign(sprintf("%s_lm_plot_%s", x[[1]], stringr::str_to_lower(x[[2]])), p, envir = .GlobalEnv)
-    createdplots <- sprintf("%s_lm_plot_%s", x[[1]], stringr::str_to_lower(x[[2]]))
-  }
+## linear model method 2, from observation values ----
+
+# chla_lm_estim <- chla_whole %>%
+#   filter(year %in% trendyrs) %>%
+#   rename(subbasin = Subbasin) %>%
+#   group_by(subbasin, coastal) %>%
+#   mutate(trendcalc_nyrs = n_distinct(year), num_obs = n()) %>%
+#   ## how much data is enough data to calculate short-term trends?
+#   filter((trendcalc_nyrs >= 6 & num_obs > 18)||trendcalc_nyrs > 8) %>%
+#   do(trend_mdl = lm(chla_ug_l ~ year, data = .)) %>%
+#   left_join(select(eut_thresholds, subbasin = basin, target_chla = summer_chla))
+
+## trend plots ----
+
+predictions <- mutate(
+  chla_lm_estim,
+  current = predict(trend_mdl, data.frame(year = max(trendyrs))),
+  prj = predict(trend_mdl, data.frame(year = max(trendyrs) + future_year))
 )
-chla_offshore_lm_plot_subbasin
-chla_coastal_lm_plot_subbasin
+trendplotdf <- bind_rows(
+  left_join(
+    chla_whole %>% 
+      rename(subbasin = Subbasin) %>% 
+      filter(year %in% trendyrs),
+    predictions %>% 
+      filter(coastal %in% c("Coastal", "Offshore")),
+    by = c("subbasin", "coastal")
+  ),
+  left_join(
+    chla_whole %>% 
+      rename(subbasin = Subbasin) %>% 
+      filter(year %in% trendyrs) %>% 
+      mutate(coastal = "Both Combined"),
+    predictions %>% 
+      filter(coastal == "Both Combined"),
+    by = c("subbasin", "coastal")
+  )
+)
+ggplot(trendplotdf) +
+  geom_point(aes(x = year, y = chla_ug_l), size = 0.2, alpha = 0.4) +
+  geom_vline(xintercept = max(trendyrs), size = 0.2) +
+  geom_vline(xintercept = max(trendyrs) + future_year, size = 0.2) +
+  geom_hline(aes(yintercept = prj), color = "tomato") +
+  geom_hline(aes(yintercept = current), color = "lightsteelblue") +
+  # facet_wrap(
+  #   c("subbasin", "coastal"), 
+  #   labeller = label_wrap_gen(width = 70, multi_line = FALSE), 
+  #   scales = "free_y", 
+  #   ncol = 3
+  # ) +
+  facet_grid(rows = vars(subbasin), cols = vars(coastal)) +
+  labs(x = NULL, y = NULL) +
+  ggtitle("Chlorophyll a with 5 Years in Future and Current Estimates (Red and Blue lines Respectively)")
 
 ## trend score dataframe ----
+
 ## assign basin trend to BHI regions
-chla_trend <- chla_trend %>% 
+chla_trend <- chla_lm_estim %>% 
+    mutate(
+      expectedchange5yrs = coef(trend_mdl)["year"]*future_year,
+      trend_score = max(-1, min(1, expectedchange5yrs))
+      ## alternatively, could calculate as relative change w.r.t subbasin threshold:
+      # trend_score = max(-1, min(1, expectedchange5yrs/target_secchi))
+    ) %>%
   right_join(basin_lookup, by = "subbasin") %>% 
   mutate(
-    score = round(trend_score, 3),
+    score = round(ifelse(enough_data, trend_score, NA), 3),
     region = rgn_nam,
     dimension = "trend",
     indicator = "chla"
   ) %>% 
-  select(-trend_score)
+  select(score, subbasin, dimension, indicator, bhi_id, rgn_nam, HELCOM_ID, region)
 ```
 
 #### 3.2.5 Status and Trend Timeseries Plots {-}
@@ -999,10 +1108,11 @@ ggplot(plotdf) +
   labs(x = NULL, y = "Chl a Indicator Status\n", fill = "Num. Contributing of Points") +
   ggtitle("Yearly Chlorophyll a Status by Subbasin")
 ```
+<br>
 
 **Plot region Status and Trend values**
 
-Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. No status or trend for 5 or 6 - these are The Sound, which had no data. 
+Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019.
 
 ```{r chlorphyl a status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
 ggplot(rbind(chla_status, chla_trend)) + 
@@ -1208,9 +1318,9 @@ for(r in c("Subbasin", "BHI_ID")){
     meansplot <- ggplot(filter(nut_winter_months_mean, nutrient == n), aes(winterofyear, nut_mean, group = 1)) + 
       geom_errorbar(
         aes(x = winterofyear, ymin = nut_min, ymax = nut_max), 
-        alpha = 0.6, size = 0.2, width = 0.2
+        alpha = 0.6, size = 0.3, width = 0.3
       ) +
-      geom_point() +
+      geom_point(size = 0.3) +
       # geom_line(aes(winterofyear, ma5yr), size = 0.2) +
       geom_line(size = 0.2) +
       ## helcom target value
