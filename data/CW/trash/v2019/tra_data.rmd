@@ -31,7 +31,7 @@ tab <- t(data.frame(
   c("Seafloor litter", "BITS (Baltic International Trawl Survey)", "Denmark (?)", "years"),
   c("Microplastics", "", "Finland", "years")))
 
-colnames(tab) <- c("Litter monitoring", "Method", "Lead country", "Years")
+colnames(tab) <- c("Litter monitoring", "Method", "Lead Country", "Years")
 rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [Blastic](https://www.sei.org/wp-content/uploads/2017/12/blastic-overview-of-available-monitoring-methods-final.pdf) <br/> [HELCOM Meeting notes](https://portal.helcom.fi/workspaces/MARINE%20LITTER-92/Beach%20litter%20pre%20core%20indicator/Memo%20on-line%20meeting%20HELCOM%20EN-ML_27_1_2020.pdf)Downloaded 18 May 2020 by Andrea De Cervo")
