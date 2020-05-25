@@ -78,9 +78,8 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 March 2020 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 March 2020 by Andrea De Cervo. Note: the maximum number of stations per download is 20000.")
 ```
-*The maximum number of stations per download is 20000*
 
 <br/>
 
@@ -99,9 +98,8 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo. Note: the maximum number of stations per download is 20000.")
 ```
-*The maximum number of stations per download is 20000*
 
 <br/>
 
@@ -117,9 +115,8 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo. Note: the maximum number of stations per download is 20000.")
 ```
-*The maximum number of stations per download is 20000*
 
 <br/>
 
@@ -160,21 +157,18 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/dataPortal/getStations) <br/> Downloaded 28 February 2020 by Ellie Campbell. See data.R/get_nest_data function for more detailed info.")
 ```
-<br/>
 
-Retrieving Baltic Nest Nutrients datasets:
-
-```{r using get_nest_data function to download winter nutrient data, eval = FALSE}
+```{r using get_nest_data function to download winter nutrient data, echo = TRUE, eval = FALSE}
+## Retrieving Baltic Nest Nutrients datasets:
 get_nest_data(
   date_range = c(20050101,20191231), 
   months = c(11,12,1:3), 
   param_codes = c("NO3N","NO2N","NO23N","NH4N","TOTN","PO4P")
 ) %>% readr::write_csv(file.path(dir_B, "Goals", "CW", "EUT", "NestData", "nestdata_winter_nutrients.csv"))
 ```
-<br/>
 
-Retrieve Baltic Nest Chlorophyll a datasets:
-```{r using get_nest_data function to download summer chlorophyll a data, eval = FALSE}
+```{r using get_nest_data function to download summer chlorophyll a data, echo = TRUE, eval = FALSE}
+## Retrieve Baltic Nest Chlorophyll a datasets:
 get_nest_data(
   date_range = c(20050101, 20191231), 
   months = 5:10, 
@@ -214,9 +208,8 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 April 2020 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 April 2020 by Andrea De Cervo. Note: the maximum number of stations per download is 20000")
 ```
-*The maximum number of stations per download is 20000*
 
 <br/>
 
@@ -224,7 +217,7 @@ knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydCh
 
 These basins are the relevant physical units.  
 
-Secchi data will be first assessed at this level and then assigned to BHI region. EEZ divisions may result in some BHI regions that have no data but they are physically the same basin as a BHI region with data. Also, the dataset `HELCOM Subbasins with coastal and offshore division 2018` will be used for Secchi as well as Chlorophyll a, DIN and DIP, to assign 'coastal' and 'offshore' locations.
+Secchi data will be first assessed at this level and then assigned to BHI region. EEZ divisions may result in some BHI regions that have no data but they are physically the same basin as a BHI region with data. The dataset `HELCOM Subbasins with coastal and offshore division 2018` will be used for Secchi as well as Chlorophyll a, DIN and DIP, to assign 'coastal' and 'offshore' locations.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -260,37 +253,7 @@ eut_thresholds <- read_csv(file.path(dir_prep, "prep", "CW", "eutrophication", "
 
 ### 2.2 Centralization & Normalization {-}
 
-#### 2.2.1 Spatial regions of the Data {-}
-
-**Create lookup tab for matching areas with bhi regions and helcom coastal codes.**
-
-May be multiple designations for the same areas, or intersections/overlap of different areas. To avoid double-counting, need to distinguish national/subnational data.
-
-**MAYBE DELETE IT???!!! **
-
-```{r to match areas with bhi regions, echo = TRUE, eval = FALSE}
-## Create an additional lookup table from the datasets used in the BHI 1.0
-## ('ices_secchi' and 'smhi_secchi')
-# ices_secchi <- "where is this??"
-# smhi_secchi <- "where is this??"
-basin_additional_lookup_table <- rbind(
-  ices_secchi %>%
-    select(-X1, -secchi, -Month, -Year, -Date, -Station, -Cruise),
-  # mutate(Station = str_replace(Station, "^0+", " "))
-  smhi_secchi %>%
-    select(-X1, -value, -Month, -Year, -Date, -unit, -Stationsnamn, -Provtagningstillfaelle.id) %>%
-    # rename(Station = Stationsnamn, Cruise = Provtagningstillfaelle.id) %>%
-    mutate("Assessment_unit" = " ")
-)
-readr::write_csv(
-  basin_additional_lookup_table,
-  file.path(dir_lookup, "basin_add_lookup_table.csv")
-)
-```
-
-<br>
-
-#### 2.2.2 Secchi Datasets {-}
+#### 2.2.1 Secchi Datasets {-}
 
 ```{r read raw secchi datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 ## read in secchi data
@@ -316,19 +279,17 @@ ICES data contains profile data (eg temperature, but secchi is only measured onc
 - Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
 - HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
 - Coastal data are later removed from the analysis  
-- This should result in a similar dataset (see map) used as Fleming-Lehtinen and Laamanen 2012  
 
 **Steps in Merging ICES and SMHI Secchi Datasets**
 
-1) Merge the additional basin lookup table to both datasets
-2) Check duplicates from each raw secchi datasets and distinct (both ices and smhi)
+1) Rename variables and subset datasets to be merged, so column names and data types align
+2) Check duplicates and select only distinct observations
 3) Combine SMHI and ICES data, identifying and eliminating overlaps
-4) Create a new Secchi dataset by only binding the new_smhi_unique object to ices_unique
-
-**ICES Secchi Data**
 
 ```{r cleaning secchi ices raw data, echo = TRUE, results = "hide", eval = FALSE}
-## ICES Data overview
+## ICES Secchi Data
+
+## overview
 # colnames(secchi_raw_ices)
 # str(secchi_raw_ices)
 
@@ -373,12 +334,11 @@ secchi_ices_unique <- ices_secchi %>%
   ## removed 'Assessment_unit'
   mutate(supplier = "ices") # nrow(ices_unique) 102881
 ```
-<br/>
-
-**SMHI secchi data**
 
 ```{r cleaning smhi secchi raw data, echo = TRUE, results = "hide"}
-## SMHI data overview
+## SMHI Secchi Data 
+
+## overview
 # colnames(secchi_raw_smhi)
 # str(secchi_raw_smhi)
 
@@ -489,11 +449,9 @@ secchi_smhi_unique <- secchi_smhi %>%
 # nrow(secchi_smhi)-nrow(secchi_smhi_unique)
 ```
 
-<br/>
-
-**Combined Secchi data**
-
 ```{r combine all secchi datasets, echo = TRUE, results = "hide", eval = FALSE}
+## Combined Secchi Data
+
 merge_secchi_datasets <- bind_rows(secchi_smhi_unique, secchi_ices_unique) %>% 
   ## prefer first ices, then smhi data where there are overlaps
   mutate(supplier_num = ifelse(supplier == "ices", 2, 1)) %>% 
@@ -517,7 +475,7 @@ secchi <- rename(merge_secchi_datasets, lat = latitude, lon = longitude, secchi_
 ```
 <br/>
 
-#### 2.2.4 Merging Oxygen Datasets {-}
+#### 2.2.2 Merging Oxygen Datasets {-}
 
 ```{r function to read raw oxygen datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 ## this will read in both the oxygen and CTD datasets from the OxygenDebt_ICES directory
@@ -684,7 +642,7 @@ readr::write_csv(
 )
 ```
 
-#### 2.2.4 Chlorophyll a Wrangling
+#### 2.2.3 Chlorophyll a Wrangling
 
 ```{r read raw smhi and nest chla datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 chla_raw_nest <- read.delim(file.path(dir_rawdata, "NestData", "nestdata_summer_chlorophyl.csv"), sep = ",")
@@ -694,14 +652,17 @@ chla_raw_smhi <- read.delim(file.path(dir_rawdata, "chla_rawdata_smhi.csv"), sep
 **Coastal data**  
 
 - Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
-- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
-- Coastal data are removed later from the analysis  
-- This should result in a similar dataset used as Fleming-Lehtinen and Laamanen 2012 (see map). 
+- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore. 
 
+**Steps in Merging ICES and SMHI Secchi Datasets**
 
-**Nest chlorophyll a data**
+1) Rename variables and subset datasets to be merged, so column names and data types align
+2) Check duplicates and select only distinct observations
+3) Combine Baltic Nest, SMHI and ICES data, identifying and eliminating overlaps
 
 ```{r cleaning chla nest raw data, results = "hide", message = FALSE, echo = TRUE}
+## Baltic Nest Chlorophyll a Data
+
 chla_nest <- chla_raw_nest %>% 
   rename(
     chla_ug_l = CHL,  
@@ -740,10 +701,10 @@ chla_nest_unique <- chla_nest %>%
 # nrow(chla_nest)-nrow(chla_nest_unique)
 ```
 
-**SMHI chlorophyll a data**
-
 ```{r cleaning chla smhi raw data, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
-## SMHI data overview
+## SMHI Chlorophyll a Data
+
+## overview
 # colnames(chla_raw_smhi)
 # str(chla_raw_smhi)
 
@@ -854,9 +815,10 @@ chla_smhi_unique <- chla_smhi %>%
 # nrow(chla_smhi)-nrow(chla_smhi_unique)
 ```
 
-**ICES Chlorophyll a data**
-
 ```{r cleaning chla ices raw datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+## ICES Chlorophyll a Data
+
+
 ## this will read in the chl a datasets from our Chla_ICES directory and bind them into one
 chla_raw_ices <- do.call(rbind, lapply(
   grep(list.files(file.path(dir_rawdata, "Chla_ICES"), recursive = TRUE), pattern = ".csv", value =  TRUE),
@@ -916,9 +878,9 @@ chla_ices_unique <- chla_ices %>%
 # nrow(chla_ices)-nrow(chla_ices_unique) # 22595
 ```
 
-**Combined Chlorophyll a data**
-
 ```{r combine all chla datasets, warning = FALSE, message = FALSE, echo = TRUE, results = "hide"}
+## Combined Chlorophyll a Data
+
 merge_chla_datasets <- bind_rows(chla_nest_unique, chla_smhi_unique, chla_ices_unique) %>% 
   filter(chla_ug_l >= 0) %>% 
   ## prefer first ices, then smhi, then nest data where there are overlaps
@@ -961,7 +923,7 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 ```{r chla raw datasets, results = "show", echo = TRUE, fig.height = 5, fig.width = 9.5}
 smhi_secchi_map <- basemap +
   geom_sf(
-    size = 0.8, alpha = 0.5,
+    size = 0.5, alpha = 0.3,
     mapping = aes(color = HELCOM.OSPAR.area), 
     data = sf::st_as_sf(
       filter(secchi_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM")), 
@@ -970,11 +932,11 @@ smhi_secchi_map <- basemap +
     )
   ) +
   labs(color = "Assessement Area") +
-  theme(legend.position = c(0.1, 0.9))
+  theme(legend.position = c(0.2, 0.85))
 
 smhi_chla_map <- basemap +
   geom_sf(
-    size = 0.8, alpha = 0.5,
+    size = 0.5, alpha = 0.3,
     mapping = aes(color = HELCOM.OSPAR.area), 
     data = sf::st_as_sf(
       filter(chla_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM")), 
@@ -983,7 +945,7 @@ smhi_chla_map <- basemap +
     )
   ) +
   labs(color = "Assessement Area") +
-  theme(legend.position = c(0.1, 0.9))
+  theme(legend.position = c(0.2, 0.85))
 
 gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1)
 ```
@@ -1010,21 +972,25 @@ plotdf <- ox_merged_w_rgns %>%
 
 oxplot <- ggplot(plotdf, aes(Oxygen, Depth, color = Year)) + 
   geom_point(alpha = 0.02, size = 0.3, show.legend = FALSE) +
-  facet_wrap(~Assessment_Unit, scales = "free_y")  +
+  facet_wrap(~Assessment_Unit, scales = "free_y", ncol = 3)  +
   labs(x = "Dissolved Oxygen (ml/l)", y = "Depth (m)") +
   scale_y_reverse() +
   scale_color_viridis_c(option = "plasma")
 
 ## timeseries plot
 oxtsplot <- ggplot(plotdf, aes(Date, Oxygen, color = Year)) + 
-  geom_point(size = 0.2, alpha = 0.02, show.legend = FALSE) +
+  geom_point(size = 0.1, alpha = 0.01, show.legend = FALSE) +
   facet_wrap(~Assessment_Unit, ncol = 3) +
-  labs(x = NULL, y = "Dissolved Oxygen (ml/l)") +
+  labs(x = NULL, y = "Dissolved Oxygen (ml/l)", title = "Breathing of the Baltic Sea!") +
   scale_color_viridis_c(option = "plasma")
 
-gridExtra::grid.arrange(oxmap, oxplot, nrow = 1, widths = c(1, 1.2))
+gridExtra::grid.arrange(
+  oxmap, oxplot, oxtsplot, 
+  layout_matrix = matrix(c(rep(c(1,1,1,2,2),3), rep(c(3,3,3,2,2),3)), ncol = 5, byrow = TRUE)
+)
 ```
-<br/>
+
+<br>
 
 #### 2.3.3 Comparing chl a data Sources
 
@@ -1032,10 +998,10 @@ gridExtra::grid.arrange(oxmap, oxplot, nrow = 1, widths = c(1, 1.2))
 pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(12)
 plotdf <- filter(merge_chla_datasets, chla_ug_l < 50, year %in% 2000:2019)
 
-ggplot(plotdf) + 
+ggplot(plotdf %>% mutate(supplier = stringr::str_to_upper(supplier))) + 
   geom_histogram(aes(chla_ug_l, fill = month), alpha = 0.8, bins = 80, size = 0.2) +
   facet_grid(rows = vars(supplier)) +
-  labs(x = "Chlorophyll a (ug/l)", y = NULL, fill = "Month") +
+  labs(x = "Chlorophyll a (ug/L)", y = NULL, fill = "Month") +
   scale_fill_manual(values = pal)+
   theme(legend.position = c(0.95, 0.3))
 ```
