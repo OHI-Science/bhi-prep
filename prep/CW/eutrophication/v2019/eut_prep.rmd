@@ -428,7 +428,6 @@ min_regr_length <- 5 # min actual number of years with data to use for regressio
 
 ```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 ## Calculate basin status as: basin_mean/basin_target, constraining values to 1 as maximum score
-## joining to basin lookup to expand from subbasins to one row per BHI region
 secchi_status_allyrs <- subbasin_target_secchi %>%
   filter(year >= min_year) %>% 
   rename(subbasin = Subbasin) %>%
@@ -445,6 +444,7 @@ secchi_status <- group_by(secchi_status_allyrs, subbasin)
 
 ## select last year of data for status in each basin or bhi region
 ## this means status year differs by basin!
+## joining to basin lookup expands from subbasins to one row per BHI region
 secchi_status <- secchi_status %>%
   filter(year == max(year)) %>%
   mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
@@ -977,7 +977,6 @@ ggplot(subbasin_target_chla) +
 
 ## Calculate basin status as: basin_target/basin_mean, constraining values to 1 as maximum score
 ## ratio inverted compared to secchi because levels of chl a above target are undesireable
-## joining to basin lookup to expand from subbasins to one row per BHI region
 chla_status_allyrs <- subbasin_target_chla %>%
   rename(subbasin = Subbasin) %>% 
   mutate(status = pmin(1, target_chla/mean_chla))
@@ -994,6 +993,7 @@ chla_status <- group_by(chla_status_allyrs, coastal, subbasin)
 # chla_status <- group_by(chla_status_allyrs, bhi_id)
 
 ## select last year of data for status in each basin, this means status year differs by basin
+## joining to basin lookup expands from subbasins to one row per BHI region
 chla_status <- chla_status %>% 
   filter(year == max(year)) %>% 
   mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
@@ -1469,7 +1469,6 @@ ggplot(subbasin_target_nut) +
   labs(x = "Mean Nutrient Concentrations", y = NULL)
 
 ## Calculate basin status as: basin_target/basin_mean, constraining values to 1 as maximum score
-## joining to basin lookup to expand from subbasins to one row per BHI region
 nut_status_allyrs <- subbasin_target_nut %>%
   rename(subbasin = Subbasin) %>% 
   mutate(status = pmin(1, target/nut_mean))
@@ -1486,6 +1485,7 @@ nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin)
 # nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin, bhi_id)
 
 ## select last year of data for status in each basin, this means status year differs by basin
+## joining to basin lookup expands from subbasins to one row per BHI region 
 nut_status <- nut_status %>% 
   filter(winterofyear == max(winterofyear)) %>% 
   mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
@@ -1691,15 +1691,101 @@ ggplot(rbind(nut_status, nut_trend) %>% mutate(indicator = stringr::str_to_upper
 
 <br>
 
-### 3.4 Anoxia Data
+### 3.4 Oxygen Debt {-}
 
 For details on data preparation for oxygen debt layer, see [this github repository](https://github.com/OHI-Baltic/HEAT), forked from ICE HEAT assessment tool for fitting oxygen debt profiles to oxygen data measurements. Oxygen data measurements used were obtained from ICE and merged as documented in section 2.2.4.
 
+```{r read in oxy debt data from HEAT repository, results = "hide", message = FALSE}
+heat_output <- "https://raw.githubusercontent.com/OHI-Baltic/HEAT/master/analysis/output/"
+oxydebt <- read_csv(paste0(heat_output,"OxygenDebt/uncorrected_indicator_table_by_year_2000_2019.csv"))
+```
+
+#### 3.4.1 Match BHI regions {-}
+
+```{r assign BHI regions to oxygen debt data, echo = TRUE, message = FALSE, warning = FALSE}
+oxydebt <- oxydebt %>% 
+  select(-AssessmentUnitID) %>% 
+  mutate(AssessmentUnitName = case_when(
+    AssessmentUnitName == "Gulf of Gdansk" ~ "Gdansk Basin",
+    str_detect(AssessmentUnitName, "land Sea") ~ "Aland Sea",
+    TRUE ~ AssessmentUnitName
+  )) %>% 
+  rename(subbasin = AssessmentUnitName, year = Year)
+
+## only Bornholm Basin and Baltic Proper have target values, the other subbasins are too shallow
+## also, the subbasins within Bornholm Basin and Baltic Proper have uniform values within each year...
+oxydebt_rgns <- oxydebt %>% 
+  left_join(basin_lookup) %>% 
+  left_join(select(eut_thresholds, subbasin = basin, oxydebt_target = oxyg_debt))
+```
+
 <br>
 
-## 4. Visualizing Data Layers
+#### 3.4.2 Status Calculaion {-}
 
-### 4.1 Status and Trend Maps by Subbasin
+```{r constants for eut oxy debt status and trend calculations, echo = TRUE}
+## Define constants for status and trend calculations
+min_year <- 2009 # earliest year to use as a start for regr_length timeseries
+regr_length <- 10 # number of years to use for regression
+future_year <- 5 # the year at which we want the likely future status
+min_regr_length <- 5 # min actual number of years with data to use for regression
+```
+
+```{r eut oxy debt status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+## Calculate basin status as: basin_mean/basin_target, constraining values to 1 as maximum score
+oxydebt_status_allyrs <- oxydebt_rgns %>%
+  filter(year >= min_year) %>% 
+  mutate(status = pmin(1, oxydebt_target/ES)) %>% 
+  group_by(subbasin)
+
+## select last year of data for status in each subbasin
+oxydebt_status <- oxydebt_status_allyrs %>%
+  filter(year == max(year)) %>%
+  ungroup() %>%
+  dplyr::select(score = status, subbasin, bhi_id, rgn_nam, HELCOM_ID) %>%
+  mutate(dimension = "status", indicator = "oxydebt") %>% 
+  mutate(region = as.factor(rgn_nam))
+
+## plot the status
+set.seed(2)
+statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
+
+ggplot(oxydebt_status) +
+  geom_col(
+    aes(region, score, fill = subbasin),
+    position = position_dodge(), 
+    color = "grey", 
+    alpha = 0.6,
+    size = 0.2,
+    show.legend = FALSE
+  ) + 
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 9)) +
+  scale_fill_manual(values = statuspal) +
+  scale_y_continuous(limits = c(0, 1)) +
+  ggtitle("Oxygen Debt Indicator Status by Region")
+```
+<br>
+
+#### 3.4.3 Trend Calculaion {-}
+
+#### 3.4.4 Status and Trend Timeseries Plots {-}
+
+**Basin status**
+
+Basin status is initially a value between 0 and 1. Calculated for each year between 2000 and 2019.
+
+**Plot region Status and Trend values**
+
+Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. Note: Kiel Bay trend for both DIN and DIP is based only on offshore data as coastal data were not sufficient to fit a trend.
+
+<br>
+
+## 4. Visualizing Data Layers {-}
+
+### 4.1 Status and Trend Maps by Subbasin {-}
 
 ```{r basemap and color palettes for eut status and trend maps}
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
@@ -1833,11 +1919,11 @@ gridExtra::grid.arrange(
 <br>
 
 
-## 5. Considerations for `BHI3.0`
+## 5. Considerations for `BHI3.0` {-}
 
 <br>
 
-## 6. References
+## 6. References {-}
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
