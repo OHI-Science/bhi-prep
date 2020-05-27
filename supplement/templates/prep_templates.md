@@ -73,7 +73,7 @@ output:
 loc <- here::here("prep", "GOAL", "SUBGOAL")
 
 source(here::here("R", "setup.R"))
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 
 bkgd_path <- here::here("supplement", "goal_summaries", "GOALCODE.Rmd")
 data_path <- here::here("data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
