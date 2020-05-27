@@ -1275,7 +1275,7 @@ basemap +
 expandcases <- tidyr::expand(nut_rgns, tidyr::nesting(Subbasin, BHI_ID, winterofyear, month, nutrient))
 plotdf <- nut_rgns %>% 
   full_join(expandcases) %>%
-  filter(!(is.na(Subbasin) & is.na(nutrient)), is.na(Subbasin)) %>% 
+  filter(!(is.na(Subbasin) & is.na(nutrient)), !is.na(Subbasin)) %>% 
   left_join(data.frame(month = c("12","01","02"), Month = c("Dec","Jan","Feb")))
 plotdf$Month <- factor(plotdf$Month, levels = c("Dec","Jan","Feb"))
 
