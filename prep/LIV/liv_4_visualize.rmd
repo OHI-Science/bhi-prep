@@ -1,0 +1,63 @@
+---
+title: "Livelihoods (LIV) Subgoal Data Preparation"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params: 
+    datasource: csv
+---
+
+```{r Preamble, include = FALSE}
+loc <- file.path(here::here(), "prep", "LIV")
+
+source(file.path(here::here(), "R", "common.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
+
+bkgd_path <- file.path(here::here(), "ref", "goal_summaries", "LIV.Rmd")
+data_path <- file.path(here::here(), "data", "LIV", assessment_yr, "LIV_data.rmd")
+refs_path <- file.path(loc, "LIV_references.Rmd")
+```
+
+## 1. Background
+
+```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 2. Data
+<!-- printing kable tables not working with this approach of 'child = data_path, results = "asis"' -->
+
+```{r Data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+
+### 3.1 Goal Model
+
+$$X_{LIV} = \frac{\left(RgnEmployRate / NatlEmployRate \right)_{c}}{\left(RgnEmployRate / NatlEmployRate \right)_{r}}$$
+
+- $c$ = current year
+- $r$ = reference year, the year region:country employment ratio was maximized within the past 5 years
+- Region is the BHI region:
+   - Each BHI region is composed by one or more NUTS2 regions.  
+   - NUTS2 employment percentage multiplied by the by population in the 25km inland buffer associated with a BHI region.  Sum across all associated with a BHI region to get the total employed people in the BHI region.
+   - Regional Employment rate = # of employment/regional population
+- For country data, we have employment rate data directly
+
+
+### 3.2 
+
+<br/>
+
+## 4. Visualizing Data Layers
+
+<br/>
+
+## 5. References
+
+```{r References, child = refs_path, results = "asis", echo = FALSE}
+```
