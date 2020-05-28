@@ -124,7 +124,7 @@ knitr::kable(tab)
 
 #### 3.1.1 Match BHI regions {-}
 
-The raw secchi data (consisting  of merged ICES and SMHI data) must be assigned to their respective Subbasins (with HELCOM Coastal/Offshore division codes) and BHI Regions based on their latitude/longitude coordinates. Then the data are subsetted to assure only summer months (June-September) and years 2000 onward are included.
+The raw Secchi data (consisting  of merged ICES and SMHI data) must be assigned to their respective Subbasins (with HELCOM Coastal/Offshore division codes) and BHI Regions based on their latitude/longitude coordinates. Then the data are subsetted to assure only summer months (June-September) and years 2000 onward are included.
 
 ```{r assign BHI regions to Secchi data, echo = TRUE, message = FALSE, warning = FALSE}
 ## before assigning bhi regions to secchi data, run this function first, to load required shapefiles:
@@ -164,7 +164,7 @@ secchi_rgns <- secchi_rgns_shp %>%
 
 **Remove coastal observations**
 
-For the secchi depth indicator, only offshore data points will be used. 
+For the Secchi depth indicator, only offshore data points will be used. 
 These are identified using [HELCOM Coastal and Offshore divisions (2018 version)](https://maps.helcom.fi/arcgis/rest/services/MADS/Sea_environmental_monitoring/MapServer/4).
 
 ```{r remove coastal data points, results = "hide", echo = TRUE, fig.width = 16, fig.height = 8}
@@ -221,7 +221,7 @@ dim(secchi_offshore) # 8015
 
 **Spatial Visualization of Secchi data**
 
-The four plots generated in this section show temporal trends in offshore secchi depth (right) and monthly distributions (left) by BHI regions (top) or subbasins (bottom), with data source indicated by color. Pink points correspond to ICES data, and turquoise points to SMHI data. 
+The four plots generated in this section show temporal trends in offshore Secchi depth (right) and monthly distributions (left) by BHI regions (top) or subbasins (bottom), with data source indicated by color. Pink points correspond to ICES data, and turquoise points to SMHI data. 
 
 ```{r secchi timeseries yearly and monthly, results = "show", echo = TRUE, fig.width = 11, fig.height = 15}
 plotdf <- left_join(
@@ -299,11 +299,11 @@ gridExtra::grid.arrange(
 
 <br/>
 
-#### 3.1.3 Mean secchi depth Calculation {-}
+#### 3.1.3 Mean Secchi depth Calculation {-}
 
-Mean secchi depths are calculated per basin or BHI region, using only offshore secchi depth measurements. Means are first calculated within each summer month, then those monthly means are averaged to get an overall summer mean. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region. This is presented as a standard deviation (square root of variance across months) on the plots below.
+Mean Secchi depths are calculated per basin or BHI region, using only offshore Secchi depth measurements. Means are first calculated within each summer month, then those monthly means are averaged to get an overall summer mean. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
-Along with the mean secchi calculation, we calculate a five-year moving average for each year in the dataset. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
+Along with the mean Secchi calculation, we calculate a five-year moving average for each year in the dataset. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
 
 ```{r calculate monthly mean secchi with target, results = "hide"}
 for(r in c("Subbasin", "BHI_ID")){
@@ -370,9 +370,9 @@ for(r in c("Subbasin", "BHI_ID")){
 
 <br>
 
-**Plot summer secchi with target values indicated**
+**Plot summer Secchi with target values indicated**
 
-The following shows yearly mean summer secchi depths in meters. Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3.
+The following shows yearly mean summer Secchi depths in meters. Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3.
 
 ```{r summer secchi with targets, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 10}
 ## adding onto/calling plots made in code chunk above
@@ -390,7 +390,7 @@ gridExtra::grid.arrange(
 
 #### 3.1.4 Status Calculation {-}
 
-**Explore data years to available for status calculation**
+**Explore years in data available for status calculation**
 
 Only five basins have data for 2019, which will be used as the status year, nine basins have data for 2018 and three basins for 2017 and for these basins, their most recent year's data is used for current status calculations.
 
@@ -412,11 +412,11 @@ knitr::kable(
 ```
 <br>
 
-**Status calculation with raw (non-modeled) mean summer secchi by basin** 
+**Status calculation with raw (non-modeled) mean summer Secchi by basin** 
 
-Status is calculated on the basin level and then applied to all regions. It is calculated here for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in `functions.R` of the relevant bhi repository assessment folder.
+Status is calculated on the basin level and then applied to all regions. It is calculated here for additional visualization and evaluation, but the final method of status calculation is also completed by the EUT function in `functions.R` of the relevant bhi repository assessment folder.
 
-Status for the secchi indicator is calculated as `basin summer mean` divided by `basin target`, with the value capped at 1. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the summer means calculation), and also indicates which data year the status is based on.
+Status for the Secchi indicator is calculated as `basin summer mean` divided by `basin target`, with the value capped at 1. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the summer means calculation), and also indicates which data year the status is based on.
 
 ```{r constants for eut secchi status and trend calculations, echo = TRUE}
 ## Define constants for status and trend calculations
@@ -481,9 +481,9 @@ ggplot(secchi_status %>% left_join(secchi_last_year, by = c("subbasin" = "Subbas
 
 #### 3.1.5 Trend Calculation {-}
 
-In our approach here, we use a 10 year period to calculate the trend with a minimum of 5 data points. In most cases, the BHI framework uses a 5 year period for the trend, but as secchi is a slow response variable, we use a longer time period. The trend value is the slope of the linear regression (mean offshore summer secchi depth vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
+In our approach here, we use a 10 year period to calculate the trend with a minimum of 5 data points. In most cases, the BHI framework uses a 5 year period for the trend, but as Secchi is a slow response variable, we use a longer time period. The trend value is the slope of the linear regression (mean offshore summer Secchi depth vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
 
-The trend plots show secchi depth measurements by basin, with a red line indicating where the linear model predicts mean secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
+The trend plots show Secchi depth measurements by basin, with a red line indicating where the linear model predicts mean Secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the 5-year time frame over which trend is projected.
 
 ```{r eut secchi indicator trend calculation, results = "hide", echo = TRUE, fig.width = 9.5}
 trendyrs <- min_year:(min_year + regr_length)
@@ -834,7 +834,7 @@ gridExtra::grid.arrange(
 
 <br>
 
-#### 3.2.3 Mean Chllorophyl a Calculation
+#### 3.2.3 Mean Chlorophyll a Calculation
 
 _Chlorophyll a_ concentration averages are calculated per basin or BHI region, using coastal and offshore measurements in separate categories. Means are calculated for each coastal and offshore categories, first within each summer month. Then monthly means are averaged to get an overall summer mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
@@ -930,7 +930,7 @@ chla_meansplot_subbasin + ggtitle("Mean Summer Chlorophyll a (June-Sept) against
 
 #### 3.2.3 Status Calculations: Coastal & Offshore {-}
 
-**Explore data years available for status calculation**
+**Explore years in data available for status calculation**
 
 Only two basins have data for 2019, which will be used as the status year, while thirteen have data for 2018 and two for 2016. For these basins, their most recent year's data is used for current status calculations
 
@@ -1038,7 +1038,7 @@ In our approach here, we use a 10 year period to calculate the trend with a mini
 
 The linear regressions look very different when combining offshore and coastal categories of data, e.g. for Western Gotland both offshore and coastal categories separately have slight positive trends (increasing chlorophyll a), but a linear regression using both offshore/coastal combined would have a negative trend (decreasing chlorophyll a). For this reason the _chlorophyll a_ indicator trend dimension is calculated as an average of trend scores calculated for coastal and offshore chlorophyll a.
 
-The trend plots show chlorophyll measurements by basin, with a red line indicating where the linear model predicts mean secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
+The trend plots show chlorophyll measurements by basin, with a red line indicating where the linear model predicts mean Secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
 
 ```{r eut chl a trend calculation, results = "show", warning = FALSE, fig.width = 9, fig.height = 10}
 trendyrs <- min_year:(min_year + regr_length)
@@ -1318,7 +1318,7 @@ gridExtra::grid.arrange(
 
 <br>
 
-#### 3.3.3 Mean Nutrients Calculations
+#### 3.3.3 Mean Nutrient Calculations
 
 Mean nutrient concentrations are calculated per basin or BHI region, using coastal and offshore measurements in separate categories. Means are calculated for each coastal and offshore categories, first within each winter month. Then monthly means are averaged to get an overall winter mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across winter months for the subbasin and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
@@ -1407,7 +1407,7 @@ dip_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Phosphorus (De
 
 #### 3.3.4 Status Calculaions: Coastal and Offshore {-}
 
-**Explore data years available for status calculation**
+**Explore years in data available for status calculation**
 
 For both DIN and DIP, no basins have data for 2019, which is the assessment year; fifteen basins have data for 2018 and for two (Åland and Gulf of Riga) the most recent year is 2017. For each basin, the most recent year's data in that region is used for _current status_ calculations.
 
@@ -1545,7 +1545,7 @@ In our approach here, we use a 10 year period to calculate the trend with a mini
 
 We use the same approach as with the Chlorophyll indicator, calculating trend as an average of trend scores calculated for coastal and offshore DIN or DIP.
 
-The trend plots show (inorganic) nutrient measurements by basin, with a red line indicating where the linear model predicts mean secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
+The trend plots show (inorganic) nutrient measurements by basin, with a red line indicating where the linear model predicts mean Secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
 
 **Nutrients with 5 Years in Future and Current Estimates (Red and Blue lines Respectively)**
 

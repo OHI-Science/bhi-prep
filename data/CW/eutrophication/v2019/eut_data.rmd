@@ -8,14 +8,6 @@ dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
 ```
 
-For the Eutrophication sub-goal five indicators were included:
-
-- winter (December-February) dissolved inorganic nitrogen (DIN) concentrations in the surface layer (0 - 10 m depth)
-- winter (December-February) dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth)
-- summer (June-September) chlorophyll a concentration in the surface layer (0 - 10 m depth)
-- summer (June-September) Secchi depth
-- oxygen debt (hypoxic area below the halocline)
-
 
 ### 2.1 Datasets with Sources {-}
 <br/>
@@ -652,7 +644,7 @@ chla_raw_smhi <- read.delim(file.path(dir_rawdata, "chla_rawdata_smhi.csv"), sep
 **Coastal data**  
 
 - Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
-- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore. 
+- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the Chl _a_ sampling locations, all locations were flagged with a code indicating coastal or offshore. 
 
 **Steps in Merging ICES and SMHI Secchi Datasets**
 
@@ -918,75 +910,125 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
   theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) 
+
+## make larger discrete color palette
+pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(15)
 ```
 
 ```{r chla raw datasets, results = "show", echo = TRUE, fig.height = 5, fig.width = 9.5}
 smhi_secchi_map <- basemap +
   geom_sf(
-    size = 0.5, alpha = 0.3,
-    mapping = aes(color = HELCOM.OSPAR.area), 
+    mapping = aes(color = Sea.basin), 
     data = sf::st_as_sf(
-      filter(secchi_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM")), 
+      filter(secchi_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM"), str_detect(Sea.basin, "[0-9]")), 
       coords = c("Sample.longitude..DD.", "Sample.latitude..DD."), 
       crs = 4326
-    )
+    ),
+    size = 0.5, alpha = 0.3, show.legend = FALSE
   ) +
-  labs(color = "Assessement Area") +
-  theme(legend.position = c(0.2, 0.85))
+  labs(
+    color = "Sea Basin", 
+    title = "Secchi SMHI Data Measurement Locations"
+  ) +
+  # theme(legend.position = c(0.2, 0.7)) +
+  scale_color_manual(values = pal)
 
 smhi_chla_map <- basemap +
   geom_sf(
-    size = 0.5, alpha = 0.3,
-    mapping = aes(color = HELCOM.OSPAR.area), 
+    mapping = aes(color = Sea.basin), 
     data = sf::st_as_sf(
-      filter(chla_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM")), 
+      filter(chla_smhi_correctcols, HELCOM.OSPAR.area %in% c("HELCOM", "OSPAR/HELCOM"), str_detect(Sea.basin, "[0-9]")), 
       coords = c("Sample.longitude..DD.", "Sample.latitude..DD."), 
       crs = 4326
-    )
+    ),
+    size = 0.5, alpha = 0.3
   ) +
-  labs(color = "Assessement Area") +
-  theme(legend.position = c(0.2, 0.85))
+  labs(
+    color = "Sea Basin", 
+    title = "Chlorophyll a SMHI Data Measurement Locations"
+  ) +
+  # theme(legend.position = c(0.2, 0.7)) +
+  scale_color_manual(values = pal)
 
-gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1)
+gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1, widths = c(1, 1.4))
 ```
 <br>
 
 #### 2.3.2 Oxygen data
 
-```{r map showing oxygen datasets, results = "show", warning = FALSE, echo = TRUE, fig.height = 8, fig.width = 10}
+In the depth vs dissolved oxygen plots below, the lighter greens and yellow correspond to earlier years, and darker greens and purples represent more recent years.
+
+```{r map showing oxygen datasets, results = "show", message = FALSE, warning = FALSE, echo = TRUE, fig.height = 20, fig.width = 9.5}
 dir_interm <- here::here("data", "CW", "eutrophication", version_year, "intermediate")
 ox_merged_w_rgns <- readr::read_csv(file.path(dir_interm, "ox_merged_rawdata.csv"))
+ctd_merged_w_rgns <- readr::read_csv(file.path(dir_interm, "ctd_merged_rawdata.csv"))
 
-## quick map of measurements by subbasin for selected year
-plotsf <- ox_merged_w_rgns %>% 
+## quick maps of measurements by subbasin for selected year
+oxplotsf <- ox_merged_w_rgns %>% 
+  filter(Year == 2018, !is.na(Assessment_Unit)) %>% 
+  sf::st_as_sf(crs = 4326, coords = c("Longitude", "Latitude"))
+oxmap <- basemap + 
+  geom_sf(
+    data = oxplotsf, 
+    aes(color = Assessment_Unit), 
+    size = 0.4, alpha = 0.02
+  ) +
+  ggtitle("Dissolved Oxygen Bottle\nMeasurement Locations") +
+  scale_color_manual(values = pal)
+
+ctdplotsf <- ctd_merged_w_rgns %>% 
   filter(Year == 2018) %>% 
   sf::st_as_sf(crs = 4326, coords = c("Longitude", "Latitude"))
-oxmap <- basemap + geom_sf(data = plotsf, size = 0.8, alpha = 0.02)
+ctdmap <- basemap + 
+  geom_sf(
+    data = ctdplotsf, 
+    aes(color = Assessment_Unit), 
+    size = 0.4, alpha = 0.02, show.legend = FALSE
+  ) +
+  ggtitle("Dissolved Oxygen CTD \nMeasurement Locations") +
+  scale_color_manual(values = pal)
 
 ## plot by subbasins
-plotdf <- ox_merged_w_rgns %>% 
+oxplotdf <- ox_merged_w_rgns %>% 
   filter(!is.na(Assessment_Unit)) %>% 
-  # group_by(Assessment_Unit) %>% 
-  # sample_n(6000) %>% 
+  group_by(Assessment_Unit) %>%
+  sample_n(3000) %>%
+  mutate(Date = as.Date(paste(Year, Month, Day, sep = "-")))
+ctdplotdf <- ctd_merged_w_rgns %>% 
+  filter(!is.na(Assessment_Unit)) %>% 
+  group_by(Assessment_Unit) %>%
+  sample_n(2000) %>%
   mutate(Date = as.Date(paste(Year, Month, Day, sep = "-")))
 
-oxplot <- ggplot(plotdf, aes(Oxygen, Depth, color = Year)) + 
-  geom_point(alpha = 0.02, size = 0.3, show.legend = FALSE) +
+oxplot <- ggplot(oxplotdf, aes(Oxygen, Depth, color = Year)) + 
+  geom_point(alpha = 0.02, size = 0.7, show.legend = FALSE) +
   facet_wrap(~Assessment_Unit, scales = "free_y", ncol = 3)  +
   labs(x = "Dissolved Oxygen (ml/l)", y = "Depth (m)") +
   scale_y_reverse() +
-  scale_color_viridis_c(option = "plasma")
+  scale_color_viridis_c(direction = -1)
+ctdplot <- ggplot(ctdplotdf, aes(Oxygen, Depth, color = Year)) + 
+  geom_point(alpha = 0.02, size = 0.7, show.legend = FALSE) +
+  facet_wrap(~Assessment_Unit, scales = "free_y", ncol = 3)  +
+  labs(x = "Dissolved Oxygen (ml/l)", y = "Depth (m)") +
+  scale_y_reverse() +
+  scale_color_viridis_c(direction = -1)
 
 ## timeseries plot
-oxtsplot <- ggplot(plotdf, aes(Date, Oxygen, color = Year)) + 
-  geom_point(size = 0.1, alpha = 0.01, show.legend = FALSE) +
+tsplotdf <- rbind(
+  mutate(oxplotdf, measure_type = "Bottle") %>% select(-Bot_Depth, -Station),
+  mutate(ctdplotdf, measure_type = "CTD")
+)
+oxtsplot <- ggplot(tsplotdf, aes(Date, Oxygen, color = measure_type)) + 
+  geom_point(size = 0.1, alpha = 0.05, show.legend = FALSE) +
   facet_wrap(~Assessment_Unit, ncol = 3) +
-  labs(x = NULL, y = "Dissolved Oxygen (ml/l)", title = "Breathing of the Baltic Sea!") +
-  scale_color_viridis_c(option = "plasma")
+  labs(x = "Year", y = "Dissolved Oxygen (ml/l, Bottle data in pink and CTD data in Blue)")
+
+
+gridExtra::grid.arrange(oxmap, ctdmap, nrow = 1, widths = c(1, 1.4))
 
 gridExtra::grid.arrange(
-  oxmap, oxplot, oxtsplot, 
-  layout_matrix = matrix(c(rep(c(1,1,1,2,2),3), rep(c(3,3,3,2,2),3)), ncol = 5, byrow = TRUE)
+  oxplot, ctdplot, oxtsplot,
+  layout_matrix = matrix(c(1,2,3,3), ncol = 2, byrow = TRUE)
 )
 ```
 
@@ -995,7 +1037,6 @@ gridExtra::grid.arrange(
 #### 2.3.3 Comparing chl a data Sources
 
 ```{r chlorophyl a data source histograms, results = "show", fig.width = 9.5, fig.height = 6}
-pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(12)
 plotdf <- filter(merge_chla_datasets, chla_ug_l < 50, year %in% 2000:2019)
 
 ggplot(plotdf %>% mutate(supplier = stringr::str_to_upper(supplier))) + 
