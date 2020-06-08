@@ -44,6 +44,13 @@ offshore_codes <- offshore_codes %>%
   rename(Subbasin = level_2, helcom_coastal_code = coastal) %>% 
   select(-level_3, -country)  
 
+## import coastal helcom codes, used for Chlorophyll a
+coastal_codes <- sf::st_read(file.path(
+  dir_B, "Goals", "CW", "EUT", 
+  "HELCOM_subbasins_with_coastal_WFD_waterbodies_or_watertypes_2018",
+  "HELCOM_subbasins_with_coastal_WFD_waterbodies_or_watertypes_2018.shp"
+))
+
 basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
   read_csv() %>%
   select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
