@@ -224,6 +224,21 @@ knitr::kable(tab, caption = "Source: [HELCOM](http://metadata.helcom.fi/geonetwo
 
 <br/>
 
+In addition to this, the dataset `HELCOM subbasins with coastal WFD water bodies or water types 2018` will be used for Chlorophyll a, to assign 'coastal' locations.
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("HELCOM Map and Data service:", "Monitoring"), 
+  c("Assessment units:", "HELCOM subbasins with coastal WFD water bodies or water types 2018")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/67d653b1-aad1-4af4-920e-0683af3c4a48) <br/> Downloaded 8 June 2020 by Andrea De Cervo")
+```
+
+<br/>
+
 #### 2.1.5 Reference Values {-}
 
 The threshold values have been agreed on by HELCOM and by Heads of Delegation (HOD) and the applied threshold values for core and pre-core indicators in the HELCOM open sea assessment units are presented in the [Baltic Sea Environment Proceedings no.156](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2019/09/BSEP156-Eutrophication.pdf) (p.10, Table 2).
@@ -240,6 +255,38 @@ The threshold values have been agreed on by HELCOM and by Heads of Delegation (H
 ## summer_chla = Chla.._g.l.1., summer_secchi = Water.clarity..m. 
 
 eut_thresholds <- read_csv(file.path(dir_prep, "prep", "CW", "eutrophication", "eut_threshold_values.csv"))
+```
+<br/>
+
+##### 2.1.5.1 Coastal Chlorophyll a Reference Values {-}
+
+The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Chlorophyll-a-HELCOM-core-indicator-2018.pdf) (p.5-10, Results Table 2).
+
+```{r review reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+
+chla_coastal_thresholds <- read_csv(file.path(dir_rawdata, "chla_coastal_thresholds.csv"))
+```
+<br/>
+
+
+##### 2.1.5.2 Coastal DIN Reference Values {-}
+
+The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) (p.7-8, Results Table 2).
+
+```{r review reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+
+din_coastal_thresholds <- read_csv(file.path(dir_rawdata, "din_coastal_thresholds.csv"))
+```
+<br/>
+
+
+##### 2.1.5.2 Coastal DIP Reference Values {-}
+
+The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-phosphorus-DIP-HELCOM-core-indicator-2018.pdf) (p.6-7, Results Table 2).
+
+```{r review reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+
+dip_coastal_thresholds <- read_csv(file.path(dir_rawdata, "dip_coastal_thresholds.csv"))
 ```
 <br/>
 
