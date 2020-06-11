@@ -111,10 +111,14 @@ nutrients_rawdata <- read_csv(file.path(dir_rawdata, "NestData", "nestdata_winte
 ## winter_DIN = DIN.._mol.l.1., winter_DIP = DIP.._mol.l.1.,
 ## summer_chla = Chla.._g.l.1., summer_secchi = Water.clarity..m. 
 eut_thresholds <- read_csv(file.path(loc, "eut_threshold_values.csv"))
+
+chla_coastal_thresholds <- read_csv(file.path(loc, "chla_coastal_thresholds.csv"))
+din_coastal_thresholds <- read_csv(file.path(loc, "din_coastal_thresholds.csv"))
+dip_coastal_thresholds <- read_csv(file.path(loc, "dip_coastal_thresholds.csv"))
 ```
 <br/>
 
-**The basin-specific thresholds used in calculating the five Eutrophication indicators**
+**The basin-specific offshore thresholds used in calculating the five Eutrophication indicators**
 
 ```{r eutrophication thresholds, results = "show", fig.width = 9.5}
 tab <- eut_thresholds
@@ -124,6 +128,37 @@ newnames <- colnames(tab) %>%
   str_replace("D[a-z]{2}$", str_to_upper(str_extract(., "D[a-z]{2}$")))
 colnames(tab) <- newnames
 knitr::kable(tab)
+```
+<br>
+
+**The basin-specific coastal thresholds used**
+
+Since only [Latvia, Poland, and Sweden have threshold values](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) for dissoved inorganic nutrients, we only assess offshore components for these indicators, despite the significant impact of coastal nutrients on overall Baltic Health. Nutrient inflows, however, are accounted for elsewhere in the index as pressures e.g. on Biodiversity. 
+
+Both offshore and coastal data are included in calculation of the Chlorophyll a indicator, with different and respective offshore and coastal threshold values. 
+
+```{r eutrophication thresholds, results = "show", fig.width = 9.5}
+tab <- chla_coastal_thresholds %>% 
+  rename(summer_chla = threshold, summer_chla_units = units) %>% 
+  full_join(
+    din_coastal_thresholds %>% 
+      rename(winter_DIN = threshold, winter_DIN_units = units) ,
+    by = "code"
+  ) %>% 
+  full_join(
+    dip_coastal_thresholds %>% 
+      rename(winter_DIP = threshold, winter_DIP_units = units),
+    by = "code"
+  )
+# newnames <- colnames(tab) %>% 
+#   str_replace_all("_", " ") %>% 
+#   str_to_title() %>% 
+#   str_replace("D[a-z]{2}$", str_to_upper(str_extract(., "D[a-z]{2}$"))) %>% 
+#   str_replace("D[a-z]{2} Units$", paste(str_to_upper(str_extract(., "D[a-z]{2}")), "Units"))
+# colnames(tab) <- newnames
+# knitr::kable(tab)
+
+## only have coastal nutrient thresholds for Latvia, Poland, Sweden..
 ```
 <br>
 
@@ -611,8 +646,19 @@ chla_rgns_w_offshore_code <- chla_rawdata %>%
     remove = FALSE
   ) %>%  
   sf::st_join(sf::st_transform(offshore_codes, 4326)) %>% 
+  select(-HELCOM_ID, -Subbasin)
+
+## spatial join also the WFD water bodies
+chla_rgns_w_offshore_code <- chla_rgns_w_offshore_code %>% 
+  sf::st_join(
+    coastal_codes %>% 
+      sf::st_transform(4326) %>% 
+      rename(area_km2_wfd = Area_km2, code = HELCOM_ID) %>% 
+      select(area_km2_wfd, code)
+  ) %>% 
   sf::st_drop_geometry() %>% 
-  select(-Subbasin, -HELCOM_ID)
+  filter(!is.na(lat) & !is.na(lon))
+  
 
 ## assign bhi basins to chla data 
 chla_rgns_shp <- join_rgns_info(
@@ -629,6 +675,15 @@ chla_rgns <- chla_rgns_shp %>%
   filter(year >= 2000) %>% 
   mutate(supplier = stringr::str_to_upper(supplier)) %>% 
   mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore"))
+
+## Gdansk and The Quark have only coastal, no offshore data points
+distinct(chla_rgns, Subbasin, HELCOM_ID, coastal) %>% 
+  group_by(HELCOM_ID) %>% 
+  mutate(n = n()) %>% 
+  arrange(n, Subbasin)
+
+## not all coastal regions have data...
+setdiff(levels(coastal_codes$HELCOM_ID), as.character(unique(chla_rgns$code)))
 ```
 
 <br>
