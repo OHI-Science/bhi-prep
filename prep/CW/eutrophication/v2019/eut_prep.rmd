@@ -694,102 +694,142 @@ For the chlorophyll a indicator, coasta and offshore data points will be used.
 
 These are distinguished using [HELCOM Coastal and Offshore divisions (2018 version)](https://maps.helcom.fi/arcgis/rest/services/MADS/Sea_environmental_monitoring/MapServer/4).
 
-```{r remove coastal data points from chla dataset, results = "hide", echo = TRUE}
-dim(chla_rgns) # 38386
+```{r basemap to be used in spatial plotting, echo = TRUE}
+## make basemap
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+```
 
-## Do any observations have NA for coast_code
-chla_rgns %>% 
-  filter(is.na(helcom_coastal_code) & is.na(BHI_ID)) %>% 
-  dim() # 9658
+```{r check chla data spatial info, results = "hide"}
+nrow(chla_rgns) # 38386
 
-chla_rgns %>% 
-  filter(is.na(helcom_coastal_code) & !is.na(BHI_ID)) %>% 
-  dim() # 23636
-
-## observations with no coast_code or BHI_ID
+## observations with no coast_code and no BHI_ID
+## distinct locations
 loc_no_coastcode_nobhi <- chla_rgns %>% 
   filter(is.na(helcom_coastal_code) & is.na(BHI_ID))%>%
   dplyr::select(lat, lon)%>%
   distinct() # 588
 
-## check locations
-# library(ggmap)
-# devtools::install_github("dkahle/ggmap") # CRAN version of ggmap is 
-# map <- get_map(location = c(8.5, 53, 32, 67.5))
-# no_coastal_or_bhi_id <- ggmap(map, darken = 0.08) +
-#   geom_point(
-#     aes(x = lon, y = lat), 
-#     data = loc_no_coastcode_nobhi, 
-#     size = 1.8, alpha = 0.2
-#   ) +
-#   labs(x = NULL, y = NULL)
 ## these locations are only coastal or outside of the Baltic Sea
+coastal_noid <- basemap +
+  geom_sf(
+    data = sf::st_as_sf(
+      loc_no_coastcode_nobhi, 
+      coords = c("lon", "lat"), 
+      crs = 4326
+    ),
+    size = 1.8, alpha = 0.2
+  )
 
-### observations with NA for the coast_code but have BHI_ID
-loc_no_coastcode_bhi <- chla_rgns %>% 
+## any coastal observations have NA for bhi id / how many with non-NA bhi id
+nrow(filter(chla_rgns, coastal == "Coastal" & is.na(BHI_ID))) # 9658
+nrow(filter(chla_rgns, coastal == "Coastal" & !is.na(BHI_ID))) # 23636
+
+
+## observations with NA for the coast_code but having BHI_ID
+## distinct locations
+loc_bhi_no_coastcode <- chla_rgns %>% 
   filter(is.na(helcom_coastal_code) & !is.na(BHI_ID)) %>% 
   dplyr::select(lat, lon) %>%
   distinct() # 1506
-# no_coastal_id <- ggmap(map, darken = 0.08) +
-#   geom_point(
-#     aes(x = lon, y = lat), 
-#     data = loc_no_coastcode_bhi, 
-#     size = 1.8, alpha = 0.2
-#   ) +
-#   labs(x = NULL, y = NULL)
-## seem all coastal stations
 
-## Filter data that are only offshore, coast_code == 0
-chla_offshore <- filter(chla_rgns, helcom_coastal_code == 0, !is.na(Subbasin))
-dim(chla_offshore) # 5087
-# chla_offshore_spatial <- ggmap(map, darken = 0.08) +
-#   geom_point(
-#     aes(x = lon, y = lat, colour = supplier), 
-#     data = chla_offshore,
-#     size = 1.8, alpha = 0.2
-#   ) +
-#   labs(x = NULL, y = NULL, colour = "Data Source") + 
-#   theme(legend.position = c(0.9, 0.1)) +
-#   scale_color_manual(values = c("tomato", "aquamarine2"))
-## This is a substantial reduction in the number of observations, especially in the northern Baltic 
+## no coastal code, all coastal stations
+coastal_with_id <- basemap +
+  geom_sf(
+    data = sf::st_as_sf(
+      loc_bhi_no_coastcode, 
+      coords = c("lon", "lat"), 
+      crs = 4326
+    ),
+    size = 1.8, alpha = 0.2
+  )
 
-## Check the difference with the complete dataset, including coast_code having NA
+## filter data that are only offshore, coast_code == 0 and having BHI_ID
+chla_offshore <- filter(chla_rgns, helcom_coastal_code == 0, !is.na(BHI_ID))
+nrow(chla_offshore) # 5087
+chla_offshore_spatial <- basemap +
+  geom_sf(
+    mapping = aes(colour = supplier),
+    data = sf::st_as_sf(
+      chla_offshore, 
+      coords = c("lon", "lat"), 
+      crs = 4326
+    ),
+    size = 1.8, alpha = 0.2
+  ) +
+  labs(x = NULL, y = NULL, colour = "Data Source") +
+  theme(legend.position = c(0.9, 0.1)) +
+  scale_color_manual(values = c("tomato", "aquamarine2"))
+## taking only offshore data is a substantial reduction in the number of observations, 
+## especially in the northern Baltic 
+
+
+## Check coastal observations
 chla_coastal <- filter(chla_rgns, is.na(helcom_coastal_code) & !is.na(BHI_ID))
-dim(chla_coastal) # 23636
-# chla_coast_spatial <- ggmap(map, darken = 0.08) +
-#   geom_point(
-#     aes(x = lon, y = lat, colour = supplier), 
-#     data = chla_coastal,
-#     size = 1.8, alpha = 0.2
-#   ) +
-#   labs(x = NULL, y = NULL, colour = "Data Source") + 
-#   theme(legend.position = c(0.9, 0.1)) +
-#   scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
+nrow(chla_coastal) # 23636
+chla_coast_spatial <- basemap +
+  geom_sf(
+    mapping = aes(colour = supplier),
+    data = sf::st_as_sf(
+      chla_coastal, 
+      coords = c("lon", "lat"), 
+      crs = 4326
+    ),
+    size = 1.8, alpha = 0.2
+  ) +
+  labs(x = NULL, y = NULL, colour = "Data Source") +
+  theme(legend.position = c(0.9, 0.1)) +
+  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
 
 ## Look at the complete dataset, including both coastal and offshore locations
 chla_whole <- filter(chla_rgns, !is.na(BHI_ID))
-dim(chla_whole) # 28723
-## looks like there are some offshore locations in the Danish basins
-# chla_whole_spatial <- ggmap(map, darken = 0.08) +
-#   geom_point(
-#     aes(x = lon, y = lat, colour = supplier), 
-#     data = chla_whole, 
-#     size = 1.8, alpha = 0.2
-#   ) +
-#   labs(x = NULL, y = NULL, colour = "Data Source") + 
-#   theme(legend.position = c(0.9, 0.1)) +
-#   scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
+nrow(chla_whole) # 28723
+
+plot_chla_whole <- sf::st_as_sf(
+  mutate(chla_whole, code_na = is.na(code)),
+  coords = c("lon", "lat"), 
+  crs = 4326
+)
+pal <- colorRampPalette(RColorBrewer::brewer.pal(12, "Set3"))(257)[sample(1:257)]
+chla_whole_spatial_codeareas <- basemap +
+  geom_sf(
+    mapping = aes(fill = Name),
+    data = rmapshaper::ms_simplify(input = coastal_codes) %>% sf::st_as_sf(),
+    alpha = 0.7, color = "snow", size = 0.05,
+    show.legend = FALSE
+  ) +
+  geom_sf(
+    mapping = aes(shape = code_na),
+    data = filter(plot_chla_whole, code_na),
+    size = 4, shape = 3,
+    show.legend = FALSE
+  ) +
+  scale_fill_manual(values = pal)
+## missing codes for a few points in the inner coastal areas
+## estuarine areas near Göteborg, Västervik, Rostock, Haapsalu, Luleå
+
+chla_whole_spatial <- basemap +
+  geom_sf(
+    mapping = aes(colour = supplier),
+    data = plot_chla_whole,
+    size = 1.8, alpha = 0.2
+  ) +
+  labs(x = NULL, y = NULL, colour = "Data Source") +
+  theme(legend.position = c(0.9, 0.1)) +
+  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
 ```
 
-```{r chla offshore coastal data maps, results = "show", echo = FALSE, fig.width = 15, fig.height = 5}
-# gridExtra::grid.arrange(
-#   no_coastal_or_bhi_id, 
-#   no_coastal_id, 
-#   chla_whole_spatial,
-#   chla_offshore_spatial, 
-#   chla_coast_spatial, 
-#   nrow = 1
-# )
+```{r chla offshore coastal data maps, results = "show", echo = FALSE, fig.width = 12, fig.height = 5}
+gridExtra::grid.arrange(
+  chla_offshore_spatial + ggtitle("Offshore Chl a. Data"), 
+  chla_coast_spatial + ggtitle("Coastal Chl a. Data"), 
+  chla_whole_spatial + ggtitle("All Chl a. Data"),
+  chla_whole_spatial_codeareas + ggtitle("Chl a. Data missing Coastal Code, overlying WFD regions"),
+  nrow = 1
+)
 ```
 
 <br/>
@@ -1307,13 +1347,6 @@ nut_rgns <- nut_rgns %>%
 The map shows locations of offshore (pink) and coastal (green) measurments. The two plots show temporal trends in offshore and coastal nutrients (right) and monthly distributions (left) by subbasins. Pink points correspond to offshore data, and green points to coastal data in both the map and the plots. 
 
 ```{r eut nutrients map of raw data points, results = "show", fig.width = 9, fig.height = 6}
-## make basemap
-basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
-  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
-  scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
-
 bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 
 nutrients_obs_mapdf <- nut_rgns %>% 
@@ -1849,13 +1882,7 @@ Status values can range from 0-100 -- this is the status for the *most recent* y
 
 ### 4.1 Status and Trend Maps by Subbasin {-}
 
-```{r basemap and color palettes for eut status and trend maps}
-basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
-  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
-  scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
-
+```{r color palettes for eut status and trend maps}
 statusmapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 trendmapcols <- c("indianred", "coral", "white", "lightblue", "steelblue")
 ```
