@@ -978,79 +978,83 @@ _Chlorophyll a_ concentration averages are calculated per basin or BHI region, u
 Along with the mean calculation, we calculate five-year moving averages. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
 
 ```{r calculate monthly and summer mean chl a with target, results = "hide"}
-for(r in c("Subbasin", "BHI_ID")){
-  
-  ## Calculate mean monthly value for each summer month
-  ## For coastal and offshore separately and then combine in a later step
-  chla_monthly_means <- chla_whole %>% 
-    group_by(year, month, coastal, Subbasin, !!!syms(r)) %>%
-    summarise(
-      mean_chla = mean(chla_ug_l, na.rm = TRUE),
-      chla_sd = sd(chla_ug_l, na.rm = TRUE),
-      n_pts = n()
-    ) %>% 
-    mutate(chla_sd = ifelse(is.na(chla_sd), 0, chla_sd))
-  
-  ## Calculate summer mean chl a
-  ## each year will have two means, coastal and offshore
-  ## https://stats.stackexchange.com/questions/25848/how-to-sum-a-standard-deviation
-  chla_summer_months_mean <- chla_monthly_means %>% 
-    group_by(year, coastal, Subbasin, !!!syms(r)) %>%
-    summarise(
-      mean_chla = mean(mean_chla, na.rm = TRUE), 
-      chla_sd = sqrt(mean((chla_sd^2), na.rm = TRUE)),
-      n_pts = sum(n_pts)
-    )
-  
-  ## take averages of offshore and coastal means and standard deviations
-  ## calculate min and max, and rolling 5 year mean
-  ## bind to coastal and offshore rows
-  chla_summer_months_mean <- chla_summer_months_mean %>% 
-    group_by(Subbasin, year, !!!syms(r)) %>% 
-    summarize(
-      mean_chla = mean(mean_chla, na.rm = TRUE),
-      chla_sd = sqrt(mean((chla_sd^2), na.rm = TRUE)),
-      n_pts = sum(n_pts)
-    ) %>% 
-    mutate(coastal = "Both Combined") %>% 
-    ungroup() %>% 
-    bind_rows(chla_summer_months_mean) %>% 
-    arrange(!!!syms(r), coastal, year) %>% 
-    group_by(!!!syms(r), coastal) %>%
-    mutate(ma5yr = zoo::rollapply(mean_chla, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
-    mutate(chla_min = mean_chla-chla_sd, chla_max = mean_chla+chla_sd)
-  
+## Calculate mean monthly value for each summer month
+## For coastal and offshore separately and then combine in a later step
+chla_monthly_means <- chla_whole %>% 
+  filter(!is.na(code)) %>% 
+  group_by(year, month, coastal, Subbasin, code, area_km2_wfd) %>%
+  summarise(
+    mean_chla = mean(chla_ug_l, na.rm = TRUE),
+    chla_sd = sd(chla_ug_l, na.rm = TRUE),
+    n_pts = n()
+  ) %>% 
+  mutate(chla_sd = ifelse(is.na(chla_sd), 0, chla_sd))
+
+## Calculate summer mean chl a
+## each year will have two means, coastal and offshore
+## https://stats.stackexchange.com/questions/25848/how-to-sum-a-standard-deviation
+chla_summer_months_mean <- chla_monthly_means %>% 
+  group_by(year, coastal, Subbasin, code, area_km2_wfd) %>%
+  summarise(
+    mean_chla = mean(mean_chla, na.rm = TRUE), 
+    chla_sd = sqrt(mean((chla_sd^2), na.rm = TRUE)),
+    n_pts = sum(n_pts)
+  ) %>% 
+  ungroup() %>% 
+  mutate(code = as.character(code))
+
+## take averages of offshore and coastal means and standard deviations
+## calculate min and max, and rolling 5 year mean
+## bind to coastal and offshore rows
+chla_summer_months_mean <- chla_summer_months_mean %>% 
+  group_by(Subbasin, year) %>% 
+  summarize(
+    mean_chla = weighted.mean(mean_chla, area_km2_wfd, na.rm = TRUE),
+    chla_sd = sqrt(weighted.mean((chla_sd^2), area_km2_wfd, na.rm = TRUE)),
+    n_pts = sum(n_pts)
+  ) %>% 
+  mutate(coastal = "All Combined", code = "Combined") %>% 
+  ungroup() %>% 
+  bind_rows(chla_summer_months_mean) %>% 
+  arrange(code, coastal, year) %>% 
+  group_by(code, Subbasin, coastal) %>%
+  mutate(ma5yr = zoo::rollapply(mean_chla, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+  mutate(chla_min = mean_chla-chla_sd, chla_max = mean_chla+chla_sd)
+
+
+## DIFFERENT TARGETS FOR COASTAL (WFD AREAS) AND OFFSHORE
+wfd_area_target_chla <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
+  read_csv() %>% 
+  select(basin = subbasin, code = helcom_id) %>% 
+  distinct() %>% 
+  left_join(eut_thresholds, by = "basin") %>% 
+  select(code, target_chla = summer_chla) %>% 
+  mutate(units = "ug_per_l") %>% 
+  bind_rows(rename(chla_coastal_thresholds, target_chla = threshold)) %>% 
   ## join with basin-specific eutrophication chlorophyll a targets
-  chla_summer_months_mean <- eut_thresholds %>% 
-    select(Subbasin = basin, target_chla = summer_chla) %>% 
-    ## REALLY SHOULD HAVE DIFFERENT TARGETS FOR OFFSHORE AND COASTAL...
-    right_join(chla_summer_months_mean, by = "Subbasin")
-  ## make subbasin_target_chla and bhi_id_target_chla dataframes
-  assign(paste0(str_to_lower(r), "_target_chla"), chla_summer_months_mean)
+  right_join(chla_summer_months_mean, by = "code")
   
-  ## Plot summer mean secchi
-  chla_meansplot <- ggplot(chla_summer_months_mean, aes(year, mean_chla, group = 1)) + 
-    geom_errorbar(
-      aes(x = year, ymin = chla_min, ymax = chla_max), 
-      alpha = 0.6, size = 0.3, width = 0.3
-    ) +
-    geom_point(size = 0.3) +
-    # geom_line(aes(year, ma5yr), size = 0.2) +
-    geom_line(size = 0.2) +
-    ## helcom target value
-    geom_line(aes(y = target_chla), colour = "tomato", size = 0.4) +
-    facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal), scales = "free_y") +
-    scale_y_continuous(limits = c(0, NA)) +
-    labs(x = NULL, y = "Chlorophyll a (ug/L)") +
-    theme(
-      axis.text.x = element_text(angle = 90, vjust = 0.5),
-      strip.text.y = element_text(size = 6)
-    ) +
-    ggtitle(sprintf("Mean Summer (June-Sept) Chlorophyll a by %s", r))
-  assign(paste0("chla_meansplot_", str_to_lower(r)), chla_meansplot)
-}
-## TO DO
-## There might be some outlier to check... 
+
+## Plot summer mean secchi
+chla_meansplot <- wfd_area_target_chla %>% 
+  filter(code != "Combined") %>% 
+  ggplot(aes(year, mean_chla, color = code)) +  
+  geom_errorbar(
+    aes(x = year, ymin = chla_min, ymax = chla_max), 
+    alpha = 0.6, size = 0.3, width = 0.3,
+    show.legend = FALSE
+  ) +
+  geom_point(size = 0.3, show.legend = FALSE) +
+  geom_line(aes(year, ma5yr), size = 0.2, show.legend = FALSE) + 
+  facet_wrap(~Subbasin, scales = "free") +
+  scale_y_continuous(limits = c(0, NA)) +
+  labs(x = NULL, y = "Chlorophyll a (ug/L)") +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    strip.text.y = element_text(size = 6)
+  ) +
+  # scale_color_manual(values = pal) +
+  theme_bw() 
 ```
 <br>
 
@@ -1058,8 +1062,8 @@ for(r in c("Subbasin", "BHI_ID")){
 
 The following plot shows yearly mean summer chlorophyll a concentrations (ug/l). Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3. With one row per subbasin, the three columns show Coastal, Offshore, and Combined summer mean chlorophyll a concentrations. 
 
-```{r summer chl a with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 14}
-chla_meansplot_subbasin + ggtitle("Mean Summer Chlorophyll a (June-Sept) against Target values")
+```{r summer chl a with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 8}
+chla_meansplot + ggtitle(sprintf("Mean Summer (June-Sept) Chlorophyll a by WFD Area, organized by Subbasin"))
 ```
 
 <br>
@@ -1073,17 +1077,11 @@ Only two basins have data for 2019, which will be used as the status year, while
 
 ```{r what is the last year for chla, results = "show"}
 ## get the last year of non-NA data
-chla_last_year <- subbasin_target_chla %>%
-  filter(!is.na(mean_chla), coastal == "Both Combined") %>%
-  group_by(Subbasin)%>%
+chla_last_year <- wfd_area_target_chla %>%
+  filter(!is.na(mean_chla), code != "Combined") %>%
+  group_by(code, Subbasin)%>%
   summarise(last_year = last(year))
 
-knitr::kable(
-  chla_last_year %>% 
-    group_by(last_year) %>%
-    summarize(`Num. subbasins with year` = n(), Subbasins = paste(Subbasin, collapse = ", ")) %>% 
-    rename(`Last Year` = last_year)
-)
 ## which are not in 2019
 # filter(chla_last_year, last_year < 2019)
 ```
