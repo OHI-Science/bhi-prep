@@ -682,8 +682,26 @@ distinct(chla_rgns, Subbasin, HELCOM_ID, coastal) %>%
   mutate(n = n()) %>% 
   arrange(n, Subbasin)
 
-## not all coastal regions have data...
-setdiff(levels(coastal_codes$HELCOM_ID), as.character(unique(chla_rgns$code)))
+## not all coastal regions have data... 76 of 257 do not have data
+length(levels(coastal_codes$HELCOM_ID))
+coastalareas_nodata <- setdiff(levels(coastal_codes$HELCOM_ID), as.character(unique(chla_rgns$code)))
+length(coastalareas_nodata)
+
+## 17 of 257 are offshore, 240 are coastal
+length(levels(coastal_codes$HELCOM_ID)[grep("SEA-[0-9]{3}", levels(coastal_codes$HELCOM_ID))])
+
+## 224 of the 240 coastal areas have corresponding chla coastal thresholds, 16 do not
+length(unique(chla_coastal_thresholds$code))
+coastal_nothresh <- setdiff(
+  levels(coastal_codes$HELCOM_ID)[grep("SEA-[0-9]{3}", levels(coastal_codes$HELCOM_ID), invert = TRUE)], 
+  unique(chla_coastal_thresholds$code)
+)
+
+## coastal areas with no data, but which do have threshold
+coastalareas_nodata[!coastalareas_nodata %in% coastal_nothresh]
+
+## coastal areas with data but no thresholds
+levels(coastal_codes$HELCOM_ID)[levels(coastal_codes$HELCOM_ID) %in% coastal_nothresh]
 ```
 
 <br>
@@ -704,6 +722,23 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 ```
 
 ```{r check chla data spatial info, results = "hide"}
+pal <- colorRampPalette(RColorBrewer::brewer.pal(12, "Set3"))(257)[sample(1:257)]
+coastal_simple <- rmapshaper::ms_simplify(input = coastal_codes) %>% sf::st_as_sf()
+## note: DEN-034, DEN-035, DEN-040 are eliminated by simplification of polygons for plotting
+## coastal_simple cannot be used for analysis; is only used for plotting
+
+## coastal regions which are not accounted for i.e. no data matched to these
+coastalareas_nodata_map <- basemap +
+  geom_sf(
+    mapping = aes(fill = Name),
+    data = filter(coastal_simple, HELCOM_ID %in% coastalareas_nodata),
+    color = "snow", size = 0.05,
+    show.legend = FALSE
+  ) +
+  scale_fill_manual(values = pal)
+
+
+## checking chla_rgns observations, coastal/offshore locations
 nrow(chla_rgns) # 38386
 
 ## observations with no coast_code and no BHI_ID
@@ -793,7 +828,7 @@ plot_chla_whole <- sf::st_as_sf(
   coords = c("lon", "lat"), 
   crs = 4326
 )
-pal <- colorRampPalette(RColorBrewer::brewer.pal(12, "Set3"))(257)[sample(1:257)]
+
 chla_whole_spatial_codeareas <- basemap +
   geom_sf(
     mapping = aes(fill = Name),
