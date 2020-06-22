@@ -1,5 +1,11 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
 
 ```{r eut data preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(here::here("R", "setup.R"))
 source(here::here("R", "data.R"))
 source(here::here("R", "spatial.R"))
 
@@ -18,37 +24,354 @@ For the BHI, the focus is on the **stock** sub-component and will use this as a 
 Two core indicators are included:
 
 - abundance of coastal fish key functional groups (CPUE of cyprinids/mesopredators and CPUE of piscivores)
+- abundance of key coastal fish species (CPUE of perch, cod or flounder, depending on the sub-basin)
 
-- abundance of key coastal fish species (CPUE of perch, cod or flounder)
-
-The status assessment protocol is found here.
 
 ### 2.1 Datasets with Sources {-}
 <br/>
 
+#### 2.1.1 Coastal fish Data {-}
+
+Data were received by Jens Olsson via email (18 March 2020). 
+Dare from monitoring locations (described in the HELCOM core indicators). Finnish data are fisheries data from ICES assessment regions (ICES 29-32).
+
+
+### 2.1.2 Reference values {-}
+
+Previously, indicator status was scored per monitoring area using the assessment protocol for coastal fish (baseline or trend-based approach) => yielding whether or not the status per monitoring area is **GES** or **subGES**. If a monitoring station received a "sub-GES" assessment, it was given a qualifier as "low" or "high".  
+Environmental status assessments provided by Jens Olsson (SLU). See [HELCOM FISH-PRO II](http://www.helcom.fi/helcom-at-work/projects/fish-pro/) now in progress for the [HELCOM FISH-PRO III](https://helcom.fi/helcom-at-work/projects/fish-pro-iii/) 
+
+Now, to match the [BEAT-tool as developed within HOLAS II](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2017/07/HELCOM_The_integrated_assessment_of_biodiversity_supplementary_report_first_version_2017.pdf), indicator status was normalized (0-1, where 0 = min value and 1 = max value; **threshold value = 0.6**). Threshold values for the status assessments are identified based on site-specific time-series data for each indicator. (Site specific values are used, as coastal fish generally have local population structures, limited migration, and show local responses to environmental change) _See also powerpoint provided by Jens Olsson of BHI shared folder_
+
+
 ### 2.2 Centralization & Normalization {-}
 
-```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
-## root location of the raw data
-dir_rawdata <- file.path(dir_B, "Goals", "GOAL/OR/SUBGOAL")
+#### 2.2.1 Coastal fish datasets {-}
+
+Since coastal fish data ('coastal_fish_data_2018.csv') are updated until 2018, but the latest status assessment (HOLAS II) only includes data until 2016, we have decided to use the data included in HOLAS II (until 2016) for this first BHI 2.0 calculations ('key_species_status.csv', 'piscivores_status.csv', 'cyprinids_status.csv'). Then, once the most updated data will be included into the next "intermediate" status assessment, we will also include the newest data.
+
+```{r load raw data, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+# library(readr)
+# load all raw data (containing the newest data)
+coastal_fish_raw <- read.csv(
+  file.path(dir_rawdata, "coastal_fish_data_2018.csv"), 
+  sep = ";")
+
+# key species status data (until 2016)
+key_species_status_raw <- read.csv(
+  file.path(dir_rawdata, "key_species_status.csv"),
+  sep = ";")
+
+# functional groups (piscivores and cyprinids) status data (until 2016)
+piscivores_status_raw <- read.csv(
+  file.path(dir_rawdata, "piscivores_status.csv"), 
+  sep = ";")
+
+cyprinids_status_raw <- read.csv(
+  file.path(dir_rawdata, "cyprinids_status.csv"), 
+  sep = ";")
 ```
 
-#### 2.2.1 Rename Fields/Variables {-}
+**Explore and clean coastal fish data for trend calculation**
+```{r cleaning coastal fish raw data, echo = TRUE, results = "hide", eval = FALSE}
+coastal_fish_cpue <- coastal_fish_raw %>% 
+  dplyr::rename(
+    monitoring_area = Area, 
+    coastal_water_type = Assessment.unit,
+    core_indicator = Indicator,
+    cpue = Value
+  ) %>% 
+   dplyr::mutate(
+      monitoring_area = str_replace(monitoring_area, "≈", "A"), ## need to clean the areas' names!
+      monitoring_area = str_replace(monitoring_area, "Area south of Zealand (SmÂlandsfarvandet)", "Area south of Zealand (Smalandsfarvandet)"),
+      monitoring_area = str_replace(monitoring_area, "Askˆ", "Asko"),
+      monitoring_area = str_replace(monitoring_area, "Gaviksfj‰rden", "Gaviksfjaerden"),
+      monitoring_area = str_replace(monitoring_area, "Holmˆn", "Holmoen"),
+      monitoring_area = str_replace(monitoring_area, "Kinnb‰cksfj‰rden", "Kinnbaecksfjaerden"),
+      monitoring_area = str_replace(monitoring_area, "RÂneÂ", "Ranea"),
+      monitoring_area = str_replace(monitoring_area, "LÂngvindsfj‰rden", "Langvindsfjaerden"),
+      monitoring_area = str_replace(monitoring_area, "Kv‰dˆfj‰rden", "Kvaedoefjaerden"),
+      monitoring_area = str_replace(monitoring_area, "LÂngvindsfj‰rden", "Langvindsfjaerden"),
+      monitoring_area = str_replace(monitoring_area, "Rectangle 23", "ICES SD 23"),
+      monitoring_area = str_replace(monitoring_area, "Rectangle 28", "ICES SD 28"),
+      monitoring_area = str_replace(monitoring_area, "PrÊst¯ Fiord", "Praestoe Fiord"),
+      Subbasin = str_replace(Subbasin, "≈", "A"),
+      Subbasin = str_replace(Subbasin, "Arkona basin", "Arkona Basin"),
+      Subbasin = str_replace(Subbasin, "Bornholm basin", "Bornholm Basin"),
+      cpue = str_replace(cpue, ",", "."),
+      cpue = str_replace(cpue, "-", ""),
+      cpue = as.numeric(cpue),
+      Taxa = if_else(
+        Species == "-", Functional.group, Species)) %>% 
+  select(-Species, -Functional.group)
+```
+<br>
 
-#### 2.2.2 Standardize Units {-}
+```{r save cleaned cpue data, echo = TRUE, eval = FALSE}
+readr::write_csv(
+  coastal_fish_cpue, 
+  here::here("data", "AO", version_year, "intermediate", "ao_cleaned_cpue.csv")
+)
+```
+<br>
 
-#### 2.2.3 Save to BHI Database {-}
 
-<br/>
+**Clean, explore and merge key species, cyprinids and piscivores status data**
+```{r merging coastal fish raw data, echo = TRUE, results = "hide", eval = FALSE}
+coastal_fish_status <- rbind(
+  key_species_status_raw %>% 
+    dplyr::rename(
+      Latitude = Coordinates,
+      Longitude = X,
+      Taxa = Identity.of.key.species,
+      Monitoring.area = Monitoring.location,
+      Subbasin = Sub.basin.name,
+      coastal_water_type = Coastal.area.name..assessment.unit.,
+      period = Time.period.assessed
+    ) %>% 
+    dplyr::mutate(
+      Latitude = str_replace(Latitude, ",", "."),
+      Latitude = str_replace(Latitude, "Area not point", ""),
+      Longitude = str_replace(Longitude, ",", "."),
+      ## assign lat-lon for ICES area to allow map plotting 
+      # (assign location in center of Finnish coasts for ICES areas (23,28,29-32)
+      Latitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 64.207281,
+                 ifelse(Monitoring.area == "Finnish ICES SD 30", 61.679815,
+                 ifelse(Monitoring.area == "Finnish ICES SD 29", 59.705518,
+                 ifelse(Monitoring.area == "Finnish ICES SD 32", 60.108130,
+                 ifelse(Monitoring.area == "Finnish ICES rect 23", 63.505817, 
+                 ifelse(Monitoring.area == "Finnish ICES rect 28", 63.505817, Latitude)))))),
+      Longitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 23.511161,
+                  ifelse(Monitoring.area == "Finnish ICES SD 30", 21.269112,
+                  ifelse(Monitoring.area == "Finnish ICES SD 29", 21.264879,
+                  ifelse(Monitoring.area == "Finnish ICES SD 32", 25.772410,
+                  ifelse(Monitoring.area == "Finnish ICES rect 23", 21.351243, 
+                  ifelse(Monitoring.area == "Finnish ICES rect 28", 21.351243, Longitude)))))),
+      Latitude = as.numeric(Latitude),
+      Longitude = as.numeric(Longitude),
+      Status.value.monitoring.location = str_replace(Status.value.monitoring.location, ",", "."),
+      Status.value.monitoring.location = as.numeric(Status.value.monitoring.location),
+      threshold_value = 0.6,
+      Taxa =  ifelse(is.na(Taxa), "key species", Taxa),
+      core_indicator = "key species"),
+  cyprinids_status_raw %>% 
+    dplyr::rename(
+      Latitude = Coordinates,
+      Longitude = X,
+      Taxa = Identity.of.indicator,
+      Monitoring.area = Monitoring.location,
+      Subbasin = Sub.basin.name,
+      coastal_water_type = Coastal.area.name..assessment.unit.,
+      period = Time.period.assessed
+    ) %>% 
+    dplyr::mutate(
+      Latitude = str_replace(Latitude, ",", "."),
+      Latitude = str_replace(Latitude, "Area not point", ""),
+      Longitude = str_replace(Longitude, ",", "."),
+       Latitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 64.207281,
+                 ifelse(Monitoring.area == "Finnish ICES SD 30", 61.679815,
+                 ifelse(Monitoring.area == "Finnish ICES SD 29", 59.705518,
+                 ifelse(Monitoring.area == "Finnish ICES SD 32", 60.108130,
+                 ifelse(Monitoring.area == "Finnish ICES rect 23", 63.505817, 
+                 ifelse(Monitoring.area == "Finnish ICES rect 28", 63.505817, Latitude)))))),
+      Longitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 23.511161,
+                  ifelse(Monitoring.area == "Finnish ICES SD 30", 21.269112,
+                  ifelse(Monitoring.area == "Finnish ICES SD 29", 21.264879,
+                  ifelse(Monitoring.area == "Finnish ICES SD 32", 25.772410,
+                  ifelse(Monitoring.area == "Finnish ICES rect 23", 21.351243, 
+                  ifelse(Monitoring.area == "Finnish ICES rect 28", 21.351243, Longitude)))))),
+       Latitude = as.numeric(Latitude),
+      Longitude = as.numeric(Longitude),
+      Status.value.monitoring.location = str_replace(Status.value.monitoring.location, ",", "."),
+      Status.value.monitoring.location = as.numeric(Status.value.monitoring.location),
+      threshold_value = 0.6,
+      Taxa =  ifelse(is.na(Taxa), "cyprinids", Taxa),
+      core_indicator = "functional group"),
+  piscivores_status_raw %>% 
+    dplyr::rename(
+      Latitude = Coordinates,
+      Longitude = X,
+      Taxa = Identity.of.key.piscivores,
+      Subbasin = Sub.basin.name,
+      coastal_water_type = Coastal.area.name..assessment.unit.,
+      period = Time.period.assessed
+    ) %>% 
+    separate_rows(Taxa, sep =",\\s+") %>% # serapate different taxa from single rows
+    dplyr::mutate(
+      Latitude = str_replace(Latitude, ",", "."),
+      Latitude = str_replace(Latitude, "Area not point", ""),
+      Longitude = str_replace(Longitude, "Åland Sea", "."),
+       Latitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 64.207281,
+                 ifelse(Monitoring.area == "Finnish ICES SD 30", 61.679815,
+                 ifelse(Monitoring.area == "Finnish ICES SD 29", 59.705518,
+                 ifelse(Monitoring.area == "Finnish ICES SD 32", 60.108130,
+                 ifelse(Monitoring.area == "Finnish ICES rect 23", 63.505817, 
+                 ifelse(Monitoring.area == "Finnish ICES rect 28", 63.505817, Latitude)))))),
+      Longitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 23.511161,
+                  ifelse(Monitoring.area == "Finnish ICES SD 30", 21.269112,
+                  ifelse(Monitoring.area == "Finnish ICES SD 29", 21.264879,
+                  ifelse(Monitoring.area == "Finnish ICES SD 32", 25.772410,
+                  ifelse(Monitoring.area == "Finnish ICES rect 23", 21.351243, 
+                  ifelse(Monitoring.area == "Finnish ICES rect 28", 21.351243, Longitude)))))),
+       Latitude = as.numeric(Latitude),
+      Longitude = as.numeric(Longitude),
+      Status.value.monitoring.location = str_replace(Status.value.monitoring.location, ",", "."),
+      Status.value.monitoring.location = as.numeric(Status.value.monitoring.location),
+      threshold_value = 0.6,
+      Taxa =  ifelse(is.na(Taxa), "piscivores", Taxa),
+      core_indicator = "functional group"))
+  
+```
+<br>
+
+```{r save merged data, echo = TRUE, eval = FALSE}
+readr::write_csv(
+  coastal_fish_status, 
+  here::here("data", "AO", version_year, "intermediate", "ao_merged_rawdata.csv")
+)
+```
+<br>
+
 
 ### 2.3 Initial Data Exploration {-}
+
+#### 2.3.1 Check unique indicators per monitoring location
+
+1. Is more than one key species monitored at a given locations?  **NO**
+2. Is more than one functional group monitored?  **Depends on location, mostly 2 groups monitored (including different taxa)**  
+3. Are both key species and functional groups monitored at all locations? **No**
+
+- 13 monitoring areas without Functional groups
+- 1 monitoring area without Key_spp status: *Kvaedoefjaerden*  
+
+**Number of indicators by monitoring location**
+```{r unique indicators monitoring region, echo = TRUE, eval = FALSE, results = "show"}
+## how many core indicators, how many taxa
+indicator_count <- coastal_fish_status %>%
+  select(
+    Monitoring.area, core_indicator, Taxa, Status.value.monitoring.location
+  ) %>%
+  group_by(Monitoring.area) %>%
+  summarise(unique_indicator = length(unique(core_indicator)),
+            unique_taxa_func = length(unique(Taxa))
+  ) %>%
+  ungroup()
+# indicator_count %>% print(n=40)
+
+## which stations have only 1 core indicator type (either have only functional or only key spp)
+one_indicator <- indicator_count %>% 
+  filter(unique_indicator == 1)
+# one_indicator %>% print(n=14)
+
+## number of taxa organized by location and core indicator type
+indicator_taxa_count <- coastal_fish_status %>% 
+  select(
+    Monitoring.area, core_indicator, Taxa
+    ) %>%
+  group_by(Monitoring.area, core_indicator) %>%
+  summarise(unique_taxa_func = length(unique(Taxa))) %>%
+  ungroup()
+# indicator_taxa_count %>% print(n=66)
+
+## which locations are missing an indicator type?
+indicator_taxa_count %>% 
+  filter(Monitoring.area %in% one_indicator$Monitoring.area)
+
+ggplot(indicator_taxa_count) + 
+  geom_point(aes(Monitoring.area, unique_taxa_func)) +
+  facet_wrap(~core_indicator) +
+  labs(y = "Taxa obs", x = "Monitoring Areas") +
+  theme(axis.text.x = element_text(colour="grey20", size=6, angle=90, 
+                                   hjust=.5, vjust=.5, face = "plain"),
+        plot.margin = unit(c(1,1,1,1), "cm")) 
+
+## Number of NAs by each indicator
+indicator_taxa_count %>%  
+  spread(core_indicator, unique_taxa_func) %>% 
+  dplyr::rename(key_species = `key species`) %>%
+  dplyr::rename(functional_group = `functional group`) %>%
+  summarise(Func_na = sum(is.na(functional_group)),                                                                               KeySpp_na = sum(is.na(key_species)))
+```
+<br>
+
+#### 2.3.2 Maps of coastal fish dataset {-}
+
+**Maps (find a way of showing data on the map without geometry)**
+```{r basemap to be used in spatial plotting, echo = TRUE}
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+## make larger discrete color palette
+pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(15)
+```
+<br>
+
+```{r key species and functional groups raw datasets, results = "show", echo = TRUE, fig.height = 5, fig.width = 9.5}
+# examples from eut indicators (NEED TO ADD 'GEOMETRY' COLUMN)
+coastal_fish_map <- basemap +
+  geom_sf(
+    mapping = aes(color = Subbasin), 
+    data = 
+      coastal_fish_status, 
+      coords = c("Longitude", "Latitude"), 
+      crs = 4326,
+    size = 0.5, alpha = 0.3, show.legend = FALSE
+  ) +
+  labs(
+    color = "Sea Basin", 
+    title = "Coastal Fish Data Measurement Locations"
+  ) +
+  # theme(legend.position = c(0.2, 0.7)) +
+  scale_color_manual(values = pal)
+
+
+# gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1, widths = c(1, 1.4))
+```
+<br>
+
 
 #### 2.3.1 Compare versus Previous Years Data {-}
 
 #### 2.3.2 Timeseries Plots {-}
 
-```{r CODE CHUNK WITH FIGURE OR GRAPH, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
-```
+```{r CODE CHUNK WITH FIGURE OR GRAPH, eval = FALSE, results = "show", message = FALSE, echo = TRUE, fig.width = 7.5, fig.height = 4}
+# make coastal_fish_scores in long format then plot
+temp_long <- coastal_fish_status %>% 
+  select(
+    Monitoring.area, core_indicator, Taxa, Status.value.monitoring.location
+    ) %>%
+  group_by(
+    Monitoring.area, core_indicator, Taxa
+    ) %>% 
+  ungroup()
 
-#### 2.3.3 Map {-}
+# Coastal Fish Status Value (by monitoring area)
+ggplot(coastal_fish_status) + 
+  geom_point(
+    aes(Monitoring.area, Status.value.monitoring.location, 
+        colour = Taxa, shape = Taxa)) +
+  facet_wrap(~core_indicator) +
+  theme(axis.text.x = element_text(colour= "grey20", 
+                                   size=7, angle=90, hjust=.5, vjust=.5, face="plain"),
+        plot.margin = unit(c(1,1,1,1), "cm")) +
+  labs(x = "Monitoring Area", y = "Status Value") +
+  ggtitle("Coastal Fish Status Value (by monitoring area)")
+
+# Coastal Fish Status Value (by subbasins)
+ggplot(coastal_fish_status) + 
+  geom_point(
+    aes(Subbasin, Status.value.monitoring.location, 
+        colour = Taxa, shape = Taxa)) +
+  facet_wrap(~ core_indicator) +
+  theme(axis.text.x = element_text(colour= "grey20", 
+                                   size=7, angle=90, hjust=.5, vjust=.5, face="plain"),
+        plot.margin = unit(c(1,1,1,1), "cm")) +
+  labs(x = "Subbasins", y = "Status Value") +
+  ggtitle("Coastal Fish Status Value (by Subbasins)")
+
+```
+<br>
 
