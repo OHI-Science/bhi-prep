@@ -15,6 +15,7 @@ loc <- here::here("prep", "CW", "eutrophication")
 source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
 
+glossary <- here::here("supplement", "glossary.Rmd")
 bkgd_path <- here::here("supplement", "goal_summaries", "EUT.Rmd")
 data_path <- here::here("data", "CW", "eutrophication", version_year, "eut_data.rmd")
 refs_path <- file.path(loc, "eut_references.Rmd")
@@ -61,6 +62,9 @@ basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.
 ```
 
 ## 1. Background {-}
+
+```{r eut prep background, child = glossary, results = "asis", echo = FALSE}
+```
 
 ```{r eut prep background, child = bkgd_path, results = "asis", echo = FALSE}
 ```
@@ -137,7 +141,7 @@ Since only [Latvia, Poland, and Sweden have threshold values](https://helcom.fi/
 
 Both offshore and coastal data are included in calculation of the Chlorophyll a indicator, with different and respective offshore and coastal threshold values. 
 
-```{r eutrophication thresholds, results = "show", fig.width = 9.5}
+```{r eutrophication coastal thresholds, results = "hide"}
 tab <- chla_coastal_thresholds %>% 
   rename(summer_chla = threshold, summer_chla_units = units) %>% 
   full_join(
@@ -343,7 +347,7 @@ gridExtra::grid.arrange(
 
 #### 3.1.3 Mean Secchi depth Calculation {-}
 
-Mean Secchi depths are calculated per basin or BHI region, using only offshore Secchi depth measurements. Means are first calculated within each summer month, then those monthly means are averaged to get an overall summer mean. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region. This is presented as a standard deviation (square root of variance across months) on the plots below.
+Mean Secchi depths are calculated per HELCOM sub-basin or BHI region, using only offshore Secchi depth measurements. Means are first calculated within each summer month, then those monthly means are averaged to get an overall summer mean. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
 Along with the mean Secchi calculation, we calculate a five-year moving average for each year in the dataset. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
 
@@ -439,7 +443,7 @@ Only five basins have data for 2019, which will be used as the status year, nine
 ```{r what is the last year in secchi subbasin means dataframe, results = "show"}
 ## get the last year of non-NA data
 secchi_last_year <- subbasin_target_secchi %>%
-  filter(!is.na(mean_secchi)) %>%
+  filter(!is.na(ma5yr)) %>%
   group_by(Subbasin)%>%
   summarise(last_year = last(year))
 
@@ -468,14 +472,14 @@ future_year <- 5 # the year at which we want the likely future status
 min_regr_length <- 5 # min actual number of years with data to use for regression
 ```
 
-```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 4.5, fig.height = 3}
 ## Calculate basin status as: basin_mean/basin_target, constraining values to 1 as maximum score
 secchi_status_allyrs <- subbasin_target_secchi %>%
   filter(year >= min_year) %>% 
   rename(subbasin = Subbasin) %>%
-  mutate(status = pmin(1, mean_secchi/target_secchi)) 
+  # mutate(status = pmin(1, mean_secchi/target_secchi)) 
   ## or use five year rolling means (moving average) rather than annual mean?
-  # mutate(status = pmin(1, ma5yr/target_secchi))
+  mutate(status = pmin(1, ma5yr/target_secchi))
 secchi_status <- group_by(secchi_status_allyrs, subbasin)
 
 ## Alternative status calculation: Status calculated using BHI region means
@@ -515,9 +519,18 @@ ggplot(secchi_status %>% left_join(secchi_last_year, by = c("subbasin" = "Subbas
   coord_flip() +
   labs(x = NULL, y = NULL) +
   theme_bw() +
-  theme(axis.text.y = element_text(size = 9)) +
+  theme(axis.text.y = element_text(size = 9), plot.caption = element_text(hjust = 0)) +
   scale_fill_manual(values = statuspal) +
-  ggtitle("Secchi Indicator Status by Region")
+  labs(
+    title = "Secchi Indicator Status by Region",
+    caption = paste(
+      "Summer mean Secchi Depth divided by basin target,",
+      "scaled between 0-100 via multiplication by 100.\n",
+      "The status score reflects the state of the goal in the Sub-basin,",
+      "between worst-possible and 'Good Environmental Status'.\n",
+      "A status of 100 indicates target (GES) is achieved."
+    )
+  )
 ```
 <br>
 
@@ -593,8 +606,7 @@ secchi_trend <- secchi_lm_estim %>%
 
 **Basin status**
 
-Basin status is initially a value between 0 and 1, later rescaled to the 0 to 100 range.
-The status is calculated for each (data) year between 2000 and 2019.
+As a ratio between summer mean and basin target, the sub-basin status is initially a value between 0 and 1. This is later rescaled to the 0 to 100 range via multiplication by 100. The status is calculated for each (data) year between 2000 and 2019.
 
 ```{r timeseries plot of basin eut secchi status, results = "show", echo = TRUE, fig.width = 9.5}
 plotdf <- secchi_status_allyrs %>% 
@@ -614,7 +626,7 @@ ggplot(plotdf) +
 
 **Plot region Status and Trend values**
 
-Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019.
+Status values can range from 0-100 -- this is the status for the *most recent* set of 5 years. In most cases this is 2015-2019.
 
 ```{r secchi status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 ggplot(rbind(secchi_status, secchi_trend)) + 
@@ -633,7 +645,7 @@ ggplot(rbind(secchi_status, secchi_trend)) +
 
 #### 3.2.1 Match BHI regions {-}
 
-The raw chlorophyll a data (consisting of merged ICES, SMHI, and Baltic Nest data) must be assigned to their respective Subbasins (with HELCOM Coastal/Offshore division codes) and BHI Regions based on their latitude/longitude coordinates. Then the data are subsetted to assure only summer months (June-September), years 2000 onward, and measurements from the surface layer (0 - 10 m depth) are included.
+The raw chlorophyll a data (consisting of merged ICES, SMHI, and Baltic Nest data) must be assigned to their respective Sub-basins (along with HELCOM Coastal WFD /Offshore division codes) and BHI Regions based on their latitude/longitude coordinates. Then the data are subsetted to assure only summer months (June-September), years 2000 onward, and measurements from the surface layer (0 - 10 m depth) are included.
 
 ```{r assign BHI regions to Chl a data, echo = TRUE, message = FALSE, warning = FALSE}
 ## assign helcom offshore codes
@@ -674,7 +686,17 @@ chla_rgns <- chla_rgns_shp %>%
   filter(depth_m <= 10) %>% 
   filter(year >= 2000) %>% 
   mutate(supplier = stringr::str_to_upper(supplier)) %>% 
-  mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore"))
+  mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore")) %>% 
+  ## some cases where code SEA-010 is matched with Northern Baltic Proper, 
+  ## by our spatial join should be code SEA-012,
+  ## happens because our polygons are different than HELCOM's
+  mutate(code = as.character(code)) %>% 
+  mutate(area_km2_wfd = ifelse(
+    code == "SEA-010" & Subbasin == "Northern Baltic Proper", 
+    unique(filter(chla_rgns_shp, code == "SEA-012")$area_km2_wfd), 
+    area_km2_wfd
+  )) %>% 
+  mutate(code = ifelse(code == "SEA-010" & Subbasin == "Northern Baltic Proper", "SEA-012", code))
 
 ## Gdansk and The Quark have only coastal, no offshore data points
 distinct(chla_rgns, Subbasin, HELCOM_ID, coastal) %>% 
@@ -702,17 +724,16 @@ coastalareas_nodata[!coastalareas_nodata %in% coastal_nothresh]
 
 ## coastal areas with data but no thresholds
 levels(coastal_codes$HELCOM_ID)[levels(coastal_codes$HELCOM_ID) %in% coastal_nothresh]
+
 ```
 
 <br>
 
-**Distinguish coastal and offshore observations**
+**Checking coastal and offshore observations**
 
-For the chlorophyll a indicator, coasta and offshore data points will be used.
+For the chlorophyll a indicator, coastal and offshore data points must be associated with different thresholds. Coastal versus offshore points are distinguished using [HELCOM Coastal and Offshore divisions (2018 version)](https://maps.helcom.fi/arcgis/rest/services/MADS/Sea_environmental_monitoring/MapServer/4), and each category (coastal and offshore) gives important information regarding the status of Eutrophication in the Baltic Sea. However, not every coastal area has sufficient data and/or a threshold value, and therefore coastal data must be excluded at this time from our analysis.
 
-These are distinguished using [HELCOM Coastal and Offshore divisions (2018 version)](https://maps.helcom.fi/arcgis/rest/services/MADS/Sea_environmental_monitoring/MapServer/4).
-
-```{r basemap to be used in spatial plotting, echo = TRUE}
+```{r basemap eut prep to be used in spatial plotting, echo = TRUE}
 ## make basemap
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
   geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
@@ -832,7 +853,7 @@ plot_chla_whole <- sf::st_as_sf(
 chla_whole_spatial_codeareas <- basemap +
   geom_sf(
     mapping = aes(fill = Name),
-    data = rmapshaper::ms_simplify(input = coastal_codes) %>% sf::st_as_sf(),
+    data = coastal_simple,
     alpha = 0.7, color = "snow", size = 0.05,
     show.legend = FALSE
   ) +
@@ -846,24 +867,37 @@ chla_whole_spatial_codeareas <- basemap +
 ## missing codes for a few points in the inner coastal areas
 ## estuarine areas near Göteborg, Västervik, Rostock, Haapsalu, Luleå
 
-chla_whole_spatial <- basemap +
+chla_missing_data_or_targets <- basemap +
+  ## areas with no data
   geom_sf(
-    mapping = aes(colour = supplier),
-    data = plot_chla_whole,
-    size = 1.8, alpha = 0.2
+    mapping = aes(fill = Name),
+    data = filter(coastal_simple, HELCOM_ID %in% coastalareas_nodata),
+    alpha = 0.7, color = "snow", size = 0.05,
+    show.legend = FALSE
   ) +
-  labs(x = NULL, y = NULL, colour = "Data Source") +
+  ## areas with no threshold
+  geom_sf(
+    data = filter(coastal_simple, HELCOM_ID %in% coastal_nothresh),
+    fill = NA, color = "black", size = 0.3, 
+    show.legend = FALSE
+  ) +
+  ## overlay data points locations
+  # geom_sf(
+  #   data = plot_chla_whole,
+  #   size = 0.01, alpha = 0.5, color = "red"
+  # ) +
+  labs(x = NULL, y = NULL) +
   theme(legend.position = c(0.9, 0.1)) +
-  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
+  scale_fill_manual(values = pal)
 ```
 
-```{r chla offshore coastal data maps, results = "show", echo = FALSE, fig.width = 12, fig.height = 5}
+```{r chla offshore coastal data maps, results = "show", echo = FALSE, fig.width = 12, fig.height = 10}
 gridExtra::grid.arrange(
   chla_offshore_spatial + ggtitle("Offshore Chl a. Data"), 
   chla_coast_spatial + ggtitle("Coastal Chl a. Data"), 
-  chla_whole_spatial + ggtitle("All Chl a. Data"),
   chla_whole_spatial_codeareas + ggtitle("Chl a. Data missing Coastal Code, overlying WFD regions"),
-  nrow = 1
+  chla_missing_data_or_targets + ggtitle("No Data (filled polygons) and/or No Threshold (outlined polygons)"),
+  nrow = 2
 )
 ```
 
@@ -877,14 +911,8 @@ The four plots generated in this section show temporal trends (top) and monthly 
 
 ```{r chl a timeseries yearly and monthly, results = "hide", echo = TRUE}
 plotinfo <- list(
-  ## by BHI regions
-  list("chla_coastal", c("BHI_ID", "Subbasin", "rgn_nam"), "Chlorophyll a (Coastal) by BHI Region", "bhi"),
   list("chla_offshore", c("BHI_ID", "Subbasin", "rgn_nam"), "Chlorophyll a (Offshore) by BHI Region", "bhi"),
-  list("chla_whole", c("BHI_ID", "Subbasin", "rgn_nam"), "Chlorophyll a by BHI Region", "bhi"),
-  ## by Subbasins
-  list("chla_coastal", "Subbasin", "Chlorophyll a (Coastal) by Subbasin", "basin"),
-  list("chla_offshore", "Subbasin", "Chlorophyll a (Offshore) by Subbasin", "basin"),
-  list("chla_whole", "Subbasin", "Chlorophyll a by Subbasin", "basin")
+  list("chla_offshore", "Subbasin", "Chlorophyll a (Offshore) by Subbasin", "basin")
 )
 
 ## expand cases for equal number of offshore and coastal plots, so visual comparison is easier 
@@ -956,16 +984,16 @@ lapply(
 )
 ```
 
-```{r coastal and offshore chla plots by basin, results = "show", echo = TRUE, fig.width = 12, fig.height = 13}
+```{r coastal and offshore chla plots by basin, results = "show", echo = TRUE, fig.width = 12, fig.height = 7}
 # gridExtra::grid.arrange(
 #   plot_chla_offshore_bhi_ts, plot_chla_coastal_bhi_ts,
 #   plot_chla_offshore_bhi_box, plot_chla_coastal_bhi_box, 
 #   nrow = 2
 # )
 gridExtra::grid.arrange(
-  plot_chla_offshore_basin_ts, plot_chla_coastal_basin_ts,
-  plot_chla_offshore_basin_box, plot_chla_coastal_basin_box, 
-  nrow = 2
+  plot_chla_offshore_basin_ts,
+  plot_chla_offshore_basin_box,
+  nrow = 1
 )
 ```
 
@@ -975,13 +1003,14 @@ gridExtra::grid.arrange(
 
 _Chlorophyll a_ concentration averages are calculated per basin or BHI region, using coastal and offshore measurements in separate categories. Means are calculated for each coastal and offshore categories, first within each summer month. Then monthly means are averaged to get an overall summer mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
-Along with the mean calculation, we calculate five-year moving averages. The moving average (or 'rolling mean') is an average of summer means from the current and previous four years. 
+Along with the mean calculation, we calculate five-year moving averages. The moving average is an average of summer means from the current and previous four years. 
 
 ```{r calculate monthly and summer mean chl a with target, results = "hide"}
 ## Calculate mean monthly value for each summer month
-## For coastal and offshore separately and then combine in a later step
+## For coastal and offshore separately
 chla_monthly_means <- chla_whole %>% 
   filter(!is.na(code)) %>% 
+  ## now group and take means
   group_by(year, month, coastal, Subbasin, code, area_km2_wfd) %>%
   summarise(
     mean_chla = mean(chla_ug_l, na.rm = TRUE),
@@ -991,7 +1020,7 @@ chla_monthly_means <- chla_whole %>%
   mutate(chla_sd = ifelse(is.na(chla_sd), 0, chla_sd))
 
 ## Calculate summer mean chl a
-## each year will have two means, coastal and offshore
+## each year will have multiple means, for coastal areas and an offshore (open-sea) subbasin
 ## https://stats.stackexchange.com/questions/25848/how-to-sum-a-standard-deviation
 chla_summer_months_mean <- chla_monthly_means %>% 
   group_by(year, coastal, Subbasin, code, area_km2_wfd) %>%
@@ -1003,19 +1032,8 @@ chla_summer_months_mean <- chla_monthly_means %>%
   ungroup() %>% 
   mutate(code = as.character(code))
 
-## take averages of offshore and coastal means and standard deviations
 ## calculate min and max, and rolling 5 year mean
-## bind to coastal and offshore rows
 chla_summer_months_mean <- chla_summer_months_mean %>% 
-  group_by(Subbasin, year) %>% 
-  summarize(
-    mean_chla = weighted.mean(mean_chla, area_km2_wfd, na.rm = TRUE),
-    chla_sd = sqrt(weighted.mean((chla_sd^2), area_km2_wfd, na.rm = TRUE)),
-    n_pts = sum(n_pts)
-  ) %>% 
-  mutate(coastal = "All Combined", code = "Combined") %>% 
-  ungroup() %>% 
-  bind_rows(chla_summer_months_mean) %>% 
   arrange(code, coastal, year) %>% 
   group_by(code, Subbasin, coastal) %>%
   mutate(ma5yr = zoo::rollapply(mean_chla, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
@@ -1025,36 +1043,43 @@ chla_summer_months_mean <- chla_summer_months_mean %>%
 ## DIFFERENT TARGETS FOR COASTAL (WFD AREAS) AND OFFSHORE
 wfd_area_target_chla <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
   read_csv() %>% 
-  select(basin = subbasin, code = helcom_id) %>% 
+  dplyr::select(basin = subbasin, code = helcom_id) %>% 
   distinct() %>% 
   left_join(eut_thresholds, by = "basin") %>% 
-  select(code, target_chla = summer_chla) %>% 
+  dplyr::select(code, target_chla = summer_chla) %>% 
   mutate(units = "ug_per_l") %>% 
   bind_rows(rename(chla_coastal_thresholds, target_chla = threshold)) %>% 
   ## join with basin-specific eutrophication chlorophyll a targets
   right_join(chla_summer_months_mean, by = "code")
-  
+
 
 ## Plot summer mean secchi
 chla_meansplot <- wfd_area_target_chla %>% 
-  filter(code != "Combined") %>% 
-  ggplot(aes(year, mean_chla, color = code)) +  
+  ggplot(aes(year, mean_chla, group = code)) +  
   geom_errorbar(
     aes(x = year, ymin = chla_min, ymax = chla_max), 
-    alpha = 0.6, size = 0.3, width = 0.3,
+    alpha = 0.6, size = 0.3, color = "snow", width = 0.3,
     show.legend = FALSE
   ) +
-  geom_point(size = 0.3, show.legend = FALSE) +
-  geom_line(aes(year, ma5yr), size = 0.2, show.legend = FALSE) + 
-  facet_wrap(~Subbasin, scales = "free") +
+  geom_point(size = 0.3, color = "snow", show.legend = FALSE) +
+  geom_line(aes(year, ma5yr), size = 0.2, color = "snow", show.legend = FALSE) + 
+  geom_point(
+    data = filter(wfd_area_target_chla, str_detect(code, "^SEA-")),
+    size = 0.7
+  ) +
+  geom_line(
+    data = filter(wfd_area_target_chla, str_detect(code, "^SEA-")),
+    aes(year, ma5yr), 
+    size = 0.3
+  ) + 
+  facet_wrap(~Subbasin, scales = "free", ncol = 4) +
   scale_y_continuous(limits = c(0, NA)) +
   labs(x = NULL, y = "Chlorophyll a (ug/L)") +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5),
     strip.text.y = element_text(size = 6)
   ) +
-  # scale_color_manual(values = pal) +
-  theme_bw() 
+  theme_dark() 
 ```
 <br>
 
@@ -1073,13 +1098,17 @@ chla_meansplot + ggtitle(sprintf("Mean Summer (June-Sept) Chlorophyll a by WFD A
 
 **Explore years in data available for status calculation**
 
-Only two basins have data for 2019, which will be used as the status year, while thirteen have data for 2018 and two for 2016. For these basins, their most recent year's data is used for current status calculations
+Only two basins have data for 2019, which will be used as the status year, while thirteen have data for 2018 and two for 2016. For these basins, their most recent year's data is used for current status calculations.
+
+We use the summer mean rather than the 5 year moving average because, when excluding coastal data, the most recent year for Kiel Bay and The Sound would become 2010, and the following would have no values in our compiled dataset to base status calculation on: Bothnian Bay, Bothnian Sea, The Quark, Aland Sea, Gdansk Basin.
+
+Using annual summer means and only offshore data however, we are still missing The Quark and Gdansk Basin.
 
 ```{r what is the last year for chla, results = "show"}
 ## get the last year of non-NA data
 chla_last_year <- wfd_area_target_chla %>%
-  filter(!is.na(mean_chla), code != "Combined") %>%
-  group_by(code, Subbasin)%>%
+  filter(!is.na(mean_chla), str_detect(code, "^SEA-")) %>%
+  group_by(code, Subbasin) %>%
   summarise(last_year = last(year))
 
 ## which are not in 2019
@@ -1105,27 +1134,19 @@ min_regr_length <- 5 # min actual number of years with data to use for regressio
 ```{r eut chla status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 ## calculate for each offshore and coastal separately, then combine
 ## quick plot, distributions of means
-ggplot(subbasin_target_chla) + 
+ggplot(wfd_area_target_chla) + 
   geom_histogram(aes(mean_chla), bins = 80, fill = NA, color = "grey") + 
   facet_grid(cols = vars(coastal), scales = "free_x") + 
   labs(x = "Mean Chlorphyll a Concentration", y = NULL)
 
 ## Calculate basin status as: basin_target/basin_mean, constraining values to 1 as maximum score
 ## ratio inverted compared to secchi because levels of chl a above target are undesireable
-chla_status_allyrs <- subbasin_target_chla %>%
+chla_status_allyrs <- wfd_area_target_chla %>%
   rename(subbasin = Subbasin) %>% 
   mutate(status = pmin(1, target_chla/mean_chla))
   ## or use five year rolling means (moving average) rather than annual mean?
   # mutate(status = pmin(1, target_chla/ma5yr))
-chla_status <- group_by(chla_status_allyrs, coastal, subbasin)
-
-## Alternative status calculation: Status calculated using BHI region means
-# chla_status_allyrs <- bhi_id_target_chla %>%
-#   rename(subbasin = Subbasin, bhi_id = BHI_ID) %>%
-#   # mutate(status = pmin(1, target_chla/mean_chla)) %>%
-#   ## or use five year rolling means (moving average) rather than annual mean?
-#   mutate(status = pmin(1, target_chla/ma5yr))
-# chla_status <- group_by(chla_status_allyrs, bhi_id)
+chla_status <- group_by(chla_status_allyrs, coastal, subbasin, code)
 
 ## select last year of data for status in each basin, this means status year differs by basin
 ## joining to basin lookup expands from subbasins to one row per BHI region
@@ -1133,7 +1154,7 @@ chla_status <- chla_status %>%
   filter(year == max(year)) %>% 
   mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
   ungroup() %>% 
-  dplyr::select(score = status, coastal, !!!syms(intersect(c("subbasin", "bhi_id"), names(chla_status)))) %>% 
+  dplyr::select(score = status, code, coastal, subbasin) %>% 
   mutate(dimension = "status", indicator = "chla") %>% 
   left_join(basin_lookup) %>%
   mutate(region = as.factor(rgn_nam))
@@ -1144,7 +1165,11 @@ chla_status <- chla_status %>%
 set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
-ggplot(chla_status %>% left_join(chla_last_year, by = c("subbasin" = "Subbasin"))) +
+chlaplotdf <- chla_status %>% 
+  filter(coastal == "Offshore") %>% 
+  left_join(chla_last_year, by = c("subbasin" = "Subbasin", "code"))
+
+ggplot(chlaplotdf) + 
   geom_col(
     aes(region, score, fill = subbasin),
     position = position_dodge(), 
@@ -1163,8 +1188,8 @@ ggplot(chla_status %>% left_join(chla_last_year, by = c("subbasin" = "Subbasin")
   ggtitle("Chlorophyll a Status by Region, for Coastal, Offshore, and Combined data")
 
 chla_status <- chla_status %>% 
-  filter(coastal == "Both Combined") %>% 
-  select(-coastal)
+  filter(coastal == "Offshore") %>% 
+  select(-coastal, -code)
 ```
 
 #### 3.2.4 Trend Calculations: Coastal & Offshore {-}
@@ -1182,14 +1207,14 @@ trendyrs <- min_year:(min_year + regr_length)
 
 chla_lm_estim <- chla_status_allyrs %>%
   filter(year %in% trendyrs) %>% 
-  distinct(subbasin, coastal, year, mean_chla) %>%
-  group_by(subbasin, coastal) %>%
+  distinct(subbasin, code, coastal, year, mean_chla) %>%
+  group_by(subbasin, code, coastal) %>%
   ## calculate trend only if:
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
   do(tail(., n = regr_length)) %>%
   do(data.frame(enough_data = ifelse(sum(!is.na(.$mean_chla)) >= min_regr_length, TRUE, FALSE))) %>%
-  right_join(chla_status_allyrs, by = c("subbasin", "coastal")) %>%
-  group_by(subbasin, coastal, enough_data, target_chla) %>%
+  right_join(chla_status_allyrs, by = c("subbasin", "code", "coastal")) %>%
+  group_by(subbasin, code, coastal, enough_data, target_chla) %>%
   do(trend_mdl = lm(mean_chla ~ year, data = .))
 
 ## trend plots ----
@@ -1205,7 +1230,7 @@ trendplotdf <- chla_whole %>%
       prj = predict(trend_mdl, data.frame(year = max(trendyrs) + future_year))
     )
   ) %>% 
-  filter(coastal %in% c("Coastal", "Offshore"))
+  filter(coastal %in% c("Offshore"))
 
 maketrendplot <- function(trendplotdf){
   trendplot <- ggplot(trendplotdf) +
@@ -1220,11 +1245,7 @@ maketrendplot <- function(trendplotdf){
   return(trendplot)
 }
 plottitle <- "Chlorophyll a with 5 Years in Future and Current Estimates (Red and Blue lines Respectively)"
-gridExtra::grid.arrange(
-  maketrendplot(filter(trendplotdf, coastal == "Coastal")) + ggtitle(paste("Coastal", plottitle)),
-  maketrendplot(filter(trendplotdf, coastal == "Offshore")) + ggtitle(paste("Offshore", plottitle)),
-  nrow = 2, heights = c(5, 4)
-)
+maketrendplot(filter(trendplotdf, coastal == "Offshore")) + ggtitle(paste("Offshore", plottitle))
 
 ## trend score dataframe ----
 
@@ -1237,8 +1258,8 @@ chla_trend <- chla_lm_estim %>%
     ## then interpretation of trend is roughly expected (percent) change in status
     trend_score = max(-1, min(1, -expectedchange5yrs/target_chla))
   ) %>%
-  ## magnitude of trends based only on coastal data will be larger... need coastal targets!!! 
-  filter(coastal %in% c("Coastal", "Offshore"), enough_data) %>%
+  ## only using offshore data for now:
+  filter(coastal == "Offshore", enough_data) %>%
   group_by(subbasin, target_chla) %>% 
   summarize(trend_score = mean(trend_score, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -1260,7 +1281,7 @@ Basin status is initially a value between 0 and 1. Calculated for each year betw
 
 ```{r timeseries plot of basin eut chla status, results = "show", echo = TRUE, fig.width = 9.5}
 plotdf <- chla_status_allyrs %>% 
-  filter(coastal == "Both Combined") %>% 
+  filter(coastal == "Offshore") %>% 
   distinct(subbasin, year, status, n_pts)
 ggplot(plotdf) + 
   geom_col(aes(year, status, fill = n_pts), alpha = 0.7) +
@@ -1338,8 +1359,18 @@ nut_rgns_w_offshore_code <- nutrients_rawdata %>%
     coords = c("longitude", "latitude"),
     remove = FALSE
   ) %>%  
-  sf::st_join(sf::st_transform(offshore_codes, 4326)) %>% 
-  sf::st_drop_geometry()
+  sf::st_join(sf::st_transform(offshore_codes, 4326))
+
+## spatial join also the WFD water bodies
+nut_rgns_w_offshore_code <- nut_rgns_w_offshore_code %>% 
+  sf::st_join(
+    coastal_codes %>% 
+      sf::st_transform(4326) %>% 
+      rename(area_km2_wfd = Area_km2, code = HELCOM_ID) %>% 
+      select(area_km2_wfd, code)
+  ) %>% 
+  sf::st_drop_geometry() %>% 
+  filter(!is.na(latitude) & !is.na(longitude))
 
 ## assign bhi basins to nutrients data 
 buffer_sf <- st_read(
@@ -1366,9 +1397,32 @@ nut_rgns <- nut_rgns_shp %>%
 ## reshape some for next steps
 nut_rgns <- nut_rgns %>% 
   mutate(coastal = ifelse(is.na(helcom_coastal_code), "Coastal", "Offshore")) %>% 
-  select(latitude, longitude, Subbasin, BHI_ID, coastal, winterofyear, month, time, depth_m, din, dip) %>% 
+  select(
+    latitude, longitude, depth_m,
+    Subbasin, BHI_ID, code, coastal, 
+    area_km2_wfd,
+    winterofyear, month, time, 
+    din, dip
+  ) %>% 
   tidyr::pivot_longer(c("din", "dip"), names_to = "nutrient", values_to = "value") %>% 
-  mutate(nutrient = stringr::str_to_upper(nutrient))
+  mutate(nutrient = stringr::str_to_upper(nutrient)) %>% 
+  
+  ## some cases where code SEA-010 is matched with Northern Baltic Proper, 
+  ## by our spatial join should be code SEA-012,
+  ## happens because our polygons are different than HELCOM's
+  mutate(code = as.character(code)) %>% 
+  mutate(area_km2_wfd = ifelse(
+    code == "SEA-010" & Subbasin == "Northern Baltic Proper", 
+    unique(filter(nut_rgns, code == "SEA-012")$area_km2_wfd), 
+    area_km2_wfd
+  )) %>% 
+  mutate(code = ifelse(code == "SEA-010" & Subbasin == "Northern Baltic Proper", "SEA-012", code)) %>% 
+  mutate(area_km2_wfd = ifelse(
+    code == "SEA-001" & Subbasin == "The Sound", 
+    unique(filter(nut_rgns, code == "SEA-003")$area_km2_wfd), 
+    area_km2_wfd
+  )) %>% 
+  mutate(code = ifelse(code == "SEA-001" & Subbasin == "The Sound", "SEA-003", code)) 
 ```
 <br>
 
@@ -1398,7 +1452,7 @@ basemap +
   theme(legend.position = c(0.25, 0.9), legend.background = element_rect(fill = "ghostwhite"))
 ```
 
-```{r nutrients data check coastal versus offshore, results = "show", fig.width = 11, fig.height = 10}
+```{r nutrients data check coastal versus offshore, results = "show", fig.width = 11, fig.height = 8}
 ## make dataframe to use in plotting
 expandcases <- tidyr::expand(nut_rgns, tidyr::nesting(Subbasin, BHI_ID, winterofyear, month, nutrient))
 plotdf <- nut_rgns %>% 
@@ -1413,13 +1467,13 @@ for(r in c("Subbasin", "BHI_ID")){
     plottimeseries <- ggplot(filter(plotdf, nutrient == n)) +
       geom_point(
         aes(winterofyear, value, color = coastal), 
-        size = 0.5, alpha = 0.3, show.legend = FALSE
+        size = 0.5, alpha = 0.6
       ) +
       labs(x = "\nWinter of Year", y = NULL, color = "Coastal/Offshore") +
       ggtitle(paste(n, "vs Year")) +
       scale_color_manual(values = c("darkseagreen", "salmon")) +
       facet_wrap(r, scales = "free_y", ncol = 3) +
-      theme(axis.text.x = element_text(size = 7, angle = 90))
+      theme(axis.text.x = element_text(size = 7, angle = 90), legend.position = "bottom")
     assign(sprintf("plot_%s_%s_ts", str_to_lower(n), str_to_lower(r)), plottimeseries, envir = .GlobalEnv)
     
     ## boxplots comparing coastal/offshore by region or subbasin
@@ -1436,89 +1490,117 @@ for(r in c("Subbasin", "BHI_ID")){
   }
 }
 
-# gridExtra::grid.arrange(plot_nut_bhi_id_ts, plot_nut_bhi_id_box, nrow = 1)
-gridExtra::grid.arrange(
-  plot_din_subbasin_ts, plot_dip_subbasin_ts, 
-  plot_din_subbasin_box, plot_dip_subbasin_box,
-  nrow = 2
-)
+gridExtra::grid.arrange(plot_din_subbasin_ts, plot_dip_subbasin_ts, nrow = 1)
 ```
 
 <br>
 
 #### 3.3.3 Mean Nutrient Calculations
 
-Mean nutrient concentrations are calculated per basin or BHI region, using coastal and offshore measurements in separate categories. Means are calculated for each coastal and offshore categories, first within each winter month. Then monthly means are averaged to get an overall winter mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across winter months for the subbasin and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
+Mean nutrient concentrations are calculated from coastal and offshore measurements grouped by open-sea sub-basins and WFD coastal spatial units. Means are calculated for each coastal or offshore zone, first within each winter month. Then monthly means are averaged to get an overall winter mean in each the coastal or offshore zone. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across winter months for the subbasin and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
 Along with the mean calculation, we calculate five-year moving averages. The moving average (or 'rolling mean') is an average of winter means from the current and previous four winters. 
 
+However, the final scores for the nutrient indicators only consider the offshore means, as the coastal thresholds available for both [DIN](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) and [DIP](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-phosphorus-DIP-HELCOM-core-indicator-2018.pdf) include only Sweden, Latvia, and Poland.
+
 ```{r calculate monthly mean nutrients with target, results = "hide"}
-for(r in c("Subbasin", "BHI_ID")){
-  
-  ## Calculate DIN and DIP mean monthly values for each winter month
-  ## For coastal and offshore separately and then combine in a later step
-  nutrient_monthly_means <- nut_rgns %>% 
-    filter(!is.na(Subbasin), !is.na(BHI_ID)) %>% 
-    group_by(winterofyear, month, coastal, nutrient, Subbasin, !!!syms(r)) %>%
-    summarise(
-      nut_mean = mean(value, na.rm = TRUE),
-      nut_sd = sd(value, na.rm = TRUE),
-      n_pts = n()
-    ) %>% 
-    mutate(nut_sd = ifelse(is.na(nut_sd), 0, nut_sd))
-  
-  ## Calculate winter DIN and DIP means
-  nut_winter_months_mean <- nutrient_monthly_means %>% 
-    group_by(winterofyear, coastal, nutrient, Subbasin, !!!syms(r)) %>%
-    summarise(
-      nut_mean = mean(nut_mean, na.rm = TRUE), 
-      nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
-      n_pts = sum(n_pts)
-    )
-  
-  ## take averages of offshore and coastal means and standard deviations
-  ## calculate min and max, and rolling 5 year mean
-  ## bind to coastal and offshore rows
-  nut_winter_months_mean <- nut_winter_months_mean %>% 
-    group_by(winterofyear, nutrient, Subbasin, !!!syms(r)) %>% 
-    summarize(
-      nut_mean = mean(nut_mean, na.rm = TRUE),
-      nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
-      n_pts = sum(n_pts)
-    ) %>% 
-    mutate(coastal = "Both Combined") %>% 
-    ungroup() %>% 
-    bind_rows(nut_winter_months_mean) %>% 
-    arrange(!!!syms(r), nutrient, coastal, winterofyear) %>% 
-    group_by(!!!syms(r), nutrient, coastal) %>%
-    mutate(ma5yr = zoo::rollapply(nut_mean, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
-    mutate(nut_min = nut_mean-nut_sd, nut_max = nut_mean+nut_sd)
-  
+## check that each subbasin is actually properly matched with a single code
+# nut_rgns %>% 
+#   ungroup() %>% 
+#   select(Subbasin, code) %>% 
+#   distinct() %>% 
+#   filter(str_detect(code, "SEA")) %>%
+#   group_by(Subbasin) %>% 
+#   count()
+
+## Calculate DIN and DIP mean monthly values for each winter month
+## For coastal and offshore separately
+nutrient_monthly_means <- nut_rgns %>% 
+  filter(!is.na(Subbasin), !is.na(BHI_ID), !is.na(code)) %>% 
+  ## now group and take means
+  group_by(winterofyear, month, coastal, nutrient, Subbasin, code, area_km2_wfd) %>%
+  summarise(
+    nut_mean = mean(value, na.rm = TRUE),
+    nut_sd = sd(value, na.rm = TRUE),
+    n_pts = n()
+  ) %>% 
+  mutate(nut_sd = ifelse(is.na(nut_sd), 0, nut_sd))
+
+## Calculate winter DIN and DIP means
+## each year will have multiple means, for coastal areas and an offshore (open-sea) subbasin
+nut_winter_months_mean <- nutrient_monthly_means %>% 
+  group_by(winterofyear, coastal, nutrient, Subbasin, code, area_km2_wfd) %>%
+  summarise(
+    nut_mean = mean(nut_mean, na.rm = TRUE), 
+    nut_sd = sqrt(mean((nut_sd^2), na.rm = TRUE)),
+    n_pts = sum(n_pts)
+  )
+
+## calculate min and max, and rolling 5 year mean
+nut_winter_months_mean <- nut_winter_months_mean %>% 
+  arrange(Subbasin, code, nutrient, coastal, winterofyear) %>% 
+  group_by(Subbasin, code, nutrient, coastal) %>%
+  mutate(ma5yr = zoo::rollapply(nut_mean, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+  mutate(nut_min = nut_mean-nut_sd, nut_max = nut_mean+nut_sd)
+
+
+'## DIFFERENT TARGETS FOR COASTAL (WFD AREAS) AND OFFSHORE
+wfd_area_target_chla <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
+  read_csv() %>% 
+  dplyr::select(basin = subbasin, code = helcom_id) %>% 
+  distinct() %>% 
+  left_join(eut_thresholds, by = "basin") %>% 
+  dplyr::select(code, target_chla = summer_chla) %>% 
+  mutate(units = "ug_per_l") %>% 
+  bind_rows(rename(chla_coastal_thresholds, target_chla = threshold)) %>% 
   ## join with basin-specific eutrophication chlorophyll a targets
-  nut_winter_months_mean <- eut_thresholds %>% 
-    select(Subbasin = basin, DIN = winter_DIN, DIP = winter_DIP) %>% 
-    tidyr::pivot_longer(c("DIN", "DIP"), names_to = "nutrient", values_to = "target") %>% 
-    right_join(nut_winter_months_mean, by = c("Subbasin", "nutrient"))
-  ## make subbasin_target_nut and bhi_id_target_nut dataframes
-  assign(paste0(str_to_lower(r), "_target_nut"), nut_winter_months_mean)
-  
-  ## Plot winter mean nutrients
-  for(n in c("DIN", "DIP")){
-    meansplot <- ggplot(filter(nut_winter_months_mean, nutrient == n), aes(winterofyear, nut_mean, group = 1)) + 
-      geom_errorbar(
-        aes(x = winterofyear, ymin = nut_min, ymax = nut_max), 
-        alpha = 0.6, size = 0.3, width = 0.3
-      ) +
-      geom_point(size = 0.3) +
-      # geom_line(aes(winterofyear, ma5yr), size = 0.2) +
-      geom_line(size = 0.2) +
-      ## helcom target value
-      geom_line(aes(y = target), colour = "tomato", size = 0.4) +
-      facet_grid(rows = vars(!!!syms(r)), cols = vars(coastal), scales = "free_y") +
-      scale_y_continuous(limits = c(0, NA)) +
-      labs(x = NULL, y = NULL) 
-    assign(sprintf("%s_%s_meansplot", str_to_lower(n), str_to_lower(r)), meansplot)
-  }
+  right_join(chla_summer_months_mean, by = "code")
+'
+
+## join with basin-specific eutrophication chlorophyll a targets
+wfd_area_target_nut <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
+  read_csv() %>% 
+  dplyr::select(basin = subbasin, code = helcom_id) %>% 
+  distinct() %>% 
+  left_join(eut_thresholds, by = "basin") %>% 
+  dplyr::select(code, DIN = winter_DIN, DIP = winter_DIP) %>% 
+  mutate(units = "umol_per_l") %>% 
+  bind_rows(left_join(
+      rename(din_coastal_thresholds, DIN = threshold),
+      rename(dip_coastal_thresholds, DIP = threshold)
+  )) %>% 
+  ## join with basin-specific eutrophication nutrient a targets
+  tidyr::pivot_longer(c("DIN", "DIP"), names_to = "nutrient", values_to = "target") %>% 
+  right_join(nut_winter_months_mean, by = c("code", "nutrient"))
+
+
+## Plot winter mean nutrients
+for(n in c("DIN", "DIP")){
+  meansplot <- ggplot(filter(wfd_area_target_nut, nutrient == n), aes(winterofyear, nut_mean, group = code)) + 
+    geom_errorbar(
+      aes(x = winterofyear, ymin = nut_min, ymax = nut_max), 
+      alpha = 0.4, size = 0.3, color = "snow", width = 0.3,
+      show.legend = FALSE
+    ) +
+    geom_point(size = 0.3, alpha = 0.7, color = "snow", show.legend = FALSE) +
+    geom_line(size = 0.2, alpha = 0.7, color = "snow", show.legend = FALSE) + 
+    geom_point(
+      data = filter(wfd_area_target_nut, str_detect(code, "^SEA-"), nutrient == n),
+      size = 0.7
+    ) +
+    geom_line(
+      data = filter(wfd_area_target_nut, str_detect(code, "^SEA-"), nutrient == n),
+      size = 0.3
+    ) + 
+    facet_wrap(~Subbasin, scales = "free", ncol = 4) +
+    scale_y_continuous(limits = c(0, NA)) +
+    labs(x = NULL, y = NULL) +
+    theme(
+      axis.text.x = element_text(angle = 90, vjust = 0.5),
+      strip.text.y = element_text(size = 6)
+    ) +
+    theme_dark() 
+  assign(sprintf("%s_%s_meansplot", str_to_lower(n), "subbasin"), meansplot)
 }
 ```
 
@@ -1526,7 +1608,7 @@ for(r in c("Subbasin", "BHI_ID")){
 
 Horizontal lines are HELCOM target values 
 
-```{r winter nutrients with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 14}
+```{r winter nutrients with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 7}
 din_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Nitrogen (Dec-Feb) against Target values")
 dip_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Phosphorus (Dec-Feb) against Target values")
 ```
@@ -1537,22 +1619,22 @@ dip_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Phosphorus (De
 
 **Explore years in data available for status calculation**
 
-For both DIN and DIP, no basins have data for 2019, which is the assessment year; fifteen basins have data for 2018 and for two (Åland and Gulf of Riga) the most recent year is 2017. For each basin, the most recent year's data in that region is used for _current status_ calculations.
+For both DIN and DIP, no basins have data for 2019, which is the assessment year; after excluding coastal spatial units, thirteen basins have data for 2018 and for three (Åland, Gulf of Riga, The Quark) the most recent year is 2017. Most recent 'offshore' data for The Sound is 2010. For each basin, the most recent year's data in that region is used for _current status_ calculations.
 
 ```{r what is the last year for nutrients, results = "show"}
 ## get the last year of non-NA DIN data
-din_last_year <- subbasin_target_nut %>%
-  filter(!is.na(nut_mean), coastal == "Both Combined", nutrient == "DIN") %>%
-  group_by(Subbasin) %>%
+din_last_year <- wfd_area_target_nut %>%
+  filter(!is.na(ma5yr), str_detect(code, "^SEA-"), nutrient == "DIN") %>%
+  group_by(code, Subbasin) %>%
   summarise(last_year = last(winterofyear)) %>% 
   mutate(indicator = "din") 
 ## which are not in 2019
 # filter(din_last_year, last_year < 2019)
 
 ## get the last year of non-NA DIP data
-dip_last_year <- subbasin_target_nut %>%
-  filter(!is.na(nut_mean), coastal == "Both Combined", nutrient == "DIP") %>%
-  group_by(Subbasin) %>%
+dip_last_year <- wfd_area_target_nut %>%
+  filter(!is.na(ma5yr), str_detect(code, "^SEA-"), nutrient == "DIP") %>%
+  group_by(code, Subbasin) %>%
   summarise(last_year = last(winterofyear)) %>% 
   mutate(indicator = "dip")
 ## which are not in 2019
@@ -1578,7 +1660,7 @@ knitr::kable(
 
 Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
 
-Status for each the _DIN_ and _DIP_ indicators is calculated as `basin target` divided by `basin winter means`, with the value capped at 1. We calculate status for each Coastal, Offshore, and Combined categories for evaluation, but select the Combined version for the indicator status. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the winter means calculation), and also indicates which data year the status is based on.
+Status for each the _DIN_ and _DIP_ indicators is calculated as `basin target` divided by `basin winter means`, with the value capped at 1. We calculate status using only Offshore data for evaluation, and using the 5 year mnoving average. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the winter means calculation), and also indicates which data year the status is based on.
 
 ```{r constants for eut DIN and DIP status and trend calculations, echo = TRUE}
 ## Define constants for status and trend calculations
@@ -1589,31 +1671,22 @@ min_regr_length <- 5 # min actual number of years with data to use for regressio
 ```
 
 ```{r eut nutrients status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 7}
-## calculate for each offshore and coastal separately, then combine
-## quick plot, distributions of means
-ggplot(subbasin_target_nut) + 
+## distributions of means for offshore and coastal categories
+ggplot(wfd_area_target_nut) + 
   geom_histogram(aes(nut_mean), bins = 100, fill = NA, color = "grey") + 
   facet_grid(rows = vars(coastal), cols = vars(nutrient), scales = "free_x") + 
   labs(x = "Mean Nutrient Concentrations", y = NULL)
 
 ## Calculate basin status as: basin_target/basin_mean, constraining values to 1 as maximum score
-nut_status_allyrs <- subbasin_target_nut %>%
+nut_status_allyrs <- wfd_area_target_nut %>%
   rename(subbasin = Subbasin) %>% 
-  mutate(status = pmin(1, target/nut_mean))
+  # mutate(status = pmin(1, target/nut_mean))
   ## or use five year rolling means (moving average) rather than annual mean?
-  # mutate(status = pmin(1, target/ma5yr))
-nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin)
+  mutate(status = pmin(1, target/ma5yr))
+nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin, code)
 
-## Alternative status calculation: Status calculated using BHI region means
-# nut_status_allyrs <- bhi_id_target_nut %>%
-#   rename(subbasin = Subbasin, bhi_id = BHI_ID) %>%
-#   # mutate(status = pmin(1, target/nut_mean)) %>%
-#   ## or use five year rolling means (moving average) rather than annual mean?
-#   mutate(status = pmin(1,  target/ma5yr))
-# nut_status <- group_by(nut_status_allyrs, nutrient, coastal, subbasin, bhi_id)
-
-## select last year of data for status in each basin, this means status year differs by basin
-## joining to basin lookup expands from subbasins to one row per BHI region 
+## select last year of data for status in each subbasin, this means status year differs by basin
+## joining to subbasin lookup expands from subbasins to one row per BHI region 
 nut_status <- nut_status %>% 
   filter(winterofyear == max(winterofyear)) %>% 
   mutate(status = round(status*100, 2)) %>% # keep decimal places, will round when combine eut indicators
@@ -1622,10 +1695,7 @@ nut_status <- nut_status %>%
     dimension = "status", 
     indicator = ifelse(nutrient == "DIP", "dip", "din")
   ) %>% 
-  dplyr::select(
-    score = status, indicator, dimension, coastal,
-    !!!syms(intersect(c("subbasin", "bhi_id"), names(nut_status)))
-  ) %>% 
+  dplyr::select(score = status, indicator, dimension, coastal, subbasin, code) %>% 
   left_join(basin_lookup) %>%
   mutate(region = as.factor(rgn_nam))
 
@@ -1636,9 +1706,10 @@ set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
 plotdf <- nut_status %>% 
+  filter(coastal == "Offshore") %>% 
   left_join(
-    mutate(bind_rows(din_last_year, dip_last_year), coastal = "Both Combined"),
-    by = c("subbasin" = "Subbasin", "indicator", "coastal")
+    bind_rows(din_last_year, dip_last_year),
+    by = c("subbasin" = "Subbasin", "indicator", "code")
   ) %>% 
   mutate(indicator = ifelse(indicator == "dip", "DIP", "DIN"))
 
@@ -1661,8 +1732,8 @@ ggplot(plotdf) +
   ggtitle("DIN and DIP indicators Status by Region, for Coastal, Offshore, and Combined data")
 
 nut_status <- nut_status %>% 
-  filter(coastal == "Both Combined") %>% 
-  select(-coastal)
+  filter(coastal == "Offshore") %>% 
+  select(-coastal, -code)
 ```
 
 <br>
@@ -1677,21 +1748,21 @@ The trend plots show (inorganic) nutrient measurements by basin, with a red line
 
 **Nutrients with 5 Years in Future and Current Estimates (Red and Blue lines Respectively)**
 
-```{r eut nutrients indicators trend calculation, results = "hide", echo = TRUE, fig.width = 9.5, fig.height = 18}
+```{r eut nutrients indicators trend calculation, results = "hide", echo = TRUE, fig.width = 9.5, fig.height = 10}
 trendyrs <- min_year:(min_year + regr_length)
 
-## linear model from the basin mean chla values ----
+## linear model from the basin mean nutrient values ----
 
 nut_lm_estim <- nut_status_allyrs %>%
   filter(winterofyear %in% trendyrs) %>% 
-  distinct(subbasin, coastal, nutrient, winterofyear, nut_mean) %>%
-  group_by(subbasin, coastal, nutrient) %>%
+  distinct(subbasin, code, coastal, nutrient, winterofyear, nut_mean) %>%
+  group_by(subbasin, code, coastal, nutrient) %>%
   ## calculate trend only if:
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
   do(tail(., n = regr_length)) %>%
   do(data.frame(enough_data = ifelse(sum(!is.na(.$nut_mean)) >= min_regr_length, TRUE, FALSE))) %>%
-  right_join(nut_status_allyrs, by = c("subbasin", "coastal", "nutrient")) %>%
-  group_by(subbasin, coastal, nutrient, enough_data, target) %>%
+  right_join(nut_status_allyrs, by = c("subbasin", "code", "coastal", "nutrient")) %>%
+  group_by(subbasin, code, coastal, nutrient, enough_data, target) %>%
   do(trend_mdl = lm(nut_mean ~ winterofyear, data = .))
 
 ## trend plots ----
@@ -1708,7 +1779,7 @@ trendplotdf <- nut_rgns %>%
       prj = predict(trend_mdl, data.frame(winterofyear = max(trendyrs) + future_year))
     )
   ) %>% 
-  filter(coastal %in% c("Coastal", "Offshore"))
+  filter(coastal %in% c("Offshore"))
 
 maketrendplot <- function(trendplotdf){
   trendplot <- ggplot(trendplotdf) +
@@ -1723,12 +1794,9 @@ maketrendplot <- function(trendplotdf){
   return(trendplot)
 }
 gridExtra::grid.arrange(
-  maketrendplot(filter(trendplotdf, coastal == "Coastal", nutrient == "DIN")) + ggtitle("Coastal DIN"),
   maketrendplot(filter(trendplotdf, coastal == "Offshore", nutrient == "DIN")) + ggtitle("Offshore DIN"),
-  maketrendplot(filter(trendplotdf, coastal == "Coastal", nutrient == "DIP")) + ggtitle("Coastal DIP"),
   maketrendplot(filter(trendplotdf, coastal == "Offshore", nutrient == "DIP"))+ ggtitle("Offshore DIP"),
-  nrow = 4,
-  heights = c(4, 5, 4, 5)
+  nrow = 2
 )
 ```
 
@@ -1744,16 +1812,10 @@ nut_trend <- nut_lm_estim %>%
     ## i.e get as proportion relative to target (target is status score of 100, so equivalent scales)
     ## then interpretation of trend is roughly expected (percent) change in status
     trend_score = max(-1, min(1, -expectedchange5yrs/target))
-  )
-## check how coastal/offshore/combined trends from regressions compare...
-chk <- select(nut_trend, nutrient, subbasin, coastal, trend_score) %>%
-  tidyr::pivot_wider(names_from = coastal, values_from = trend_score) %>% 
-  rowwise() %>% 
-  mutate(`Coastal Offshore Average` = (Coastal + Offshore)/2)
-
-nut_trend <- nut_trend %>% 
-  ## magnitude of trends based only on coastal data will be larger... need coastal targets!!! 
-  filter(coastal %in% c("Coastal", "Offshore"), enough_data) %>%
+  ) %>% 
+  ungroup() %>% 
+  ## only using offshore (open-sea) data for now:
+  filter(coastal == "Offshore", enough_data) %>%
   group_by(subbasin, target, nutrient) %>% 
   summarize(trend_score = mean(trend_score, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -1778,7 +1840,7 @@ Basin status is initially a value between 0 and 1. Calculated for each year betw
 
 ```{r timeseries plot eut nutrients status, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 9}
 plotdf <- nut_status_allyrs %>% 
-  filter(coastal == "Both Combined") %>% 
+  filter(coastal == "Offshore") %>% 
   distinct(subbasin, winterofyear, nutrient, status, n_pts)
 
 gridExtra::grid.arrange(
@@ -1807,14 +1869,21 @@ gridExtra::grid.arrange(
 Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. Note: Kiel Bay trend for both DIN and DIP is based only on offshore data as coastal data were not sufficient to fit a trend.
 
 ```{r nutrient status and trend for regions plot, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 7}
-ggplot(rbind(nut_status, nut_trend) %>% mutate(indicator = stringr::str_to_upper(indicator))) + 
+rbind(nut_status, nut_trend) %>% 
+  mutate(indicator = stringr::str_to_upper(indicator)) %>% 
+  filter(!is.na(indicator)) %>% 
+  ggplot() + 
   geom_col(aes(region, score, fill = subbasin), alpha = 0.5, show.legend = FALSE) +
   coord_flip() +
   facet_grid(cols = vars(dimension), rows = vars(indicator), scales = "free_x") +
-  labs(x = "BHI Region\n", y = NULL) +
-  ggtitle("DIN and DIP Status and Trend Scores by Region") +
+  labs(
+    x = "BHI Region\n", 
+    y = NULL,
+    title = "DIN and DIP Status and Trend Scores by Region",
+    caption = "Negative trend values correspond to increasing nutrient concentrations."
+  ) +
   scale_fill_manual(values = statuspal) +
-  theme(axis.text.y = element_text(size = 7))
+  theme(axis.text.y = element_text(size = 7), plot.caption = element_text(hjust = 0))
 ```
 
 <br>
@@ -1841,7 +1910,7 @@ oxydebt <- oxydebt %>%
   rename(subbasin = AssessmentUnitName, year = Year)
 
 ## only Bornholm Basin and Baltic Proper have target values, the other subbasins are too shallow
-## also, the subbasins within Bornholm Basin and Baltic Proper have uniform values within each year...
+## also, the sub-basins within Bornholm Basin and Baltic Proper have uniform values within each year...
 oxydebt_rgns <- oxydebt %>% 
   left_join(basin_lookup) %>% 
   left_join(select(eut_thresholds, subbasin = basin, oxydebt_target = oxyg_debt))
@@ -1858,6 +1927,7 @@ regr_length <- 10 # number of years to use for regression
 future_year <- 5 # the year at which we want the likely future status
 min_regr_length <- 5 # min actual number of years with data to use for regression
 ```
+
 
 ```{r eut oxy debt status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 ## Calculate basin status as: basin_mean/basin_target, constraining values to 1 as maximum score
