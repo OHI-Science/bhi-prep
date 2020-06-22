@@ -882,6 +882,7 @@ write_csv(
   pcb_qflag_adjust_datemeans %>% 
     select(
       region_id = BHI_ID,
+      latitude, longitude, 
       year,
       value = sum_congeners_datemean, 
       matrix = Matrix
@@ -1150,6 +1151,7 @@ write_csv(
   pfos_qflag_adjust_datemeans %>% 
     select(
       region_id = BHI_ID,
+      latitude, longitude, 
       year,
       value = sum_congeners_datemean, 
       matrix = Matrix
@@ -1782,6 +1784,7 @@ write_csv(
   dioxins_qflag_adjust_teqs_total %>% 
     select(
       region_id = BHI_ID,
+      latitude, longitude, 
       year,
       value = total_teq, 
       matrix = Matrix
@@ -2013,6 +2016,7 @@ write_csv(
   rgn_monitor_allsubst %>% 
     select(
       region_id = BHI_ID,
+      latitude, longitude, 
       year,
       monitored, 
       substance
