@@ -1,0 +1,230 @@
+Subbasin,Country,coastal_water_type,Coastal.area.code,Monitoring.area,Latitude,Longitude,period,Taxa,Monitoring.method,Assessment.method,Ref..period.status,GES.border,Current.value,Status.monitoring.location,Status.value.monitoring.location,Status.coastal.area,threshold_value,core_indicator
+Bothnian Bay,Finland,Bothnian Bay Finnish Coastal waters,1,Finnish ICES SD 31,64.207281,23.511161,1998-2016,Perch,Commercial stats,Baseline,GS,"0,07","0,15",GS,0.875,GS,0.6,key species
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Råneå,65.833,22.426,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.55,GS,0.625,,0.6,key species
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Kinnbäcksfjärden,65.047,21.518,2004-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.53,GS,0.625,GS,0.6,key species
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 23,63.505817,21.351243,1998-2016,Perch,Commercial stats,Trend,GS,Slope p >0.1 (+),P slope = 0.0003 (+),GS,0.875,,0.6,key species
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 28,63.505817,21.351243,1998-2016,Perch,Commercial stats,Trend,GS,Slope p >0.1 (+),P slope = 0.66,GS,0.625,GS,0.6,key species
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Holmön,63.682,20.875,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.77,GS,0.625,,0.6,key species
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Norrbyn,63.534,19.834,2002-2016,Perch,Gill net,Trend,nGS,Slope p<0.1,P slope = 0.64,nGS,0.375,nGS,0.6,key species
+Bothnian Sea,Finland,Bothnian Sea Finnish Coastal waters,5,Finnish ICES SD 30,61.679815,21.269112,1998-2016,Perch,Commercial stats,Baseline,GS,"0,18","0,27",GS,0.625,GS,0.6,key species
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Gaviksfjärden,62.863,18.276,2004-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.19,GS,0.625,,0.6,key species
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Långvindsfjärden,61.456,17.166,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.12,GS,0.625,,0.6,key species
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Forsmark,60.434,18.162,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.49,GS,0.625,,0.6,key species
+Åland Sea,Finland,Åland Sea Finnish Coastal waters,7,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Åland Sea,Sweden,Åland Sea Swedish Coastal waters,8,Lagnö,59.566,18.84,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.16,GS,0.625,GS,0.6,key species
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finbo,60.287,19.671,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.78,GS,0.625,,0.6,key species
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Kumlinge,60.225,20.819,2003-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.68,GS,0.625,,0.6,key species
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finnish ICES SD 29,59.705518,21.264879,1998-2016,Perch,Commercial stats,Trend,GS,Slope p >0.1 (+),P slope = 0.005 (+),GS,0.875,GS,0.6,key species
+Northern Baltic Sea,Finland,Northern Baltic Proper Finnish Coastal waters,10,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Askö,58.812,17.718,2005-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.44,GS,0.625,,0.6,key species
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Muskö,58.967,18.112,1998-2016,Flounder,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.1,GS,0.625,GS,0.6,key species
+Northern Baltic Sea,Estonia,Northern Baltic Proper Estonian Coastal waters,12,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Gulf of Finland,Finland,Gulf of Finland Finnish Coastal waters,13,Finnish ICES SD 32,60.10813,25.77241,1998-2016,Perch,Commercial stats,Trend,GS,Slope p >0.1 (+),P slope = 0.99,GS,0.625,GS,0.6,key species
+Gulf of Finland,Estonia,Gulf of Finland Estonian Coastal waters,14,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Gulf of Finland,Russia,Gulf of Finland Russian Coastal waters,15,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Gulf of Riga,Estonia,Gulf of Riga Estonian Coastal waters,16,Hiiumaa,58.8,22.9833,1998-2016,Perch,Gill net,Baseline,nGS,"33,17","32,78",nGS,0.375,nGS,0.6,key species
+Gulf of Riga,Latvia,Gulf of Riga Latvian Coastal waters,17,Daugavgriva,57.04,24.03,1998-2015,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.67,GS,0.625,GS,0.6,key species
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,"Kvädöfjärden, perch",58.017,16.775,2002-2016,Perch,Gill net,Trend,nGS,Slope p <0.1 (+),P slope = 0.70,nGS,0.375,,0.6,key species
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,"Kvädöfjärden, autumn",58.017,16.775,1998-2016,Flounder,Gill net,Baseline,nGS,"11,74","4,24",nGS,0.375,,0.6,key species
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,16.7,1998-2016,Perch,Gill net,Baseline,nGS,"63,85","22,65",nGS,0.375,nGS,0.6,key species
+Estern Gotland Basin,Estonia,Eastern Gotland Basin Estonian Coastal waters,19,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,21.2042,1999-2015,Flounder,Gill net,Baseline,GS,"6,22","25,95",GS,0.875,GS,0.6,key species
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,21.067767,1998-2012,Flounder,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.43,GS,0.625,,0.6,key species
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Curonian lagoon,55.516944,21.218056,1998-2012,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.27,GS,0.625,GS,0.6,key species
+Estern Gotland Basin,Sweden,Eastern Gotland Basin Swedish Coastal waters,22,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Estern Gotland Basin,Russia,Eastern Gotland Basin Russian Coastal waters,23,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Estern Gotland Basin,Poland,Eastern Gotland Basin Polish Coastal waters,24,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Gdansk basin,Russia,Gdansk Basin Russian Coastal waters,25,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Gdansk basin,Poland,Gdansk Basin Polish Coastal waters,26,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,15.792,2002-2016,Perch,Gill net,Trend,GS,Slope p >0.1 (+),P slope = 0.002 (+),GS,0.875,GS,0.6,key species
+Bornholm basin,Poland,Bornholm Basin Polish Coastal waters,28,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Bornholm basin,Denmark,Bornholm Basin Danish Coastal waters,29,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Bornholm basin,Germany,Bornholm Basin German Coastal waters,30,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,,0.6,key species
+Arkona basin,Sweden,Arkona Basin Swedish Coastal waters,31,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Arkona basin,Denmark,Arkona Basin Danish Coastal waters,32,Præstø Fiord,55.174,12.089283,2005-2015,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.39,nGS,0.375,nGS,0.6,key species
+Arkona basin,Germany,Arkona Basin German Coastal waters,33,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Mecklenburg bight,Germany,Mecklenburg Bight German Coastal waters,34,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Mecklenburg bight,Denmark,Mecklenburg Bight Danish Coastal waters,35,Area south of Zealand (Smålandsfarvandet),54.645683,11.732267,2008-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.33,nGS,0.375,nGS,0.6,key species
+Kiel Bight,Denmark,Kiel Bight Danish Coastal waters,36,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Kiel Bight,Germany,Kiel Bight German Coastal waters,37,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Belt Sea,Denmark,Belts Danish Coastal waters,38,The Great Belt,55.166867,10.80415,2005-2015,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.13,nGS,0.375,,0.6,key species
+Belt Sea,Denmark,Belts Danish Coastal waters,38,Southern Little Belt and the archipelago,55.300283,9.678617,2005-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.22,nGS,0.375,,0.6,key species
+Belt Sea,Denmark,Belts Danish Coastal waters,38,Odense Fiord,55.466083,10.475767,2005-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.35,nGS,0.375,,0.6,key species
+Belt Sea,Denmark,Belts Danish Coastal waters,38,Sejerø Bay,55.857667,11.203167,2005-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.27,nGS,0.375,,0.6,key species
+Belt Sea,Denmark,Belts Danish Coastal waters,38,Århus Bay,56.2244,10.428417,2005-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.85,nGS,0.375,,0.6,key species
+The sound,Sweden,The Sound Swedish Coastal waters,39,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+The sound,Denmark,The Sound Danish Coastal waters,40,The sound,56.001617,12.585483,2005-2014,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.14,nGS,0.375,nGS,0.6,key species
+Kattegat,Sweden,Kattegat Swedish Coastal waters,41,NA,NA,NA,NA,key species,NA,NA,NA,NA,NA,NA,NA,NA,0.6,key species
+Kattegat,Denmark,"Kattegat Danish Coastal waters, including Limfjorden",42,Islefjord and Roskilde fjord,55.707417,11.97445,2005-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.01 (+),GS,0.625,,0.6,key species
+Kattegat,Denmark,"Kattegat Danish Coastal waters, including Limfjorden",42,Northern Limfjord,56.857483,9.028,2005-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.27,nGS,0.375,,0.6,key species
+Kattegat,Denmark,"Kattegat Danish Coastal waters, including Limfjorden",42,Skive Fiord and Lovns Broad,56.686117,9.248383,2008-2016,Flounder,Recreational,Trend,nGS,Slope p <0.1 (+),P slope = 0.48,nGS,0.375,,0.6,key species
+Bothnian Bay,Finland,Bothnian Bay Finnish Coastal waters,1,Finnish ICES SD 31,64.207281,23.511161,1998-2016,Cyprinids,Commercial stats,Baseline,GES,0.092; 0.19,"0,15",GES,0.625,GES,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Råneå,65.833,22.426,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.52,GES,0.625,,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Kinnbäcksfjärden,65.047,21.518,2004-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.17,GES,0.625,GES,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 23,63.505817,21.351243,1998-2016,Cyprinids,Commercial stats,Trend,subGES,Slope p <0.1 (-),P slope = 0.20,subGES,0.375,,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 28,63.505817,21.351243,1998-2016,Cyprinids,Commercial stats,Trend,subGES,Slope p <0.1 (-),P slope = 0.23,subGES,0.375,subGES,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Holmön,63.682,20.875,2002-2016,Cyprinids,Gill net,Trend,subGES,Slope p <0.1 (-),P slope = 0.0008 (+),subGES,0.125,,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Norrbyn,63.534,19.834,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.16,GES,0.625,subGES,0.6,functional group
+Bothnian Sea,Finland,Bothnian Sea Finnish Coastal waters,5,Finnish ICES SD 30,61.679815,21.269112,1998-2016,Cyprinids,Commercial stats,Baseline,subGES,"0,14","0,21",subGES,0.375,subGES,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Gaviksfjärden,62.863,18.276,2004-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.19,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Långvindsfjärden,61.456,17.166,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.95,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Forsmark,60.434,18.162,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.11,GES,0.625,,0.6,functional group
+Åland Sea,Finland,Åland Sea Finnish Coastal waters,7,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Åland Sea,Sweden,Åland Sea Swedish Coastal waters,8,Lagnö,59.566,18.84,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.0014 (+),subGES,0.125,subGES,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finbo,60.287,19.671,2002-2016,Cyprinids,Gill net,Trend,subGES,Slope p <0.1 (-),P slope = 0.016 (+),subGES,0.125,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Kumlinge,60.225,20.819,2003-2016,Cyprinids,Gill net,Trend,subGES,Slope p <0.1 (-),P slope = 0.22,subGES,0.375,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finnish ICES SD 29,59.705518,21.264879,1998-2016,Cyprinids,Commercial stats,Baseline,subGES,"0,10","0,22",subGES,0.125,subGES,0.6,functional group
+Northern Baltic Sea,Finland,Northern Baltic Proper Finnish Coastal waters,10,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Askö,58.812,17.718,2005-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.90,GES,0.625,GES,0.6,functional group
+Northern Baltic Sea,Estonia,Northern Baltic Proper Estonian Coastal waters,12,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gulf of Finland,Finland,Gulf of Finland Finnish Coastal waters,13,Finnish ICES SD 32,60.10813,25.77241,1998-2016,Cyprinids,Commercial stats,Trend,subGES,Slope p <0.1 (-),P slope = 0.37,subGES,0.375,subGES,0.6,functional group
+Gulf of Finland,Estonia,Gulf of Finland Estonian Coastal waters,14,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gulf of Finland,Russia,Gulf of Finland Russian Coastal waters,15,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gulf of Riga,Estonia,Gulf of Riga Estonian Coastal waters,16,Hiiumaa,58.8,22.9833,1998-2016,Cyprinids,Gill net,Trend,subGES,Slope p <0.1 (+),P slope = 0.04 (-),subGES,0.125,subGES,0.6,functional group
+Gulf of Riga,Latvia,Gulf of Riga Latvian Coastal waters,17,Daugavgriva,57.04,24.03,1998-2015,Cyprinids,Gill net,Trend,subGES,Slope p <0.1 (-),P slope = 0.18,subGES,0.375,subGES,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Kvädöfjärden,58.017,16.775,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.93,GES,0.625,,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,16.7,1998-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.91,GES,0.625,GES,0.6,functional group
+Estern Gotland Basin,Estonia,Eastern Gotland Basin Estonian Coastal waters,19,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,21.2042,1998-2015,Cyprinids,Gill net,Trend,subGES,Slope p <0.1 (-),P slope = 0.51,subGES,0.375,SubGES,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,21.067767,1999-2012,Mesopredators,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.75,GES,0.625,,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Curonian lagoon,55.516944,21.218056,1998-2012,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.98,GES,0.625,GES,0.6,functional group
+Estern Gotland Basin,Sweden,Eastern Gotland Basin Swedish Coastal waters,22,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Estern Gotland Basin,Russia,Eastern Gotland Basin Russian Coastal waters,23,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Estern Gotland Basin,Poland,Eastern Gotland Basin Polish Coastal waters,24,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gdansk basin,Russia,Gdansk Basin Russian Coastal waters,25,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gdansk basin,Poland,Gdansk Basin Polish Coastal waters,26,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,15.792,2002-2016,Cyprinids,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.50,GES,0.625,GES,0.6,functional group
+Bornholm basin,Poland,Bornholm Basin Polish Coastal waters,28,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bornholm basin,Denmark,Bornholm Basin Danish Coastal waters,29,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bornholm basin,Germany,Bornholm Basin German Coastal waters,30,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Arkona basin,Sweden,Arkona Basin Swedish Coastal waters,31,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Arkona basin,Denmark,Arkona Basin Danish Coastal waters,32,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Arkona basin,Germany,Arkona Basin German Coastal waters,33,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Mecklenburg bight,Germany,Mecklenburg Bight German Coastal waters,34,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Mecklenburg bight,Denmark,Mecklenburg Bight Danish Coastal waters,35,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Kiel Bight,Denmark,Kiel Bight Danish Coastal waters,36,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Kiel Bight,Germany,Kiel Bight German Coastal waters,37,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Belt Sea,Denmark,Belts Danish Coastal waters,38,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+The sound,Sweden,The Sound Swedish Coastal waters,39,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+The sound,Denmark,The Sound Danish Coastal waters,40,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Kattegat,Sweden,Kattegat Swedish Coastal waters,41,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,,0.6,functional group
+Kattegat,Denmark,"Kattegat Danish Coastal waters, including Limfjorden",42,NA,NA,NA,NA,cyprinids,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bothnian Bay,Finland,Bothnian Bay Finnish Coastal waters,1,Finnish ICES SD 31,64.207281,23.511161,1998-2016,Perch,Commercial stats,Trend,GES,Slope p >0.1 (+),P slope = 0.14,GES,0.625,GES,0.6,functional group
+Bothnian Bay,Finland,Bothnian Bay Finnish Coastal waters,1,Finnish ICES SD 31,64.207281,23.511161,1998-2016,pike,Commercial stats,Trend,GES,Slope p >0.1 (+),P slope = 0.14,GES,0.625,GES,0.6,functional group
+Bothnian Bay,Finland,Bothnian Bay Finnish Coastal waters,1,Finnish ICES SD 31,64.207281,23.511161,1998-2016,pikeperch,Commercial stats,Trend,GES,Slope p >0.1 (+),P slope = 0.14,GES,0.625,GES,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Råneå,65.833,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.56,GES,0.625,,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Råneå,65.833,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.56,GES,0.625,,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Råneå,65.833,NA,2002-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.56,GES,0.625,,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Kinnbäcksfjärden,65.047,NA,2004-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.53,GES,0.625,GES,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Kinnbäcksfjärden,65.047,NA,2004-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.53,GES,0.625,GES,0.6,functional group
+Bothnian Bay,Sweden,Bothnian Bay Swedish Coastal waters,2,Kinnbäcksfjärden,65.047,NA,2004-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.53,GES,0.625,GES,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 23,63.505817,21.351243,1998-2016,Perch,Commercial stats,Trend,GES,Slope p >0.1 (+),P slope = 0.0001 (+),GES,0.875,,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 23,63.505817,21.351243,1998-2016,pike,Commercial stats,Trend,GES,Slope p >0.1 (+),P slope = 0.0001 (+),GES,0.875,,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 23,63.505817,21.351243,1998-2016,pikeperch,Commercial stats,Trend,GES,Slope p >0.1 (+),P slope = 0.0001 (+),GES,0.875,,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 28,63.505817,21.351243,1998-2016,Perch,Commercial stats,Baseline,GES,"0,24","0,31",GES,0.625,GES,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 28,63.505817,21.351243,1998-2016,pike,Commercial stats,Baseline,GES,"0,24","0,31",GES,0.625,GES,0.6,functional group
+The Quark,Finland,The Quark Finnish Coastal waters,3,Finnish ICES rect 28,63.505817,21.351243,1998-2016,pikeperch,Commercial stats,Baseline,GES,"0,24","0,31",GES,0.625,GES,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Holmön,63.682,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.56,GES,0.625,,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Holmön,63.682,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.56,GES,0.625,,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Holmön,63.682,NA,2002-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.56,GES,0.625,,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Norrbyn,63.534,NA,2002-2016,Perch,Gill net,Trend,subGES,Slope p <0.1 (+),P slope = 0.63,subGES,0.375,subGES,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Norrbyn,63.534,NA,2002-2016,pike,Gill net,Trend,subGES,Slope p <0.1 (+),P slope = 0.63,subGES,0.375,subGES,0.6,functional group
+The Quark,Sweden,The Quark Swedish Coastal waters,4,Norrbyn,63.534,NA,2002-2016,burbot,Gill net,Trend,subGES,Slope p <0.1 (+),P slope = 0.63,subGES,0.375,subGES,0.6,functional group
+Bothnian Sea,Finland,Bothnian Sea Finnish Coastal waters,5,Finnish ICES SD 30,61.679815,21.269112,1998-2016,Perch,Commercial stats,Trend,subGES,Slope p <0.1 (+),P slope = 0.01 (+),GES,0.625,GES,0.6,functional group
+Bothnian Sea,Finland,Bothnian Sea Finnish Coastal waters,5,Finnish ICES SD 30,61.679815,21.269112,1998-2016,pike,Commercial stats,Trend,subGES,Slope p <0.1 (+),P slope = 0.01 (+),GES,0.625,GES,0.6,functional group
+Bothnian Sea,Finland,Bothnian Sea Finnish Coastal waters,5,Finnish ICES SD 30,61.679815,21.269112,1998-2016,pikeperch,Commercial stats,Trend,subGES,Slope p <0.1 (+),P slope = 0.01 (+),GES,0.625,GES,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Gaviksfjärden,62.863,NA,2004-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.19,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Gaviksfjärden,62.863,NA,2004-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.19,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Gaviksfjärden,62.863,NA,2004-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.19,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Långvindsfjärden,61.456,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.12,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Långvindsfjärden,61.456,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.12,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Långvindsfjärden,61.456,NA,2002-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.12,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Forsmark,60.434,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.49,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Forsmark,60.434,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.49,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Forsmark,60.434,NA,2002-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.49,GES,0.625,,0.6,functional group
+Bothnian Sea,Sweden,Bothnian Sea Swedish Coastal waters,6,Forsmark,60.434,NA,2002-2016,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.49,GES,0.625,,0.6,functional group
+Åland Sea,Finland,Åland Sea Finnish Coastal waters,7,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Åland Sea,Sweden,Åland Sea Swedish Coastal waters,8,Lagnö,59.566,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.15,GES,0.625,GES,0.6,functional group
+Åland Sea,Sweden,Åland Sea Swedish Coastal waters,8,Lagnö,59.566,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.15,GES,0.625,GES,0.6,functional group
+Åland Sea,Sweden,Åland Sea Swedish Coastal waters,8,Lagnö,59.566,NA,2002-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.15,GES,0.625,GES,0.6,functional group
+Åland Sea,Sweden,Åland Sea Swedish Coastal waters,8,Lagnö,59.566,NA,2002-2016,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.15,GES,0.625,GES,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finbo,60.287,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.83,GES,0.625,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finbo,60.287,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.83,GES,0.625,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finbo,60.287,NA,2002-2016,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.83,GES,0.625,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Kumlinge,60.225,NA,2003-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.68,GES,0.625,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Kumlinge,60.225,NA,2003-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.68,GES,0.625,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Kumlinge,60.225,NA,2003-2016,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.68,GES,0.625,,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finnish ICES SD 29,59.705518,21.264879,1998-2016,Perch,Commercial stats,Trend,subGES,Slope p <0.1 (+),P slope = 0.01 (+),GES,0.625,GES,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finnish ICES SD 29,59.705518,21.264879,1998-2016,pike,Commercial stats,Trend,subGES,Slope p <0.1 (+),P slope = 0.01 (+),GES,0.625,GES,0.6,functional group
+Archipelago Sea,Finland,Archipelago Sea Coastal waters,9,Finnish ICES SD 29,59.705518,21.264879,1998-2016,pikeperch,Commercial stats,Trend,subGES,Slope p <0.1 (+),P slope = 0.01 (+),GES,0.625,GES,0.6,functional group
+Northern Baltic Sea,Finland,Northern Baltic Proper Finnish Coastal waters,10,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Askö,58.812,NA,2005-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.39,GES,0.625,,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Askö,58.812,NA,2005-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.39,GES,0.625,,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Askö,58.812,NA,2005-2016,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.39,GES,0.625,,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Askö,58.812,NA,2005-2016,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.39,GES,0.625,,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Muskö,58.967,NA,1998-2016,Perch,Gill net,Baseline,GES,"4,39","6,89",GES,0.625,GES,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Muskö,58.967,NA,1998-2016,pike,Gill net,Baseline,GES,"4,39","6,89",GES,0.625,GES,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Muskö,58.967,NA,1998-2016,pikeperch,Gill net,Baseline,GES,"4,39","6,89",GES,0.625,GES,0.6,functional group
+Northern Baltic Sea,Sweden,Northern Baltic Proper Swedish Coastal waters,11,Muskö,58.967,NA,1998-2016,cod,Gill net,Baseline,GES,"4,39","6,89",GES,0.625,GES,0.6,functional group
+Northern Baltic Sea,Estonia,Northern Baltic Proper Estonian Coastal waters,12,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gulf of Finland,Finland,Gulf of Finland Finnish Coastal waters,13,Finnish ICES SD 32,60.10813,25.77241,1998-2016,Perch,Commercial stats,Trend,subGES,Slope p >0.1 (+),P slope = 0.2,GES,0.625,GES,0.6,functional group
+Gulf of Finland,Finland,Gulf of Finland Finnish Coastal waters,13,Finnish ICES SD 32,60.10813,25.77241,1998-2016,pike,Commercial stats,Trend,subGES,Slope p >0.1 (+),P slope = 0.2,GES,0.625,GES,0.6,functional group
+Gulf of Finland,Finland,Gulf of Finland Finnish Coastal waters,13,Finnish ICES SD 32,60.10813,25.77241,1998-2016,pikeperch,Commercial stats,Trend,subGES,Slope p >0.1 (+),P slope = 0.2,GES,0.625,GES,0.6,functional group
+Gulf of Finland,Estonia,Gulf of Finland Estonian Coastal waters,14,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gulf of Finland,Russia,Gulf of Finland Russian Coastal waters,15,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gulf of Riga,Estonia,Gulf of Riga Estonian Coastal waters,16,Hiiumaa,58.8,NA,1998-2016,Perch,Gill net,Baseline,subGES,"33,37","32,92",subGES,0.375,subGES,0.6,functional group
+Gulf of Riga,Estonia,Gulf of Riga Estonian Coastal waters,16,Hiiumaa,58.8,NA,1998-2016,pike,Gill net,Baseline,subGES,"33,37","32,92",subGES,0.375,subGES,0.6,functional group
+Gulf of Riga,Estonia,Gulf of Riga Estonian Coastal waters,16,Hiiumaa,58.8,NA,1998-2016,pikeperch,Gill net,Baseline,subGES,"33,37","32,92",subGES,0.375,subGES,0.6,functional group
+Gulf of Riga,Latvia,Gulf of Riga Latvian Coastal waters,17,Daugavgriva,57.04,NA,1998-2015,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,GES,0.6,functional group
+Gulf of Riga,Latvia,Gulf of Riga Latvian Coastal waters,17,Daugavgriva,57.04,NA,1998-2015,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,GES,0.6,functional group
+Gulf of Riga,Latvia,Gulf of Riga Latvian Coastal waters,17,Daugavgriva,57.04,NA,1998-2015,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,GES,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Kvädöfjärden,58.017,NA,2002-2016,Perch,Gill net,Trend,subGES,Slope p >0.1 (+),P slope = 0.39,subGES,0.375,,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Kvädöfjärden,58.017,NA,2002-2016,pike,Gill net,Trend,subGES,Slope p >0.1 (+),P slope = 0.39,subGES,0.375,,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Kvädöfjärden,58.017,NA,2002-2016,pikeperch,Gill net,Trend,subGES,Slope p >0.1 (+),P slope = 0.39,subGES,0.375,,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Kvädöfjärden,58.017,NA,2002-2016,cod,Gill net,Trend,subGES,Slope p >0.1 (+),P slope = 0.39,subGES,0.375,,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Kvädöfjärden,58.017,NA,2002-2016,turbot,Gill net,Trend,subGES,Slope p >0.1 (+),P slope = 0.39,subGES,0.375,,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,NA,1998-2016,Perch,Gill net,Baseline,subGES,"64,98","22,65",subGES,0.375,subGES,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,NA,1998-2016,pike,Gill net,Baseline,subGES,"64,98","22,65",subGES,0.375,subGES,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,NA,1998-2016,pikeperch,Gill net,Baseline,subGES,"64,98","22,65",subGES,0.375,subGES,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,NA,1998-2016,cod,Gill net,Baseline,subGES,"64,98","22,65",subGES,0.375,subGES,0.6,functional group
+Western Gotland Basin ,Sweden,Western Gotland Basin Swedish Coastal waters,18,Vinö,57.5,NA,1998-2016,turbot,Gill net,Baseline,subGES,"64,98","22,65",subGES,0.375,subGES,0.6,functional group
+Estern Gotland Basin,Estonia,Eastern Gotland Basin Estonian Coastal waters,19,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,NA,1999-2015,Perch,Gill net,Baseline,GES,"7,48",24.86,GES,0.875,GES,0.6,functional group
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,NA,1999-2015,pike,Gill net,Baseline,GES,"7,48",24.86,GES,0.875,GES,0.6,functional group
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,NA,1999-2015,pikeperch,Gill net,Baseline,GES,"7,48",24.86,GES,0.875,GES,0.6,functional group
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,NA,1999-2015,cod,Gill net,Baseline,GES,"7,48",24.86,GES,0.875,GES,0.6,functional group
+Estern Gotland Basin,Latvia,Eastern Gotland Basin Latvian Coastal waters,20,Jurkalne,56.5932,NA,1999-2015,turbot,Gill net,Baseline,GES,"7,48",24.86,GES,0.875,GES,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,NA,1998-2012,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,NA,1998-2012,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,NA,1998-2012,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,NA,1998-2012,cod,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Mon/But,56.005468,NA,1998-2012,turbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.54,GES,0.625,,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Curonian lagoon,55.516944,NA,1998-2012,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.34,GES,0.625,GES,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Curonian lagoon,55.516944,NA,1998-2012,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.34,GES,0.625,GES,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Curonian lagoon,55.516944,NA,1998-2012,burbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.34,GES,0.625,GES,0.6,functional group
+Estern Gotland Basin,Lithuanina,Eastern Gotland Basin Lithuanian Coastal waters,21,Curonian lagoon,55.516944,NA,1998-2012,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.34,GES,0.625,GES,0.6,functional group
+Estern Gotland Basin,Sweden,Eastern Gotland Basin Swedish Coastal waters,22,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Estern Gotland Basin,Russia,Eastern Gotland Basin Russian Coastal waters,23,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Estern Gotland Basin,Poland,Eastern Gotland Basin Polish Coastal waters,24,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gdansk basin,Russia,Gdansk Basin Russian Coastal waters,25,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Gdansk basin,Poland,Gdansk Basin Polish Coastal waters,26,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,NA,2002-2016,Perch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.003 (+),GES,0.875,GES,0.6,functional group
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,NA,2002-2016,pike,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.003 (+),GES,0.875,GES,0.6,functional group
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,NA,2002-2016,pikeperch,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.003 (+),GES,0.875,GES,0.6,functional group
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,NA,2002-2016,cod,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.003 (+),GES,0.875,GES,0.6,functional group
+Bornholm basin,Sweden,Bornholm Basin Swedish Coastal waters,27,Torhamn,56.05,NA,2002-2016,turbot,Gill net,Trend,GES,Slope p >0.1 (+),P slope = 0.003 (+),GES,0.875,GES,0.6,functional group
+Bornholm basin,Poland,Bornholm Basin Polish Coastal waters,28,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bornholm basin,Denmark,Bornholm Basin Danish Coastal waters,29,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Bornholm basin,Germany,Bornholm Basin German Coastal waters,30,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Arkona basin,Sweden,Arkona Basin Swedish Coastal waters,31,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Arkona basin,Denmark,Arkona Basin Danish Coastal waters,32,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Arkona basin,Germany,Arkona Basin German Coastal waters,33,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Mecklenburg bight,Germany,Mecklenburg Bight German Coastal waters,34,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Mecklenburg bight,Denmark,Mecklenburg Bight Danish Coastal waters,35,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Kiel Bight,Denmark,Kiel Bight Danish Coastal waters,36,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Kiel Bight,Germany,Kiel Bight German Coastal waters,37,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Belt Sea,Denmark,Belts Danish Coastal waters,38,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+The sound,Sweden,The Sound Swedish Coastal waters,39,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+The sound,Denmark,The Sound Danish Coastal waters,40,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
+Kattegat,Sweden,Kattegat Swedish Coastal waters,41,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,,0.6,functional group
+Kattegat,Denmark,"Kattegat Danish Coastal waters, including Limfjorden",42,NA,NA,NA,NA,piscivores,NA,NA,NA,NA,NA,NA,NA,NA,0.6,functional group
