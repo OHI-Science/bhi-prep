@@ -197,13 +197,12 @@ thresholds_combined <- thresholds_combined %>%
     winter_DIP = ifelse(winter_DIP_units == "umol_per_l", winter_DIP/1000, winter_DIP),
     winter_DIP = ifelse(winter_DIP_units == "EQR", NA, winter_DIP),
     winter_DIP_units = "mg_per_l",
-  )
+  ) %>% 
+  select(helcom_id, summer_secchi, summer_chla, winter_DIN, winter_DIP, oxyg_debt) %>% 
+  tidyr::pivot_longer(2:6, names_to = "indicator", values_to = "value")
 
 write_csv(
-  select(
-    thresholds_combined,
-    helcom_id, summer_secchi, summer_chla, winter_DIN, winter_DIP, oxyg_debt
-  ), 
+  thresholds_combined, 
   file.path(dir_layers, sprintf("cw_eut_targets_bhi%s.csv", assess_year))
 )
 ```
