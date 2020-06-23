@@ -20,6 +20,8 @@ bkgd_path <- here::here("supplement", "goal_summaries", "EUT.Rmd")
 data_path <- here::here("data", "CW", "eutrophication", version_year, "eut_data.rmd")
 refs_path <- file.path(loc, "eut_references.Rmd")
 
+dir_layers <- here::here("layers")
+
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
 
@@ -165,6 +167,47 @@ tab <- chla_coastal_thresholds %>%
 ## only have coastal nutrient thresholds for Latvia, Poland, Sweden..
 ```
 <br>
+
+```{r make and save full eutrophication indicators targets table, eval = FALSE}
+thresholds_combined <- bind_rows(
+  eut_thresholds %>% 
+    rename(subbasin = basin) %>% 
+    left_join(distinct(basin_lookup, subbasin, HELCOM_ID), by = "subbasin") %>% 
+    rename(helcom_id = HELCOM_ID) %>% 
+    select(-subbasin) %>% 
+    mutate(
+      summer_secchi_units =  "meters",
+      summer_chla_units = "ug_per_l",
+      winter_DIN_units = "umol_per_l",
+      winter_DIP_units = "umol_per_l"
+    ),
+  tab %>% 
+    rename(helcom_id = code) %>% 
+    mutate(oxyg_debt = NA, summer_secchi = NA, summer_secchi_units = NA)
+)
+
+## convertions for uniform units per indicator...
+## https://ocean.ices.dk/tools/UnitConversion.aspx
+## not sure what to do when have EQR units!!!
+thresholds_combined <- thresholds_combined %>% 
+  mutate(
+    winter_DIN = ifelse(winter_DIN_units == "umol_per_l", winter_DIN/1000, winter_DIN),
+    winter_DIN = ifelse(winter_DIN_units == "EQR", NA, winter_DIN),
+    winter_DIN_units = "mg_per_l",
+    winter_DIP = ifelse(winter_DIP_units == "umol_per_l", winter_DIP/1000, winter_DIP),
+    winter_DIP = ifelse(winter_DIP_units == "EQR", NA, winter_DIP),
+    winter_DIP_units = "mg_per_l",
+  )
+
+write_csv(
+  select(
+    thresholds_combined,
+    helcom_id, summer_secchi, summer_chla, winter_DIN, winter_DIP, oxyg_debt
+  ), 
+  file.path(dir_layers, sprintf("cw_eut_targets_bhi%s.csv", assess_year))
+)
+```
+
 
 ### 3.1 Secchi Indicator {-}
 
@@ -637,6 +680,23 @@ ggplot(rbind(secchi_status, secchi_trend)) +
   ggtitle("Secchi Status and Trend Scores by Region") +
   scale_fill_manual(values = statuspal) +
   theme(axis.text.y = element_text(size = 7))
+```
+
+<br>
+
+#### 3.1.6 Save Secchi depth eutrophication layer {-}
+
+```{r save secchi eut layer, eval = FALSE}
+write_csv(
+  secchi_offshore %>% 
+    select(
+      region_id = BHI_ID,
+      lat, lon, 
+      month, year,
+      secchi_depth = secchi_m
+    ), 
+  file.path(dir_layers, sprintf("cw_eut_secchi_bhi%s.csv", assess_year))
+)
 ```
 
 <br>
@@ -1313,6 +1373,24 @@ ggplot(rbind(chla_status, chla_trend)) +
 
 <br>
 
+#### 3.2.6 Save chlorophyll a eutrophication layer {-}
+
+```{r save chla eut layer, eval = FALSE}
+write_csv(
+  chla_whole %>% 
+    filter(!is.na(code)) %>% 
+    select(
+      region_id = BHI_ID,
+      lat, lon, 
+      month, year,
+      chla_conc = chla_ug_l
+    ), 
+  file.path(dir_layers, sprintf("cw_eut_chla_bhi%s.csv", assess_year))
+)
+```
+
+<br>
+
 ### 3.3 Nutrients Indicator
 
 The nutrients indicator measures winter (December-February) dissolved inorganic nitrogen (DIN: nitrate, nitrite, and ammonium) and winter dissolved inorganic phosphorus (DIP) concentrations in the surface layer (0 - 10 m depth).
@@ -1543,19 +1621,6 @@ nut_winter_months_mean <- nut_winter_months_mean %>%
   mutate(ma5yr = zoo::rollapply(nut_mean, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
   mutate(nut_min = nut_mean-nut_sd, nut_max = nut_mean+nut_sd)
 
-
-'## DIFFERENT TARGETS FOR COASTAL (WFD AREAS) AND OFFSHORE
-wfd_area_target_chla <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
-  read_csv() %>% 
-  dplyr::select(basin = subbasin, code = helcom_id) %>% 
-  distinct() %>% 
-  left_join(eut_thresholds, by = "basin") %>% 
-  dplyr::select(code, target_chla = summer_chla) %>% 
-  mutate(units = "ug_per_l") %>% 
-  bind_rows(rename(chla_coastal_thresholds, target_chla = threshold)) %>% 
-  ## join with basin-specific eutrophication chlorophyll a targets
-  right_join(chla_summer_months_mean, by = "code")
-'
 
 ## join with basin-specific eutrophication chlorophyll a targets
 wfd_area_target_nut <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
@@ -1888,6 +1953,37 @@ rbind(nut_status, nut_trend) %>%
 
 <br>
 
+#### 3.3.6 Save dissolved inorganic nutrients eutrophication layers {-}
+
+```{r save din and dip eut layers, eval = FALSE}
+write_csv(
+  nut_rgns %>% 
+    filter(!is.na(code), nutrient == "DIN") %>% 
+    select(
+      region_id = BHI_ID,
+      latitude, longitude,
+      month,
+      winterofyear,
+      din_conc = value
+    ), 
+  file.path(dir_layers, sprintf("cw_eut_din_bhi%s.csv", assess_year))
+)
+write_csv(
+  nut_rgns %>% 
+    filter(!is.na(code), nutrient == "DIP") %>% 
+    select(
+      region_id = BHI_ID,
+      latitude, longitude,
+      month,
+      winterofyear,
+      dip_conc = value
+    ), 
+  file.path(dir_layers, sprintf("cw_eut_dip_bhi%s.csv", assess_year))
+)
+```
+
+<br>
+
 ### 3.4 Oxygen Debt {-}
 
 For details on data preparation for oxygen debt layer, see [this github repository](https://github.com/OHI-Baltic/HEAT), forked from ICE HEAT assessment tool for fitting oxygen debt profiles to oxygen data measurements. Oxygen data measurements used were obtained from ICE and merged as documented in section 2.2.4.
@@ -1912,7 +2008,7 @@ oxydebt <- oxydebt %>%
 ## only Bornholm Basin and Baltic Proper have target values, the other subbasins are too shallow
 ## also, the sub-basins within Bornholm Basin and Baltic Proper have uniform values within each year...
 oxydebt_rgns <- oxydebt %>% 
-  left_join(basin_lookup) %>% 
+  full_join(basin_lookup) %>% 
   left_join(select(eut_thresholds, subbasin = basin, oxydebt_target = oxyg_debt))
 ```
 
@@ -1978,6 +2074,23 @@ Basin status is initially a value between 0 and 1. Calculated for each year betw
 **Plot region Status and Trend values**
 
 Status values can range from 0-100 -- this is the status for the *most recent* year. In most cases this is 2019. Note: Kiel Bay trend for both DIN and DIP is based only on offshore data as coastal data were not sufficient to fit a trend.
+
+<br>
+
+#### 3.3.6 Save oxygen debt eutrophication layer {-}
+
+```{r save oxygen debt eut layer, eval = FALSE}
+write_csv(
+  oxydebt_rgns %>% 
+    select(
+      region_id = bhi_id,
+      helcom_id = HELCOM_ID,
+      year,
+      oxygendebt = ES
+    ), 
+  file.path(dir_layers, sprintf("cw_eut_oxydebt_bhi%s.csv", assess_year))
+)
+```
 
 <br>
 
