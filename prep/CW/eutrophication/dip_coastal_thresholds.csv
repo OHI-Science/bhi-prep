@@ -1,9 +1,9 @@
 code,threshold,units
-LAT-001,0.6,mol_negative_1
-LAT-002,0.6,mol_negative_2
-LAT-003,0.75,mol_negative_3
-LAT-004,0.75,mol_negative_4
-LAT-005,0.9,mol_negative_5
+LAT-001,0.6,umol_per_l
+LAT-002,0.6,umol_per_l
+LAT-003,0.75,umol_per_l
+LAT-004,0.75,umol_per_l
+LAT-005,0.9,umol_per_l
 POL-001,0.05,mg_per_l
 POL-002,0.05,mg_per_l
 POL-003,0.05,mg_per_l
