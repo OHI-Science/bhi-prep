@@ -147,7 +147,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/dataPortal/getStations) <br/> Downloaded 28 February 2020 by Ellie Campbell. See data.R/get_nest_data function for more detailed info.")
+knitr::kable(tab, caption = "Source: [Baltic Nest database](http://nest.su.se/dataPortal/getStations) <br/> Downloaded 28 February 2020 by Ellie Campbell. See data.R/get_nest_data function for more detailed info. [About units](http://nest.su.se/bed/chem_struct.shtml).")
 ```
 
 ```{r using get_nest_data function to download winter nutrient data, echo = TRUE, eval = FALSE}

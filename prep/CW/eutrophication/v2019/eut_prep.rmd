@@ -191,12 +191,12 @@ thresholds_combined <- bind_rows(
 ## not sure what to do when have EQR units!!!
 thresholds_combined <- thresholds_combined %>% 
   mutate(
-    winter_DIN = ifelse(winter_DIN_units == "umol_per_l", winter_DIN/1000, winter_DIN),
+    winter_DIN = ifelse(winter_DIN_units == "mg_per_l", winter_DIN*1000, winter_DIN),
     winter_DIN = ifelse(winter_DIN_units == "EQR", NA, winter_DIN),
-    winter_DIN_units = "mg_per_l",
-    winter_DIP = ifelse(winter_DIP_units == "umol_per_l", winter_DIP/1000, winter_DIP),
+    winter_DIN_units = "umol_per_l",
+    winter_DIP = ifelse(winter_DIP_units == "mg_per_l", winter_DIP*1000, winter_DIP),
     winter_DIP = ifelse(winter_DIP_units == "EQR", NA, winter_DIP),
-    winter_DIP_units = "mg_per_l",
+    winter_DIP_units = "umol_per_l",
   ) %>% 
   select(helcom_id, summer_secchi, summer_chla, winter_DIN, winter_DIP, oxyg_debt) %>% 
   tidyr::pivot_longer(2:6, names_to = "indicator", values_to = "value")
@@ -595,7 +595,7 @@ secchi_lm_estim <- secchi_status_allyrs %>%
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
   do(tail(., n = regr_length)) %>%
   do(data.frame(enough_data = ifelse(sum(!is.na(.$mean_secchi)) >= min_regr_length, TRUE, FALSE))) %>%
-  right_join(secchi_status_allyrs, by  = "subbasin") %>%
+  right_join(secchi_status_allyrs %>% filter(yeaar %in% trendyrs), by  = "subbasin") %>%
   group_by(subbasin, enough_data, target_secchi) %>%
   do(trend_mdl = lm(mean_secchi ~ year, data = .))
 
@@ -1272,7 +1272,7 @@ chla_lm_estim <- chla_status_allyrs %>%
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
   do(tail(., n = regr_length)) %>%
   do(data.frame(enough_data = ifelse(sum(!is.na(.$mean_chla)) >= min_regr_length, TRUE, FALSE))) %>%
-  right_join(chla_status_allyrs, by = c("subbasin", "code", "coastal")) %>%
+  right_join(chla_status_allyrs %>% filter(year %in% trendyrs), by = c("subbasin", "code", "coastal")) %>%
   group_by(subbasin, code, coastal, enough_data, target_chla) %>%
   do(trend_mdl = lm(mean_chla ~ year, data = .))
 
@@ -1380,6 +1380,7 @@ write_csv(
     filter(!is.na(code)) %>% 
     select(
       region_id = BHI_ID,
+      helcom_id = code,
       lat, lon, 
       month, year,
       chla_conc = chla_ug_l
@@ -1478,7 +1479,7 @@ nut_rgns <- nut_rgns %>%
     latitude, longitude, depth_m,
     Subbasin, BHI_ID, code, coastal, 
     area_km2_wfd,
-    winterofyear, month, time, 
+    winterofyear, year, month, time, 
     din, dip
   ) %>% 
   tidyr::pivot_longer(c("din", "dip"), names_to = "nutrient", values_to = "value") %>% 
@@ -1960,9 +1961,9 @@ write_csv(
     filter(!is.na(code), nutrient == "DIN") %>% 
     select(
       region_id = BHI_ID,
+      helcom_id = code,
       latitude, longitude,
-      month,
-      winterofyear,
+      month, year,
       din_conc = value
     ), 
   file.path(dir_layers, sprintf("cw_eut_din_bhi%s.csv", assess_year))
@@ -1972,9 +1973,9 @@ write_csv(
     filter(!is.na(code), nutrient == "DIP") %>% 
     select(
       region_id = BHI_ID,
+      helcom_id = code,
       latitude, longitude,
-      month,
-      winterofyear,
+      month, year,
       dip_conc = value
     ), 
   file.path(dir_layers, sprintf("cw_eut_dip_bhi%s.csv", assess_year))
