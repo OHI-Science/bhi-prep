@@ -85,6 +85,7 @@ The raw coastal fish data must be assigned to their respective Subbasins and BHI
 
 ```{r assign BHI regions to coastal fish data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 # Rename some variable and subbasin name to make it match to the basin_lookup table
+# library(stringi)
 combined_coastal_fish <- combined_coastal_fish %>% 
   rename(lat = Latitude, lon = Longitude) %>% 
   filter(!is.na(lat) & !is.na(lon)) %>%  # however, by doing this, more than 70 locations will be cut off
@@ -111,15 +112,67 @@ coastalfish_rgns <- join_rgns_info(
 
 <br/>
 
+```{r explore coastal fish data in map, eval = FALSE, results = "show", fig.width = 9, fig.height = 6}
+library(leaflet)
+source(here::here("R", "spatial.R"))
+regions_shape()
+
+# Remove data points out of the bhi regions
+coastalfish_rgns <- coastalfish_rgns %>% 
+  filter(monitoring.area != "Northern Limfjord" & 
+           monitoring.area != "Skive Fiord and Lovns Broad") %>% 
+  # assign bhi_id with na value
+  mutate(BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Finbo", 36),
+         BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Jurkalne", 24),
+         BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Præstø Fiord", 12))
+
+## make basemap
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+
+coastal_fish <- basemap +
+  geom_sf(data = bhi_rgns_simple, fill = "white", size = 0.2, color = "burlywood") +
+  geom_sf(
+    mapping = aes(colour = monitoring.area),
+    data = sf::st_as_sf(
+      coastalfish_rgns, 
+      coords = c("lon", "lat"), 
+      crs = 4326
+    ),
+    size = 1.8
+  ) +
+  labs(x = NULL, y = NULL, colour = "Monitoring area") +
+  ggtitle("Sampling Locations")
+# + theme(legend.position = c(0.9, 0.1)) +
+#  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
+
+```
+
+
 ## 4 BHI Status score {-}
 
 Step 1. Take mean score for each indicator type in each monitoring region.  
 
-Step 2. Take mean score for each indicator at the HOLAS basin scale. 
+Step 2. Take mean score for each indicator at the HOLAS basin scale (per country). 
 
-Step 3. Take mean of the two indicators for each basin.  
+Step 3. Take mean score for each indicator at the whole HOLAS basin scale. 
 
-Step 4. Apply basin score to each BHI region  
+Step 4. Take mean of the two indicators for each basin.  
+
+Step 5. Apply basin score to each BHI region  
+
+
+Xao = Mean Stock Indicator Value / Reference Point
+
+- Stock indicators = two HELCOM core indicators assessed for good environmental status (each scored between 0 and 1 by BHI)
+- Reference point = value = 0.6
+
+**A status of 100 indicates target (GES) is achieved**
 
 ```{r status calculation, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 ## Number of time series that will contribute to the mean score in each basin
@@ -131,15 +184,15 @@ basin_n_obs <- combined_coastal_fish %>%
 ## Indicator mean by monitoring area
 monitoring_indicator_mean <- combined_coastal_fish %>% 
   select(
-    Subbasin, Monitoring.area, lat, lon, core_indicator, Status.value.monitoring.location, threshold_value
+    Subbasin, Country, Monitoring.area, lat, lon, core_indicator, Status.value.monitoring.location, threshold_value
     ) %>%
-  group_by(Subbasin, Monitoring.area, lat, lon, core_indicator, threshold_value)%>%
+  group_by(Subbasin, Country, Monitoring.area, lat, lon, core_indicator, threshold_value)%>%
   summarise(mean_core_monitoring_score = mean(Status.value.monitoring.location, na.rm=TRUE))%>%
   ungroup()
 
 # Monitoring area score (mean across the two indicators)
 monitoring_mean_score <- monitoring_indicator_mean %>%
-  group_by(Monitoring.area, Subbasin, lat, lon, threshold_value) %>%
+  group_by(Monitoring.area, Subbasin, Country, lat, lon, threshold_value) %>%
   summarise(mean_monitoring_score = round(mean(mean_core_monitoring_score, na.rm=TRUE), 2)) %>%
   ungroup()
 
@@ -147,10 +200,17 @@ monitoring_mean_score <- monitoring_indicator_mean %>%
 bhi_monitoring_mean_score <- monitoring_mean_score %>% 
   full_join(., basin_lookup, by = c("Subbasin" = "subbasin"))  
 
+# Indicator mean by Subbasin (per country)
+country_indicator_mean <- monitoring_indicator_mean %>%
+  full_join(., basin_lookup, by = c("Subbasin" = "subbasin")) %>% 
+  group_by(Subbasin, rgn_nam, core_indicator, threshold_value)%>%
+  summarise(mean_core_country_score = mean(mean_core_monitoring_score, na.rm=TRUE)) %>%
+  ungroup()
+
 # Indicator mean by Subbasin
-basin_indicator_mean <- monitoring_indicator_mean %>%
+basin_indicator_mean <- country_indicator_mean %>%
   group_by(Subbasin, core_indicator, threshold_value)%>%
-  summarise(mean_core_basin_score = mean(mean_core_monitoring_score, na.rm=TRUE)) %>%
+  summarise(mean_core_basin_score = mean(mean_core_country_score, na.rm=TRUE)) %>%
   ungroup()
 
 # Subbasin score (mean across the two indicators)
@@ -179,11 +239,12 @@ Plot the monitoring stations, basins, and BHI regions
 **Note that points are "jittered" in the second plot to make visible**  
 
 **Colors in the second plot are different monitoring locations**
-```{r plot scores levels of aggregation, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r plot scores levels of aggregation}
 ## Plot monitoring area indicator mean scores
 ggplot(monitoring_indicator_mean) + 
-  geom_point(aes(Monitoring.area, mean_core_monitoring_score, color = core_indicator)) +
-  geom_hline(yintercept = 0.6) +
+  geom_point(aes(Monitoring.area, mean_core_monitoring_score, color = core_indicator,
+                 shape = core_indicator), size = 3, alpha = 0.6) +
+  geom_hline(yintercept = 0.6, color = "red") +
   theme(axis.text.x = element_text(colour="grey20", size=6, angle=90, 
                                    hjust=.5, vjust=.5, face = "plain"),
         plot.margin = unit(c(1,1,1,1), "cm"))  +
@@ -212,7 +273,7 @@ ggtitle("Monitoring Area Indicator Mean Score by Basin")
 ```
 
 **Plot the monitoring area mean scores on a map**
-```{r monitoring mean score map, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r monitoring mean score map}
 ## Join monitoring_indicator_mean to lat-lon
 ## get the map
 map <- ggmap::get_map(location = c(8.5, 53, 32, 67.5))
@@ -223,8 +284,9 @@ map_data <- monitoring_indicator_mean %>%
     
 ## Set up the plot
 plot_map <- ggmap(map) +
-  geom_point(aes(x = lon, y = lat, colour = mean_core_monitoring_score, 
-                 shape = factor(core_indicator)), data = map_data, size = 2.5)
+  geom_point(aes(x = lon, y = lat, color = mean_core_monitoring_score,
+                 shape = factor(core_indicator)), size = 3,
+             alpha = 0.6, data = map_data)
     
 ## Plot the map
 plot_map + 
@@ -240,11 +302,23 @@ plot_map +
 Plot the mean basin score for each indicator 
 *(e.g. on functional score per basin and one key species score per basin)*  
 *Basins are currently alphabetically ordered on x-axis, not ordered geographically*  
-```{r plot basin indicator scores, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r plot basin indicator scores}
+## Plot basin indicator mean scores (per country)
+ggplot(country_indicator_mean) + 
+  geom_point(aes(rgn_nam, mean_core_country_score, color = core_indicator, 
+                 shape = core_indicator), size = 2, alpha = 0.7) +
+  geom_hline(yintercept = 0.6, color = "red") +
+  scale_shape_manual(values = c(6,19)) +
+  theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90, 
+                                    hjust=.5, vjust = .5, face = "plain"),
+         plot.margin = unit(c(1,1,1,1), "cm")) +
+  labs(y = "Score", x = "Regions") +
+  ggtitle('Indicator Mean Score by Basin (per country')
+
 ## Plot basin indicator mean scores
 ggplot(basin_indicator_mean) + 
   geom_point(aes(Subbasin, mean_core_basin_score, color = core_indicator, 
-                 shape = core_indicator), size=1.5) +
+                 shape = core_indicator), size = 2, alpha = 0.7) +
   geom_hline(yintercept = 0.6, color = "red") +
   scale_shape_manual(values = c(6,19)) +
   scale_colour_manual(values = c("black","turquoise")) +
@@ -258,7 +332,7 @@ ggplot(basin_indicator_mean) +
 
 **Plot Basin mean score across indicators**
 The mean of the two indicator scores was taken for each basin
-```{r plot basin mean across indicators, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r plot basin mean across indicators}
 ## Plot basin mean score across indicators
 ggplot(basin_mean_score) + 
   geom_point(aes(Subbasin, mean_basin_score), size=2) +
@@ -274,8 +348,7 @@ ggplot(basin_mean_score) +
 
 #### 4.1.4 Plot BHI Scores {-}
 
-There are no scores for Kiel Bay and Gdansk Basin, therefore no scores for BHI regions 7, 8, 18, 19. 
-For Kiel Bay, this could be because some monitoring locations should be assigned to Kiel Bay but are not. There are no Polish data which is why there is no scoring for Gdansk Basin.  
+There are no scores for Kiel Bay and Gdansk Basin, therefore no scores for BHI regions 7, 8, 18, and 19 due to missing data. There are no Danish, German, Polish and Russian data which is why there is no scoring for their respective basins.  
 
 <!-- #### Status review and decisions -->
 
@@ -284,22 +357,22 @@ For Kiel Bay, this could be because some monitoring locations should be assigned
 <!-- 2. Check assignment of monitoring regions / assessment basins to HOLAS basins.   -->
 <!-- **Missing BHI scores** for Kiel Bay (should something be reassigned) and Gdansk Basin (no Polish data).  *Should we gap-fill with adjacent areas?*- **Jens say do not gap fill from adjacent areas, there is not data and populations too local to extrapolate**   -->
 
-- Although scores is calculated by basin, Jens Olsson suggests not applying the score to regions where no sampling occurred. Therefore, 13 regions have the score replaced with NA (7, 8, 18, 19)
+- Although scores is calculated by basin, Jens Olsson suggests not applying the score to regions where no sampling occurred, due to local population. Therefore, 12 regions have the score replaced with NA (4, 7, 8, 10, 13, 16, 17, 18, 19, 21, 22, 33).
 - See this map of sampling locations provided by Jens Olsson for the above justification (note that the Finnish sites are not marked but covered the entire coastline as they are ICES regions. Coloration of the coastal waters is indication HELCOM coastal water type.  
 
 ```{r final score objects, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
-##Object with basin scores joinded to BHI id
-## bhi_mean_score_colors
-bhi_score <- bhi_mean_score %>%
-  select(bhi_id, mean_basin_score) %>%
+## Calculate bhi status as: basin_mean/basin_target, constraining values to 1 as maximum score
+bhi_status <- bhi_mean_score %>%
+  select(bhi_id, mean_basin_score, threshold_value) %>%
   mutate(
     mean_basin_score = ifelse(bhi_id %in% c(4,7,8,10,13,16,17,18,19,21,22,33), NA, mean_basin_score),
     dimension= "status"
     ) %>%  
-  dplyr::rename(rgn_id = bhi_id,
-                score = mean_basin_score) %>%
-  mutate(score = round(score * 100)) %>%  ## score from 0-100
+  dplyr::rename(rgn_id = bhi_id) %>%
+  mutate(score = pmin(1, mean_basin_score/threshold_value),
+         score = round(score * 100, 2)) %>% # keep decimal places, will round when combine eut indicators
   select(rgn_id, dimension, score)
+
 ```
 <br/>
 
@@ -307,19 +380,19 @@ bhi_score <- bhi_mean_score %>%
 #### 4.1.5  Plot final score objects
 
 
-```{r  final score object plotted, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r  final score object plotted}
 ## Number of observations
 ##basin_n_obs    
 ##Plot points
-plot_score <- bhi_score %>% 
+plot_status <- bhi_status %>% 
   full_join(.,basin_lookup, by = c("rgn_id"= "bhi_id")) %>%
   full_join(., basin_n_obs, by= c("subbasin" ="Subbasin"))
 
-ggplot(plot_score) +
-  geom_point(aes(rgn_id, score, color = n, size = n)) +
-  ylim(0, 100) +
-  labs(y = "Score", x = "BHI regions") +
-  ggtitle("AO Status Score")
+# ggplot(plot_status) +
+#  geom_point(aes(rgn_id, status, color = n, size = n)) +
+#  ylim(0, 100) +
+#  labs(y = "Score", x = "BHI regions") +
+#  ggtitle("AO Status Score")
 
 ## plot the status
 ## BHI region plots will look the same, as BHI status are taken from subbasin means
@@ -327,7 +400,7 @@ ggplot(plot_score) +
 set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
-ggplot(plot_score) +
+ggplot(plot_status) +
   geom_col(
     aes(rgn_nam, score, fill = subbasin),
     position = position_dodge(), 
@@ -336,9 +409,9 @@ ggplot(plot_score) +
     size = 0.2,
     show.legend = FALSE
   ) + 
-  geom_text(aes(rgn_nam, score, label = score), color = "slategray", size = 3) +
+  geom_text(aes(rgn_nam, score, label = score), color = "black", size = 3) +
   coord_flip() +
-  labs(x = NULL, y = "BHI regions") +
+  labs(x = NULL, y = "Score") +
   theme_bw() +
   theme(axis.text.y = element_text(size = 9)) +
   scale_fill_manual(values = statuspal) +
@@ -349,49 +422,53 @@ ggplot(plot_score) +
 
 ## 5. Trend Calculation {-}
 
-We decided to follow the same approach as for BHI 1.0, from [Bergström et al 2016](https://www.researchgate.net/publication/288058474_Long_term_changes_in_the_status_of_coastal_fish_in_the_Baltic_Sea), but only focus on the final time period
-for the slope (2004-2016)
+We decided to follow the same approach as for BHI 1.0, from [Bergström et al 2016](https://www.researchgate.net/publication/288058474_Long_term_changes_in_the_status_of_coastal_fish_in_the_Baltic_Sea), but only focus on the final 10 year-time period
+for the slope (2008-2018)
 
 ### 5.1 Trend calculation method {-}
 
 STEPS:
-1.Select final time period of trend assessment (2004-2016)
+
+1.Select final time period of trend assessment (2008-2018)
 2. Use time series from both indicators, Key Species and Functional groups. For functional groups,
     include both cyprinid and piscivore time series.
  3. For each time series:  square-root transform data, z-score, fit linear regression, extract slope
- 4. Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group
-    within each basin
+ 4. Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each basin (per country) and then within each basin
  5. Within each basin take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean)
  6. For each basin take overall mean slope - mean of key species and functional group
  7. Multiple by five for future year value?
  8. Apply trend value for basin to all BHI regions (except in Gulf of Finland, do not apply Finnish site value to Estonia and Russian regions)
  
 **Select time period and plot data**  
-```{r select time period and plot data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
-## Select years 2004-2016
+```{r select time period and plot data, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+## Select years 2008-2018
 cpue <- cpue %>%
-        filter(Year >= 2006 & Year <= 2016)
+  filter(Year >= 2008 & Year <= 2018) %>% 
+  mutate(Year = as.character(Year))
 
 ## Plot raw data
 ggplot(filter(cpue, core_indicator == "Key species")) +
   geom_point(aes(Year, cpue)) +
-  facet_wrap(~monitoring_area, scales="free_y")+
-  ggtitle("Key Species CPUE (2006-2016)")
+  facet_wrap(~monitoring_area, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Key Species CPUE by monitoring areas (2008-2018)")
 
 ggplot(filter(cpue, Taxa == "Cyprinids")) +
   geom_point(aes(Year, cpue)) +
-  facet_wrap(~monitoring_area, scales="free_y")+
-  ggtitle("Functional Group Cyprinids CPUE (2006-2016)")
+  facet_wrap(~monitoring_area, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Cyprinids CPUE by monitoring areas (2008-2018)")
 
 ggplot(filter(cpue, Taxa == "Piscivores")) +
   geom_point(aes(Year, cpue)) +
-  facet_wrap(~monitoring_area, scales="free_y")+
-  ggtitle("Functional Group Piscivores CPUE (2006-2016)")
+  facet_wrap(~monitoring_area, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Piscivores CPUE by monitoring areas (2008-2018)")
 ```
 <br/>
 
 **Transform data**
-```{r transform data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r transform data, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 # square root transform and zscore each time series
 cpue_trans <- cpue %>%
   mutate(cpue_sqrt = sqrt(cpue))%>% ## square root transform the data
@@ -414,20 +491,23 @@ cpue_trans %>%
 ggplot(filter(cpue_trans, core_indicator == "Key species")) +
   geom_point(aes(Year, cpue_z))+
   geom_hline(yintercept = 0) +
-  facet_wrap(~monitoring_area, scales="free_y")+
+  facet_wrap(~monitoring_area, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90)) +
   ggtitle("Key Species CPUE Sqrt Zscore")
 
 ggplot(filter(cpue_trans, Taxa == "Cyprinids")) +
   geom_point(aes(Year, cpue_z))+
   geom_hline(yintercept = 0) +
-  facet_wrap(~monitoring_area, scales="free_y")+
-  ggtitle("Functional Group Cyprinids CPUE Sqrt Zscore")
+  facet_wrap(~monitoring_area, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Cyprinids CPUE Sqrt Zscore")
 
 ggplot(filter(cpue_trans, Taxa =="Piscivores")) +
   geom_point(aes(Year, cpue_z)) +
   geom_hline(yintercept = 0) +
-  facet_wrap(~monitoring_area, scales="free_y")+
-  ggtitle("Functional Group Piscivores CPUE Sqrt Zscore")
+  facet_wrap(~monitoring_area, scales="free_y") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Piscivores CPUE Sqrt Zscore")
 ```
 
 **Fit LM, extract slope**
@@ -435,6 +515,7 @@ ggplot(filter(cpue_trans, Taxa =="Piscivores")) +
 # library(broom)
 cpue_mdl <- cpue_trans %>%
   select(Subbasin, Country, monitoring_area, core_indicator, Taxa, Year, cpue_z) %>%
+  mutate(Year = as.numeric(Year)) %>% 
   group_by(Subbasin, Country, monitoring_area, core_indicator, Taxa) %>%
   drop_na(cpue_z) %>% # need to drop 'NA' to make the lm work
   do(mdl = lm(cpue_z ~ Year, data = .)) %>%             # regression model to get the trend
@@ -456,33 +537,33 @@ cpue_mdl %>%
 ```
 
 **Plot slope**
-```{r plot slope, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r plot slope, eval = FALSE}
 ## Plot slope extracted with number of observations
 ggplot(cpue_mdl) +
   geom_point(aes(Subbasin, slope, colour = monitoring_area, 
                  shape = core_indicator, label = nobs), size = 2) +
   geom_hline(yintercept = 0) +
-  geom_text(aes(Subbasin, slope, label = nobs), size = 2) +
+  geom_text(aes(Subbasin, slope, label = nobs), size = 2.5, alpha = 0.5) +
   theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90,
                                    hjust = .5, vjust = .5, face = "plain")) +
   guides(colour = "none") +
-  ggtitle("lm slopes 2006-2016")
+  ggtitle("lm slopes 2008-2018")
 
 ## Plot without number of observations
 ggplot(cpue_mdl) +
   geom_point(aes(Subbasin, slope, colour = monitoring_area,
-                 shape = core_indicator), size = 2) +
+                 shape = core_indicator), size = 2.5, alpha = 0.5) +
   geom_hline(yintercept = 0) +
   theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90,
                                    hjust = .5, vjust = .5, face = "plain")) +
   guides(colour = "none") +
-  ggtitle("lm slopes 2006-2016")
+  ggtitle("lm slopes per monitoring areas (2008-2018)")
 ```
 
 
 ### 5.2 Plot the slopes from all timeseries
 
-```{r plot slopes, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r plot slopes, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 #### Plot the slopes from all timeseries
 ggplot(cpue_mdl)+
   geom_hline(yintercept = 0) +
@@ -518,12 +599,18 @@ ggplot(filter(cpue_mdl, core_indicator == "Key species")) +
 
 ### 5.3 Mean Slope group per basin
 
-Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each basin  
-```{r mean slope by group per basin, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
-## slope
-slope <- cpue_mdl %>%
+Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each basin (per country) and then by basin  
+```{r mean slope by group per basin, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+## slope (per country)
+slope_country <- cpue_mdl %>%
+  group_by(Subbasin, Country, core_indicator, Taxa) %>%
+  mutate(slope_mean_country_taxa = mean(slope)) %>%
+  ungroup()
+
+## slope (per basin)
+slope <- slope_country %>%
   group_by(Subbasin, core_indicator, Taxa) %>%
-  mutate(slope_mean_basin_taxa = mean(slope)) %>%
+  mutate(slope_mean_basin_taxa = mean(slope_mean_country_taxa)) %>%
   ungroup()
 
 ## number of time series for each basin
@@ -543,14 +630,14 @@ ggplot(slope) +
 
 ## new object only mean value
 slope2 <- slope %>%
-  select(Subbasin, core_indicator, Taxa, slope_mean_basin_taxa)
+  select(Subbasin, Country, core_indicator, Taxa, slope_mean_basin_taxa)
 ```
 
 
 ### 5.4 Mean slope for each indicator (Functional group, Key Spp)
 
 Within each basin take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean) and take mean of each Key species indicator
-```{r  mean indicator slope, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r  mean indicator slope}
 slope2 <- slope2 %>%
   group_by(Subbasin, core_indicator) %>%
   mutate(slope_mean_basin_indicator = mean(slope_mean_basin_taxa)) %>%
@@ -576,7 +663,7 @@ slope3 <- slope2 %>%
 ### 5.5 Basin mean slope
 
 Take the mean for each basin across the indicator types (Functional groups, key species)
-```{r basin mean slope, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r basin mean slope}
 slope3 <- slope3 %>%
   group_by(Subbasin) %>%
   mutate(slope_mean_basin = mean(slope_mean_basin_indicator)) %>%
@@ -591,7 +678,7 @@ ggplot(slope3) +
   scale_shape_manual(values = c(1:2)) +
   ylim(-.3,.3) +
   labs(y = "Slope", x = "Subbasins") +
-  ggtitle("Mean slope by basin")
+  ggtitle("Mean slope (black dots) by basin")
 
 ## new object, only basin mean
 slope4 <- slope3 %>%
@@ -632,7 +719,7 @@ bhi_slope <- slope4 %>%
 #### 5.7.1. Plot final slope object
 
 Size points by number of times series used
-```{r plot final code object, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r plot final code object}
 ##object with number of observations
 plot_slope <- bhi_slope %>%
   full_join(., basin_lookup, by = c("rgn_id"="bhi_id")) %>%
@@ -645,6 +732,15 @@ ggplot(plot_slope) +
   ylim(-1, 1) +
   labs(y="Slope", x = "BHI regions") +
   ggtitle("AO Slope")
+
+ggplot(rbind(plot_status, plot_slope)) + 
+  geom_col(aes(rgn_nam, score, fill = subbasin), alpha = 0.5, show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~dimension, scales = "free_x", nrow = 1) +
+  labs(x = "BHI Region\n", y = NULL) +
+  ggtitle("AO Status and Trend Scores by Region") +
+  scale_fill_manual(values = statuspal) +
+  theme(axis.text.y = element_text(size = 7))
 ```
 
 **Export Data Layers**
@@ -652,7 +748,7 @@ ggplot(plot_slope) +
 ## Data layers for the stock component of AO
 
 ## Status Score
-write.csv(bhi_score, here::here("layers", 'ao_stock_status_bhi2019.csv'), row.names=FALSE)
+write.csv(bhi_status, here::here("layers", 'ao_stock_status_bhi2019.csv'), row.names=FALSE)
 
 
 ## Slope for Trend
@@ -676,6 +772,13 @@ trendmapcols <- c("indianred", "coral", "white", "lightblue", "steelblue")
 library(leaflet)
 source(here::here("R", "spatial.R"))
 regions_shape()
+
+## make basemap
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
 
 ## join datalayers with simplified spatial data for mapping
 plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 

@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 
-```{r eut data preamble, echo = FALSE, include = FALSE, error = FALSE}
+```{r eut data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 source(here::here("R", "setup.R"))
 source(here::here("R", "data.R"))
 source(here::here("R", "spatial.R"))
@@ -41,7 +41,13 @@ Dare from monitoring locations (described in the HELCOM core indicators). Finnis
 Previously, indicator status was scored per monitoring area using the assessment protocol for coastal fish (baseline or trend-based approach) => yielding whether or not the status per monitoring area is **GES** or **subGES**. If a monitoring station received a "sub-GES" assessment, it was given a qualifier as "low" or "high".  
 Environmental status assessments provided by Jens Olsson (SLU). See [HELCOM FISH-PRO II](http://www.helcom.fi/helcom-at-work/projects/fish-pro/) now in progress for the [HELCOM FISH-PRO III](https://helcom.fi/helcom-at-work/projects/fish-pro-iii/) 
 
-Now, to match the [BEAT-tool as developed within HOLAS II](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2017/07/HELCOM_The_integrated_assessment_of_biodiversity_supplementary_report_first_version_2017.pdf), indicator status was normalized (0-1, where 0 = min value and 1 = max value; **threshold value = 0.6**). Threshold values for the status assessments are identified based on site-specific time-series data for each indicator. (Site specific values are used, as coastal fish generally have local population structures, limited migration, and show local responses to environmental change) _See also powerpoint provided by Jens Olsson of BHI shared folder_
+Now, to match the [BEAT-tool as developed within HOLAS II](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2017/07/HELCOM_The_integrated_assessment_of_biodiversity_supplementary_report_first_version_2017.pdf), indicator status was normalized in categorial classes:
+- Nearest lower value of 0.125 = 0.125
+- Nearest lower value of 0.375 = 0.375
+- Nearest lower value of 0.6 = 0.6
+- Nearest lower value of 0.875 = 0.875
+where **threshold value = 0.6**. 
+Threshold values for the status assessments are identified based on site-specific time-series data for each indicator. (Site specific values are used, as coastal fish generally have local population structures, limited migration, and show local responses to environmental change) _See also powerpoint provided by Jens Olsson of BHI shared folder_
 
 
 ### 2.2 Centralization & Normalization {-}
@@ -50,7 +56,7 @@ Now, to match the [BEAT-tool as developed within HOLAS II](http://stateofthebalt
 
 Since coastal fish data ('coastal_fish_data_2018.csv') are updated until 2018, but the latest status assessment (HOLAS II) only includes data until 2016, we have decided to use the data included in HOLAS II (until 2016) for this first BHI 2.0 calculations ('key_species_status.csv', 'piscivores_status.csv', 'cyprinids_status.csv'). Then, once the most updated data will be included into the next "intermediate" status assessment, we will also include the newest data.
 
-```{r load raw data, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+```{r load raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 # library(readr)
 # load all raw data (containing the newest data)
 coastal_fish_raw <- read.csv(
@@ -73,7 +79,7 @@ cyprinids_status_raw <- read.csv(
 ```
 
 **Explore and clean coastal fish data for trend calculation**
-```{r cleaning coastal fish raw data, echo = TRUE, results = "hide", eval = FALSE}
+```{r cleaning coastal fish raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 coastal_fish_cpue <- coastal_fish_raw %>% 
   dplyr::rename(
     monitoring_area = Area, 
@@ -107,7 +113,7 @@ coastal_fish_cpue <- coastal_fish_raw %>%
 ```
 <br>
 
-```{r save cleaned cpue data, echo = TRUE, eval = FALSE}
+```{r save cleaned cpue data, eval = FALSE}
 readr::write_csv(
   coastal_fish_cpue, 
   here::here("data", "AO", version_year, "intermediate", "ao_cleaned_cpue.csv")
@@ -117,7 +123,7 @@ readr::write_csv(
 
 
 **Clean, explore and merge key species, cyprinids and piscivores status data**
-```{r merging coastal fish raw data, echo = TRUE, results = "hide", eval = FALSE}
+```{r merging coastal fish raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 coastal_fish_status <- rbind(
   key_species_status_raw %>% 
     dplyr::rename(
@@ -151,19 +157,20 @@ coastal_fish_status <- rbind(
       Longitude = as.numeric(Longitude),
       Status.value.monitoring.location = str_replace(Status.value.monitoring.location, ",", "."),
       Status.value.monitoring.location = as.numeric(Status.value.monitoring.location),
+      Monitoring.area = str_replace(Monitoring.area, "Kvädöfjärden, autumn", "Kvädöfjärden"),
+      Monitoring.area = str_replace(Monitoring.area, "Kvädöfjärden, perch", "Kvädöfjärden"),
       threshold_value = 0.6,
-      Taxa =  ifelse(is.na(Taxa), "key species", Taxa),
       core_indicator = "key species"),
   cyprinids_status_raw %>% 
     dplyr::rename(
       Latitude = Coordinates,
       Longitude = X,
-      Taxa = Identity.of.indicator,
       Monitoring.area = Monitoring.location,
       Subbasin = Sub.basin.name,
       coastal_water_type = Coastal.area.name..assessment.unit.,
       period = Time.period.assessed
     ) %>% 
+    select(-Identity.of.indicator) %>% 
     dplyr::mutate(
       Latitude = str_replace(Latitude, ",", "."),
       Latitude = str_replace(Latitude, "Area not point", ""),
@@ -180,23 +187,23 @@ coastal_fish_status <- rbind(
                   ifelse(Monitoring.area == "Finnish ICES SD 32", 25.772410,
                   ifelse(Monitoring.area == "Finnish ICES rect 23", 21.351243, 
                   ifelse(Monitoring.area == "Finnish ICES rect 28", 21.351243, Longitude)))))),
-       Latitude = as.numeric(Latitude),
+      Latitude = as.numeric(Latitude),
       Longitude = as.numeric(Longitude),
       Status.value.monitoring.location = str_replace(Status.value.monitoring.location, ",", "."),
       Status.value.monitoring.location = as.numeric(Status.value.monitoring.location),
       threshold_value = 0.6,
-      Taxa =  ifelse(is.na(Taxa), "cyprinids", Taxa),
+      Taxa =  "cyprinids",
       core_indicator = "functional group"),
   piscivores_status_raw %>% 
     dplyr::rename(
       Latitude = Coordinates,
       Longitude = X,
-      Taxa = Identity.of.key.piscivores,
       Subbasin = Sub.basin.name,
       coastal_water_type = Coastal.area.name..assessment.unit.,
       period = Time.period.assessed
     ) %>% 
-    separate_rows(Taxa, sep =",\\s+") %>% # serapate different taxa from single rows
+    # separate_rows(Taxa, sep =",\\s+") %>% # serapate different taxa from single rows
+    select(-Identity.of.key.piscivores) %>% 
     dplyr::mutate(
       Latitude = str_replace(Latitude, ",", "."),
       Latitude = str_replace(Latitude, "Area not point", ""),
@@ -213,18 +220,18 @@ coastal_fish_status <- rbind(
                   ifelse(Monitoring.area == "Finnish ICES SD 32", 25.772410,
                   ifelse(Monitoring.area == "Finnish ICES rect 23", 21.351243, 
                   ifelse(Monitoring.area == "Finnish ICES rect 28", 21.351243, Longitude)))))),
-       Latitude = as.numeric(Latitude),
+      Latitude = as.numeric(Latitude),
       Longitude = as.numeric(Longitude),
       Status.value.monitoring.location = str_replace(Status.value.monitoring.location, ",", "."),
       Status.value.monitoring.location = as.numeric(Status.value.monitoring.location),
       threshold_value = 0.6,
-      Taxa =  ifelse(is.na(Taxa), "piscivores", Taxa),
+      Taxa =  "piscivores",
       core_indicator = "functional group"))
   
 ```
 <br>
 
-```{r save merged data, echo = TRUE, eval = FALSE}
+```{r save merged data, eval = FALSE}
 readr::write_csv(
   coastal_fish_status, 
   here::here("data", "AO", version_year, "intermediate", "ao_merged_rawdata.csv")
@@ -237,15 +244,15 @@ readr::write_csv(
 
 #### 2.3.1 Check unique indicators per monitoring location
 
-1. Is more than one key species monitored at a given locations?  **NO**
-2. Is more than one functional group monitored?  **Depends on location, mostly 2 groups monitored (including different taxa)**  
+1. Is more than one key species monitored at a given locations?  **Yes, in Kvädöfjärden both flounder (autumn) and perch (summer)**
+2. Is more than one functional group monitored?  **Yes, except in Muskö (Sweden) where no assessment of cyprinids/mesopredators is available. However, in Danish areas, only key species (flounder) are assessed as there are no reliable data for either piscivores or cyprinids/mesopredators**  
 3. Are both key species and functional groups monitored at all locations? **No**
 
-- 13 monitoring areas without Functional groups
-- 1 monitoring area without Key_spp status: *Kvaedoefjaerden*  
+- 11 monitoring areas without Functional groups (all Danish areas)
+- 1 monitoring area with two Key_spp status: *Kvädöfjärden*  
 
 **Number of indicators by monitoring location**
-```{r unique indicators monitoring region, echo = TRUE, eval = FALSE, results = "show"}
+```{r unique indicators monitoring region}
 ## how many core indicators, how many taxa
 indicator_count <- coastal_fish_status %>%
   select(
@@ -294,50 +301,12 @@ indicator_taxa_count %>%
 ```
 <br>
 
-#### 2.3.2 Maps of coastal fish dataset {-}
 
-**Maps (find a way of showing data on the map without geometry)**
-```{r basemap to be used in spatial plotting, echo = TRUE}
-basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
-  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
-  scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) 
+#### 2.3.2 Compare versus Previous Years Data {-}
 
-## make larger discrete color palette
-pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(15)
-```
-<br>
+#### 2.3.3 Timeseries Plots {-}
 
-```{r key species and functional groups raw datasets, results = "show", echo = TRUE, fig.height = 5, fig.width = 9.5}
-# examples from eut indicators (NEED TO ADD 'GEOMETRY' COLUMN)
-coastal_fish_map <- basemap +
-  geom_sf(
-    mapping = aes(color = Subbasin), 
-    data = 
-      coastal_fish_status, 
-      coords = c("Longitude", "Latitude"), 
-      crs = 4326,
-    size = 0.5, alpha = 0.3, show.legend = FALSE
-  ) +
-  labs(
-    color = "Sea Basin", 
-    title = "Coastal Fish Data Measurement Locations"
-  ) +
-  # theme(legend.position = c(0.2, 0.7)) +
-  scale_color_manual(values = pal)
-
-
-# gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1, widths = c(1, 1.4))
-```
-<br>
-
-
-#### 2.3.1 Compare versus Previous Years Data {-}
-
-#### 2.3.2 Timeseries Plots {-}
-
-```{r CODE CHUNK WITH FIGURE OR GRAPH, eval = FALSE, results = "show", message = FALSE, echo = TRUE, fig.width = 7.5, fig.height = 4}
+```{r show data, results = "show", eval = FALSE, echo = TRUE, fig.width = 7.5, fig.height = 4}
 # make coastal_fish_scores in long format then plot
 temp_long <- coastal_fish_status %>% 
   select(
@@ -373,5 +342,3 @@ ggplot(coastal_fish_status) +
   ggtitle("Coastal Fish Status Value (by Subbasins)")
 
 ```
-<br>
-
