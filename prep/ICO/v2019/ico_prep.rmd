@@ -1,0 +1,200 @@
+---
+title: "Iconic Species - Sense of Place Subgoal data prep"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    code_folding: hide
+---
+
+<br>
+<br>
+
+```{r preamble prep, message = FALSE, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
+source(here::here("R", "setup.R"))
+
+loc <- here::here("prep", "ICO")
+bkgd_path <- here::here("supplement", "goal_summaries", "ICO.Rmd")
+refs_path <- file.path(loc, "ico_references.Rmd")
+```
+
+## 1. Background
+
+```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 2. Data
+
+This prep document is used to generate and explore the following data layers:
+
+- `sp_ico_assessments_bhi2019.csv`
+- `sp_ico_norec_bhi2019.csv`
+
+These are saved to the layers folder. These are based on the `bd_spp_all_assessments.csv` dataset saved to the `data/ICO/v2019/intermediate` folder during the Biodiversity species subgoal data prep (see `prep/SPP/v2019/spp_prep.Rmd` for details). All these are derived from or informed by the raw datasets from datasets from the HELCOM Biodiversity database:  Observations data, Red list information data, Species data.
+
+<br>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+
+```{r creating dataframe with missing fish species info}
+subbasins <- c(
+  "Kattegat", "Great Belt", "The Sound", "Bay of Mecklenburg", "Kiel Bay",
+  "Arkona Basin", "Bornholm Basin", "Western Gotland Basin", "Eastern Gotland Basin",
+  "Gdansk Basin", "Northern Baltic Proper", "Gulf of Riga", "Gulf of Finland",
+  "Aland Sea", "Bothnian Sea", "The Quark", "Bothnian Bay"
+)
+
+## create a dataframe with the info on fish which were missing from the biodiversity goal 'observations' data...
+## we need these fish species here even more than for the BD goal, because half the iconic species list are fish...
+missing_fis <- data_frame(
+  scientific_name = c(
+    "Clupea harengus", "Salmo salar", "Gadus morhua",
+    "Clupea harengus", "Salmo salar", "Gadus morhua",
+    "Gadus morhua (Kattegat subpopulation)",
+    "Gadus morhua (Western Baltic subpopulation)",
+    "Gadus morhua (Eastern Baltic subpopulation)",
+    "Esox lucius", "Salmo trutta", "Sprattus sprattus"
+  ),
+  Subbasin = c(
+    list(subbasins[1:17]), list(subbasins[1:3]), list(subbasins[1:12]), 
+    list(subbasins[1:17]), list(subbasins[1:3]), list(subbasins[1:12]), 
+    list(subbasins[1]), 
+    list(subbasins[2:6]), 
+    list(subbasins[6:12]),
+    list(subbasins[13:17]), list(subbasins[1:3]), list(subbasins[1:11])
+  ),
+  no_rec_this_dec = rep(FALSE, 12),
+  ## cod has 2007 and a 2013 assessment
+  assessment_year_red_list = c(rep(2007, 3), rep(2013, 9))
+)
+
+missing_fis <- tidyr::unnest(missing_fis, cols = c(Subbasin))
+
+# missing_mammals <- data_frame()
+# missing_mammals <- tidyr::unnest(missing_mammals, cols = c(Subbasin))
+```
+
+
+```{r read in species data saved from biodiversity spp prep and the iconic species list}
+## all species data with assessment (iucn) categories
+sppdata <- rbind(
+  read_csv(here::here("data", "ICO", "v2019", "intermediate", "bd_spp_all_assessments.csv")) %>% 
+    mutate(scientific_name = str_replace(scientific_name, "Phoca vitulina", "Phoca vitulina vitulina")),
+  read_csv(here::here("data", "ICO", "v2019", "intermediate", "fis_redlist.csv")) %>% 
+    mutate(scientific_name = ifelse(
+      scientific_name == "Gadus morhua" & !is.na(remarks), 
+      sprintf("%s (%s)", scientific_name, remarks), 
+      scientific_name)
+    ) %>% 
+    select(scientific_name, species_group, red_list_category, assessment_year_red_list) %>% 
+    right_join(missing_fis, by = c("scientific_name", "assessment_year_red_list"))
+)
+
+## list of 'iconic species' execept birds
+ico_spp_list <- read_csv(file.path(loc, "ico_species_selection_fish_mammals.csv"))
+ico_spp_list <- rbind(
+  filter(ico_spp_list, common_name != "harbour porpoise"),
+  ico_spp_list %>% 
+    filter(common_name == "harbour porpoise") %>% 
+    mutate(latin_name = list(c(
+      "Phocoena phocoena (Baltic Sea Sub-population)",
+      "Phocoena phocoena (Western Baltic Sea subpopulation)"
+    ))) %>% 
+    tidyr::unnest(cols = latin_name)
+)
+
+knitr::kable(rename(ico_spp_list, `Common Name` = common_name, `Latin Name` = latin_name), format = "html") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+```
+
+
+### 3.1 Filtering to keep only Iconic Species
+
+```{r select ico spp}
+ico_spp_data <- left_join(ico_spp_list, sppdata,  by = c("latin_name" = "scientific_name"))
+## still missing mammals: ringed seal (pusa hispida) and european otter (lutra lutra)...
+```
+
+
+### 3.2 Add birds: white-tailed sea eagle & common eider
+
+Discussion with Baltic Sea Centre and SRC (Nov 2016) concluded that 2 bird species as being seen as very important iconic species: white-tailed sea eagle (Haliaeetus albicilla) and common eider (Somateria mollissima). It would be important to add them to the iconic species list and in the ICO calculation. The sea -eagle need to be added manually as it is not in the species redlist from HELCOM but here we could use the status LC from the IUCN criteria based on the Europe IUCN redlist (http://www.iucnredlist.org/details/22695137/0). The common eider is already in the red list as VU.
+
+```{r add iconic birds, message = FALSE, warning = FALSE}
+## iconic birds in Baltic Sea include sea eagle and common eider
+## adding both these species for all Subbasins
+sea_eagle_data <- data_frame(Subbasin = subbasins) %>% 
+  mutate(
+    common_name = "sea eagle", 
+    latin_name = "Haliaeetus albicilla", 
+    species_group = "Birds", 
+    red_list_category  = "LC - Least Concern", 
+    no_rec_this_dec = FALSE,
+    assessment_year_red_list = 2013
+  )
+common_eider_data <- data_frame(Subbasin = subbasins) %>% 
+  mutate(
+    common_name = "common eider", 
+    latin_name = "Somateria mollissima", 
+    species_group = "Birds", 
+    red_list_category  = "VU - Vulnerable", 
+    no_rec_this_dec = FALSE,
+    assessment_year_red_list = 2013
+  )
+
+ico_spp_w_birds <- rbind(ico_spp_data, sea_eagle_data, common_eider_data)
+```
+
+
+```{r saving ICO data layers}
+rgns_complete <- readr::read_csv(here::here("supplement", "lookup_tabs", "rgns_complete.csv"))
+  
+## Write as sp_ico to layers folder
+ico_spp_w_birds %>% 
+  right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
+  select(region_id, assessment_year_red_list, scientific_name = latin_name, species_group, red_list_category) %>% 
+  write.csv(here::here("layers/sp_ico_assessments_bhi2019.csv"), row.names = FALSE)
+
+## save 'no records this decade' info also as a ICO layer, so can use for penalty/scaling?
+ico_spp_w_birds %>% 
+  right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
+  filter(no_rec_this_dec == TRUE) %>% 
+  select(region_id, assessment_year_red_list, scientific_name = latin_name) %>% 
+  write.csv(here::here("layers/sp_ico_norec_bhi2019.csv"), row.names = FALSE)
+```
+
+<br/>
+
+## 4. Visualizing Data Layers
+
+### 4.1 Iconic Species by Subbasin
+
+```{r plotting presence of different iconic species by subbasin}
+ico_spp_w_birds %>% 
+  filter(!is.na(Subbasin), assessment_year_red_list == 2013) %>% 
+  tidyr::complete(latin_name, Subbasin) %>% 
+  mutate(presence = ifelse(is.na(red_list_category), 0, 1)) %>% 
+  ggplot() +
+    geom_bar(aes(latin_name, presence), stat = "identity") +
+  facet_grid(cols = vars(Subbasin)) +
+  theme(
+    axis.text.x = element_blank(),
+    strip.text.x = element_text(size = 8, angle = 90, hjust = 0)
+  ) +
+  coord_flip() +
+  labs(title = "Presence/Absence of ICO species by basin", y = NULL, x = NULL)
+```
+
+<br>
+
+## 5. Considerations for `BHI3.0`
+
+<br>
+
+## 6. References
+
+```{r References, child = refs_path, results = "asis", echo = FALSE}
+```
