@@ -1,0 +1,197 @@
+
+```{r lsp data preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(here::here("R", "data.R"))
+source(here::here("R", "spatial.R"))
+
+## root location of the raw data
+dir_A <- file.path(dirname(dir_prep), "bhi-data")
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Goals", "LSP")
+dir_intermediate <- file.path(here::here("data", "LSP", version_year, "intermediate"))
+  
+```
+
+The Lasting Special Places sub-goal focuses on those geographic locations that hold particular value for aesthetic, spiritual, cultural, recreational or existence reasons, and assesses how well they are protected. 
+For the BHI, the designation and management of marine protected areas (MPAs) captures the commitment of a country to preserving areas of biological, aesthetic or ecosystem service value. 
+The designation of MPAs is also included in international agreements, such as the [Convention on Biodiversity's target](https://www.cbd.int/sp/targets/rationale/target-11/) for the designation of 10% of exclusive economic zones (EEZs) to be in MPAs.
+
+### 2.1 Datasets with Sources {-}
+<br/>
+
+#### 2.1.1 MPA Data {-}
+
+**HELCOM MPAs**
+
+This dataset contains borders of the HELCOM MPAs (former Baltic Sea Protected Areas (BSPAs). The dataset has been compiled from data submitted by HELCOM Contracting Parties. It includes the borders of designated HELCOM MPAs stored in the [HELCOM Marine Protected Areas database](http://mpas.helcom.fi/apex/f?p=103:1::::::).
+The designation is based on the HELCOM Recommendation 15/5 (1994). 
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LSP/ -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Biodiversity:", "Protected areas"), 
+  c("Protected areas:", "HELCOM MPAs")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/d27df8c0-de86-4d13-a06d-35a8f50b16fa) <br/> Downloaded 23 June 2020 by Andrea De Cervo") 
+```
+
+<br/>
+
+**MPAs**
+
+Data were downloaded from the *MPAs* tab on the HELCOM MPA database.  
+These MPA status levels depend upon the existence of implemented management plans for the MPA areas.
+Also, MPA status is based on self-reporting. If countries differ in their definitions of "managed" or inflate their MPA status, we cannot account for those biases in the data. 
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LSP/ -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("MPAs", "Actions"), 
+  c("Download", ".csv")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM Marine Protected Areas database](http://mpas.helcom.fi/apex/f?p=103:5::::::) <br/> Downloaded 23 June 2020 by Andrea De Cervo") 
+```
+
+<br/>
+
+**Management Plans**
+
+The status of the management plans associated with each MPA were downloaded from HELCOM MPA database, under the *Management Plans* tab. There are three levels of management plan status that can be assigned to each MPA: 
+*No plan*, *In development*, *Implemented*.  
+
+A challenge is that each MPA can have multiple management plans associated with it. 
+There is no limit to the number of plans not an ability to assess their relative importance. 
+Different management plans for the same MPA can have different levels of implementation.  
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LSP/ -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Management plans", "Actions"), 
+  c("Download", ".csv")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HELCOM Marine Protected Areas database](http://mpas.helcom.fi/apex/f?p=103:5::::::) <br/> Downloaded 23 June 2020 by Andrea De Cervo") 
+```
+
+<br/>
+
+### 2.1.2 Reference values {-}
+
+The [Convention on Biodiversity's target](https://www.cbd.int/sp/targets/rationale/target-11/) is for 10% of a country's EEZs is designated as MPAs, and are fully managed.
+
+Following the same method as for the BHI 1.0, the model assesses the area of MPAs in each country in relation to its EEZs, and their management status. 
+Management status are broken down to three categories and weighted on a 0-1 scale:
+
+0.1 = designated
+0.4 = designated and partly managed
+1.0 = designated and managed
+
+### 2.2 Centralization & Normalization {-}
+
+#### 2.2.1 MPAs datasets {-}
+
+Get them in the same coordinate reference system for the Baltic. 
+
+The MPA file is in the [LAEA coordinate reference system](http://spatialreference.org/ref/epsg/etrs89-etrs-laea/). 
+
+**Read in MPA and BHI regions shapefiles**
+```{r read MPAs datasets, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
+library(rgdal)  # install.packages('rgdal')
+library(raster) # install.packages('raster')
+library(rgeos)  # install.packages('rgeos')
+library(sp)
+
+## directory setup
+dir_M <- c('Windows' = '//mazu.nceas.ucsb.edu/ohi',
+           'Darwin'  = '/Volumes/ohi',    ### connect (cmd-K) to smb://mazu/ohi
+           'Linux'   = '/home/shares/ohi')[[ Sys.info()[['sysname']] ]]
+
+if (Sys.info()[['sysname']] != 'Linux' & !file.exists(dir_M)){
+  warning(sprintf("The Mazu directory dir_M set in src/R/common.R does not exist. Do you need to mount Mazu: %s?", dir_M))
+  # TODO: @jennifergriffiths reset dir_M to be where the SRC hold your shapefiles
+}
+
+dir_shp <- file.path(dir_M, 'git-annex/Baltic')
+
+source('~/github/bhi-1.0-archive/baltic2015/prep/common.r') #for create_readme() function
+```
+
+```{r read in shapefiles, echo=FALSE, message=FALSE}
+## inspect BHI regions ----
+# bhi <- sf::st_read(file.path(dir_A, "Shapefiles", "BHI_shapefile", "BHI_shapefile.shp"))
+bhi <- rgdal::readOGR(dsn = path.expand(file.path(dir_A, "Shapefiles", "BHI_shapefile")),
+                      layer = 'BHI_shapefile') 
+# bhi # coord. ref. : +proj=longlat
+## explore/plot
+# plot(bhi) #takes ~15 seconds
+# bhi@data
+head(bhi@data)
+
+# helcom_mpas <- sf::st_read(file.path(dir_rawdata, "HELCOM_MPAs", "HELCOM_MPAs.shp"))
+helcom_mpas <- rgdal::readOGR(dsn = path.expand(file.path(dir_rawdata, "HELCOM_MPAs")),
+                      layer = 'HELCOM_MPAs')
+
+# mpa # coord. ref. : +proj=laea
+
+## plot
+# plot(helcom_mpas) # quick
+# head(helcom_mpas@data)
+
+## transform bhi to mpa coordinate reference system (CRS) ----
+## LAEA: http://spatialreference.org/ref/epsg/etrs89-etrs-laea/
+## https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/OverviewCoordinateReferenceSystems.pdf
+bhi_transf <- spTransform(bhi, helcom_mpas@proj4string)
+# bhi # coord. ref. : +proj=laea
+
+## save intersected shapefile
+writeOGR(bhi_transf, dsn = path.expand(dir_intermediate), layer = 'bhi_transf', driver = 'ESRI Shapefile', overwrite = TRUE) 
+
+## plot on top of each other
+plot(bhi_transf, col = 'light blue', border = "grey", main = "BHI regions and MPAs intercept"); plot(helcom_mpas, col = 'blue', add = TRUE); legend('bottomright', c("BHI regions", "BHI borders", "MPA"), lty = c(1,1), lwd = c(2.5, 2.5, 2.5), col = c( "light blue", "grey", "blue"), text.font = 1, box.lty = 0 )
+```
+
+#### 2.2.2 Intersect BHI and HELCOM_MPA polygons
+
+MPA regions were divided by with BHI region shapefile, and thus we were able to calculate the total MPA area within each BHI region. MPA area per region is saved in the prep folder (`mpa_area_per_rgn.csv`). 
+
+The .csv file includes information: Area per MPA, Date established, MPA status, total MPA area per region.  
+
+
+```{r intersect BHI and MPA, eval = FALSE, echo=FALSE, message=FALSE, cache=TRUE}
+# bhi <- gSimplify(bhi, tol = 0.00001)
+# helcom_mpas <- gSimplify(helcom_mpas, tol = 0.00001)
+
+# Need to 'buffer' both bhi and mpa shapefiles before intersecting
+bhi_buff <- gBuffer(bhi_transf, byid=TRUE, width=0)
+helcom_mpas_buff <- gBuffer(helcom_mpas, byid=TRUE, width=0)
+
+mpa_bhi_buff <- raster::intersect(helcom_mpas_buff, bhi_buff)
+# system.time({mpa_bhi <- raster::intersect(helcom_mpas, bhi_transf)})
+## system.time({mpa_bhi <- raster::intersect(mpa, bhi)}) # large file size and took hours to run. bhi ~ 45.5 Mb, mpa ~ 8.7 Mb.
+
+## save intersected shapefile
+writeOGR(mpa_bhi_buff, dsn = path.expand(dir_intermediate), layer = 'mpa_bhi', driver = 'ESRI Shapefile', overwrite = TRUE) 
+
+plot(mpa_bhi, col ="red", border = "black")
+head(mpa_bhi_buff@data)
+
+# Clean mpa_bhi data and save it to the intermediate folder
+mpa_bhi_data <- mpa_bhi_buff@data %>% 
+  rename(name_shape = Name, 
+         country = rgn_nam,
+         status_shape = MPA_status,
+         date_est = Date_est,
+         eez_area_km2 = Area_km2)
+
+## save mpa_bhi_data file to prep/LSP folder 
+write_csv(mpa_bhi_data, file.path(dir_intermediate, 'mpa_bhi_data.csv'))
+
+```
+
