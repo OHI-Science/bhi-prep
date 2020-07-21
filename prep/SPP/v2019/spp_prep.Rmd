@@ -1,9 +1,11 @@
-
 ---
 title: "SUBGOAL - GOAL Subgoal data prep"
 output:
+  word_document:
+    toc: yes
+    toc_depth: '4'
   html_document:
-    toc: true
+    toc: yes
     toc_depth: 4
 ---
 
@@ -11,14 +13,14 @@ output:
 <br>
 
 ```{r preamble prep, message = FALSE}
-loc <- here::here("prep", "GOAL", "SUBGOAL")
+loc <- here::here("prep", "SPP")
 
 source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
 
-bkgd_path <- here::here("supplement", "goal_summaries", "GOALCODE.Rmd")
-data_path <- here::here("data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
-refs_path <- file.path(loc, "GOALCODE_references.Rmd")
+bkgd_path <- here::here("supplement", "goal_summaries", "BD.Rmd")
+data_path <- here::here("data", "SPP", version_year, "spp_data.rmd")
+refs_path <- file.path(loc, "spp_references.Rmd")
 ```
 
 ## 1. Background
@@ -32,11 +34,11 @@ refs_path <- file.path(loc, "GOALCODE_references.Rmd")
 
 This prep document is used to generate and explore the following data layers:
 
-- `LAYER1_bhi2019.csv` 
-- `LAYER2_bhi2019.csv` 
-- `LAYER3_bhi2019.csv` 
+- `bd_spp_assessments_bhi2019.csv`
+- `bd_spp_norec_bhi2019.csv`
+- `bd_spp_trend_bhi2019.csv`
 
-These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermediate` are intermediate datasets: `DATASETINTEMED1.csv` and `DATASETINTEMED2.csv`. All these are derived from or informed by the raw datasets from RAW DATA SOURCES.
+These are saved to the layers folder. Saved to `data/SPP/v2019/intermediate` are intermediate datasets: `obs_insect.csv` and `obs_no_insect.csv`. Also the dataset `bd_spp_all_assessments.csv` is saved to `data/ICO/v2019/intermediate` to use in the Iconic Species goal data prep. All these are derived from or informed by the raw datasets from datasets from the HELCOM Biodiversity database:  Observations data, Red list information data, Species data.
 
 <br>
 
@@ -48,67 +50,1324 @@ These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermed
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
+### 3.1 Checking Raw Data {-}
+
+```{r read in all raw spp datasets}
+## Observations Data
+raw_obs_checklist <- data.table::fread(
+  file.path(dir_rawdata, "species_obs_w_rgns.csv"), 
+  stringsAsFactors = FALSE
+)
+
+## Redlist Data
+redlistloc <- file.path(
+  dir_rawdata, 
+  "species_with_redlist_category", 
+  "species_with_redlist_category.csv"
+)
+redlist <- read.csv(redlistloc, sep = ";", stringsAsFactors = FALSE) %>%
+  dplyr::rename(scientific_name = species_scientific_name) %>%
+  select(-id) # Remove redundant id column
+
+## Species list (all taxa)
+helcom_list_all_taxa <- read.csv(
+  file.path(dir_rawdata, "species_taxa.csv"), 
+  stringsAsFactors = FALSE
+)
+```
+
+
+#### 3.1.1 Taxa Represented {-}
+
+Check taxa included, and numbers of distinct species included in each taxa and subbasin, over time.
+
+```{r Check Taxa, results = "show", fig.width = 12, fig.height = 6}
+## Check representation of taxa
+taxa <- raw_obs_checklist %>%
+  select(species_group) %>%
+  distinct()
+## taxa include: Benthic Invertebrates, Fish and Lamprey, Macrophytes, 
+## Zooplankton, Bacteria, Phytoplankton, Mammals and Birds
+
+## Check number of species within each taxa
+numtaxaspp <- raw_obs_checklist %>%
+  group_by(species_group) %>%
+  count()
+
+
+
+## Number of unique latin names 
+numnames <- raw_obs_checklist %>% 
+  select(scientific_name) %>% 
+  distinct() %>%
+  nrow() # 2958 (Including Bacteria and Plankton)
+
+## Note: some records are for periods of longer than a year, 
+## i.e. observations collected over multiple years
+# hist(mutate(raw_obs_checklist, nyears = end_year_c - start_year)$nyears, nclass = 80)
+# summary(mutate(raw_obs_checklist, nyears = end_year_c - start_year)$nyears)
+
+raw_obs_checklist %>% 
+  filter(!is.na(year_collected)) %>% 
+  filter(year_collected > 1920) %>%
+  filter(!species_group %in% c("Bacteria", "Phytoplankton", "Zooplankton")) %>%
+  filter(!is.na(Subbasin)) %>% 
+  distinct(year_collected, species_group, scientific_name) %>%
+  # distinct(year_collected, species_group, scientific_name, Subbasin) %>%
+  ggplot(aes(x = year_collected)) +
+  geom_histogram(
+    alpha = 0.8, size = 0.1, color = "grey90",
+    binwidth = 1
+  ) +
+  theme(axis.text = element_text(size = 13)) +
+  scale_x_continuous(breaks = seq(1920, 2020, 10)) +
+  facet_wrap(~species_group, scales = "free_y", nrow = 5) +
+  # facet_grid(rows = vars(species_group), cols = vars(Subbasin), scales = "free_y") +
+  labs(x = NULL, y = "Count", title = "Number of Species in Raw Checklist") +
+  theme(strip.text = element_text(size = 12))
+```
+
+
+#### 3.1.2 BHI ID and Basins {-}
+
+```{r create dataframe with BHI ID and Basins}
+## Matching BHI ID to subbasins
+rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))
+
+## To see how many distinct basins represented
+unique(raw_obs_checklist$Subbasin) # 17 basins -> Correct number
+```
+
+
+#### 3.1.3 Read in Redlist and get Data Attributes
+
+```{r check redlist data, results = "hide"}
+## before wrangling check redlist and helcom taxa list for:
+## trailing spaces and irregular characters
+nrow(filter(redlist, str_detect(scientific_name, "\\s+$|<")))
+nrow(filter(helcom_list_all_taxa, str_detect(scientific_name, "\\s+$|<")))
+for(df in c("redlist", "helcom_list_all_taxa", "raw_obs_checklist")){
+  assign(
+    df,
+    get(df) %>% 
+      mutate(scientific_name = str_replace_all(scientific_name, "<a0>", " ")) %>% 
+      mutate(scientific_name = str_replace_all(scientific_name, "<eb>", "e")) %>% 
+      mutate(scientific_name = str_replace_all(scientific_name, "ë", "e")) %>% 
+      mutate(scientific_name = str_replace_all(scientific_name, "<ef>", "i")) %>% 
+      mutate(scientific_name = str_replace_all(scientific_name, "ï", "i")) %>% 
+      mutate(scientific_name = str_remove_all(scientific_name, "\\s+$"))
+  )
+}
+filter(redlist, str_detect(scientific_name, "�"))
+filter(helcom_list_all_taxa, str_detect(scientific_name, "�"))
+## still need to fix weird characters in a few redlist species names
+## Isoëtes echinospora, Anser fabalis fabalis, Cepphus grylle grylle and arcticus, 
+## Isoëtes lacustris, Phyllophora pseudoceranoïdes, Pisidium casertanum f. ponderosum
+redlist <- redlist %>% 
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Iso.*tes echinospora", 
+    replacement = "Isoetes echinospora")
+  ) %>% 
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Anser.*fabalis.*fabalis", 
+    replacement = "Anser fabalis fabalis")
+  ) %>% 
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Cepphus.*grylle.*grylle", 
+    replacement = "Cepphus grylle grylle")
+  ) %>%
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Cepphus.*grylle.*arcticus", 
+    replacement = "Cepphus grylle arcticus")
+  ) %>%
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Iso.*tes lacustris", 
+    replacement = "Isoetes lacustris")
+  ) %>%
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Phyllophora pseudocerano.*des", 
+    replacement = "Phyllophora pseudoceranoides")
+  ) %>% 
+  mutate(scientific_name = str_replace(
+    scientific_name, 
+    pattern = "Pisidium.*casertanum.*f\\..*ponderosum", 
+    replacement = "Pisidium casertanum f. ponderosum")
+  )
+
+## Number of species in redlist
+length(unique(redlist$scientific_name)) # 2771
+
+## Plot number of species in redlist per taxa group
+redlist <- helcom_list_all_taxa %>% 
+  select(scientific_name, species_group) %>% 
+  right_join(redlist, by = "scientific_name") %>% 
+  arrange(species_group)
+
+plotdf <- redlist
+plotdf$red_list_category <- factor(
+  plotdf$red_list_category,
+  levels = c(
+    "NE - Not Evaluated", "NA - Not Applicable", "RA - Rare", "DD - Data Deficient",
+    "LC - Least Concern", 
+    "NT - Near Threatened", "TM - Threatened Migrant", 
+    "VU - Vulnerable", "EN - Endangered", "CR - Critically Endangered", "RE - Regionally Extinct"
+  )
+)
+
+
+## Create list of species with duplicate assessments and duplicate entries in redlist
+duplicate_entry_redlist <- redlist %>% 
+  group_by(scientific_name) %>%
+  mutate(count = n()) %>%
+  filter(count > 1)
+
+duplicate_redlist <- duplicate_entry_redlist %>%
+  select(scientific_name) %>% 
+  distinct()
+
+## Check redlist assessment years
+sort(unique(redlist$assessment_year_red_list))  # 2007 and 2013
+
+## only 171 of 2771 species on redlist have assessments in both 2007 and 2013
+redlist %>% 
+  select(scientific_name, assessment_year_red_list) %>% 
+  distinct() %>% 
+  select(scientific_name) %>% 
+  filter(duplicated(.)) 
+
+## Add list_type column
+redlist <- mutate(redlist, list_type = "redlist")
+```
+
+```{r checking redlist data plots, results = "show", fig.width = 9, fig.height = 7}
+## somewhat similar to HOLAS report fig 2, page 3
+## https://www.helcom.fi/wp-content/uploads/2019/08/HELCOM_Thematic-assessment-of-biodiversity-2011-2016_pre-publication.pdf
+plotdf %>% 
+  group_by(species_group, red_list_category) %>% 
+  summarize(nspecies = n_distinct(scientific_name)) %>% 
+  group_by(species_group) %>% 
+  mutate(tot_nspecies = sum(nspecies)) %>% 
+  ggplot(aes(x = species_group, y = nspecies, fill = red_list_category)) +
+  geom_bar(stat = "identity", position = position_stack()) +
+  geom_text(aes(y = tot_nspecies, label = tot_nspecies), nudge_y = 100) +
+  theme(
+    axis.text = element_text(colour = "grey20"),
+    axis.text.x = element_text(size = 8, angle = 90, hjust = 1, vjust = 0.5, face = "plain")
+  ) +
+  labs(
+    title = "Number of species in the Redlist", 
+    x = "\nSpecies Group",
+    y =  "Number of macroscopic taxa\n",
+    fill = "Red List Category"
+  ) +
+  scale_fill_manual(values = rev(RColorBrewer::brewer.pal(11, "RdYlBu")))
+```
+
 <br/>
 
-## 4. Visualizing Data Layers
+### 3.2 Initial Data Organization {-}
 
-### 4.1 Map
+#### 3.2.1 Subsetting Observations Data - Remove Unnecessary Rows and Columns {-}
 
-```{r SOME MAAP, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-library(leaflet)
-source(here::here("R", "spatial.R"))
-regions_shape()
+Removing Unnecessary Columns, Bacteria and Plankton taxa, rows without basin location data.
 
-## join datalayers with simplified spatial data for mapping
-plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
-  sf::st_as_sf() %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, region_id = BHI_ID, Area_km2) %>% 
+```{r remove spp observations bacteria and plankton, results = "hide"}
+## some observations have start and end years but no 'year collected'
+## e.g. if collected over multiple years:
+obs_no_year_collected <- raw_obs_checklist %>% 
+  filter(is.na(year_collected)) %>% 
+  mutate(chk = end_year_c - start_year)
+# nrow(obs_no_year_collected)
+# nrow(filter(obs_no_year_collected, chk > 0))
+# sort(unique(filter(obs_no_year_collected, chk > 20)$start_year))
+# plot(filter(obs_no_year_collected, chk > 0)$start_year, filter(obs_no_year_collected, chk > 0)$chk, cex = 0.4)
+
+## will assign start_year as 'year' for our use, 
+## because for observations before 2000's we don't need to know exact year of collection
+obs_no_year_collected <- obs_no_year_collected %>% 
+  select(-chk) %>%  
+  mutate(year = start_year)
+
+full_obs_checklist <- raw_obs_checklist %>% 
+  filter(!is.na(year_collected)) %>% 
+  mutate(year = year_collected) %>% 
+  bind_rows(obs_no_year_collected) %>% 
+  select(
+    species_id,
+    scientific_name, 
+    accepted_name, 
+    synonyms,
+    taxonomica, 
+    species_group,
+    year_collected, 
+    year,
+    red_list_assessments,
+    rgn_nam, 
+    Subbasin, 
+    BHI_ID
+  ) %>%
+  filter(!species_group %in% c("Bacteria", "Phytoplankton", "Zooplankton")) %>%
+  filter(!is.na(Subbasin)) %>%
+  mutate(list_type = "checklist")
+
+## Checking filter
+full_obs_checklist %>%
+  group_by(species_group) %>%
+  summarize(num_observations = n(), distinct_species = n_distinct(scientific_name))
+
+sum(is.na(full_obs_checklist$rgn_nam)) # all NA entries have been filtered out so there are no NAs in rgn_nam
+
+## Number of unique species names, 2443
+length(unique(full_obs_checklist$scientific_name))
+```
+<br>
+
+#### 3.2.2 Some metrics on Species Observations by Subbasin {-}
+
+How can we use this data to construct realistic expectations about presence?
+
+If historically a species was recorded (beyond trace numbers) in a subbasin, we expect it should be there today (considering that shifting habitat due to e.g. climate, is due to anthropogenic pressures). The inverse is not necessarily true though i.e. if it  was not recorded in the subbasin historically, we cannot say whether species should or shouldn't be there, since sampling isn't exhaustive and in the past was even less so. Thus, with this data and approach, a given subbasin may lack species which should potentially be accounted for there. 
+
+For full confidence in species included in each region, we would need additional information e.g. species habitat maps and/or lists constructed by experts.
+
+```{r presence of species in different subbasins, results = "show", fig.width = 9, fig.height = 7}
+fullobs_stats_checklist <- full_obs_checklist %>% 
+  group_by(scientific_name, Subbasin) %>% 
+  mutate(
+    count_ten_plus = n() >= 10,
+    min_spp_yr = min(year), 
+    max_spp_yr = max(year),
+    num_spp_yrs = n_distinct(year)
+  )
+## filtering by 10+ obs. reduces num. distinct species to about half of what is in full_obs_checklist 
+tab <- fullobs_stats_checklist %>%
+  filter(count_ten_plus) %>%
+  group_by(species_group) %>%
+  summarize(num_observations = n(), distinct_species = n_distinct(scientific_name))
+
+knitr::kable(tab, format = "pandoc") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+
+## theoretically should look quite similar to redlist barplot above
+## and similar to fig 2, page 3:
+## https://www.helcom.fi/wp-content/uploads/2019/08/HELCOM_Thematic-assessment-of-biodiversity-2011-2016_pre-publication.pdf
+## have only about half of birds, and 9% of fish and lamprey species in observation dataset, as compared to redlist...
+
+fullobs_stats_checklist %>% 
+  group_by(species_group) %>% 
+  summarize(nspecies = n_distinct(scientific_name)) %>% 
+  ggplot(aes(x = species_group, y = nspecies)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = nspecies), nudge_y = 100) +
+  theme(
+    axis.text = element_text(colour = "grey20"),
+    axis.text.x = element_text(size = 8, angle = 90, hjust = 1, vjust = 0.5, face = "plain"),
+    axis.text.y = element_text(size = 6)
+  ) +
+  labs(
+    title = "Number of species in the Observations Dataset", 
+    x = "\nSpecies Group",
+    y =  "Number of macroscopic taxa"
+  )
+
+plotdf <- rbind(
+  fullobs_stats_checklist %>% 
+    filter(count_ten_plus) %>% 
+    mutate(plotcateg = "historically recorded"),
+  fullobs_stats_checklist %>% 
+    filter(max_spp_yr >= 2010, count_ten_plus) %>% 
+    mutate(plotcateg = "recorded this decade"),
+  fullobs_stats_checklist %>% 
+    filter(min_spp_yr >= 2010, count_ten_plus) %>% 
+    mutate(plotcateg = "only recorded this decade"),
+  fullobs_stats_checklist %>% 
+    filter(max_spp_yr < 2010, count_ten_plus) %>% 
+    mutate(plotcateg = "not recorded this decade")
+) %>% distinct(plotcateg, scientific_name, Subbasin, species_group)
+
+plotdf$plotcateg <- factor(
+  plotdf$plotcateg, 
+  levels = c(
+    "only recorded this decade", 
+    "not recorded this decade", 
+    "recorded this decade", 
+    "historically recorded"
+  )
+)
+ggplot(plotdf) +
+  geom_bar(
+    aes(plotcateg), 
+    alpha = 0.8, size = 0.3, fill = "grey90", color = "grey60",
+    show.legend = FALSE,
+    position = position_dodge()
+  ) +
+  coord_flip() +
+  facet_grid(rows = vars(Subbasin), cols = vars(species_group), scales = "free") +
+  labs(x = NULL, y = "\nDistinct Species Count") +
+  theme(strip.text.y = element_text(size = 7, angle = 0))
+```
+
+
+#### 3.2.3 Separating Insects from Other Taxa {-}
+
+Due to similar concerns as those raised in BHI 1.0 (lower confidence in proper identification at species level), insect species in the current dataset needed to be summarized to family level before being scored. For convenience, insect species were first separated to be wrangled separately from other taxa.
+
+Two approaches were considered in order to check current dataset for insect species. Ultimately, the approach using HELCOM species data was considered more robust and selected for use. 
+
+```{r separate insects from other spp observations, warning = FALSE, message = FALSE}
+## Approach 2: Use HELCOM species id list to identify insect species with current dataset ----
+helcom_insect_list <- helcom_list_all_taxa %>%
+  select(scientific_name, id, class, family) %>%
+  dplyr::rename(species_id = id) %>%
+  filter(class == "Insecta")
+  ## have Tanypus punctipennis with species IDs 1395 and 3976...
+
+obs_checklist_insect <- fullobs_stats_checklist %>% 
+  filter(species_group == "Benthic Invertebrates") %>% 
+  mutate(names = paste(scientific_name, accepted_name, synonyms, sep = ";"))
+
+
+## any cases where insect names are in synonyms or accepted name cols of obs dataframe?
+## would assume no since from the same data managers, but might as well check...
+
+## don't redo intensive name comparisons if results already saved...
+insects <- unique(helcom_insect_list$scientific_name)
+if(!any(grepl("obs.*_insect.csv", list.files(file.path(dir_prep, "data", "SPP", "v2019", "intermediate"))))){
+  
+  on_insect_list <- purrr::map(
+    obs_checklist_insect$names,
+    ~ ifelse(any(str_detect(., insects)), str_extract(., insects)[!is.na(str_extract(., insects))], "")
+  ) %>% unlist()
+  
+  ## hopefully all insects in the obs dataframe are on the helcom_insect_list...
+  obs_checklist_insect <- cbind(obs_checklist_insect, on_insect_list = on_insect_list) %>% 
+    filter(str_length(on_insect_list) > 0)
+  
+  ## 2 cases found, resulting in 67 more rows in final obs_checklist_insect: 
+  ## Einfeldia carbonaria (on insect list) as Benthalia carbonaria (in full obs dataframe)
+  ## Cladopelma viridula (on insect list) as Cladopelma viridulum (in full obs dataframe)
+  obs_checklist_insect %>% 
+    filter(scientific_name != on_insect_list) %>% 
+    distinct(scientific_name, accepted_name, synonyms, species_id, on_insect_list)
+  
+  ## 236 unique insect species, need to summarise to family level
+  length(unique(on_insect_list))
+  
+  
+  ## Separating Insect data from other taxa (Using info from Approach 2) ----
+  keepvars <- c(
+    "species_id", "scientific_name", "accepted_name", "synonyms", "on_insect_list",
+    "year", "year_collected",
+    "taxonomica", "species_group", 
+    "count_ten_plus",
+    "Subbasin", "list_type"
+  )
+  
+  ## Insect species observations,
+  ## save so don't have to redo intensive name comparisons...
+  obs_checklist_insect <- obs_checklist_insect[, keepvars]
+  write_csv(obs_checklist_insect, file.path(dir_prep, "data", "SPP", "v2019", "intermediate", "obs_insect.csv"))
+  
+  ## Non-insect species observations
+  ## save so don't have to redo intensive name comparisons...
+  obs_checklist_no_insect <- fullobs_stats_checklist %>%
+    filter(!scientific_name %in% unique(obs_checklist_insect$scientific_name))
+  write_csv(obs_checklist_no_insect, file.path(dir_prep, "data", "SPP", "v2019", "intermediate", "obs_no_insect.csv"))
+  
+} else {
+  obs_checklist_insect <- read_csv(file.path(dir_prep, "data", "SPP", "v2019", "intermediate", "obs_insect.csv"))
+  obs_checklist_no_insect <- read_csv(file.path(dir_prep, "data", "SPP", "v2019", "intermediate", "obs_no_insect.csv"))
+}
+```
+
+<br/>
+
+### 3.3 Data Prep for Insecta {-}
+
+Insects are more complicated due to uncertainty of taxonomical classification. Hence, observations need to be summarized to the family level before instituting a presence threshold of at least 10 observations. The highest threat status needs to be applied for entire family. Rare species will be excluded from the analysis. Highest threat level should be taken from the entire redlist rather than just the species that appear in the observations list.
+
+#### 3.3.1 Redlist Data Prep: Summarise Insects to Family Level, Use Highest Threat Status {-}
+
+```{r checking redlist vs observations species ids and scientific names, results = "hide", warning = FALSE, message = FALSE}
+## Check that species_id and scientific name uniquely identify entires in redlist and obs
+## (so can full join without duplicates of species id)
+
+obs_check <- full_obs_checklist %>%
+  select(species_id, scientific_name) %>%
+  distinct() # 2443, same as earlier check on unique full_obs_checklist species names
+obs_check %>% 
+  select(species_id) %>% 
+  filter(duplicated(.)) 
+## 0 rows so no duplicate species IDs in observations data
+
+redlist_check <- redlist %>%
+  select(species_id, scientific_name) %>%
+  distinct()
+redlist_check %>% 
+  select(species_id) %>% 
+  filter(duplicated(.)) 
+## 0 rows so no duplicate species IDs in redlist
+
+
+## another check that there are no duplicates when joining
+full_join(obs_check, redlist_check) %>% 
+  distinct() %>% 
+  group_by(species_id) %>% 
+  filter(n() == 2) %>% 
+  arrange(species_id)
+```
+
+
+```{r redlist insects summarise family level}
+## Obtain insect subset of redlist
+redlist_insect_species_assessment <- redlist %>%
+  filter(scientific_name %in% unique(helcom_insect_list$scientific_name)) 
+distinct(redlist_insect_species_assessment, scientific_name) # 365 unique species
+
+## Check for duplicate entries
+## one duplicate found: Cladotanytarsus mancus
+intersect(
+  unique(redlist_insect_species_assessment$scientific_name), 
+  unique(duplicate_entry_redlist$scientific_name)
+)
+## Difference in remarks column, rectify in next step
+redlist_insect_species_assessment %>% 
+  filter(scientific_name == "Cladotanytarsus mancus")
+
+## Add family to each species using helcom_insect_list
+redlist_insect_species_assessment <- redlist_insect_species_assessment %>% 
+  left_join(select(helcom_insect_list, -class), by = c("scientific_name", "species_id")) %>%
+  select(-remarks) %>%
+  distinct() # Removed duplicate
+
+## Assign highest threat level for family to each species
+
+unique(redlist$red_list_category) # To check all categories
+
+redlist_rank <- data.frame(
+  red_list_category =  c(
+    "NE - Not Evaluated", 
+    "NA - Not Applicable", 
+    "DD - Data Deficient",  
+    "RA - Rare", 
+    "TM - Threatened Migrant", 
+    "LC - Least Concern", 
+    "NT - Near Threatened", 
+    "VU - Vulnerable", 
+    "EN - Endangered", 
+    "CR - Critically Endangered", 
+    "RE - Regionally Extinct"
+  ), 
+  num_rank = 1:11
+) # Ranks 1-5 will be excluded but included here in ranking to be able to differentiate
+redlist_rank <- mutate(redlist_rank, red_list_category = as.character(red_list_category))
+
+redlist_insect_family_assessment <- redlist_insect_species_assessment %>% 
+  left_join(redlist_rank, by = "red_list_category") %>%
+  group_by(family) %>%
+  mutate(maxrank = max(num_rank, na.rm = TRUE)) %>%
+  ungroup() %>%
   left_join(
-    DATALAYERS,
-    by = "region_id"
-  )
-  
-pal <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
+    rename(redlist_rank, family_category = red_list_category, maxrank = num_rank), 
+    by = "maxrank"
+  ) %>%
+  select(
+    family, 
+    family_category, 
+    assessment_year_red_list, 
+    species_group, 
+    list_type
+  ) %>%
+  distinct() %>%
+  rename(red_list_category = family_category)
+```
 
-## create map
-leaflet(data = plotshp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5) %>% 
-  addMapPane("popup", zIndex = 450) %>% 
+
+#### 3.3.2 Summarize to Family Level {-}
+
+```{r insects observations summarise family}
+## Add family information to insects observations checklist
+obs_checklist_insect_family <- obs_checklist_insect %>% 
+  left_join(select(helcom_insect_list, -class), by = c("species_id", "scientific_name")) %>%
+  ## Summarize number of observations per family per Subbasin region
+  group_by(family, Subbasin) %>%
+  mutate(
+    count_ten_plus = n() >= 10, 
+    min_spp_yr = min(year), 
+    max_spp_yr = max(year),
+    num_spp_yrs = n_distinct(year_collected)
+  ) 
+```
+
+<br/>
+
+### 3.4 Data Prep for Insecta at Family level and all other Taxa at Species Level {-}
+
+#### 3.4.1 Instituting threshold for Inclusion {-}
+
+The biodiversity goal scores will consist of the average of all species historically observed in a Subbasin weighted by numeric values corresponding to their most recent IUCN assessment category. All species with reasonable number of historic observations in a given subbasin will be included in that subbasin's score, so the scores do not become positively (i.e. better than realistic) biased due to unrepresentative inclusion of only the more abundant and less threatened, but therefore more frequently observed, species.
+
+Observation data are given a threshold for species to be considered present. This is to avoid any very rare occurrences of an individual being mistaken for species establishment. Based on the solution proposed in BHI 1.0, species will only be considered present when there at least 10 observations in the region.
+
+Limitations in this approach: As IUCN assessments of species are not frequently conducted, these goal score may tend to lag by some years in representation of the true state of biodiversity. To make any useful interpretation from observation _frequencies_ of species, some quantification of _sampling effort_ corresponding to those frequencies would be needed. Would also be good to have spatial data on environmental conditions (background/pseudo‐absence data)... <!-- https://doi.org/10.1111/j.2041-210X.2011.00172.x -->
+
+```{r presence threshold for inclusion, fig.width = 9.5, fig.height = 3}
+
+for(obs_checklist in c("obs_checklist_no_insect", "obs_checklist_insect_family")){
   
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palProd(DATALAYER),
-    group = "GROUPNAME"s
-  ) %>% 
+  if(obs_checklist == "obs_checklist_no_insect"){
+    summaryvars = c("species_id", "scientific_name", "Subbasin")
+  } else {summaryvars = c("family", "Subbasin")}
+
+  obs_decade_count <- get(obs_checklist) %>% 
+    filter(year >= 2010) %>% 
+    group_by(!!!syms(summaryvars)) %>%
+    summarise(count = n()) %>% 
+    mutate(presence = ifelse(count >= 10, TRUE, NA)) %>%
+    select(-count) # remove count column to prep for list joining
   
-  ## layers controls, popup layer, and formatting
-  addLayersControl(
-    baseGroups = c(
-      BASEGROUPS
-    ),
-    options = layersControlOptions(collapsed = FALSE)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      plotshp$Name, "</h5>",
-      "<h5><strong>", "BHI Region ID:", "</strong>",
-      plotshp$region_id, "</h5>"
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    options = pathOptions(pane = "popup")
+  
+  ## Number of observations per species per Subbasin region summarized in sections 2.4.2 
+  ## or number observations per family for insects, summarized in section 2.5.2
+  
+  ## Established species identified as those with ten or more total obs. across all years of data
+  ## Currently present species identified as those with ten or more observations in the current decade
+  ## Filter those with 10 or more observations total and add decade 'presence' column
+  obs_present <- get(obs_checklist) %>%
+    filter(count_ten_plus) %>%
+    group_by(Subbasin, scientific_name) %>% 
+    mutate(
+      ## add cols: 
+      ## historically recorded, recorded this decade, not recorded before this decade, no record from current decade
+      rec_this_dec = max_spp_yr >= 2010,
+      no_rec_before_this_dec = min_spp_yr >= 2010,
+      no_rec_this_dec = max_spp_yr < 2010,
+      
+      ## or maybe 15 years time period is better?
+      # rec_this_dec = max_spp_yr >= 2005,
+      # no_rec_before_this_dec = min_spp_yr >= 2005,
+      # no_rec_this_dec = max_spp_yr < 2005,
+      
+      hist_rec = TRUE
+    ) %>% 
+    ungroup() %>% 
+    left_join(obs_decade_count, by = summaryvars) %>% 
+    mutate(presence = ifelse(is.na(presence), FALSE, presence))
+  
+  # distinct(obs_present, scientific_name, Subbasin, no_rec_this_dec) %>%
+  #   group_by(Subbasin, no_rec_this_dec) %>%
+  #   summarize(spp_norec_thisdec = n()) %>%
+  #   tidyr::pivot_wider(names_from = no_rec_this_dec, values_from = spp_norec_thisdec)
+  
+  
+  
+  ## collapse all obs to one per species (or family for insects) per Subbasin region
+  assign(
+    str_remove(obs_checklist, "^obs_"), 
+    obs_present %>% 
+      select(!!!syms(c(summaryvars, "list_type", "species_group", "no_rec_this_dec"))) %>% 
+      distinct() %>% 
+      ungroup()
   )
+}
+
+## Number of unique families (only insects)
+length(unique(checklist_insect_family$family)) # 24
+
+## Number of unique present species (excluding insects)
+length(unique(checklist_no_insect$scientific_name)) # 1313
+# ggplot(checklist_no_insect) +
+#   geom_histogram(aes(species_group), stat = "count") +
+#   facet_wrap(~Subbasin, scales = "free") +
+#   coord_flip() +
+#   labs(x = NULL, y = NULL)
 ```
 
 <br>
 
-## 5. Considerations for `BHI3.0`
+#### 3.4.2 Overlap between Checklist and Redlist, by Species or Insect Families {-}
+
+
+**Intersections of Species Checklists and Redlist Assessment Lists**
+
+```{r species or insect families on both checklists derived from observations and redlist assessment lists}
+missing_spp <- data.frame(checklist_not_redlist = as.numeric(), redlist_not_checklist = as.numeric())
+checklist_no_insect <- checklist_no_insect %>% 
+  mutate(species_id = ifelse(
+    scientific_name == "Phoca vitulina" & Subbasin == "Western Gotland Basin",
+    3357, species_id
+  ))
+
+for(chklst in c("checklist_no_insect", "checklist_insect_family")){
+  
+  if(chklst == "checklist_insect_family"){
+    join_redlist <- redlist_insect_family_assessment
+    joinvars = c("family", "species_group")
+  } else {
+    ## need to edit Phoca vitulina for subpops and to join by names/ids
+    join_redlist <- redlist %>% 
+      mutate(
+        scientific_name = ifelse(
+          scientific_name == "Phoca vitulina vitulina", 
+          "Phoca vitulina", scientific_name
+        ), 
+        species_id = ifelse(
+          scientific_name == "Phoca vitulina" & remarks == "Southern Baltic subpopulation", 
+          3356, species_id
+        )
+      )
+    joinvars = c("species_id", "scientific_name", "species_group")
+  }
+  ## maybe instead of full join should use approach like used for separating insect and non-insect? 
+  ## using synonyms/accepted names and string-matching...
+  shared <- full_join(get(chklst), join_redlist, by = joinvars) %>% ungroup()
+  assign(str_replace(chklst, "^checklist", "shared"), shared)
+  
+  missing_spp <- rbind(missing_spp, data.frame(
+    checklist_not_redlist = nrow(distinct(filter(shared, !is.na(list_type.x) & is.na(list_type.y)), !!!syms(joinvars))),
+    redlist_not_checklist = nrow(distinct(filter(shared, is.na(list_type.x) & !is.na(list_type.y)), !!!syms(joinvars)))
+  ))
+}
+## non-insects df has 317 obs spp not on redlist and 1775 on redlist not in observations
+## insects df has 1 obs spp not on redlist and 34 on redlist not in observations...
+# missing_spp
+# dim(shared_insect_family)
+# dim(shared_no_insect)
+
+
+## for insects just going to keep where lists overlap
+shared_insect_family <- shared_insect_family %>%
+  filter(!is.na(list_type.x) & !is.na(list_type.y)) %>% 
+  rename(scientific_name = family)
+```
 
 <br>
 
-## 6. References
+**Non-Insect Checks: Species on Checklist not Redlist and Vice Versa**
+
+Need to first join and retain all species in order to check for possible spelling mismatches. After correcting possible spelling errors, retain only species that are in both lists.
+
+Initially, a check of checklist species not on redlist was made in order to maximise the number of species that can be analyzed by ensuring no species were excluded due to spelling errors that was incompatible with the redlist. However, the number of species that were not assessed in the redlist was too many to look through... Further, as both the checklist and redlist were compiled by HELCOM, it is unlikely that the databases were unsynchronised.
+
+<br>
+
+
+**Finalizing Non-Insect Shared Species List**
+
+Duplicate assessments were found for 5 species in the shared species list. Upon inspection, duplicate assessments were found to be based off on wintering and breeding statuses. To resolve this, decision was made to take the threat assessment of breeding birds for each species.
+
+Duplicate entries with same assessment across different assessment years was also found for 1 species. This was resolved by deleting the older assessment. This section needs to be fixed with new approach using entire obs database.
+
+
+```{r shared species no insect, result = "hide"}
+
+## Species list that is on both checklists (observations/presence and redlist)
+shared_no_insect <- filter(shared_no_insect, !is.na(list_type.x) & !is.na(list_type.y))
+
+## Check number of species
+length(unique(shared_no_insect$scientific_name)) # 997 species
+
+## Check where there are duplicate assessments (species with more than one threat level assessment)
+
+spp_duplicate_assess <- intersect(
+  unique(shared_no_insect$scientific_name), 
+  unique(duplicate_redlist$scientific_name)
+) # 27 species 
+
+shared_lst_duplicates <- shared_no_insect %>% 
+  filter(scientific_name %in% spp_duplicate_assess) %>% 
+  distinct(scientific_name, assessment_year_red_list, red_list_category, remarks)
+
+
+## Some duplicates are from bird species that are based off wintering and breeding categories:
+chk_birds <- unique(filter(shared_lst_duplicates, str_detect(remarks, "bird"))$scientific_name)
+chk_birds <- shared_no_insect %>% 
+  select(-Subbasin) %>% 
+  distinct() %>% 
+  filter(scientific_name %in% chk_birds, str_detect(remarks, "Breeding birds"))
+
+## Substitute threat assessment of breeding birds for each species with duplicate assessments
+western_subbasins <- c(
+  "Kattegat", "Great Belt", "The Sound", "Kiel Bay", "Arkona Basin", 
+  "Bay of Mecklenburg", "Bornholm Basin", "Western Gotland Basin"
+)
+shared_no_insect <- shared_no_insect %>%
+  rowwise() %>% 
+  mutate(
+    red_list_category = case_when(
+      any(scientific_name %in% filter(chk_birds, str_detect(red_list_category, "NT"))$scientific_name) ~ "NT - Near Threatened",
+      any(scientific_name %in% filter(chk_birds, str_detect(red_list_category, "VU"))$scientific_name) ~ "VU - Vulnerable",
+      any(scientific_name %in% filter(chk_birds, str_detect(red_list_category, "LC"))$scientific_name) ~ "LC - Least Concern",
+      !scientific_name %in% chk_birds ~ red_list_category
+    )
+  ) %>% 
+  ## also removes remarks that indicate subspecies... so deal with that first
+  mutate(scientific_name = ifelse(
+    scientific_name == "Phocoena phocoena",
+    sprintf("%s (%s)", scientific_name, remarks),
+    scientific_name
+  )) %>% 
+  filter(!(str_detect(scientific_name, "Western") & !Subbasin %in% western_subbasins)) %>% 
+  ## why two assessment categories for same year (LE and NE)?
+  filter(!(scientific_name == "Malacoceros fuliginosus" & red_list_category == "NE - Not Evaluated")) %>% 
+  select(-remarks) %>%
+  distinct()
+
+## Recheck that duplicate scientific names are for different (years') assessments
+shared_no_insect %>% 
+  select(scientific_name, red_list_category, assessment_year_red_list) %>% 
+  distinct() %>% 
+  ungroup %>% 
+  group_by(scientific_name) %>% 
+  filter(n() > 1)
+```
+
+<br/>
+
+### 3.5 Combined Shared List And Initial Plots {-}
+
+```{r shared list by iucn threat category, result = "hide"}
+## Combining shared_no_insect species and shared_insect_family dataframes
+shared_list <- shared_no_insect %>% 
+  bind_rows(shared_insect_family) %>%
+  select(
+    scientific_name,
+    species_group,
+    Subbasin,
+    red_list_category,
+    no_rec_this_dec,
+    assessment_year_red_list
+  ) %>% # Removed species-specific rows
+  ungroup()
+
+dim(shared_list) # 3483 entries
+```
+
+```{r shared list plot by iucn threat category, fig.width = 9, fig.height = 5.5}
+## Plot by threat category
+shared_list %>% 
+  filter(assessment_year_red_list == 2013) %>% 
+  distinct(scientific_name, species_group, red_list_category) %>% 
+  ggplot() +
+  geom_bar(
+    aes(x = red_list_category),
+    stat = "count", 
+    position = position_dodge(), 
+    show.legend = FALSE
+  ) +
+  theme(
+    axis.text = element_text(colour = "grey20", size = 8),
+    axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)
+  ) +
+  coord_flip() +
+  facet_grid(rows = vars(species_group), scales = "free") +
+  labs(
+    title = "Count of species in each IUCN category", 
+    x = NULL, y = NULL
+  )
+```
+
+
+For use in ICO status calculation, does not contain red_list_category numeric.
+
+```{r save Biodiversity layers}
+## Write as bd_spp to layers folder
+shared_list %>% 
+  right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
+  select(region_id, assessment_year_red_list, scientific_name, species_group, red_list_category) %>% 
+  write.csv(here::here("layers/bd_spp_assessments_bhi2019.csv"), row.names = FALSE)
+
+## save 'no records this decade' info also as a BD layer, so can use for penalty/scaling?
+shared_list %>% 
+  right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
+  filter(no_rec_this_dec == TRUE) %>% 
+  select(region_id, assessment_year_red_list, scientific_name) %>% 
+  write.csv(here::here("layers/bd_spp_norec_bhi2019.csv"), row.names = FALSE)
+```
+
+```{r export other data for use in ICO calculation}
+## save also to iconic species data intermediate folder
+## save because will use in ICO, but first need to filter to include only iconic species
+if(!file.exists(here::here("data/ICO/v2019/intermediate"))){
+  dir.create(here::here("data/ICO/v2019/intermediate"))
+}
+write.csv(shared_list, here::here("data/ICO/v2019/intermediate/bd_spp_all_assessments.csv"), row.names = FALSE)
+
+redlist %>% 
+  filter(species_group ==  "Fish and Lamprey") %>% 
+  write_csv(here::here("data/ICO/v2019/intermediate/fis_redlist.csv"))
+```
+
+
+<br/>
+
+### 3.6 Data Analysis {-}
+
+#### 3.6.1 Select Data for Analysis and Plot Excluded and Included Data {-}
+
+```{r exclude threat categories without score, results = "hide"}
+## Check threat categories in shared_list
+## NE, NA and DD to be removed
+unique(shared_list$red_list_category)
+
+## Save excluded species in separate object
+exclude_categories <- c("DD - Data Deficient", "NE - Not Evaluated", "NA - Not Applicable")
+spp_excluded <- filter(shared_list, red_list_category %in% exclude_categories)
+dim(spp_excluded) # 410 entries
+
+## New shared_list excluding DD, NA and NE threat categories
+spp_included <- filter(shared_list, !red_list_category %in% exclude_categories)
+dim(spp_included) # 3073 (correct as = 3483-410)
+```
+
+```{r plots of included excluded threat categories, fig.width = 9, fig.height = 6}
+
+## Plot excluded data
+spp_excluded %>%
+  distinct(species_group, scientific_name, red_list_category) %>% 
+  ggplot(aes(x = species_group, fill = red_list_category)) +
+  geom_bar(stat = "count") +
+  labs(title = "Count of excluded species", x = NULL, y = NULL, fill = "Redlist Category")
+
+## Plot included data (num. distinct species, without DD, NA and NE categories) 
+## by species_group and red_list_category
+## why so few fish and lamprey???
+spp_included %>%
+  distinct(species_group, scientific_name, red_list_category) %>% 
+  ggplot(aes(x = species_group, fill = red_list_category)) +
+  geom_bar(stat = "count") +
+  theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90, hjust = 1, vjust  = 0.5)) +
+  labs(title = "Count of species in each IUCN category", x = NULL, y = NULL, fill = "Redlist Category")
+```
+
+
+#### 3.6.2 Plots by species_group and Subbasin {-}
+
+```{r plots species_group Subbasin, fig.width = 10, fig.height = 9}
+## Plot included data by subbasin, with threat category
+spp_included %>%
+  distinct(species_group, scientific_name, Subbasin, red_list_category) %>% 
+  ggplot(aes(x = species_group, fill = red_list_category)) +
+  geom_bar(stat = "count") +
+  facet_wrap(~Subbasin, scales = "free_y") +
+  theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90, hjust = 1, vjust  = 0.5)) +
+  labs(
+    title = "Count of species in each taxa group coded by IUCN category", 
+    x = NULL, y = NULL, 
+    fill = "Redlist Category"
+  )
+
+## Plot distribution for each species_group separately by subbasin & threat category
+## (with color palette to highlight Gulf of Finland)
+plotbasins <- c("Bothnian Bay", "Bothnian Sea","Aland Sea","The Quark","Gulf of Finland")
+spp_included %>%
+  distinct(species_group, scientific_name, Subbasin, red_list_category) %>% 
+  ## limiting the number of Subbasins included in the plot...
+  # filter(Subbasin %in% plotbasins) %>% 
+  count(species_group, Subbasin, red_list_category, name = "n_species") %>% 
+  mutate(plotcol = ifelse(Subbasin ==  "Gulf of Finland", TRUE, FALSE)) %>% 
+  ggplot() +
+  geom_col(aes(Subbasin, n_species, fill = plotcol), show.legend = FALSE) +
+  scale_fill_manual(values = c("grey", "salmon")) + 
+  facet_grid(
+    cols = vars(red_list_category), 
+    rows = vars(species_group), 
+    scales = "free"
+  ) +
+  coord_flip() +
+  labs(
+    y = "\nCount of Species", x = NULL, 
+    title = "\nCount of Species in each IUCN category by Subbasin"
+  ) +
+  theme(
+    axis.text.y = element_text(colour = "grey20", size = 6),
+    axis.text.x = element_text(colour = "red", size = 7, face = "bold")
+  )
+```
+
+#### 3.6.3 Assign BHI Vulnerability Score to Threat Categories {-}
+
+This step highlights a current issue with using just observations data: it is likely many regionally extinct, extinct, or critically endangered species are not accounted for, as they so rare (or non-existent) as to go undetected and thus not present in the observations dataset... 
+
+```{r BHI score numeric threat category, results = "hide"}
+## Create vulnerability lookup table
+vuln_lookup <- redlist %>% 
+  select(red_list_category) %>% 
+  distinct() %>% # all categories 
+  mutate(
+    red_list_category_numeric = case_when(
+      red_list_category == "EX - Extinct" ~ 1,
+      red_list_category == "RE - Regionally Extinct" ~ 1,
+      red_list_category == "CR - Critically Endangered" ~ 0.8,
+      red_list_category == "EN - Endangered" ~ 0.6,
+      red_list_category == "VU - Vulnerable" ~ 0.4,
+      red_list_category == "NT - Near Threatened" ~ 0.2,
+      red_list_category == "LC - Least Concern" ~ 0 
+    )
+  )
+
+## Only LC, NT, VU, EN and CR in spp_included
+unique(spp_included$red_list_category)
+
+## Add vulnerability score to spp_included
+spp_vuln <- left_join(spp_included, vuln_lookup, by = "red_list_category")
+dim(spp_vuln) # same no of rows, 1 extra column so correct
+```
+
+<br>
+
+### 3.7 Status Calculation {-}
+
+In Approach 1, a single calculation is made including all species. This result will be compared to Approach 2 (see Section 2.9.2) where a calculation is made for each taxa group before taking the geometric mean. The comparison between the two approaches can be found in Section 2.9.3.
+
+
+#### 3.7.1 Status Approach 1: by Subbasin with All Species Weighted Equally {-}
+
+Data is portrayed on the HOLAS subbasin scale. Biodiversity status will be calculated by these subbasin and then applied to BHI regions. Unlike BHI 1.0, the current iteration considers birds as well, since they have been given designated locations in this analysis. 
+<!-- Note, this will mean that the data layer sent to the layers folder is very different than what is done if using the spatial data layers from HELCOM where status is directly calculated for BHI regions and this is done formally in functions.R -->
+
+
+```{r status calculation approach 1, result = "hide"}
+## check num species in each subbasin...
+spp_vuln %>% 
+  group_by(scientific_name) %>% 
+  filter(assessment_year_red_list == max(assessment_year_red_list)) %>% 
+  group_by(Subbasin) %>% 
+  summarise(num_spp_basin = n_distinct(scientific_name))
+
+sum_and_nspp_wi_basin <- spp_vuln %>%
+  ## take only values from most recent redlist assessment
+  group_by(scientific_name) %>% 
+  filter(assessment_year_red_list == max(assessment_year_red_list)) %>% 
+  ## Sum threat weights for each subbasin, normalizing by number distinct spp in subbasin
+  group_by(Subbasin) %>% 
+  rename(weights = red_list_category_numeric) %>%
+  summarise(wi_spp = sum(weights)/n_distinct(scientific_name)) %>%
+  ungroup() %>% 
+  ## status per Subbasin
+  mutate(status = 1 - wi_spp)
+```
+
+
+**Scale lower end so zero represents 75% extinct** 
+
+*From Halpern et al 2012, SI. "We scaled the lower end of the biodiversity goal to be 0 when 75% species are extinct, a level comparable to the five documented mass extinctions"*  
+
+Currently, dataset only includes observations (presence) data so there's no way to tell percentage of extinct species... Code was left in to be adapted for future BHI iterations when data can differentiate between unsuitable species and species that become regionally extinct.
+
+We do not have complete extinction data, but we can get percentages of species historically observed but not within last fifteen years... will this 'lack of presence observations' suffice? 
+
+```{r scale so 75 percent extinct per Subbasin represents score of zero}
+spp_basin <- spp_vuln %>%
+  ## take only values from most recent redlist assessment
+  group_by(scientific_name) %>% 
+  filter(assessment_year_red_list == max(assessment_year_red_list)) %>%
+  
+  group_by(Subbasin, red_list_category_numeric, no_rec_this_dec) %>% 
+  summarize(nspp = n()) %>% 
+  ungroup() %>% 
+  mutate(not_obs_or_extinct = ifelse(
+    no_rec_this_dec & red_list_category_numeric > 0 | red_list_category_numeric == 1,
+    nspp, 0
+  )) %>% 
+  ## Sum threat weights for each subbasin, normalizing by number distinct spp in subbasin
+  group_by(Subbasin) %>% 
+  rename(weights = red_list_category_numeric) %>%
+  summarise(
+    wi_spp = sum(weights*nspp)/sum(nspp), 
+    nspp = sum(nspp),
+    pct_not_obs = 1-(sum(nspp)-sum(not_obs_or_extinct))/sum(nspp)
+  ) %>%
+  ungroup()
+
+## Calculate status per Subbasin with 'spp not observed' penalty factor applied
+spp_status_combined_taxa_penalized <- spp_basin %>% 
+  mutate(
+    status_initial = (1 - wi_spp),
+    status_penalized = status_initial*(0.75-pct_not_obs)/0.75
+  ) %>% 
+  ## round status values, compare
+  ## penalty only reduces score by max a single point
+  mutate(
+    status_initial = round(status_initial, 2), 
+    status_penalized = round(status_penalized, 2)
+  )
+```
+
+
+**Plot status by basin**
+
+```{r plot basin status, results = "show", fig.width = 9.5, fig.height = 8}
+## make color palettes for plots and maps
+fullpal <- c(
+  RColorBrewer::brewer.pal(8, "Dark2"),
+  RColorBrewer::brewer.pal(9, "Set1")
+)
+set.seed(2)
+statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
+
+## plot the status
+## BHI region plots will look the same, as BHI status are taken from subbasin means
+rgns_complete %>% 
+  select(region_id, Subbasin = subbasin, region_name) %>% 
+  left_join(spp_status_combined_taxa_penalized, by = "Subbasin") %>% 
+  tidyr::pivot_longer(
+    cols = c("status_initial", "status_penalized"), 
+    names_to = "status_approach", 
+    values_to = "status"
+  ) %>% 
+  mutate(
+    diffs = ifelse(pct_not_obs == 0, TRUE, FALSE),
+    status_approach = ifelse(status_approach == "status_initial", "No Scaling", "Scaled")
+  ) %>% 
+  distinct(Subbasin, nspp, status_approach, status, diffs) %>% 
+  ggplot() +
+  geom_col(
+    aes(Subbasin, status, fill = Subbasin, color = diffs),
+    # aes(region_name, status, fill = Subbasin, color = diffs),
+    position = position_dodge(),
+    alpha = 0.6,
+    size = 0.4,
+    show.legend = FALSE
+  ) +
+  geom_text(aes(Subbasin, status, label = paste("Num spp:", nspp)), color = "slategray", size = 3) +
+  coord_flip() +
+  facet_grid(rows = vars(status_approach)) +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 7)) +
+  scale_fill_manual(values = statuspal) +
+  scale_color_manual(values = c("black", "grey")) +
+  ggtitle("Biodiversity Status by Subbasin \nWith and without penalty based on % unobserved Species in last 15 years")
+```
+
+<br>
+
+#### 3.7.2 Status Approach 2: by Subbasin With Species Group and Regional Geometric Mean {-}
+
+Status of subbasins was obtained by first calculating statuses according to species groups and taking the geometric mean for each basin. Status values were calculated by taxa and subbasin, with and without scaling so zero represents 75% 'extinction'. Since actual percentages of regionally extinct species cannot be precisely determined from the datasets we have for this analysis, the scaling instead used percent species with redlist category other than 'Least Concern' and no observations in last 15 years.
+
+```{r species group status calculation approach 2}
+
+spp_by_taxa <- spp_vuln %>%
+  ## take only values from most recent redlist assessment
+  group_by(scientific_name) %>% 
+  filter(assessment_year_red_list == max(assessment_year_red_list)) %>%
+  
+  group_by(Subbasin, species_group, red_list_category_numeric, no_rec_this_dec) %>% 
+  summarize(nspp = n()) %>% 
+  ungroup() %>% 
+  mutate(not_obs_or_extinct = ifelse(
+    no_rec_this_dec & red_list_category_numeric > 0 | red_list_category_numeric == 1,
+    nspp, 0
+  )) %>% 
+  ## Sum threat weights for each subbasin and taxa (species_group), normalizing by number distinct spp
+  group_by(Subbasin, species_group) %>% 
+  rename(weights = red_list_category_numeric) %>%
+  summarise(
+    wi_spp = sum(weights*nspp)/sum(nspp), 
+    nspp = sum(nspp),
+    pct_not_obs = 1-(sum(nspp)-sum(not_obs_or_extinct))/sum(nspp)
+  ) %>%
+  ungroup() %>% 
+  ## Calculate status with geometric mean of species-group scores
+  ## per Subbasin and with 'spp not observed' penalty factor applied
+  mutate(
+    status_taxa_initial = (1 - wi_spp),
+    status_taxa_penalized = status_taxa_initial*(0.75-pct_not_obs)/0.75
+  )
+
+## Summarize status values across taxa by Subbasin
+## apply penalty and round status values, then plot and compare
+spp_status_by_taxa_penalized <- spp_by_taxa %>% 
+  group_by(Subbasin) %>% 
+  summarize(
+    status_basin_initial = exp(mean(log(status_taxa_initial))),
+    status_basin_penalized = exp(mean(log(status_taxa_penalized)))
+  ) %>% 
+  mutate(
+    status_basin_initial = round(status_basin_initial, 2), 
+    status_basin_penalized = round(status_basin_penalized, 2)
+  )
+## penalty has negligible effect on the basin statuses calculated as geometric mean of taxa statuses
+```
+
+
+```{r biodiversity statuses by taxa, results = "show", fig.width = 9.5, fig.height = 10}
+## plot the status
+## BHI region plots will look the same, as BHI status are taken from subbasin means
+ggplot(spp_by_taxa) +
+  geom_col(
+    aes(species_group, status_taxa_initial, fill = Subbasin),
+    # aes(region_name, status, fill = Subbasin, color = diffs),
+    position = position_dodge(),
+    color = "grey",
+    alpha = 0.6,
+    size = 0.5,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    aes(species_group, status_taxa_initial/2, label = paste("Num spp:", nspp)), 
+    color = "darkslategray", size = 2.5
+  ) +
+  coord_flip() +
+  facet_grid(rows = vars(Subbasin)) +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(
+    axis.text.y = element_text(size = 7), 
+    strip.text.y = element_text(size = 8, angle = 0)
+  ) +
+  scale_fill_manual(values = statuspal) +
+  ggtitle("Biodiversity Status by Subbasin and Taxa")
+```
+
+```{r biodiversity subbasin statuses from taxa statuses, results = "show", fig.width = 9.5, fig.height = 6}
+## Geometric Mean of taxa Status for each Subbasin
+ggplot(spp_status_by_taxa_penalized) +
+  geom_col(
+    aes(Subbasin, status_basin_initial, fill = Subbasin),
+    position = position_dodge(),
+    color = "grey",
+    alpha = 0.6,
+    size = 0.5,
+    show.legend = FALSE
+  ) +
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 9)) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_fill_manual(values = statuspal) +
+  ggtitle("Biodiversity Status by Subbasin \nCalculated as geometric mean of Taxa Statuses")
+```
+
+<br>
+
+#### 3.7.3 Compare Alternative Approaches to Subbasin level SPP status calculation {-}
+
+```{r comparsion of subbasin level spp status, results = "show"}
+status_compare <- left_join(
+  select(spp_status_combined_taxa_penalized, Subbasin, nspp, status_initial, status_penalized),
+  select(spp_status_by_taxa_penalized, Subbasin, status_bytaxa = status_basin_initial),
+  by = "Subbasin"
+)
+tab <- status_compare %>% 
+  arrange(desc(status_initial)) %>% 
+  cbind(rank_initial = 1:17) %>% 
+  arrange(desc(status_penalized)) %>% 
+  cbind(rank_wpenalty = 1:17) %>% 
+  arrange(desc(status_bytaxa)) %>% 
+  cbind(rank_bytaxa = 1:17)
+
+knitr::kable(tab, format = "pandoc") %>% 
+  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+```
+
+```{r map comparison of approaches to calculating biodiversity status, results = "show", fig.width = 9, fig.height = 9}
+# source(here::here("R", "spatial.R"))
+regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
+
+bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+
+statusmapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+
+mapdf <- left_join(
+  bhi_rgns_simple %>% 
+    mutate(Subbasin = as.character(Subbasin)) %>% 
+    rename(region_id = BHI_ID),
+  rgns_complete %>% 
+    rename(Subbasin = subbasin) %>% 
+    left_join(status_compare, by = "Subbasin") %>% 
+    tidyr::pivot_longer(
+      cols = c("status_initial", "status_penalized", "status_bytaxa"),
+      names_to = "status_approach", values_to = "status"
+    ) %>% 
+    mutate(
+      status = 100*status, 
+      status_approach = case_when(
+        status_approach == "status_initial" ~ "1. Normalized Mean of Subbasin Species,\n Weighted by Redlist Cateogries",
+        status_approach == "status_penalized" ~ "2. With Penalty by % At-risk Spp.\n Unobserved within 15 Years",
+        status_approach == "status_bytaxa" ~ "3. Statuses by Taxa within each Subbasin,\n combined with Geometric Mean"
+      )
+    ),
+  by = c("Subbasin", "region_id")
+)
+
+basemap + 
+  geom_sf(
+    data = filter(mapdf, str_detect(status_approach, "3. Statuses by Taxa")), 
+    aes(fill = status), 
+    size = 0.1, alpha = 0.7
+  ) +
+  scale_fill_gradientn(colors = statusmapcols, limits = c(50, 100), na.value = "gainsboro") +
+  theme(
+    legend.background = element_rect(color = "grey"),
+    legend.position = c(0.15, 0.75)
+  ) +
+  facet_grid(cols = vars(status_approach)) + 
+  labs(fill = "Status Score", title = "Biodiversity Status Map") +
+  theme(strip.text.x = element_text(size = 8), legend.position = c(0.1, 0.9))
+```
+
+<br>
+
+### 3.8 Trend {-}
+
+```{r get biodiversity trend by country from ohi global, results = "hide"}
+req <- httr::GET("https://api.github.com/repos/OHI-Science/ohi-global/git/trees/draft?recursive=1")
+httr::stop_for_status(req)
+global_spp_trend <- read_csv(
+  sprintf(
+    "https://raw.githubusercontent.com/OHI-Science/ohi-global/draft/%s",
+    unlist(lapply(httr::content(req)$tree, "[", "path"), use.names = FALSE) %>% 
+      grep(pattern = "eez/layers/spp_trend.*\\.csv", value = TRUE)
+  )
+)
+closeAllConnections()
+
+## read_csv("https://raw.githubusercontent.com/OHI-Science/ohi-global/draft/eez/layers/rgn_global.csv")
+ohiglobal_to_bhirgn <- data.frame(
+  country_code = c(222, 174, 73, 70, 69, 189, 178, 176, 175),
+  eez = c("Sweden", "Finland", "Russia", "Estonia", "Latvia", "Lithuania", "Poland", "Germany", "Denmark"),
+  stringsAsFactors = FALSE
+)
+bhi_countries_spp_trend <- global_spp_trend %>% 
+  rename(country_code = rgn_id) %>% 
+  left_join(ohiglobal_to_bhirgn, by = "country_code") %>% 
+  filter(!is.na(eez))
+
+spp_trend <- bhi_countries_spp_trend %>% 
+  right_join(rgns_complete, by = "eez") %>% 
+  select(region_id, score) %>% 
+  mutate(dimension = "trend", year = 2019)
+
+write.csv(
+  select(spp_trend, region_id, year, score),
+  here::here("layers/bd_spp_trend_bhi2019.csv"), 
+  row.names = FALSE
+)
+```
+
+
+<br>
+
+## 4. Considerations for `BHI3.0`
+
+<br>
+
+## 5. References
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
