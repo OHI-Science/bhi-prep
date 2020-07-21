@@ -1,0 +1,98 @@
+
+```{r eco data preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(here::here("R", "data.R"))
+source(here::here("R", "spatial.R"))
+
+## root location of the raw data
+dir_A <- file.path(dirname(dir_prep), "bhi-data")
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Goals", "LE", "ECO")
+dir_intermediate <- file.path(here::here("data", "ECO", version_year, "intermediate"))
+  
+```
+<br>
+
+The Economies sub-goal captures the economic value associated with marine industries using revenue from marine sectors. 
+It is composed of a single component, the **revenue** (as _Gross Value Added (GVA)_, the grand total of all revenues by country).
+
+Gross value added (GVA) is defined as the value of output less the value of intermediate consumption. 
+It is used to measure the output or contribution of a particular sector.
+
+In BHI 1.0 _Gross Domestic Product (GDP)_ was used instead, which represents the sum total of gross value added (GVA) of any nation in all the sectors of that economy during the said year after adjusting for taxes and subsidies, as it was the only available type of data.
+However, as we now have the production contribution (GVA) of a particular sector available, we will use this type of data instead.
+
+In the economies sub-goal, revenue has a moving target temporal comparison. 
+A score of 100 would indicate that revenue has not decreased compared to its value ten years previous. 
+The years used for GVA data are based on the average current year and average reference year across the sector data sources.
+
+### 2.1 Datasets with Sources {-}
+<br/>
+
+#### 2.1.1 EU Baltic countries GVA Data {-}
+
+Data for the 8 EU Baltic countries were extrapolated from the [2020 EU Blue economy report](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-ld_final.pdf) on July 14 2020 by Andrea De Cervo. 
+
+In particular, detailed info on GVA% by sub-sector and activity per member state were extrapolated from the tables on the [Annex I](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part1_final.pdf) and [Annex II](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part2_final.pdf).
+
+
+### 2.1.2 Russian country level data
+
+No GVA% data found for Russia.
+(Should we use GDP data as for BHI 1.0?)
+
+### 2.1.3 Reference values {-}
+
+Target is **1.5 % annual growth** between 2009 and 2018, as envisioned in the [2020 EU Blue economy report](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-ld_final.pdf). 
+Status is calculated for each sector, and goal status is the average of sector status scores. 
+
+### 2.2 Centralization & Normalization {-}
+
+#### 2.2.1 GVA datasets {-}
+
+The downloaded raw datasets provides an overview of the Blue Economy in the individual Member States. 
+They include the established sectors, ensuring a comparable analysis across all the MS. 
+In particula, these datasets shows an overview of the Blue Economy by sub-sector and activity for employment, GVA and turnover.
+
+```{r load raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+# library(readr)
+# load all raw data (containing the newest data)
+den_gva <- read.csv(
+  file.path(dir_rawdata, "denmark_blueconomy2018.csv"), 
+  sep = ";")
+
+est_gva <- read.csv(
+  file.path(dir_rawdata, "estonia_blueconomy2018.csv"), 
+  sep = ";")
+
+fin_gva <- read.csv(
+  file.path(dir_rawdata, "finland_blueconomy2018.csv"), 
+  sep = ";")
+
+ger_gva <- read.csv(
+  file.path(dir_rawdata, "germany_blueconomy2018.csv"), 
+  sep = ";")
+
+lat_gva <- read.csv(
+  file.path(dir_rawdata, "latvia_blueconomy2018.csv"), 
+  sep = ";")
+
+lit_gva <- read.csv(
+  file.path(dir_rawdata, "lithuania_blueconomy2018.csv"), 
+  sep = ";")
+
+pol_gva <- read.csv(
+  file.path(dir_rawdata, "poland_blueconomy2018.csv"), 
+  sep = ";")
+
+swe_gva <- read.csv(
+  file.path(dir_rawdata, "sweden_blueconomy2018.csv"), 
+  sep = ";")
+```
+<br>
+
+**Clean, explore and merge key species, cyprinids and piscivores status data**
+```{r merging eu gva data}
+
+```
+
+
