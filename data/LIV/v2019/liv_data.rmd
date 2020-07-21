@@ -10,12 +10,12 @@ source(file.path(here::here(), "R", "spatial.R"))
 <br/>
 
 **Employment rates by sex, age and NUTS 2 regions % (lfst_r_lfe2emprt)**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/LE/LIV/Employment_NUTS2/lfst_r_lfe2emprt -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LE/LIV/Employment_NUTS2/lfst_r_lfe2emprt_2019 -->
 
 ```{r employment rates by sex age and nuts2 regions, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c("TIME:", "1999-2018"), 
-  c("AGE:", "Y15-74 (code) From 15 to 74 years (label)"),
+  c("TIME:", "1999-2019"), 
+  c("AGE:", "Y15-74 (code) From 15 to 64 years (label)"),
   c("GEO:", "NUTS2 (Filtering - Nuts level)"),
   c("SEX:", "Total"),
   c("Unit of measure:", "Percentage")))
@@ -23,7 +23,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [eurostat database](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=lfst_r_lfe2emprt&lang=en) <br/> Downloaded 30 May, 2019 by Ellie Campbell")
+knitr::kable(tab, caption = "Source: [eurostat database](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=lfst_r_lfe2emprt&lang=en) <br/> Downloaded 21 July, 2020 by Andrea De Cervo")
 ```
 <br/>
 
@@ -54,13 +54,15 @@ The EU-LFS is designed to give accurate quarterly information at national level 
 
 ```{r population density data from hyde database, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
+  c("Proceed to the FTP-server to", "download the datasets"), 
+  c("Connect as", "Guest"),
   c("Index:", "hyde/hyde3.2/2017_beta_release/001/zip/"), 
   c("Name:", "2016AD_pop.zip")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [HYDE database, FTP-server](https://themasites.pbl.nl/tridion/en/themasites/hyde/download/index-2.html) <br/> Downloaded DATE by NAME")
+knitr::kable(tab, caption = "Source: [HYDE database, FTP-server](https://themasites.pbl.nl/tridion/en/themasites/hyde/download/index-2.html) <br/> Downloaded 21 July, 2020 by Andrea De Cervo")
 ```
 <br/>
 
@@ -74,13 +76,13 @@ Year of data = 2005. Data were a 5' resolution. Population density within a 25km
 
 ```{r population change at national level, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c("Years:", "1990-2015"), 
+  c("Years:", "1990-2020"), 
   c("Demographic Indicator (INDIC_DE):", "Population on 1 January - Total, Average Population - Total, Natural change of population (NATGROW), Total population change (GROW), Crude rate of total population change (GROWRT)")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [eurostat database](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=demo_gind&lang=en) <br/> Downloaded 31 May, 2019 by Ellie Campbell")
+knitr::kable(tab, caption = "Source: [eurostat database](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=demo_gind&lang=en) <br/> Downloaded 21 July, 2019 by Andrea De Cervo")
 ```
 <br/>
 
@@ -89,11 +91,11 @@ Summary explanation about indicator: Eurostat aims at collecting from the EU-28'
 <br/>
 
 **Employment and population (subset to data for Russia)**  
-<!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Population_Jan1/Pop_Employ_Russia -->
+<!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Pop_Employ_Russia_2019 -->
 
 ```{r employment and population for russia, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
-  c("Years:", "1990-2015"), 
+  c("Years:", "1990-2019"), 
   c("NA_ITEM:", "Total population national concept (POP_NC), Employees domestic concept (SAL_DC), Total employment domestic concept (EMP_DC)"), 
   c("GEO:", "RU	Russia"),
   c("Unit:", "Thousand persons (THS_PER)")))
@@ -101,7 +103,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [eurostat database](http://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=naida_10_pe&lang=en) <br/> Downloaded 31 May, 2019 by Ellie Campbell")
+knitr::kable(tab, caption = "Source: [eurostat database](http://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=naida_10_pe&lang=en) <br/> Downloaded 21 July, 2020 by Andrea De Cervo")
 ```
 <br/>
 
