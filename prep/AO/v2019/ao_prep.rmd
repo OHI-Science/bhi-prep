@@ -38,7 +38,7 @@ regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
 
 basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
   read_csv() %>%
-  select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
+  dplyr::select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
   mutate(
     subbasin = as.character(subbasin),
     rgn_nam = as.character(rgn_nam)
@@ -86,9 +86,9 @@ The raw coastal fish data must be assigned to their respective Subbasins and BHI
 ```{r assign BHI regions to coastal fish data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 # Rename some variable and subbasin name to make it match to the basin_lookup table
 # library(stringi)
-combined_coastal_fish <- combined_coastal_fish %>% 
+combined_coastal_fish1 <- combined_coastal_fish %>% 
   rename(lat = Latitude, lon = Longitude) %>% 
-  filter(!is.na(lat) & !is.na(lon)) %>%  # however, by doing this, more than 70 locations will be cut off
+  filter(!is.na(lat) & !is.na(lon)) %>%  # however, by doing this, more than 73 locations will be cut off
   mutate(
     Subbasin = stri_trans_totitle(Subbasin),
     Subbasin = str_replace(Subbasin, "Åland Sea", "Aland Sea"),
@@ -101,9 +101,9 @@ combined_coastal_fish <- combined_coastal_fish %>%
     Subbasin = str_replace(Subbasin, "Bay Of Mecklenburg", "Bay of Mecklenburg"),
     Subbasin = str_replace(Subbasin, "Northern Baltic Sea", "Northern Baltic Proper"))
 # need to check if "Archipelago Sea" (Finland) is actually Aland Sea subbasin
-                                               
+#detach("package:raster", unload=TRUE) 
 coastalfish_rgns <- join_rgns_info(
-  combined_coastal_fish, helcomID_col = "helcom_id", country_col = "country", 
+  combined_coastal_fish1, helcomID_col = "helcom_id", country_col = "country", 
   latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"), 
   buffer_shp = NULL
@@ -177,12 +177,12 @@ Xao = Mean Stock Indicator Value / Reference Point
 ```{r status calculation, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 ## Number of time series that will contribute to the mean score in each basin
 ## these are the number of GES assessments (across indicators and taxa)
-basin_n_obs <- combined_coastal_fish %>% 
+basin_n_obs <- combined_coastal_fish1 %>% 
   select(Subbasin) %>%
   count(Subbasin)
 
 ## Indicator mean by monitoring area
-monitoring_indicator_mean <- combined_coastal_fish %>% 
+monitoring_indicator_mean <- combined_coastal_fish1 %>% 
   select(
     Subbasin, Country, Monitoring.area, lat, lon, core_indicator, Status.value.monitoring.location, threshold_value
     ) %>%
@@ -680,6 +680,25 @@ ggplot(slope3) +
   labs(y = "Slope", x = "Subbasins") +
   ggtitle("Mean slope (black dots) by basin")
 
+slope22 <- slope2 %>%
+  group_by(Subbasin, core_indicator) %>%
+  mutate(slope_mean_basin_indicator = mean(slope_mean_basin_taxa)) %>%
+  filter(Taxa %in% c("Cyprinids", "Piscivores")) %>%
+  ungroup() 
+# str(slope22)
+
+ggplot(slope22) + 
+  geom_hline(yintercept = 0) +
+  geom_point(aes(Subbasin, slope_mean_basin_indicator), colour = "black", size = 3) +
+  geom_point(aes(Subbasin, slope_mean_basin_taxa, shape = Taxa), colour = "red") +
+  theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90,
+                                   hjust = .5, vjust = .5, face = "plain")) +
+  scale_shape_manual(values = c(1:2)) +
+  ylim(-.3,.3) +
+  labs(y = "Slope", x = "Subbasins") +
+  ggtitle("Functional Groups mean slope (black dots) by basin")
+## This plot might help explaining the overall positive trend of functional groups
+
 ## new object, only basin mean
 slope4 <- slope3 %>%
   select(Subbasin, slope_mean_basin) %>%
@@ -831,7 +850,7 @@ Stock was one component of the AO goal. Model could be updated with parameters r
 
 <br>
 
-## 9. References {-}
+## 8. References {-}
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```

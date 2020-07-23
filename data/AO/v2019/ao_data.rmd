@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 
-```{r eut data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r ao data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 source(here::here("R", "setup.R"))
 source(here::here("R", "data.R"))
 source(here::here("R", "spatial.R"))
@@ -107,9 +107,10 @@ coastal_fish_cpue <- coastal_fish_raw %>%
       cpue = str_replace(cpue, ",", "."),
       cpue = str_replace(cpue, "-", ""),
       cpue = as.numeric(cpue),
+      core_indicator = ifelse(Functional.group == "Cyprinids" & core_indicator  == "Key species", "Key functional group", core_indicator),
       Taxa = if_else(
         Species == "-", Functional.group, Species)) %>% 
-  select(-Species, -Functional.group)
+  dplyr::select(-Species, -Functional.group)
 ```
 <br>
 
@@ -170,7 +171,7 @@ coastal_fish_status <- rbind(
       coastal_water_type = Coastal.area.name..assessment.unit.,
       period = Time.period.assessed
     ) %>% 
-    select(-Identity.of.indicator) %>% 
+    dplyr::select(-Identity.of.indicator) %>% 
     dplyr::mutate(
       Latitude = str_replace(Latitude, ",", "."),
       Latitude = str_replace(Latitude, "Area not point", ""),
@@ -203,11 +204,12 @@ coastal_fish_status <- rbind(
       period = Time.period.assessed
     ) %>% 
     # separate_rows(Taxa, sep =",\\s+") %>% # serapate different taxa from single rows
-    select(-Identity.of.key.piscivores) %>% 
+    dplyr::select(-Identity.of.key.piscivores) %>% 
     dplyr::mutate(
       Latitude = str_replace(Latitude, ",", "."),
       Latitude = str_replace(Latitude, "Area not point", ""),
       Longitude = str_replace(Longitude, "Åland Sea", "."),
+      Longitude = str_replace(Longitude, ",", "."),
        Latitude = ifelse(Monitoring.area == "Finnish ICES SD 31", 64.207281,
                  ifelse(Monitoring.area == "Finnish ICES SD 30", 61.679815,
                  ifelse(Monitoring.area == "Finnish ICES SD 29", 59.705518,
