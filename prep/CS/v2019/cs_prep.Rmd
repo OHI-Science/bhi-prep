@@ -1,0 +1,197 @@
+
+```{r ao preamble, message = FALSE, warning = FALSE, include = FALSE}
+loc <- here::here("prep", "CS")
+
+source(here::here("R", "setup.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
+
+bkgd_path <- here::here("supplement", "goal_summaries", "CS.Rmd")
+data_path <- here::here("data", "CS", version_year, "cs_data.rmd")
+refs_path <- file.path(loc, "cs_references.Rmd")
+
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_intermediate <- file.path(here::here("data", "CS", version_year, "intermediate"))
+dir_rawdata <- file.path(dir_B, "Goals", "CS")
+
+fullpal <- c(
+  RColorBrewer::brewer.pal(8, "Dark2"),
+  RColorBrewer::brewer.pal(9, "Set1")
+)
+```
+
+```{r ao setup spatial functions and files, warning = FALSE, include = FALSE}
+## in order to assign bhi regions to data, must run this function first, to load required shapefiles:
+source(here::here("R", "spatial.R"))
+regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
+
+basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
+  read_csv() %>%
+  dplyr::select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
+  mutate(
+    subbasin = as.character(subbasin),
+    rgn_nam = as.character(rgn_nam)
+  )
+```
+
+
+## 1. Background {-}
+
+```{r cs prep background, child = bkgd_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 2. Data {-}
+
+This prep document is used to generate and explore the following data layers:
+
+- `cs_trend_bhi2019.csv` 
+- `cs_status_bhi2019.csv` 
+
+These are saved to the `layers` folder. Saved to `data/CS/v2019/intermediate` are intermediate datasets: `bhi_transf.shp` and `cs_bhi_intersect.shp`. All these are derived from HELCOM Map and Data Service.
+
+<br>
+
+```{r cs prep data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+
+```{r load cs datasets, echo = TRUE}
+## previously created in 'data/CS/v2019/ao_data.R' script
+cs_rawdata <- sf::st_read(file.path(
+  dir_intermediate, "cs_bhi_intersect.shp"
+))
+st_geometry(cs_rawdata) <- NULL
+```
+
+<br/>
+
+## 4. Status
+
+Zostera new shape file explore: 
+
+- 10km grid cell
+- field description: 
+
+0 = no observations
+1 = present before year 1995 or in 1995
+2 = present after year 1995
+3 = present before and after year 1995
+
+Also added one more factor: carbon storage capacity among different regions (from Emilia Röhr, Åbo University. _Röhr et al. 2016_). 
+- for the BHI region 1-3 we use a carbon storage potential of: 4862 ( g C m^-2)
+- for all others BHI regions where seagrass is growing we use: 578 ( g C m^-2)
+
+According to BHI 1.0, these regions have been identified to be unsuitable for eelgrass growth and thus have status of NA: 
+ - 12, 15, 17, 19, 21, 22, 23, 24, 37, 38, 39, 40, 41, 42
+
+**Status**
+```{r polygon data explore}
+cs_status_1 <- cs_rawdata %>% 
+  dplyr::select(rgn_id = BHI_ID, country = rgn_nam, zostera = Z_marina) %>% 
+  mutate(helcom_score = ifelse(zostera == 2, 100, zostera/3*100)) %>% # if zostera = 2, set score to 100
+  group_by(rgn_id) %>% 
+  summarize(score = mean(helcom_score)) %>% 
+  ungroup
+
+## Plot Status
+cs_plot <- ggplot(cs_status_1) +
+  geom_bar(aes(rgn_id, score), stat = 'identity') +
+  labs(title = "CS score based on HELCOM Zostera data",
+       x = "BHI region",
+       y = "Score") 
+  
+plot_status <- cs_status_1 %>% 
+  full_join(.,basin_lookup, by = c("rgn_id"= "bhi_id"))
+
+set.seed(2)
+statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
+
+ggplot(plot_status) +
+  geom_col(
+    aes(rgn_nam, score, fill = subbasin),
+    position = position_dodge(), 
+    color = "black", 
+    alpha = 0.6,
+    size = 0.2,
+    show.legend = FALSE
+  ) + 
+  geom_text(aes(rgn_nam, score, label = score), color = "black", size = 3) +
+  coord_flip() +
+  labs(x = NULL, y = "Score") +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 9)) +
+  scale_fill_manual(values = statuspal) +
+  ggtitle("CS Status by Region")
+```
+
+<br/>
+
+**Status + CS potential**
+```{r polygon data explore}
+### incorporate CS potential? (It was not incorporated in BHI 1.0 for round 1 of BHI - March2017
+cs_status_2 <- cs_status_1 %>% 
+   mutate(cs_poten = ifelse(bhi %in% c(1,2,3), 1, 578/4862), 
+          reference = 100 * 1, # helcom score of 100, and highest CS potential
+          score = score * cs_poten / reference *100) 
+
+### identify regions with no eelgrass growth potential and set as NA
+no_eelgrass <-c(12, 15, 17, 19, 21, 22, 23, 24, 37, 38, 39, 40, 41, 42)
+
+cs_status_2 <- cs_status_1 %>% 
+  mutate(score = ifelse(bhi %in% no_eelgrass, NA, score)) %>% 
+  dplyr::select(rgn_id = bhi, 
+                score) %>% 
+  mutate(dimension = "status")
+
+write_csv(cs_status_2, file.path(dir_layers, 'cs_status_bhi2015.csv'))
+  
+## plot ##
+cs_potential_plot <- ggplot(cs_status_2) +
+  geom_bar(aes(rgn_id, score), stat = 'identity') +
+  labs(title = "CS score based on HELCOM Zostera data & carbon storage capacity",
+       x = "BHI region",
+       y = "Score") 
+  
+plot_status2 <- cs_status_2 %>% 
+  full_join(.,basin_lookup, by = c("rgn_id"= "bhi_id"))
+
+set.seed(2)
+statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
+
+ggplot(plot_status2) +
+  geom_col(
+    aes(rgn_nam, score, fill = subbasin),
+    position = position_dodge(), 
+    color = "black", 
+    alpha = 0.6,
+    size = 0.2,
+    show.legend = FALSE
+  ) + 
+  geom_text(aes(rgn_nam, score, label = score), color = "black", size = 3) +
+  coord_flip() +
+  labs(x = NULL, y = "Score") +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 9)) +
+  scale_fill_manual(values = statuspal) +
+  ggtitle("CS Status + Potential by Region")
+```
+
+<br/>
+
+## 5. Trend
+
+**Trend**
+Trend will be NA for all regions. 
+
+## 6. Considerations for `BHI3.0`
+
+<br>
+
+## 7. References
+
+```{r References, child = refs_path, results = "asis", echo = FALSE}
+```
