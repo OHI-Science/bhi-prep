@@ -1,29 +1,30 @@
 
-```{r source common.R and data.R, echo = FALSE, include = FALSE, error = FALSE}
-source(file.path(here::here(), "R", "data.R"))
-source(file.path(here::here(), "R", "common.R"))
-source(file.path(here::here(), "R", "spatial.R"))
+```{r liv data preamble, echo = FALSE, include = FALSE, error = FALSE}
+source(here::here("R", "setup.R"))
+source(here::here("R", "spatial.R"))
 ```
 
 
-### 2.1 Datasets with Sources
+### 2.1 Datasets with Sources {-}
 <br/>
 
+#### 2.1.1 EuroStat Data {-}
+
 **Employment rates by sex, age and NUTS 2 regions % (lfst_r_lfe2emprt)**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/LE/LIV/Employment_NUTS2/lfst_r_lfe2emprt_2019 -->
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LE/LIV/Employment_NUTS2/lfst_r_lfe2emprt_2019_w_nutscodes -->
 
 ```{r employment rates by sex age and nuts2 regions, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("TIME:", "1999-2019"), 
   c("AGE:", "Y15-74 (code) From 15 to 64 years (label)"),
-  c("GEO:", "NUTS2 (Filtering - Nuts level)"),
+  c("GEO:", "NUTS2 (Filtering - Nuts level) SHOW: CODES"), # need NUTS codes to match to BHI regions
   c("SEX:", "Total"),
   c("Unit of measure:", "Percentage")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [eurostat database](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=lfst_r_lfe2emprt&lang=en) <br/> Downloaded 21 July, 2020 by Andrea De Cervo")
+knitr::kable(tab, caption = "Source: [eurostat database](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=lfst_r_lfe2emprt&lang=en) <br/> Downloaded 3 August, 2020 by Ellie Campbell")
 ```
 <br/>
 
@@ -45,28 +46,6 @@ The EU-LFS is designed to give accurate quarterly information at national level 
 - s 	Eurostat estimate (phased out)  
 - u 	low reliability  
 - z 	not applicable 
-
-<br/>
-
-**Population density data, hyde database**  
-<!-- dataset save location BHI_share/2.0/Goals/LE/LIV/GriddedPop_2016AD -->
-<!-- ftp://ftp.pbl.nl/hyde/ -->
-
-```{r population density data from hyde database, echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("Proceed to the FTP-server to", "download the datasets"), 
-  c("Connect as", "Guest"),
-  c("Index:", "hyde/hyde3.2/2017_beta_release/001/zip/"), 
-  c("Name:", "2016AD_pop.zip")))
-
-colnames(tab) <- c("Option", "Specification")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [HYDE database, FTP-server](https://themasites.pbl.nl/tridion/en/themasites/hyde/download/index-2.html) <br/> Downloaded 21 July, 2020 by Andrea De Cervo")
-```
-<br/>
-
-Year of data = 2005. Data were a 5' resolution. Population density within a 25km buffer from the coast will be used.
 
 <br/>
 
@@ -107,53 +86,170 @@ knitr::kable(tab, caption = "Source: [eurostat database](http://appsso.eurostat.
 ```
 <br/>
 
+#### 2.1.2 HYDE Database {-}
 
-### 2.2 Centralization & Normalization
+**Population density data**  
+<!-- dataset save location BHI_share/2.0/Goals/LE/LIV/GriddedPop_2016AD -->
+<!-- ftp://ftp.pbl.nl/hyde/ -->
 
-```{r extract data to BHI regions}
-nuts2_shp <- 
+```{r population density data from hyde database, echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Proceed to the FTP-server to", "download the datasets"), 
+  c("Connect as", "Guest"),
+  c("Index:", "hyde/hyde3.2/2017_beta_release/001/zip/"), 
+  c("Name:", "2016AD_pop.zip")))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [HYDE database, FTP-server](https://themasites.pbl.nl/tridion/en/themasites/hyde/download/index-2.html) <br/> Downloaded 21 July, 2020 by Andrea De Cervo")
 ```
+<br/>
 
+Year of data = 2005. Data were a 5' resolution. Population density within a 25km buffer from the coast will be used.
+
+<br/>
+
+
+### 2.2 Centralization & Normalization {-}
+
+
+Summary of steps/analysis in this document:
+
+**Clean Employment Rates Data**
+- check and remove dataflags
+- explore reporting NUTS2 regions, check whether need to do spatial corrections
+- clean and visualize national employment data
+
+**Clean/Create Population Density Data**
+- intersect BHI 25km buffer with NUTS2 (reporting areas used in employment rate data) 
+- aggregate population density across the buffer-NUTS2 polygons to get population in the polygons
+
+**Corrections for NUTS Regions Misalignment**
+- corrections for Finland data-- different regions used than included in the raw data...
+- corrections for Lithuania...
+
+**Derive and save Numbers Employed per BHI Region & Country**
+- calculate number employed (in polygons from BHI buffer-NUTS2 intersection) as the population in the polygon times the relevant NUTS2 employment rate
+- sum number employed in BHI buffer-NUTS2 polygons across each BHI region, to get coastal employed per BHI region
+- sum population in BHI buffer-NUTS2 polygons across each BHI region, to get coastal population per BHI region
+- divide coastal employed per BHI region by coastal population per BHI region, to get BHI region coastal employment rate
 
 
 ```{r read in regional data, message = FALSE}
-regional_employ <- read_csv(file.path(dir_B, 'liv_data_database/nuts2_employ.csv'), stringsAsFactors = FALSE)
+dir_rawdata <- file.path(dir_B, "Goals", "LE", "LIV")
 
-dim(regional_employ) #[1] 5344    9
-str(regional_employ)
+## regional employment per NUTS2 assessemnt areas, raw data from eurostat
+regional_employ_data <- file.path(
+    dir_rawdata, "Employment_NUTS2", 
+    "lfst_r_lfe2emprt_2019_w_nutscodes", 
+    "lfst_r_lfe2emprt_1_Data.csv"
+  )
+regional_employ <- read.csv(
+  regional_employ_data, 
+  stringsAsFactors = FALSE
+)
 
-## PopDensity (updated - 9.27.2016)
-nuts2_pop_density = read_csv(file.path(dir_liv, 'liv_data_database/NUTS2_BHI_ID_Pop_density_in_buffer.csv'))
+## PopDensity, derived from HYDE density data and BHI buffer (25km inland) shapefile
+# nuts2_pop_density <- read_csv(file.path(dir_rawdata, "NUTS2_BHI_ID_Pop_density_in_buffer.csv"))
 ```
 
+
+#### 2.2.1 Clean Employment Rates Data: standardize units, rename fields/variables {-}
 
 ```{r clean regional data object}
-regional_employ1 = regional_employ %>%
-                  select(-TIME_LABEL,-SEX,-AGE) %>%
-                  dplyr::rename(year = TIME, nuts2 = GEO, nuts2_name = GEO_LABEL,
-                                unit=UNIT, value = Value, flag_notes = Flag.and.Footnotes) %>%
-                  mutate(nuts2 = as.character(nuts2),
-                         nuts2_name = as.character(nuts2_name),
-                         unit = as.character(unit),
-                         flag_notes = ifelse(flag_notes == "b", "break in timeseries",
-                                      ifelse(flag_notes == "u", "low reliability",
-                                      ifelse(flag_notes == "bu", "break in timeseries and low reliability",""))))
-                  
-str(regional_employ1)
+rgn_employ_clean <- regional_employ %>%
+  select(
+    year = TIME, nuts2 = GEO,
+    unit = UNIT, value = Value, 
+    flag_notes = Flag.and.Footnotes
+  ) %>% 
+  mutate(
+    flag_notes = case_when(
+      flag_notes == "b" ~ "break in timeseries",
+      flag_notes == "u" ~ "low reliability",
+      flag_notes == "bu" ~ "break in timeseries and low reliability",
+      !flag_notes %in% c("b", "u", "bu") ~ ""
+    )
+  )
 
 ## check dataflags
-regional_employ1 %>% select(flag_notes) %>% distinct()
-regional_employ1 %>% filter(flag_notes =="low reliability" ) #not Baltic country
-regional_employ1 %>% filter(flag_notes =="break in timeseries and low reliability" ) #not Baltic country
-regional_employ1 %>% filter(flag_notes =="break in timeseries") ## this is not such a concern
+unique(rgn_employ_clean$flag_notes)
+filter(rgn_employ_clean, flag_notes == "low reliability") # not Baltic country
+filter(rgn_employ_clean, flag_notes == "break in timeseries and low reliability") # not Baltic country
+filter(rgn_employ_clean, flag_notes == "break in timeseries") # not such a concern
 
 ## remove flags_notes
-regional_employ1 = regional_employ1 %>%
-                   select(-flag_notes)
+rgn_employ_clean <- rgn_employ_clean %>% select(-flag_notes, -unit)
 ```
 
 
-#### Clean population data 
+**Join employment info with NUTS2 shapefile**
+
+```{r join with nuts2 shapefile, results = "show", fig.width = 9.5, fig.height = 4}
+nuts2_shp <- sf::st_read(
+  dsn = file.path(dirname(dir_B), "Shapefiles", "NUTS2006_Level_2_3"),
+  layer = "NUTS2006_Level_2",
+  stringsAsFactors = FALSE
+)
+rgn_employ_nuts_spatial <- rgn_employ_clean %>% 
+  mutate(value = ifelse(value == ":", NA, value)) %>% 
+  mutate(value = as.numeric(value)) %>% 
+  tidyr::pivot_wider(names_from = year, names_prefix = "yr_", values_from = value)
+
+rgn_employ_nuts_spatial <- nuts2_shp %>% 
+  sf::st_transform(crs = 4326) %>% 
+  rename(nuts2 = NUTS_ID) %>% 
+  left_join(rgn_employ_nuts_spatial, by = "nuts2")
+
+
+## plotting initial values, raw NUTS2 regions employment rates
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+buffer_25km_inland <- st_read(
+  file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"),
+  "BHI_shapefile_25km_buffer"
+)
+buffer_25k_simple <- rmapshaper::ms_simplify(input = buffer_25km_inland) %>% sf::st_as_sf()
+
+
+gridExtra::grid.arrange(
+  basemap + 
+    geom_sf(data = rgn_employ_nuts_spatial, aes(fill = yr_2019), size = 0.1) +
+    geom_sf(data = buffer_25k_simple, fill = NA, color = "red", size = 0.2) +
+    scale_fill_gradient2(mid = "thistle", midpoint = 65, limits = c(60, 90)) +
+    labs(fill = "Employment Rate %") +
+    theme(legend.position = c(0.15, 0.85)) +
+    ggtitle("Employment 2019"),
+  basemap + 
+    geom_sf(data = rgn_employ_nuts_spatial, aes(fill = yr_2009), size = 0.1, show.legend = FALSE) +
+    geom_sf(data = buffer_25k_simple, fill = NA, color = "red", size = 0.2) +
+    scale_fill_gradient2(mid = "thistle", midpoint = 65, limits = c(60, 90)) +
+    ggtitle("Employment 2009"),
+  nrow = 1
+)
+## why is there not info for much of Finland?? and missing rates also for Lithuania...
+```
+
+
+
+```{r aligning NUTS regions with employment data across years and changes in regions reporting}
+
+```
+
+
+**From NUTS2 to BHI regions**
+
+```{r match nuts2 to BHI rgns using shapefiles}
+
+```
+
+
+#### 2.2.2 Clean Population Data: standardize units, rename fields/variables {-}
 
 ```{r clean nuts pop area data}
 ## nuts2 population data
@@ -170,7 +266,9 @@ nuts2_pop_area1 = nuts2_pop_density %>%
                   mutate(country_abb = substr(nuts2, 1, 2))
 ```
 
-#### Check NUTS2 names from Finland 
+
+**Check NUTS2 names from Finland**
+
 Shapefiles have names from 2006, check accom1 and accom_coast1 to see if the names have been updated, will need to fix. 
 
 - ![Map of old NUTS2 names for Gulf of Finland](BHI_regions_NUTS2_plot.png?raw=true)  
@@ -198,7 +296,8 @@ check2 = nuts2_pop_area1 %>%
 ## Do this after joining accom and accom_coast with the nuts2_pop_area data, will have to add these regions back in.
 ```
 
-#### Check for incorrectly assigned NUTS2 regions to BHI regions and fix 
+
+**Check for incorrectly assigned NUTS2 regions to BHI regions and fix**
 
 As mentioned in Section 4. 
 
@@ -232,10 +331,12 @@ str(nuts2_pop_area2)
 
 ```
 
-### 5.2 Join datasets
+#### 2.2.3 Join Employment and Population Datasets {-}
 
-#### Join accom times series with nuts pop and area 
+**Join accom times series with nuts pop and area**
+
 Join data with inner join, this will exclude Finland areas with name mismatches. Fix Finnish data and add back into the dataset
+
 ```{r join regional_employ1 with nuts_pop_area1, message = FALSE, results = "hide"}
 employ_nuts1 = inner_join(regional_employ1, nuts2_pop_area2,
                          by=c("nuts2"))
@@ -248,7 +349,8 @@ employ_nuts1 = inner_join(regional_employ1, nuts2_pop_area2,
 
 ```
 
-#### Get Finnish data that was excluded
+**Get Finnish data that was excluded**
+
 One challenge is that the new regions are two regions (FI1B,FI1C) where the old region was one (FI18). FI1B includes Helsinki and plot below shows similar pattern but that FI1B is between 5.8 to 6.8 higher than FI1C. 
 
 Assume because FI1B is where Helsinki is located, this is the majority of the population, so apply the FI1B rate. 
@@ -316,7 +418,8 @@ fi_employ_correct_nuts = full_join(fi_employ_newnuts1, fi_nuts_oldnuts,
 # str(fi_employ_correct_nuts)
 ```
 
-#### Join Finnish data to other regional data
+**Join Finnish data to other regional data**
+
 ```{r Join Finnish data to other regional data, message = FALSE, results = "hide"}
 
 ### bind to rest of data
@@ -328,7 +431,8 @@ employ_nuts2 = bind_rows(employ_nuts1, fi_employ_correct_nuts) %>%
 ```
 
 
-#### Plot and check regional employment time series 
+**Plot and check regional employment time series** 
+
 ```{r  Plot and check regional employment time series }
 ggplot(employ_nuts2) +
   geom_point(aes(year,employ_rate, colour=nuts2)) +
@@ -341,7 +445,6 @@ ggplot(employ_nuts2) +
 
 ```
 
-#### Restrict dataset to year 2000 to 2014
 ```{r restrict regional dataset years, message = FALSE}
 
 employ_nuts3 = employ_nuts2 %>% 
@@ -349,7 +452,8 @@ employ_nuts3 = employ_nuts2 %>%
 ```
 
 
-### 5.3 Are BHI regions missing?
+
+#### 2.2.4 Missing BHI Regions?
 
 Expected missing:
 
@@ -365,19 +469,12 @@ employ_nuts3 %>% select(rgn_id) %>% distinct() %>% arrange(rgn_id)
 
 ```
 
-
-#### 2.2.1 Standardize Units
-
-#### 2.2.2 Rename Fields/Variables
-
-#### 2.2.3 Save to BHI Database
-
 <br/>
 
 ### 2.3 Initial Data Exploration
 
-#### 2.3.1 Compare versus Previous Years Data
+#### 2.3.1 Compare with Previous Years Data
 
 #### 2.3.2 Timeseries Plots
 
-#### 2.3.3 Map
+#### 2.3.3 Maps
