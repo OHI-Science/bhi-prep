@@ -60,6 +60,8 @@ These are saved to the `layers` folder. Saved to `data/LIV/v2019/intermediate` a
 
 ## 5. Considerations for `BHI3.0` {-}
 
+Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units) and [R package 'eurostat: Tools for Eurostat Open Data'](https://cran.r-project.org/web/packages/eurostat/index.html)
+
 <!---
 ### Considerations for BHI 2.0
 
