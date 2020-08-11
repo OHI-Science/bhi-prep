@@ -18,12 +18,12 @@ Data for the 8 EU Baltic countries were extracted from the [2020 EU Blue economy
 In particular, detailed info on GVA% by sub-sector and activity per member state were extracted from the tables on the [Annex I](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part1_final.pdf) and [Annex II](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part2_final.pdf).
 
 
-### 2.1.2 Russian country level data {-}
+#### 2.1.2 Russian country level data {-}
 
 No GVA data found for Russia.
 
 
-### 2.1.3 Reference values {-}
+#### 2.1.3 Reference values {-}
 
 Target is **1.5 % annual growth** between 2009 and 2018, as envisioned in the [2020 EU Blue economy report](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-ld_final.pdf). 
 Status is calculated for each sector, and goal status is the average of sector status scores. 
