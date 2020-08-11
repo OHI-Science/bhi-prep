@@ -10,9 +10,6 @@ source(here::here("R", "spatial.R"))
 
 #### 2.1.1 EuroStat Data {-}
 
-
-Link to Eurostat Database: https://ec.europa.eu/eurostat/data/database
-
 **Employment rates by sex, age and NUTS 2 regions % (lfst_r_lfe2emprt)**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/LE/LIV/Employment_NUTS2/lfst_r_lfe2emprt_2019_w_nutscodes -->
 
@@ -55,7 +52,6 @@ The EU-LFS is designed to give accurate quarterly information at national level 
 **Population change - Demographic balance and crude rates at regional level (NUTS 3), Filter to NUTS2 Level** 
 
 <!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Population_Jan1/demo_r_gind3_2019_w_nutscodes -->
-<!-- maybe in future use eurostat pkg https://ropengov.github.io/eurostat/articles/eurostat_tutorial.html -->
 
 ```{r population change demographics nuts2-3 regions, echo = FALSE, results = "asis"}
 tab <- t(data.frame(

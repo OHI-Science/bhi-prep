@@ -60,21 +60,12 @@ These are saved to the `layers` folder. Saved to `data/LIV/v2019/intermediate` a
 
 ## 5. Considerations for `BHI3.0` {-}
 
-Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units) and [R package 'eurostat: Tools for Eurostat Open Data'](https://cran.r-project.org/web/packages/eurostat/index.html)
+Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units) and [R package 'eurostat: Tools for Eurostat Open Data'](https://cran.r-project.org/web/packages/eurostat/index.html). See tutorial about the R package here: https://ropengov.github.io/eurostat/articles/eurostat_tutorial.html
 
 Explore whether using NUTS3 regions (finer spatial resolution) gives better results, and is feasible i.e. doesn't require too much gapfilling...
 
-Better approach for calculating coastal population would be to use
-
 [Eurostat regional yearbook 2018 > Background Maps > GEOSTAT population grid 2011](https://ec.europa.eu/eurostat/statistical-atlas/gis/viewer/?mids=BKGCNT,BKGPGR,CNTOVL&o=1,1,0.7&ch=BKG,C02&center=56.62571,21.14265,5&) shows how population density along coast is typically higher than inland; using pop. reported by NUTS2 or even NUTS3 spatial units to cannnot result in accurate representation of the coastal population...
 
-<!---
-### Considerations for BHI 2.0
-
-Regions 19, 22 , 30, and 33 have NA status and trend. 
-Russian regions have NA status because no regional data (19,22,33)
-Regions with no coast line have no status because not joined to a NUTS region (30)
---->
 
 ## 6. References
 
