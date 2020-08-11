@@ -603,6 +603,34 @@ write_csv(
 ```
 
 ```{r save the liv subgoal national employment data layer}
+natl_employ_rates <- left_join(
+  rgn_employ_clean %>%
+    filter(stringr::str_length(nuts2) == 2) %>% 
+    rename(eez = nuts2, employ_pop = value),
+  read_csv(file.path(dir_prep, "supplement",  "lookup_tabs", "rgns_complete.csv")) %>% 
+    select(eez, region_id) %>% 
+    mutate(eez = case_when(
+      eez == "Sweden" ~ "SE",
+      eez == "Finland" ~ "FI",
+      eez == "Estonia" ~ "EE",
+      eez == "Latvia" ~ "LV",
+      eez == "Lithuania" ~ "LT",
+      eez == "Poland" ~ "PL",
+      eez == "Denmark" ~ "DK",
+      eez == "Germany" ~ "DE",
+      eez == "Denmark" ~ "DK",
+      eez == "Russia" ~ "RU"
+    )),
+  by = "eez"
+)
+
+write_csv(
+  select(natl_employ_rates, region_id, year, employ_pop),
+  file.path(dir_layers, "le_liv_national_employ_bhi2019.csv")
+)
+```
+
+```{r save coastal employment intermediate dataset}
 write_csv(
   select(
     coastal_employ_bhi_rgns, 
@@ -610,12 +638,8 @@ write_csv(
     year,
     coastal_pop
   ), 
-  file.path(dir_layers, "le_coastal_pop_bhi2019.csv")
+  file.path(dir_prep, "data", "LIV", version_year, "intermediate", "le_coastal_pop_bhi2019.csv")
 )
-```
-
-```{r save coastal employment intermediate dataset}
-
 ```
 
 <br/>
