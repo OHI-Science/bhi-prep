@@ -128,24 +128,31 @@ eco_data_combined <- eco_data_combined %>%
   
   ## calculate annual growth rate with cagr formula
   ## annualgrowthrate result in decimal form, multiply by 100 to get percent %
-  mutate(annualgrowthrate = (value_added_at_factor_cost_2018/value_added_at_factor_cost_2009)^(1/9) - 1)
-
+  mutate(annualgrowthrate = (value_added_at_factor_cost_2018/value_added_at_factor_cost_2009)^(1/9) - 1) %>% 
+  mutate(annualgrowthrate = ifelse(is.nan(annualgrowthrate), NA, annualgrowthrate)) %>% 
+  
+  ## estimate GVA at years 2009-2018, 
+  ## CONVERT VALUE TO SECTOR PROPORTION OF TOTAL COUNTRY MARINE GVA
+  ## (so when expand to BHI regions rather than countries, isn't misleading!!!)
+  mutate(year = list(c(2009:2018))) %>% 
+  tidyr::unnest(cols = c(year)) %>% 
+  mutate(value_added_year = value_added_at_factor_cost_2009*((annualgrowthrate+1)^(year-2009))) %>% 
+  group_by(country, year) %>% 
+  mutate(annual_total_marine_value_added = sum(value_added_year, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(prop_annual_value_added = value_added_year/annual_total_marine_value_added)
+  
   
 ## add bhi regions
 eco_data_bhirgns <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
   dplyr::select(region_id, country = eez) %>% 
-  full_join(eco_data_combined, by = "country") %>% 
-  mutate(year = list(c(2009:2018))) %>% 
-  tidyr::unnest(cols = c(year)) %>% 
-  mutate(value_added_year = value_added_at_factor_cost_2009*((annualgrowthrate+1)^(year-2009))) %>% 
-  
+  mutate(year = list(c(2009:2018))) %>%
+  tidyr::unnest(cols = c(year)) %>%
+  full_join(eco_data_combined, by = c("country", "year")) %>% 
+ 
   ## convert the annual growth rate into a perentage and round to just one decimal place
   ## NOTE: NOW GROWTH RATE WILL BE IN PERCENTAGE NOT DECIMAL FORM
-  mutate(annualgrowthrate = round(annualgrowthrate*100, 1)) %>% 
-  ## replace NaNs with NAs
-  mutate(annualgrowthrate = ifelse(is.nan(annualgrowthrate), NA, annualgrowthrate)) %>% 
-  mutate(value_added_year = ifelse(is.na(annualgrowthrate), NA, value_added_year))
-  
+  mutate(annualgrowthrate = round(annualgrowthrate*100, 1))
 ```
 
 
@@ -166,7 +173,12 @@ write_csv(
   file.path(dir_layers, "le_eco_bluegrowth_rates_bhi2019.csv")
 )
 write_csv(
-  select(eco_data_bhirgns, region_id, sector, year, gva_yearly_estim = value_added_year),
+  select(
+    eco_data_bhirgns, 
+    region_id, sector, year, 
+    gva_sector_prop = prop_annual_value_added, 
+    country_gva_estim = value_added_year
+  ),
   file.path(dir_layers, "le_eco_yearly_gva_bhi2019.csv")
 )
 ```
