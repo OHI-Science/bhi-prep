@@ -80,7 +80,8 @@ The [Study in support of policy measures for maritime and coastal tourism at EU 
 ```{r population from NUTS2 population data}
 ## regional employment per NUTS2 assessemnt areas, raw data from eurostat
 regional_pop_data <- file.path(
-    dir_rawdata, "Population_Jan1", 
+    dirname(dir_rawdata), 
+    "LE", "LIV", "Population_Jan1", 
     "demo_r_gind3", 
     "demo_r_gind3_1_Data.csv"
   )
@@ -192,8 +193,12 @@ basemap +
     color = "snow", size = 0.8, alpha = 0.3, show.legend = FALSE
   ) +
   geom_sf(data = nuts2_2016_shp, fill = NA, size = 1.2) +
-  geom_sf_text(data = nuts2_2016_shp, mapping = aes(label = nuts2), size = 20) %>% 
-  # geom_sf(data = buffer_25k_simple, fill = NA, color = "maroon", size = 0.4) +
+  geom_sf(data = buffer_25k_simple, fill = NA, color = "maroon", size = 0.4) +
+    geom_text(
+    data = cbind(nuts3_2016_shp, st_coordinates(st_centroid(nuts3_2016_shp))), 
+    aes(X, Y, label =  nuts3), 
+    size = 2, fontface = "bold"
+  ) +
   labs(subtitle = paste(
     "The darker solid lines outline NUTS2 regions,",
     "finer light grey lines show NUTS3 boundaries within NUTS2 regions,",
@@ -427,6 +432,15 @@ bhinuts_tourism_all$nuts3_bhibuff_area_km2 <- as.numeric(sf::st_area(bhinuts_tou
 bhinuts_tourism_coastal$nuts3_bhibuff_area_km2 <- as.numeric(sf::st_area(bhinuts_tourism_coastal)/(1000^2))
 
 
+## eliminate some accidental tiny polygons:
+## 1. from misalignment of BHI buffer and NUTS polygons resulted in values for BHI regions 19, 22, 33
+## 2. within 25km of coast but designated 'non-coastal' by NUTS3 classification
+bhinuts_tourism_all <- bhinuts_tourism_all %>% 
+  filter(!region_id %in% c(19, 22, 30))
+bhinuts_tourism_coastal <- bhinuts_tourism_coastal %>% 
+  filter(coast_type_nuts3 == 1) %>% 
+  filter(!region_id %in% c(19, 22, 33))
+
 ## plot to visualize differences between estimates from coastal vs all tourism
 plotdf <- full_join(
   bhinuts_tourism_all %>% 
@@ -436,7 +450,8 @@ plotdf <- full_join(
     st_drop_geometry() %>% 
     select(nuts2, nuts3, region_id, nuts3_bhibuff_area_km2, coastal_tour_2019 = tour_2019),
   by = c("nuts2", "nuts3", "region_id", "nuts3_bhibuff_area_km2")
-) %>% 
+)
+plotdf <- plotdf %>% 
   tidyr::pivot_longer(
     cols = c(coastal_tour_2019,  all_tour_2019), 
     names_to = "tourism_category", 
@@ -531,30 +546,49 @@ for(f in grep(".*csv", list.files(dir_ecodata), value = TRUE)){
 
 **Clean, explore and merge GVA datasets**
 
-```{r merging eu gva data for tourism goal}
+```{r merging and exploring eu gva data for tourism goal, results = "show", fig.width = 9.5, fig.height = 6}
+## estimate coastal tourism GVA at years 2010 to 2018
 eco_data_combined <- rbind(den_gva, est_gva, fin_gva, ger_gva, lat_gva, lit_gva, pol_gva, swe_gva) %>% 
-  filter(!(sector == "all sectors" & sub_sector == "all sub-sectors")) %>% 
+  ## missiig germany accommodation value_added_at_factor_cost_2018...
+  mutate(value_added_at_factor_cost_2018 = ifelse(
+    country == "Germany" & activity == "Accommodation",
+    value_added_at_factor_cost_2009*(1+value_added_at_factor_cost_delta_2018_09),
+    value_added_at_factor_cost_2018
+  )) %>% 
   filter(sector %in% c("Coastal tourism", "Maritime transport")) %>%
   filter(sub_sector %in% c("Passenger transport", "Accommodation", "Transport", "Other expenditure")) %>% 
   select(country, activity, gva2009 = value_added_at_factor_cost_2009, gva2018 = value_added_at_factor_cost_2018) %>% 
-  
-  ## group and aggregate by country
-  group_by(country) %>% 
-  summarize(gva2009 = sum(gva2009, na.rm = TRUE), gva2018 = sum(gva2018, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  
-  ## estimate coastal tourism GVA at years 2010 to 2018
   mutate(agr = (gva2018/gva2009)^(1/9) - 1) %>% 
   mutate(agr = ifelse(is.nan(agr), NA, agr)) %>% 
   mutate(year = list(c(2009:2018))) %>% 
   tidyr::unnest(cols = c(year)) %>% 
-  mutate(coastal_tour_country_gva_estimate = gva2009*((agr+1)^(year-2009))) %>% 
-  select(country, year, coastal_tour_country_gva_estimate) %>% 
+  mutate(coastal_tour_country_gva_estimate = gva2009*((agr+1)^(year-2009)))
+
+ggplot(eco_data_combined) +
+  geom_col(aes(x = year, y = coastal_tour_country_gva_estimate, fill = activity)) +
+  facet_wrap(~ country, ncol = 3, scales = "free_y") +
+  labs(
+    title = "Coastal Tourism Annual GVA Estimated from 2009 and 2018 Data", 
+    y = "Gross Value Added (M€)", x = NULL, 
+    fill = "Economic Activity"
+  ) +
+  theme(legend.position = c(0.85, 0.15), legend.background = element_rect(color = "grey"))
+```
+
+```{r merging eu gva data for tourism goal}
+
+eco_data_combined <- eco_data_combined %>% 
+  ## will actually only keep the coastal tourism categories: accommodations, transport, other expenditure
+  filter(!activity %in% c("Sea and coastal passenger water transport", "Inland passenger water transport")) %>% 
+  ## group and aggregate by country
+  group_by(country, year) %>% 
+  summarize(coastal_tour_country_gva_estimate = sum(coastal_tour_country_gva_estimate, na.rm = TRUE)) %>% 
+  ungroup() %>% 
   mutate(year = as.character(year))
  
 
 ## average accommodatioins per area, area-weighted mean over BHI regions
-bhinuts_tourism_avg_coastal <- bhinuts_tourism_coastal %>% 
+coastal_tourism_value <- bhinuts_tourism_coastal %>% 
   st_drop_geometry() %>% 
   select(nuts2, nuts3, region_id, nuts3_bhibuff_area_km2, starts_with("tour_")) %>% 
   tidyr::pivot_longer(
@@ -563,29 +597,36 @@ bhinuts_tourism_avg_coastal <- bhinuts_tourism_coastal %>%
     names_to = "year", 
     values_to = "accomm_per_area"
   ) %>% 
-  filter(year >= 2012) %>% 
-  group_by(year, region_id) %>% 
-  summarize(avg_accomm_per_area = weighted.mean(accomm_per_area, nuts3_bhibuff_area_km2)) %>% 
+  ## only have coastal accomodation since 2012 and coastal tourism GVA until 2018...
+  ## latvia and lithuania will lack accomodations data for 2012-2014 as well
+  filter(year %in% 2012:2018) %>% 
   left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))) %>% 
-  select(region_id, year, avg_accomm_per_area, country = eez) %>% 
+  group_by(year, eez) %>% 
+  summarize(avg_accomm_per_area = weighted.mean(accomm_per_area, nuts3_bhibuff_area_km2)) %>% 
+  rename(country = eez) %>% 
   left_join(eco_data_combined, by = c("country", "year")) %>% 
-  mutate(accomm_vs_tourism_gva = avg_accomm_per_area/coastal_tour_country_gva_estimate)
+  mutate(tourism_gva_per_accom = coastal_tour_country_gva_estimate/avg_accomm_per_area)
 ```
 
 <br>
 
 #### 2.2.4 Save Coastal Tourism Data Layer
 
-```{r save coastal tourism accommodations data layer}
-# write_csv(
-#   select(
-#     coastal_tourism_bhi_rgns, 
-#     region_id = bhi_id,
-#     year,
-#     tourism_country_gva
-#   ), 
-#   dir_layers
-# )
+```{r save coastal tourism accommodations data layers}
+
+bhi_tourism_value <- coastal_tourism_value %>% 
+  rename(eez = country) %>% 
+  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")), by = "eez") %>% 
+  select(region_id, year, cntry_tourism_gva = coastal_tour_country_gva_estimate)
+
+bhi_tourism_accomodations <- coastal_tourism_value %>% 
+  rename(eez = country) %>% 
+  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")), by = "eez") %>% 
+  select(region_id, year, accom_per_area = avg_accomm_per_area)
+
+
+write_csv(bhi_tourism_value, file.path(dir_layers, "tr_coastal_tourism_gva_bhi2019.csv"))
+write_csv(bhi_tourism_accomodations, file.path(dir_layers, "tr_accommodations_bhi2019.csv"))
 ```
 
 <br>
@@ -596,10 +637,24 @@ bhinuts_tourism_avg_coastal <- bhinuts_tourism_coastal %>%
 #### 2.3.1 Timeseries Plots: check regional tourism accommodations time series
 
 ```{r plot and check regional employment time series, results = "show", fig.width = 9.5}
-ggplot(tourism_accommod_alldf) +
-  geom_point(aes(x = year, y = all, colour = nuts2), size = 0.8) +
-  geom_line(aes(x = year, y = emp, colour = nuts2)) +
-  facet_wrap(~bhi_id, ncol = 6) +
-  labs(x = NULL, y = "Employment rate (%)\n", color = "NUTS2 2016 Region") + 
-  scale_color_manual(values = pal)
+pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(42)[sample(1:42)]
+
+gridExtra::grid.arrange(
+  ggplot(coastal_tourism_value) +
+    geom_col(aes(x = year, y = avg_accomm_per_area), size = 0.8) +
+    facet_wrap(~country, ncol = 2) +
+    labs(x = NULL, y = "Accommodations per sq. km \n") + 
+    scale_color_manual(values = pal),
+  ggplot(coastal_tourism_value) +
+    geom_col(aes(x = year, y = coastal_tour_country_gva_estimate), size = 0.8) +
+    facet_wrap(~country, ncol = 2) +
+    labs(x = NULL, y = "Coastal Tourism Revenue (GVA, M€) \n") + 
+    scale_color_manual(values = pal),
+  ggplot(coastal_tourism_value) +
+    geom_col(aes(x = year, y = tourism_gva_to_accom), size = 0.8) +
+    facet_wrap(~country, ncol = 2) +
+    labs(x = NULL, y = "Coastal Tourism Revenue relative to Accommodations Density (M€/Nights/Sq.km) \n") + 
+    scale_color_manual(values = pal),
+  nrow = 1
+)
 ```
