@@ -58,10 +58,9 @@ knitr::kable(tab, caption = "Source: [Eurostat database](http://appsso.eurostat.
 
 #### 2.1.2 EU Baltic countries GVA Data {-}
 
-Data for the 8 EU Baltic countries were extracted from the [2020 EU Blue economy report](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-ld_final.pdf) on July 14 2020 by Andrea De Cervo. These are the same data used for the Coastal Economiess subgoal, but for the Tourism goal data from only the 'Coastal Tourism' sub-sectors are used: .
+Data for the 8 EU Baltic countries were extracted from the [2020 EU Blue economy report](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-ld_final.pdf) on July 14 2020 by Andrea De Cervo. These are the same data used for the Coastal Economies subgoal, but for the Tourism goal, only a subset of the data were used. From the 'Coastal Tourism' sub-sectors are used: Accommodations, Transport, Other expenditure; and the 'Marine Transport' subsectors: Passenger Transport.
 
 In particular, detailed info on GVA% by sub-sector and activity per member state were extracted from the tables on the [Annex I](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part1_final.pdf) and [Annex II](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part2_final.pdf).
-
 
 
 #### 2.1.3 Reference values {-}
@@ -75,50 +74,141 @@ The [Study in support of policy measures for maritime and coastal tourism at EU 
 
 #### 2.2.1 Spatial Data {-}
 
-[Eurostat NUTS regions shapefiles can be found here](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts). The NUTS 2016, 2013, 2010, 2006, and 2003 were downloaded at 1:10 million resolution (NUTS_RG_10M_year_4326_LEVL_2or3 files within the zipped downloads are the polygons in espg 4326 projection).
 
-```{r NUTS2 polygons}
-##  NUTS2 shapefiles
-## using level 2 but also have level 3 NUTS if those are better?
+**Population dataset by NUTS2 Regions, from LIV Subgoal**
+
+```{r population from NUTS2 population data}
+## regional employment per NUTS2 assessemnt areas, raw data from eurostat
+regional_pop_data <- file.path(
+    dir_rawdata, "Population_Jan1", 
+    "demo_r_gind3", 
+    "demo_r_gind3_1_Data.csv"
+  )
+regional_pop <- read.csv(
+  regional_pop_data, 
+  stringsAsFactors = FALSE
+)
+rgn_pop_clean <- regional_pop %>%
+  dplyr::select(year = TIME, nuts2 = GEO, nuts2_population = Value) %>%
+  mutate(nuts2_population = as.numeric(stringr::str_remove_all(nuts2_population, ","))) %>% 
+  filter(substr(nuts2, 1, 2) %in% c("SE", "FI", "EE", "LV", "LT", "PL", "DE", "DK")) %>% 
+  tidyr::pivot_wider(names_from = "year", names_prefix = "pop_", values_from = "nuts2_population")
+```
+
+<br>
+
+**NUTS Regions used for Eurostat Datasets**
+
+[Eurostat NUTS regions shapefiles can be found here](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts). The NUTS 2016, 2013, 2010, 2006, and 2003 were downloaded at 1:10 million resolution (NUTS_RG_10M_year_4326_LEVL_2or3 files within the zipped downloads are the polygons in espg 4326 projection). These were used for the LE (livelihoods and economies) goal and are saved in the Shapefiles folder. For this goal we will use the 2016 version of NUTS2 and NUTS3 regions. 
+
+The NUTS polygons are the standardized units for Eurostat data. Tourism accommodations are reported at level 2, but 'coastal vs non-coastal' designation is done at the NUTS3 level.
+
+Steps in the spatial wrangling code below:
+
+- load spatial NUTS shapefiles with sf package
+- calculate areas of the polygons and join as a new column to the sf dataframe
+- spatially intersect NUTS2 and NUTS3 to match level 3 with level 2 codes
+- calculate 'coastal area in nuts2 region' column based on coastal types of their nested nuts3 regions
+
+```{r NUTS polygons}
+## NUTS2 shapefiles because tourism is only provided at NUTS2 level
+## NUTS3 because Coastal regions are regions defined at NUTS level 3
+## https://ec.europa.eu/eurostat/statistics-explained/index.php/Archive:Coastal_region_statistics
 nutsshpfiles <- grep(
-  "NUTS_RG_10M_[0-9]{4}_4326_LEVL_2/.*\\.shp", 
+  "NUTS_RG_10M_2016_4326_LEVL_[0-9]{1}/.*\\.shp", 
   list.files(file.path(dirname(dir_B), "Shapefiles", "all_NUTS_shapefiles"), recursive = TRUE),
   value = TRUE
 )
 for(f in nutsshpfiles){
   ## gives GDAL Errors / CPL_read_ogr warnings, but reads in the shapefile...
-  shp <- sf::st_read(
-    dsn = file.path(dirname(dir_B), "Shapefiles", "all_NUTS_shapefiles", stringr::str_extract(f, "ref.*LEVL_2(?=/)")),
+  shp_baltic <- sf::st_read(
+    dsn = file.path(dirname(dir_B), "Shapefiles", "all_NUTS_shapefiles", stringr::str_extract(f, "ref.*LEVL_[0-9]{1}(?=/)")),
     stringsAsFactors = FALSE
+  ) %>% filter(CNTR_CODE %in% c("SE", "FI", "EE", "LV", "LT", "PL", "DE", "DK"))
+  colnames(shp_baltic) <- paste0(
+    stringr::str_to_lower(names(shp_baltic)), 
+    "_nuts", 
+    stringr::str_extract(f, "(?<=LEVL_)[0-9]{1}")
   )
-  shp_baltic <- shp %>% filter(CNTR_CODE %in% c("SE", "FI", "EE", "LV", "LT", "PL", "DE", "DK"))
-  assign(sprintf("nuts2_%s_shp", stringr::str_extract(f, "(?<=10M_)[0-9]{4}")), shp_baltic)
+  assign(sprintf("nuts%s_2016_shp", stringr::str_extract(f, "(?<=LEVL_)[0-9]{1}")), shp_baltic)
 }
+nuts2_2016_shp <- rename(nuts2_2016_shp, nuts2 = nuts_id_nuts2, geometry = geometry_nuts2)
+nuts3_2016_shp <- rename(nuts3_2016_shp, nuts3 = nuts_id_nuts3, geometry = geometry_nuts3)
 
+nuts2_2016_shp$nuts2_area_km2 <- as.numeric(sf::st_area(nuts2_2016_shp)/(1000^2))
+nuts3_2016_shp$nuts3_area_km2 <- as.numeric(sf::st_area(nuts3_2016_shp)/(1000^2))
+
+## join population information to NUTS2 spatial dataframe
+## but since don't have population per coastal area (nuts3) will not actually do per capita calculations now...
+# nuts2_2016_shp <- left_join(nuts2_2016_shp, rgn_pop_clean, by = "nuts2")
+
+
+## intersect NUTS2 and NUTS3 to match level 3 with level 2 codes
+nuts2and3 <- sf::st_intersection(nuts2_2016_shp, nuts3_2016_shp)
+nuts2and3$intersection_areas <- as.numeric(sf::st_area(nuts2and3)/(1000^2))
+
+## decifering typologies...
+## https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Territorial_typologies_manual_-_coastal_regions#Classes_for_the_typology_and_their_conditions
+## coast: 1 = coastal, 2 = non-coastal but with strong maritime influence, 3 = not coastal
+## urban: 1 = urban, 2 = suburban, 3 = rural
+
+nuts2and3 <- nuts2and3 %>% 
+  ## get rid of weird polygons with no area... 
+  filter(intersection_areas > 0) %>% 
+  mutate(coast_type_nuts3 = ifelse(coast_type_nuts3 == 3, 0, 1)) %>% 
+  group_by(coast_type_nuts3, nuts2) %>% 
+  mutate(coastal_area_in_nuts2 = sum(nuts3_area_km2*coast_type_nuts3)) %>% 
+  ungroup() %>% 
+  select(nuts2, nuts3, nuts2_area_km2, nuts3_area_km2, coastal_area_in_nuts2, coast_type_nuts3, geometry)
+# nrow(distinct(nuts2and3, nuts3)) == nrow(distinct(nuts3_2016_shp, nuts3))
+```
+
+```{r bhi 25km inland buffer and mapping spatial datasets, results = "show", fig.width = 9.5, fig.height = 9}
+## create some spatial objects for making maps later
 ## 25km inland buffer for BHI regions
 buffer_25km_inland <- st_read(
   file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"),
   "BHI_shapefile_25km_buffer"
 )
 buffer_25km_inland <- cbind(
-  buffer_25km_inland,
+  select(buffer_25km_inland, -bfarea_km2),
   buffer_area_km2 = as.numeric(sf::st_area(buffer_25km_inland)/(1000^2))
 )
-
-
-## create some spatial objects for making maps later
 buffer_25k_simple <- rmapshaper::ms_simplify(input = buffer_25km_inland) %>% sf::st_as_sf()
+
 
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
   geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
   theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) 
+
+
+## make a map showing intersection of nuts polygons and coastal vs noncoastal
+basemap + 
+  geom_sf(
+    data = nuts2and3, 
+    mapping = aes(fill = coast_type_nuts3), 
+    color = "snow", size = 0.8, alpha = 0.3, show.legend = FALSE
+  ) +
+  geom_sf(data = nuts2_2016_shp, fill = NA, size = 1.2) +
+  geom_sf_text(data = nuts2_2016_shp, mapping = aes(label = nuts2), size = 20) %>% 
+  # geom_sf(data = buffer_25k_simple, fill = NA, color = "maroon", size = 0.4) +
+  labs(subtitle = paste(
+    "The darker solid lines outline NUTS2 regions,",
+    "finer light grey lines show NUTS3 boundaries within NUTS2 regions,",
+    "and the different shades of blue fill indicate coastal vs non-coastal NUTS3 designations."
+  ))
 ```
 
 <br>
 
 #### 2.2.2 Clean Accommodation Data by NUTS2 and by Coastal areas: standardize units, rename fields/variables {-}
+
+Two datasets were obtained from Eurostat: (1) Accommodations data reported by NUTS2 available from 1990 to the present, and (2) Accommodations data reported by NUTS2 and separated into coastal vs noncoastal categories, available only from 2012.
+
+
+**Read in the Datasets**
 
 ```{r read in NUTS2 regional accommodations data, message = FALSE}
 ## regional tourism accommodation (nights) per NUTS2 assessemnt areas
@@ -143,6 +233,14 @@ tourism_accommod_coastal <- read.csv(
   stringsAsFactors = FALSE
 )
 ```
+
+
+**Clean Accommodations Data**
+
+- rename variables for clarity, and unselect unnecessary vars
+- check data flags
+- subset to keep only countries around the Baltic Sea
+- merge dataset on all tourism accommodations 1999-2019 with dataset on coastal accommodations recorded since 2012
 
 ```{r clean NUTS accommodations data}
 tourism_accommod_clean <- tourism_accommod %>%
@@ -214,7 +312,7 @@ tourism_accommod_coastal_clean <- tourism_accommod_coastal_clean %>%
 # summary(tourism_accommod_clean$value)
 ```
 
-```{r join coastal tourism and nuts2 overall datasets into one dataframe}
+```{r join datasets for coastal and overall tourism into one dataframe}
 tourism_accommod_alldf <- full_join(
   tourism_accommod_clean %>% 
     mutate(coastal = "all") %>% 
@@ -230,65 +328,141 @@ tourism_accommod_alldf <- tourism_accommod_alldf %>%
     !(coastal == "all" & year < 2012) ~ num_nights_coastal
   )) %>% 
   select(-num_nights) %>% 
-  tidyr::pivot_wider(names_from = "coastal", values_from = "num_nights_coastal")
+  tidyr::pivot_wider(
+    names_from = year, names_prefix = "tour_",
+    values_from = num_nights_coastal
+  )
 ```
 
 
 <br>
 
-**Join tourism accommodations info with NUTS2 shapefiles**
+**Join Tourism Accommodations with NUTS 2 & 3 Spatial Information and BHI Regions**
 
-```{r join tourism accom data with nuts2 rgns, results = "show", fig.width = 9.5, fig.height = 4}
-## all tourism, join with nuts2 regions
-tourism_all_nuts_spatial <- tourism_accommod_alldf %>% 
-  select(year, nuts2, all) %>% 
-  tidyr::pivot_wider(names_from = year, names_prefix = "tour_", values_from = all)
+```{r join tourism accom data with NUTS spatial information}
 
-tourism_all_nuts_spatial <- nuts2_2016_shp %>% 
-  rename(nuts2 = NUTS_ID) %>% 
-  left_join(tourism_all_nuts_spatial, by = "nuts2")
+## tourism data, joined with nuts2 and nuts3 regions
+tourism_all_spatial <- left_join(
+  nuts2and3,
+  filter(tourism_accommod_alldf, coastal == "all"),
+  by = "nuts2"
+)
+tourism_coastal_spatial <- left_join(
+  nuts2and3,
+  filter(tourism_accommod_alldf, coastal == "coastal"),
+  by = "nuts2"
+)
 
+## convert to tourism accommodations per area
+tourism_all_per_area <- tourism_all_spatial %>% 
+  mutate_at(
+    vars(starts_with("tour")), 
+    function(x){x/.$nuts2_area_km2}
+  )
+tourism_coastal_per_area <- tourism_coastal_spatial %>% 
+  mutate_at(
+    vars(starts_with("tour")), 
+    function(x){x/.$coastal_area_in_nuts2}
+  ) %>% 
+  mutate_at(
+    vars(starts_with("tour")),
+    function(x){ifelse(is.nan(x)|x == Inf, NA, x)}
+  )
+```
 
-## coastal tourism, join with nuts2 regions
-tourism_coastal_nuts_spatial <- tourism_accommod_alldf %>% 
-  select(year, nuts2, coastal) %>% 
-  tidyr::pivot_wider(names_from = year, names_prefix = "tour_", values_from = coastal)
+<br>
 
-tourism_coastal_nuts_spatial <- nuts2_2016_shp %>% 
-  rename(nuts2 = NUTS_ID) %>% 
-  left_join(tourism_coastal_nuts_spatial, by = "nuts2")
+In the map generated below, large 'coastal' NUTS3 regions in northern Sweden and Finland seem to maybe overly dilute the density of coastal accommodations per coastal area, since these regions actually extend quite far inland...
 
+```{r mapping tourism accommodations per area, results = "show", fig.width = 9.5, fig.height = 4}
 
 ## plotting initial values, raw NUTS2 regions employment rates
-map_pal <- c("gray", "darkslateblue", "royalblue", "purple", "plum", "orchid", "magenta4")
+map_pal <- c("grey", "dodgerblue", "lightsteelblue", "thistle", "plum", "orchid", "magenta4")
 gridExtra::grid.arrange(
   basemap + 
-    geom_sf(data = tourism_all_nuts_spatial, aes(fill = tour_2019), size = 0.1) +
-    # geom_sf(data = buffer_25k_simple, fill = NA, color = "red", size = 0.2) +
+    geom_sf(data = tourism_all_per_area, aes(fill = tour_2019), size = 0) +
+    geom_sf(data = nuts2_2016_shp, fill = NA, size = 0.2) +
+    geom_sf(data = buffer_25k_simple, fill = NA, color = "snow", size = 0.4) +
     scale_fill_gradientn(
       colors = map_pal,
-      values = c(0, 0.001, 0.2, 0.4, 0.65, 1),
-      limits = c(0, 3.5*10^7)
+      values = c(0, 0.0001, 0.001, 0.1, 0.3, 0.6, 1),
+      limits = c(0, 2.5*10^4)
     ) +
     labs(fill = "Number of Nights") +
     theme(legend.position = c(0.15, 0.85)) +
-    ggtitle("Tourism Accommodations in 2019"),
+    ggtitle("Tourism Accommodations per NUTS2 area in 2019"),
   basemap + 
-    geom_sf(data = tourism_coastal_nuts_spatial, aes(fill = tour_2019), size = 0.1, show.legend = FALSE) +
-    # geom_sf(data = buffer_25k_simple, fill = NA, color = "red", size = 0.2) +
+    geom_sf(data = tourism_coastal_per_area, aes(fill = tour_2019), size = 0.1, show.legend = FALSE) +
+    geom_sf(data = buffer_25k_simple, fill = NA, color = "snow", size = 0.4) +
     scale_fill_gradientn(
       colors = map_pal,
-      values = c(0, 0.001, 0.2, 0.4, 0.65, 1),
-      limits = c(0, 3.5*10^7)
+      values = c(0, 0.0001, 0.001, 0.1, 0.3, 0.6, 1),
+      limits = c(0, 2.5*10^4)
     ) +
     labs(fill = "Number of Nights") +
-    ggtitle("Tourism Coastal Accommodations in 2019"),
+    ggtitle("Tourism Coastal Accommodations per Coastal area in 2019"),
   nrow = 1
 )
 ## loop through all years to check employment data alignment with reporting regions...
 ```
 
 
+```{r intersect relevant NUTS2 polygons and BHI 25km inland buffer, results = "show", fig.width = 9.5, fig.height = 7}
+## create polygons intersecting NUTS regions and 25km-BHI Buffer
+## may need to fix NUTS polygons geometry with st_buffer so intersection works...
+## https://github.com/r-spatial/sf/issues/347
+bhinuts_tourism_all <- sf::st_intersection(
+  st_buffer(tourism_all_per_area, 0), 
+  buffer_25km_inland
+) 
+bhinuts_tourism_coastal <- sf::st_intersection(
+  st_buffer(tourism_coastal_per_area, 0), 
+  buffer_25km_inland
+)
+bhinuts_tourism_all <- rename(bhinuts_tourism_all, region_id = BHI_ID)
+bhinuts_tourism_coastal <- rename(bhinuts_tourism_coastal, region_id = BHI_ID)
+
+## calculate areas of new NUTS3 BHI buffer intersected polygons
+bhinuts_tourism_all$nuts3_bhibuff_area_km2 <- as.numeric(sf::st_area(bhinuts_tourism_all)/(1000^2))
+bhinuts_tourism_coastal$nuts3_bhibuff_area_km2 <- as.numeric(sf::st_area(bhinuts_tourism_coastal)/(1000^2))
+
+
+## plot to visualize differences between estimates from coastal vs all tourism
+plotdf <- full_join(
+  bhinuts_tourism_all %>% 
+    st_drop_geometry() %>% 
+    select(nuts2, nuts3, region_id, nuts3_bhibuff_area_km2, all_tour_2019 = tour_2019),
+  bhinuts_tourism_coastal %>% 
+    st_drop_geometry() %>% 
+    select(nuts2, nuts3, region_id, nuts3_bhibuff_area_km2, coastal_tour_2019 = tour_2019),
+  by = c("nuts2", "nuts3", "region_id", "nuts3_bhibuff_area_km2")
+) %>% 
+  tidyr::pivot_longer(
+    cols = c(coastal_tour_2019,  all_tour_2019), 
+    names_to = "tourism_category", 
+    values_to = "accomm_per_area"
+  ) %>% 
+  mutate(txt = ifelse(tourism_category == "coastal_tour_2019", nuts2, NA))
+
+ggplot(plotdf) +
+  geom_col(
+    aes(x = nuts3, y = accomm_per_area, fill = nuts2, color = tourism_category),
+    position = position_dodge(),
+    show.legend = FALSE
+  ) +
+  ggrepel::geom_text_repel(aes(x = nuts3, y = accomm_per_area/2, label = txt), segment.color = NA) +
+  facet_wrap(~region_id, scales = "free", ncol = 6) +
+  labs(
+    x = "NUTS level 3 Region", 
+    y = "Accommodations per Area (Nights/Sq. KM)\n", 
+    title = "Blue outlines indicates accommodation per area values from coastal data"
+  ) +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(6, "Pastel1"))(100)[sample(1:100, 26)]) +
+  scale_color_manual(values = c("coral", "blue"))
+```
+
+
+<br>
 
 #### 2.2.3 Clean Coastal Tourism GVA Data: standardize units, rename fields/variables
 
@@ -360,8 +534,42 @@ for(f in grep(".*csv", list.files(dir_ecodata), value = TRUE)){
 ```{r merging eu gva data for tourism goal}
 eco_data_combined <- rbind(den_gva, est_gva, fin_gva, ger_gva, lat_gva, lit_gva, pol_gva, swe_gva) %>% 
   filter(!(sector == "all sectors" & sub_sector == "all sub-sectors")) %>% 
-  filter(sector %in% c("Coastal tourism", "Maritime transport")) %>% 
-  filter(sub_sector %in% c("Passenger transport", "Accommodation", "Transport", "Other expenditure"))
+  filter(sector %in% c("Coastal tourism", "Maritime transport")) %>%
+  filter(sub_sector %in% c("Passenger transport", "Accommodation", "Transport", "Other expenditure")) %>% 
+  select(country, activity, gva2009 = value_added_at_factor_cost_2009, gva2018 = value_added_at_factor_cost_2018) %>% 
+  
+  ## group and aggregate by country
+  group_by(country) %>% 
+  summarize(gva2009 = sum(gva2009, na.rm = TRUE), gva2018 = sum(gva2018, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  
+  ## estimate coastal tourism GVA at years 2010 to 2018
+  mutate(agr = (gva2018/gva2009)^(1/9) - 1) %>% 
+  mutate(agr = ifelse(is.nan(agr), NA, agr)) %>% 
+  mutate(year = list(c(2009:2018))) %>% 
+  tidyr::unnest(cols = c(year)) %>% 
+  mutate(coastal_tour_country_gva_estimate = gva2009*((agr+1)^(year-2009))) %>% 
+  select(country, year, coastal_tour_country_gva_estimate) %>% 
+  mutate(year = as.character(year))
+ 
+
+## average accommodatioins per area, area-weighted mean over BHI regions
+bhinuts_tourism_avg_coastal <- bhinuts_tourism_coastal %>% 
+  st_drop_geometry() %>% 
+  select(nuts2, nuts3, region_id, nuts3_bhibuff_area_km2, starts_with("tour_")) %>% 
+  tidyr::pivot_longer(
+    cols = starts_with("tour_"), 
+    names_prefix = "tour_",
+    names_to = "year", 
+    values_to = "accomm_per_area"
+  ) %>% 
+  filter(year >= 2012) %>% 
+  group_by(year, region_id) %>% 
+  summarize(avg_accomm_per_area = weighted.mean(accomm_per_area, nuts3_bhibuff_area_km2)) %>% 
+  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))) %>% 
+  select(region_id, year, avg_accomm_per_area, country = eez) %>% 
+  left_join(eco_data_combined, by = c("country", "year")) %>% 
+  mutate(accomm_vs_tourism_gva = avg_accomm_per_area/coastal_tour_country_gva_estimate)
 ```
 
 <br>
