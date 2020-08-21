@@ -1,0 +1,86 @@
+**Preparation of the Atmospheric Contaminants pressure data layer**
+
+```{r atmos con data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+source(file.path(here::here(), "R", "common.R"))
+source(file.path(here::here(), "R", "spatial.R"))
+
+## root location of the raw data
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Pressure", "atmos_con")
+```
+
+
+## 1. Background
+
+## 2. Data  
+
+### 2.1  Atmospheric deposition of PCB-153 on the Baltic Sea  
+Data are provided for nine major Baltic Sea basins: Archipelago Sea, Baltic Proper, Bothnian Bay, Bothnian Sea, Gulf of Finland, Gulf of Riga, Kattegat, The Sound, Western Baltic.  
+
+Data downloaded from the [HELCOM website](https://helcom.fi/baltic-sea-trends/environment-fact-sheets/hazardous-substances/) on 19 August 2020 by Andrea De Cervo. Data are provided on the basin level and extracted from the pdf file. 
+
+**Table 1:** Computed annual atmospheric deposition of PCB-153 over the six Baltic Sea sub-basins, the whole Baltic Sea (BAS) and normalized deposition to the Baltic Sea (Norm) for period 1990-2016. Units: kg/year.
+
+**Table 2:** Computed contributions by country to annual total deposition of PCB-153 to nine Baltic Sea sub-basins for the year 2016. Units: kg/year. HELCOM: contribution of anthropogenic sources of HELCOM countries; EMEP: contribution of anthropogenic sources in other EMEP countries;. NSR: contributions of sources other than primary anthropogenic emissions (natural, secondary (re-emission), and remote sources).
+
+#### 2.1.1 Additional reference information as provided on the HELCOM website
+**Data Source: EMEP/MSC**
+
+#### 2.1.2 Description of data
+Annual atmospheric deposition fluxes of PCB-153 were obtained using the latest version of MSCE- POP model developed at EMEP/MSC-E (Gusev et al., 2005). Assessment of global scale transport and fate of PCBs was made on the basis of the inventory of global PCB emissions [Breivik et al., 2007] and emissions officially reported by the EMEP countries. The inventory of Breivik et al. [2007] provided consistent set of historical and future emissions of 22 individual PCB congeners from 1930 up to 2100. Model simulations for the period 1990 and 2013 were carried out for indicator congener PCB-153. The spatial distribution of PCB-153 emissions within the EMEP region was prepared using gridded PCB emissions officially submitted by 20 EMEP countries, including all HELCOM countries except Denmark and Russia, and the emission expert estimates worked out by TNO [Denier van der Gon et al., 2005]. Temporal variation of emissions were derived from the officially reported PCB emissions.
+Units: kg/year.
+
+#### 2.1.3 Geographical coverage
+Annual atmospheric deposition fluxes of PCB-153 were obtained for the EMEP region. 
+
+#### 2.1.4 Temporal coverage
+Timeseries of annual atmospheric deposition are available for the period 1990 – 2016.  
+
+#### 2.1.5 Methodology and frequency of data collection
+Atmospheric input and source allocation budgets of PCB-153 to the Baltic Sea and its catchment area were computed using the latest version of MSCE-POP model. MSCE-POP is the regional-scale model operating within the EMEP region. This is a three-dimensional Eulerian model which includes processes of emission, advection, turbulent diffusion, wet and dry deposition, degradation, gaseous exchange with underlying surface, and inflow of pollutant into the model domain. Horizontal grid of the model is defined using stereographic projection with spatial resolution 50 km at 60o latitude. The description of EMEP horizontal grid system can be found in the internet (http://www.emep.int/grid/index.html). Vertical structure of the model consists of 15 non-uniform layers defined in the terrain-following s-coordinates and covers almost the whole troposphere. Detailed description of the model can be found in EMEP reports (Gusev et al., 2005) and in the Internet on EMEP web page (http://www.emep.int/) under the link to information on Persistent Organic Pollutants. Meteorological data used in the calculations for 1990-2016 were obtained using MM5 meteorological data preprocessor on the basis of meteorological analysis of European Centre for Medium-Range Weather Forecasts (ECMWF).
+
+Results of model simulation of atmospheric transport and annual deposition of PCB-153 are provided on the regular basis annually two years in arrears on the basis of emission data officially submitted by Parties to CLRTAP Convention and available expert estimates of emission.  
+
+ 
+#### 2.1.6 Quality information  
+**Strength:** annually updated information on atmospheric input of PCB-153 to the Baltic Sea and its sub-basins.  
+**Weakness:** uncertainties in emissions of PCBs.  
+
+#### 2.1.7 Uncertainty
+The MSCE-POP model results were compared with measurements of EMEP monitoring network [Gusev et al., 2006, Shatalov et al., 2005]. The model was evaluated through the comparison with available measurements during EMEP TFMM meetings held in 2005. It was concluded that the MSCE-POP model is suitable for the evaluation of the long range transboundary transport and deposition of POPs in Europe.
+
+
+### 2.2 Atmospheric deposition of PCDD/Fs on the Baltic Sea
+Data downloaded from the [HELCOM website](https://helcom.fi/baltic-sea-trends/environment-fact-sheets/hazardous-substances/) on 19 August 2020 by Andrea De Cervo. Data are provided on the basin level and extracted from the pdf file. 
+
+**No tables found in the document (investigate furthur on database [EMEP Centre on Emission Inventories and Projections (CEIP)](http://www.ceip.at/).**  
+
+Table 1. Computed annual atmospheric deposition of PCDD/Fs over the six Baltic Sea sub-basins, the whole Baltic Sea (BAS) and normalized deposition to the Baltic Sea (Norm) for period 1990-2015 obtained using emission scenario.
+
+Table 2. Computed contributions by country to annual total deposition of PCDD/Fs to nine Baltic Sea sub- basins for the year 2015 obtained using scenario emissions.
+
+#### 2.2.1 Additional reference information as provided on the HELCOM website
+**Data Source: EMEP/MSC**
+
+#### 2.2.2 Description of data
+Annual atmospheric deposition fluxes of PCDD/Fs were obtained using the latest version of MSCE-POP model developed at EMEP/MSC-E (Gusev et al., 2005). The latest available official emission data for the HELCOM countries have been used in the model computations. Emissions of PCDD/Fs for each year of this period were officially reported to the UN ECE Secretariat by most of the HELCOM countries. These data are available from the EMEP Centre on Emission Inventories and Projections (CEIP) (http://www.ceip.at/).
+ 
+ 
+#### 2.2.3 Geographical coverage
+Annual atmospheric deposition fluxes of PCDD/Fs were obtained for the European region.  
+
+#### 2.2.4 Temporal coverage
+Timeseries of annual atmospheric deposition are available for the period 1990 – 2015.  
+
+#### 2.2.5 Methodology and frequency of data collection 
+Atmospheric input and source allocation budgets of PCDD/Fs to the Baltic Sea and its catchment area were computed using the latest version of MSCE-POP model. MSCE-POP is the regional-scale model operating within the EMEP region. This is a three-dimensional Eulerian model which includes processes of emission, advection, turbulent diffusion, wet and dry deposition, degradation, gaseous exchange with underlying surface, and inflow of pollutant into the model domain. Horizontal grid of the model is defined using stereographic projection with spatial resolution 50 km at 60º latitude. The description of EMEP horizontal grid system can be found in the internet (http://www.emep.int/grid/index.html). Vertical structure of the model consists of 15 non-uniform layers defined in the terrain-following s-coordinates and covers almost the whole troposphere. Detailed description of the model can be found in EMEP reports (Gusev et al., 2005) and in the Internet on EMEP web page (http://www.emep.int/) under the link to information on Persistent Organic Pollutants. Meteorological data used in the calculations for 1990-2012 were obtained using MM5 meteorological data preprocessor on the basis of meteorological analysis of European Centre for Medium-Range Weather Forecasts (ECMWF).  
+
+Results of model simulation of atmospheric transport and annual deposition of PCDD/Fs are provided on the regular basis annually two years in arrears on the basis of emission data officially submitted by Parties to CLRTAP Convention.  
+
+#### 2.2.6 Quality information
+**Strength:** annually updated information on atmospheric input of PCDD/Fs to the Baltic Sea and its sub-basins.  
+**Weakness:** uncertainties in officially submitted data on emissions of PCDD/Fs.  
+
+#### 2.2.7 Uncertainty
+The MSCE-POP model results were compared with measurements of EMEP monitoring network [Gusev et al., 2006, Shatalov et al., 2005]. The model was evaluated through the comparison with available measurements during EMEP TFMM meetings held in 2005. It was concluded that the MSCE-POP model is suitable for the evaluation of the long range transboundary transport and deposition of POPs in Europe.  
