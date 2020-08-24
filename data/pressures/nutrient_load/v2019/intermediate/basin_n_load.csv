@@ -1,4 +1,4 @@
-year,basin_code,input_tonnes,flow_cubic_meters_per_second,flow_normalized_input,baltic_sea_subbasinbasin_code
+year,basin_code,input_tonnes,flow_cubic_meters_per_second,input_per_flow,baltic_sea_subbasin
 1995,BOB,44523,3263,13.644805393809378,Bothnian Bay
 1995,BOS,55241,3216,17.176927860696516,Bothnian Sea
 1995,BAP,349759,3703,94.45287604644882,Baltic Proper
