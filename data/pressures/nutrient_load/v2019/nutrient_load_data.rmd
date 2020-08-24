@@ -14,7 +14,7 @@ Data used are official HELCOM reported data.
 #### 2.1.1 Nitrogen & Phosphorus (N & P) Loads {-}
 <!-- dataset save location BHI_share/BHI 2.0/Pressure/nutrient_load -->
 
-Data tables on total annual input of nitrogren and phosphorous (tonnes) as well as water flow into the Baltic Sea can be found [here](https://helcom.fi/wp-content/uploads/2020/06/BSEFS-Waterborne-nitrogen-and-phosphorus-inputs-and-water-flow-to-the-Baltic-Sea.pdf)
+Data tables on total annual input of nitrogren and phosphorous (tonnes) as well as water flow into the Baltic Sea can be found [here](https://helcom.fi/wp-content/uploads/2020/06/BSEFS-Waterborne-nitrogen-and-phosphorus-inputs-and-water-flow-to-the-Baltic-Sea.pdf). Data on annual deposition of total nitrogen can be found [here](https://emep.int/publ/helcom/2019/B_BSEFS_N_dep_v3.pdf).
 
 Actual total (e.g. air and waterborne, direct and point source discharges) annual input of nitrogren and phosphorous (tonnes) are accessed as part of the HELCOM Core Indicators, in the Pollution Load Compilation (PLC); see online resource about the most recent compilation [PLC-6 here](https://helcom.fi/helcom-at-work/projects/plc-6/). 
 
@@ -23,6 +23,8 @@ Actual total (e.g. air and waterborne, direct and point source discharges) annua
 <!-- dataset save location BHI_share/BHI 2.0/Pressure/nutrient_load -->
 
 MAI values for each basin are found in [Summary report on the development of revised Maximum Allowable Inputs and updated Country Allocated Reduction Targets of the Baltic Sea Action Plan](http://www.helcom.fi/Documents/Ministerial2013/Associated%20documents/Supporting/Summary%20report%20on%20MAI-CART.pdf) in Table 3 'Maximum Allowable nutrient Inputs to main Baltic Sea sub-basins', on page 8.  
+
+These are the same values as presented in Table 2.2 page 11 in the [Review of the Fifth Baltic Sea PLC for the 2013 HELCOM Ministerial Meeting](https://helcom.fi/media/publications/BSEP141.pdf)
 
 
 ---
@@ -61,11 +63,11 @@ mai_tab <- tidyr::separate(mai_tab, col = "alldata", into = newcolnames, sep = "
   mutate(
     baltic_sea_subbasin = str_extract(baltic_sea_subbasin, "[A-Z].*"),
     total_nitrogen_tonnes = str_remove(total_nitrogen_tonnes, ","),
-    total_phosphorus_tonnes = str_remove(total_nitrogen_tonnes, ",")
+    total_phosphorus_tonnes = str_remove(total_phosphorus_tonnes, ",")
   ) %>% 
    mutate(
     total_nitrogen_tonnes = as.numeric(total_nitrogen_tonnes),
-    total_phosphorus_tonnes = as.numeric(total_nitrogen_tonnes)
+    total_phosphorus_tonnes = as.numeric(total_phosphorus_tonnes)
   )
 ```
 
@@ -112,10 +114,34 @@ p_tab <- tidyr::separate(p_tab, col = "alldata", into = newcolnames, sep = "(?<=
   rename(year = Sum)
 ```
 
+
+```{r tonnes nitrogen atmospheric deposition}
+# pdf_atmos_n <- file.path(dir_B, "Pressure", "nutrient_load", "Atmospheric-deposition-N.pdf")
+pdf_atmos_n <- file.path(dir_B, "Pressure", "Atmospheric-deposition-N.pdf")
+txt <- pdf_text(pdf_atmos_n)
+
+
+## extract total annual deposition of total nitrogen to the subbasins 
+## units are ktonnes(N)/year
+
+atmos_n_txt <- str_extract(txt[12], regex("(?<=Baltic Sea \\(sum of all sub-basins\\)\\.\n  ).*(?=\n)", dotall = TRUE))
+atmos_n_tab <- as.data.frame(str_split(atmos_n_txt, "\n")[[1]][4:26])
+colnames(atmos_n_tab) <- "alldata"
+
+newcolnames <- str_split(str_split(atmos_n_txt, "\n")[[1]][3], "(?<=[a-zA-Z])  +")[[1]] %>% 
+  str_remove_all(" ")
+newcolnames <- c("year", newcolnames)
+
+atmos_n_tab <- tidyr::separate(atmos_n_tab, col = "alldata", into = newcolnames, sep = "(?<=[a-z0-9])  +") %>% 
+  mutate_all(as.numeric)
+```
+
  
 #### 2.2.2 Standardize Units
 
 ```{r normalize nutrient input by river flows}
+## not sure how to normalize...
+
 n_normalized <- left_join(
   n_tab %>% 
     tidyr::pivot_longer(
@@ -132,7 +158,7 @@ n_normalized <- left_join(
   by = c("year", "basin_code")
 )
 n_normalized <- n_normalized %>% 
-  mutate(flow_normalized_input = input_tonnes/flow_cubic_meters_per_second) %>% 
+  mutate(input_per_flow = input_tonnes/flow_cubic_meters_per_second) %>% 
   mutate(basin_code = as.character(basin_code))
   
 p_normalized <- left_join(
@@ -151,7 +177,7 @@ p_normalized <- left_join(
   by = c("year", "basin_code")
 )
 p_normalized <- p_normalized %>% 
-  mutate(flow_normalized_input = input_tonnes/flow_cubic_meters_per_second) %>% 
+  mutate(input_per_flow = input_tonnes/flow_cubic_meters_per_second) %>% 
   mutate(basin_code = as.character(basin_code))
 ```
 
@@ -160,7 +186,7 @@ p_normalized <- p_normalized %>%
 
 ## codes from figure 1 page 5 of pdf containing the input and flow data                                               
 basinsdf <- tibble(
-  baltic_sea_subbasinbasin_code = c(
+  baltic_sea_subbasin = c(
     "Kattegat", "Danish Straits", "Baltic Proper", "Bothnian Sea", 
     "Bothnian Bay", "Gulf of Riga", "Gulf of Finland", "Baltic Sea"
   ),
@@ -171,6 +197,30 @@ basinsdf <- tibble(
 )
 n_normalized <- left_join(n_normalized, basinsdf, by = "basin_code")
 p_normalized <- left_join(p_normalized, basinsdf, by = "basin_code")
+
+
+## wrangle atmospheric N deposition to match basin codes with subbasins
+## codes from figure 4 page 8 of pdf containing the atmospheric nitrogen data                                               
+basinsdf <- tibble(
+  baltic_sea_subbasin = c(
+    "Archipelago Sea", "Baltic Proper", "Bothnian Bay", "Bothnian Sea", 
+    "Gulf of Finland", "Gulf of Riga", "Kattegat", "The Sound", "Western Baltic"
+  ),
+  basin_code = c(
+    "ARC", "BAP", "BOB", "BOS",
+    "GUF", "GUR", "KAT", "SOU", "WEB"
+  )
+)
+
+atmos_n_tab <- atmos_n_tab %>% 
+  tidyr::pivot_longer(
+    cols = matches("^[A-Z]{3}$"),
+    names_to = "basin_code", 
+    values_to = "input"
+  ) %>% 
+  mutate(input_tonnes = input*1000)
+
+atmos_n_tab <- left_join(atmos_n_tab, basinsdf, by = "basin_code")
 ```
 
 
@@ -183,12 +233,16 @@ write_csv(
   file.path(dir_intermediate, "basin_n_load.csv")
 )
 write_csv(
+  atmos_n_tab,
+  file.path(dir_intermediate, "basin_n_atmos_load.csv")
+)
+write_csv(
   p_normalized,
   file.path(dir_intermediate, "basin_p_load.csv")
 )
 write_csv(
   mai_tab,
-  file.path(dir_intermediate, "N_P_load_targets.csv")
+  file.path(dir_intermediate, "n_p_load_targets.csv")
 )
 ```
 
