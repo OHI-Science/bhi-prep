@@ -1,396 +1,342 @@
-## Prep Nutrient Load Pressure Layers
+---
+title: "Nutrient loads pressure layer prep"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    code_folding: hide
+---
 
-```{r setup}
+<br>
+<br>
 
-## Libraries
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(RMySQL)
-library(stringr)
-library(tools)
-library(rprojroot) # install.packages('rprojroot')
-
-source('~/github/bhi/baltic2015/prep/common.r')
-
-## rprojroot
-root <- rprojroot::is_rstudio_project
-
-
-## make_path() function to 
-make_path <- function(...) rprojroot::find_root_file(..., criterion = is_rstudio_project)
-
-dir_layers = make_path('baltic2015/layers') # replaces  file.path(dir_baltic, 'layers')
-
-
-# root$find_file("README.md")
-# 
-# root$find_file("ao_need_gl2014.csv")
-# 
-# root <- find_root_file("install_ohicore.r", 
-# 
-# withr::with_dir(
-#   root_file("DESCRIPTION"))
-
-
-
-
-dir_nutprep = make_path('baltic2015/prep/pressures/nutrient_load')
-
-
-## add a README.md to the prep directory with the rawgit.com url for viewing on GitHub
-create_readme(dir_nutprep, 'nutrient_load_prep.rmd') 
-
+```{r nutrient load pressure preamble prep, message = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
+source(here::here("R", "setup.R"))
+loc <- here::here("prep", "pressures", "nutrient_load")
+data_path <- here::here("data", "pressures", "nutrient_load", version_year, "nutrient_load_data.rmd")
 ```
 
-## 1. Background on Nutrient Load Pressures
-External loads of nitrogen and phosphorus into the Baltic Sea. Loads include land-based and atmospheric sources and are normalized for river flow.  
+<br>
 
-[HELCOM Core Indicator- Inputs of Nitrogen and Phosphorus to the Baltic Sea Sea](http://www.helcom.fi/baltic-sea-trends/indicators/inputs-of-nitrogen-and-phosphorus-to-the-basins)  
+## 1. Background {-}
+
+External loads of nitrogen and phosphorus into the Baltic Sea. Loads include land-based and atmospheric sources and are normalized for river flow. HELCOM Core Indicator - Inputs of Nitrogen and Phosphorus to the Baltic Sea. [6th Pollution Load Compilation, Executive Summary](https://helcom.fi/media/publications/PLC-6-Executive-Summary.pdf)  
 
 
-## 2. Data Sources
-Data provided by Bo Gustafsson.  
-Data are official HELCOM reported data. 
+### 1.1 Data Scale {-}
 
-### 2.1 N & P Loads
-Actual total (e.g. air and waterborne (direct and point source discharges)) annual input of nitrogren and phosphorous (tonnes) can be accessed [here](http://helcom.fi/helcom-at-work/projects/completed-projects/plc-5-5/). As loads are very sensitive to runoff, we use the flow-normalized input values.  These data are plotted as the solid black line in Figure 3 under [Results - HELCOM Core Indicator Inputs of Nitrogen and Phosphorus to the basins](http://www.helcom.fi/baltic-sea-trends/indicators/inputs-of-nitrogen-and-phosphorus-to-the-basins/results/)  
+Assessment of N & P loads and the setting of MAI were done for 7 Baltic Sea basins: Baltic Proper, Kattegat, Danish Straits, Gulf of Riga, Gulf of Finland, Bothnian Sea, Bothnian Bay. These basins are larger than the HOLAS basins used define the BHI regions.  The pressure score will be calculated at the assessment scale and then all BHI regions within an assessment basin will receive the same pressure value.  
 
-### 2.2 Maximum Allowable Inputs (MAI)
-MAI values for each basin are found in [Summary report on the development of revised Maximum Allowable Inputs (MAI) and updated Country Allocated Reduction Targets (CART) of the Baltic Sea Action Plan](http://www.helcom.fi/Documents/Ministerial2013/Associated%20documents/Supporting/Summary%20report%20on%20MAI-CART.pdf) in Table 3, p. 8.  
 
-These same MAI values are also presented on under [Results - HELCOM Core Indicator Inputs of Nitrogen and Phosphorus to the basins](http://www.helcom.fi/baltic-sea-trends/indicators/inputs-of-nitrogen-and-phosphorus-to-the-basins/results/)  
+### 1.2 Reference points {-}
 
-### 2.3 Data scale
-Assessment of N & P loads and the setting of MAI were done for 7 Baltic Sea basins: Baltic Proper,   Kattegat, Danish Straits, Gulf of Riga, Gulf of Finland, Bothnian Sea, Bothnian Bay.  
-These basins are larger than the HOLAS basins used define the BHI regions.  The pressure score will be calculated at the assessment scale and then all BHI regions within an assessment basin will receive the same pressure value.  
+In discussions with Bo Gustafsson, we have made the following data rescaling decisions: 
 
-## 3. Data rescaling decisions
-In discussions with BO Gustafsson, we have made the following decisions.  
-*Current pressure* = the mean load in each basin during the most recent three year assessment period for HELCOM (2010-2012).  
-*Min value* = the minimum value is when there is no pressure on the system, this is scaled to the MAI for each basin.  
-*Max value* = the maximum value is the highest load to each basin over the reference period used for determining MAI (1997-2003).  
+**Current pressure** = the mean load in each basin during the most recent three year assessment period for HELCOM
+
+**Min value** = the minimum value is when there is no pressure on the system, this is scaled to the MAI for each basin 
+
+**Max value** = the maximum value is the highest load to each basin over the reference period used for determining MAI (1997-2003) 
 
 
 
-## 4. Read in all data
-```{r read in data}
-## read in N load
-n_load = read.csv(file.path(dir_nutprep, 'nutrient_data_database/N_basin_load.csv'))
-head(n_load)
-str(n_load)
-dim(n_load)
+<br/>
 
-n_load = n_load %>% 
-        mutate(basin = as.character(basin),
-               variable = as.character(variable))
+## 2. Data {-}
 
+This prep document is used to generate and explore the following data layers:
 
-## read in P load
-p_load = read.csv(file.path(dir_nutprep, 'nutrient_data_database/P_basin_load.csv'))
-head(p_load)
-str(p_load)
+- `po_nload_bhi2019.csv` 
+- `po_pload_bhi2019.csv` 
 
-p_load = p_load %>% 
-        mutate(basin = as.character(basin),
-               variable = as.character(variable))
+These are saved to the `layers` folder. All these are derived from or informed by the raw datasets from HELCOM Pollution Load Compilation (PLC) reports.
+
+<br>
+
+```{r nutrient load pressure prep data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
 
-## read in Maximum allowable inputs (MAI)
-mai = read.csv(file.path(dir_nutprep, 'nutrient_data_database/N_P_load_targets.csv'))
-head(mai)
-str(mai)
-mai = mai %>%
-      mutate(basin = as.character(basin),
-             variable = as.character(variable))
+```{r read in the nutrient load pressure data}
+dir_intermediate <- file.path(dir_prep, "data", "pressures", "nutrient_load", version_year, "intermediate")
 
-## Read in lookup table for basins to bhi_regions
-basin_lookup = read.csv(file.path(dir_nutprep, 'bhi_basin_country_lookup_load_basins.csv'), sep=";", stringsAsFactors = FALSE)
-basin_lookup = basin_lookup %>% 
-               select(rgn_id=BHI_ID, cntry_name=rgn_nam,
-                      basin_name_holas=Subbasin,basin_name_loads)%>%
-               mutate(cntry_name = as.character(cntry_name),
-                      basin_name_holas = as.character(basin_name_holas),
-                      basin_name_loads= as.character(basin_name_loads))
+## read in N and P data
+n_load <- read.csv(file.path(dir_intermediate, "basin_n_load.csv")) %>% 
+  filter(baltic_sea_subbasin != "Baltic Sea")
+n_atmos_load <- read.csv(file.path(dir_intermediate, "basin_n_atmos_load.csv")) %>% 
+  filter(baltic_sea_subbasin != "Baltic Sea")
+p_load <- read.csv(file.path(dir_intermediate, "basin_p_load.csv")) %>% 
+  filter(baltic_sea_subbasin != "Baltic Sea") 
 
-basin_lookup
-
+## read in maximum allowable inputs
+mai <- read.csv(file.path(dir_intermediate, "n_p_load_targets.csv")) %>% 
+  filter(baltic_sea_subbasin != "Baltic Sea")
 ```
 
 
-
-## 5. Nitrogen Layer Prep
-
-### 5.1 Combine N_load with Target N_load  
-```{r basic data object structure, echo=FALSE, message=FALSE}
-
-n_load2 = n_load %>% left_join(., mai, by=c("basin", "variable"))
-
+```{r merge nutrient load pressure datasets with targets}
+n_load <- left_join(
+  n_load, 
+  select(mai, baltic_sea_subbasin, maximum_allowable_input = total_nitrogen_tonnes),
+  by = "baltic_sea_subbasin"
+)
+p_load <- left_join(
+  p_load,
+  select(mai, baltic_sea_subbasin, maximum_allowable_input = total_phosphorus_tonnes),
+  by = "baltic_sea_subbasin"
+)
 ```
 
-### 5.2 Plot time series of load by basin with target indicated
+**Match nutrient loading values by Subbasin to BHI regions**
 
-```{r nload ts plot}
+```{r expand n and p pressure to bhi regions}
+bhi_basin_match <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+  select(region_id, subbasin) %>% 
+  left_join(
+    tibble(
+      subbasin = c(
+        "Great Belt", "Kiel Bay", "Bay of Mecklenburg", 
+        "The Sound", "Kattegat", 
+        "Arkona Basin", "Bornholm Basin", "Gdansk Basin", "Northern Baltic Proper", 
+        "Eastern Gotland Basin", "Western Gotland Basin", 
+        "Gulf of Riga", 
+        "Gulf of Finland", 
+        "Aland Sea", "Bothnian Sea", 
+        "The Quark", "Bothnian Bay"
+      ),
+      baltic_sea_subbasin = c(
+        "Danish Straits", "Danish Straits", "Danish Straits", 
+        "Kattegat", "Kattegat",
+        "Baltic Proper", "Baltic Proper", "Baltic Proper", "Baltic Proper", 
+        "Baltic Proper", "Baltic Proper", 
+        "Gulf of Riga", 
+        "Gulf of Finland", 
+        "Bothnian Sea", "Bothnian Sea", 
+        "Bothnian Bay", "Bothnian Bay"
+      )
+    )
+  )
 
-ggplot(n_load2) +
-  geom_point(aes(year,tonnes))+
-  geom_line(aes(year,maximum_allowable_input))+
-  facet_wrap(~basin, scales ="free_y")
-
+n_load <- full_join(bhi_basin_match, n_load, by = "baltic_sea_subbasin")
+p_load <- full_join(bhi_basin_match, p_load, by = "baltic_sea_subbasin")
 ```
 
-### 5.3 Calculate current N load pressure
-These values are the same as those found in [Table 1a](http://www.helcom.fi/baltic-sea-trends/indicators/inputs-of-nitrogen-and-phosphorus-to-the-basins/results/) in the column "Average norm. N input 2010-2012".  
-```{r current n pressure calc }
 
-n_current = n_load2 %>% 
-            filter(year %in% c(2010,2011,2012)) %>% # select three year assessment period
-            select (basin, tonnes) %>%
-            group_by(basin) %>%
-            summarise(n_current = round(mean(tonnes))) %>% #mean load per basin in 3 year period
-            ungroup()
-n_current
+```{r add the atmospheric nitrogen deposition to the waterborne inputs}
+bhi_basin_match <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+  select(region_id, subbasin) %>% 
+  mutate(baltic_sea_subbasin = case_when(
+    region_id %in% 39:42 ~ "Bothnian Bay",
+    region_id %in% c(35, 37:38) ~ "Bothnian Sea",
+    region_id == 36 ~ "Archipelago Sea",
+    region_id %in% c(11:26, 29:31) ~ "Baltic Proper",
+    region_id %in% c(3:4, 7:10) ~ "Western Baltic",
+    TRUE ~ subbasin
+  ))
+n_atmos_load <- full_join(bhi_basin_match, n_atmos_load, by = "baltic_sea_subbasin")
 
+n_load <- left_join(
+  select(n_atmos_load, region_id, year, subbasin, n_atmos = input_tonnes), 
+  select(n_load, region_id, year, subbasin, n_waterborne = input_tonnes), 
+  by = c("region_id", "year", "subbasin")
+)
+n_load <- mutate(n_load, input_tonnes = n_atmos + n_waterborne)
 ```
 
-### 5.4 Rescale the N load pressure
+
+<br>
+
+### 3.1 Calculate Load Pressure Scores {-}
+
+
+**Calculate average loads**
+
+```{r current n pressure calculation}
+n_current <- n_load %>% 
+  
+  ## three year assessment period
+  ## take rolling means with three year window
+  arrange(region_id, year) %>% 
+  group_by(region_id) %>% 
+  mutate(n_current = zoo::rollapply(input_tonnes, 3, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+  ungroup() %>% 
+  filter(!is.na(n_current)) %>% 
+  mutate(n_current = round(n_current))
+```
+
+
+```{r current p pressure calculation}
+p_current <- p_load %>% 
+  
+  ## three year assessment period
+  ## take rolling means with three year window
+  arrange(basin_code, year) %>% 
+  group_by(basin_code) %>% 
+  mutate(p_current = zoo::rollapply(input_tonnes, 3, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
+  ungroup() %>% 
+  filter(!is.na(p_current)) %>% 
+  mutate(p_current = round(p_current))
+```
+
+
+**Rescale Load pressures**
+
 Data layer needs to be rescaled between 0 (min pressure) and 1 (max pressure).  
-```{r rescale n data}
-n_min = n_load2%>% 
-        select(basin,maximum_allowable_input)%>%
-        distinct(.)%>%
-        dplyr::rename(n_min = maximum_allowable_input)
 
-n_max = n_load2 %>% 
-        filter(year%in% 1993:2003)%>%
-        select(year, basin, tonnes)%>%
-        group_by(basin)%>%
-        summarise(n_max = max(tonnes))%>%
-        ungroup()
+```{r rescale n pressure scores}
+n_min <- n_load %>% 
+  distinct(baltic_sea_subbasin, maximum_allowable_input) %>%
+  dplyr::rename(n_min = maximum_allowable_input)
+
+n_max <- n_load %>% 
+  filter(year %in% 1997:2003) %>%
+  select(year, baltic_sea_subbasin, input_tonnes) %>%
+  group_by(baltic_sea_subbasin) %>%
+  summarise(n_max = max(input_tonnes)) %>%
+  ungroup()
         
 ## to normalize data: normalized = (x-min(x))/(max(x)-min(x))
-
-n_current_score = n_current %>%
-                  full_join(., n_min, by="basin")%>%
-                  full_join(.,n_max, by="basin") %>%
-                  mutate(n_score = pmax(0,(n_current - n_min) / (n_max - n_min)))%>%
-                  select(basin, round(n_score,2))
-
+## high pressure score corresponds to high pressure, i.e. is a bad thing
+## pressure of zero indicates the target is achieved
+n_current_score <- n_current %>%
+  full_join(n_min, by = "baltic_sea_subbasin") %>%
+  full_join(n_max, by = "baltic_sea_subbasin") %>%
+  mutate(n_rescaled = (n_current - n_min)/abs(n_max - n_min)) %>%
+  mutate(n_score = pmin(1, pmax(0, n_rescaled))) %>%
+  mutate(n_score = round(n_score, 2)) %>% 
+  select(year, baltic_sea_subbasin, n_score, n_current, n_min, n_max)
 ```
 
-### 5.5 Plot normalized N load pressure score by basin
+```{r rescale p pressure scores}
+p_min <- p_load %>% 
+  distinct(baltic_sea_subbasin, maximum_allowable_input) %>%
+  dplyr::rename(p_min = maximum_allowable_input)
 
-```{r nload score normalized basin plot}
-par(mar=c(3,2,2,2), oma=c(5,1,1,1))
-plot(n_score~c(1:length(n_score)), data=n_current_score,
-     xlab="", ylab="N Load Pressure Score",
-     xaxt='n',
-     pch=19, cex = 1.3,
-     ylim=c(-.05,1))
-axis(side=1, at=c(seq(1,nrow(n_current_score),1)), labels=n_current_score$basin,
-     las=2, cex.axis=.7)
-mtext("Basin",side=1, outer=TRUE, line=3)
-
-```
-
-### 5.6 Assign basin pressure value to BHI regions
-
-```{r n pressure to bhi regions}
-po_nload = full_join(n_current_score, basin_lookup, by=c("basin"="basin_name_loads"))%>%
-              select(rgn_id,n_score) %>%
-              dplyr::rename(pressure_score = n_score)
-
-
-```
-
-### 5.7 Plot map of N pressure score by BHI region
-```{r N pressure on map}
-## BHI Data
-library(rgdal)
-BHIshp = readOGR("C:/Users/jgrif/Documents/StockholmUnivPostDoc/BalticHealthIndex/BHI_r/March2016WkshpPlots/shapefiles", "BHI_regions_plus_buffer_25km")
-BHIshp2 = spTransform(BHIshp, CRS("+proj=longlat +init=epsg:4326"))
-print(proj4string(BHIshp2))
-
-## colors
-library(colorRamps)
-colfunc <- colorRampPalette(c("royalblue","springgreen", "yellow","red"))
-cols10 = colfunc(10)
-
-##Make a copy of the shapefile for plotting
-
-BHIshp_plot = BHIshp2
-
-##join scores to shape file data
-BHIshp_plot@data = BHIshp_plot@data %>% left_join(., po_nload, by=c("BHI_ID"= "rgn_id"))
-head(BHIshp_plot@data)
-
-##assign colors to scores
-BHIshp_plot@data = BHIshp_plot@data %>%
-                mutate(cols = ifelse(pressure_score == 0 , "white",
-                              ifelse(pressure_score > 0 & pressure_score <= 0.1, cols10[1], 
-                              ifelse(pressure_score > 0.1 & pressure_score <= 0.2,cols10[2],
-                              ifelse(pressure_score > 0.2 & pressure_score <= 0.3,cols10[3],
-                              ifelse(pressure_score > 0.3 & pressure_score <= 0.4,cols10[4],
-                              ifelse(pressure_score > 0.4 & pressure_score <= 0.5,cols10[5],
-                              ifelse(pressure_score > 0.5 & pressure_score <= 0.6,cols10[6],
-                              ifelse(pressure_score > 0.6 & pressure_score <= 0.7,cols10[7],
-                              ifelse(pressure_score > 0.7 & pressure_score <= 0.8,cols10[8],
-                              ifelse(pressure_score > 0.8 & pressure_score <= 0.9,cols10[9],
-                              ifelse(pressure_score > 0.9 & pressure_score <= 1,cols10[10], NA))))))))))))
-
-head(BHIshp_plot@data)
-
-plot(BHIshp_plot, col= BHIshp_plot@data$cols,
-     main="N Load Pressure")
-legend("bottomright", ncol=3, fill=c("white",cols10), 
-       legend=c("0",">0-0.1","0.1-0.2","0.2-0.3","0.3-0.4","0.4-0.5","0.5-0.6","0.6-0.7","0.7-0.8","0.8-0.9","0.9-1.0"), title="Pressure Value", cex=.7,bty='n')
-
-
-
-```
-
-
-
-## 6. Phosphorus Layer Prep
-
-### 6.1 Combine P_load with Target P_load  
-```{r basic p data object structure}
-
-p_load2 = p_load %>% left_join(., mai, by=c("basin", "variable"))
-
-```
-
-### 6.2 Plot time series of load by basin with target indicated
-
-```{r pload ts plot}
-
-ggplot(p_load2) +
-  geom_point(aes(year,tonnes))+
-  geom_line(aes(year,maximum_allowable_input))+
-  facet_wrap(~basin, scales ="free_y")
-
-```
-
-### 6.3 Calculate current P load pressure
-These values are the same as those found in [Table 1b](http://www.helcom.fi/baltic-sea-trends/indicators/inputs-of-nitrogen-and-phosphorus-to-the-basins/results/) in the column "Average norm. N input 2010-2012".  
-```{r current p pressure calc }
-
-p_current = p_load2 %>% 
-            filter(year %in% c(2010,2011,2012)) %>% # select three year assessment period
-            select (basin, tonnes) %>%
-            group_by(basin) %>%
-            summarise(p_current = round(mean(tonnes))) %>% #mean load per basin in 3 year period
-            ungroup()
-p_current
-
-```
-
-### 6.4 Rescale the P load pressure
-Data layer needs to be rescaled between 0 (min pressure) and 1 (max pressure).  
-```{r rescale p data}
-p_min = p_load2%>% 
-        select(basin,maximum_allowable_input)%>%
-        distinct(.)%>%
-        dplyr::rename(p_min = maximum_allowable_input)
-
-p_max = p_load2 %>% 
-        filter(year%in% 1993:2003)%>%
-        select(year, basin, tonnes)%>%
-        group_by(basin)%>%
-        summarise(p_max = max(tonnes))%>%
-        ungroup()
+p_max <- p_load %>% 
+  filter(year %in% 1997:2003) %>%
+  select(year, baltic_sea_subbasin, input_tonnes) %>%
+  group_by(baltic_sea_subbasin) %>%
+  summarise(p_max = max(input_tonnes)) %>%
+  ungroup()
         
 ## to normalize data: normalized = (x-min(x))/(max(x)-min(x))
-
-p_current_score = p_current %>%
-                  full_join(., p_min, by="basin")%>%
-                  full_join(.,p_max, by="basin") %>%
-                  mutate(p_score = pmax(0,(p_current - p_min) / (p_max - p_min)))%>%
-                  select(basin, round(p_score,2))
-
-```
-
-### 6.5 Plot normalized P load pressure score by basin
-
-```{r pload score normalized basin plot}
-par(mar=c(3,2,2,2), oma=c(5,1,1,1))
-plot(p_score~c(1:length(p_score)), data=p_current_score,
-     xlab="", ylab="N Load Pressure Score",
-     xaxt='n',
-     pch=19, cex = 1.3,
-     ylim=c(-.05,1))
-axis(side=1, at=c(seq(1,nrow(p_current_score),1)), labels=p_current_score$basin,
-     las=2, cex.axis=.7)
-mtext("Basin",side=1, outer=TRUE, line=3)
-
-```
-
-### 6.6 Assign basin P pressure value to BHI regions
-
-```{r p pressure to bhi regions}
-po_pload = full_join(p_current_score, basin_lookup, by=c("basin"="basin_name_loads"))%>%
-              select(rgn_id,p_score) %>%
-              dplyr::rename(pressure_score = p_score)
-
-```
-
-### 6.7 Plot map of P pressure score by BHI region
-```{r P pressure on map}
-## This is already run for N
-
-## BHI Data
-# library(rgdal)
-# BHIshp = readOGR("C:/Users/jgrif/Documents/StockholmUnivPostDoc/BalticHealthIndex/BHI_r/March2016WkshpPlots/shapefiles", "BHI_regions_plus_buffer_25km")
-# BHIshp2 = spTransform(BHIshp, CRS("+proj=longlat +init=epsg:4326"))
-# print(proj4string(BHIshp2))
-# 
-# ## colors
-# library(colorRamps)
-# colfunc <- colorRampPalette(c("royalblue","springgreen", "yellow","red"))
-# cols10 = colfunc(10)
-
-##Make a copy of the shapefile for plotting
-
-BHIshp_plotP = BHIshp2
-
-##join scores to shape file data
-BHIshp_plotP@data = BHIshp_plotP@data %>% left_join(., po_pload, by=c("BHI_ID"= "rgn_id"))
-head(BHIshp_plotP@data)
-
-##assign colors to scores
-BHIshp_plotP@data = BHIshp_plotP@data %>%
-                mutate(cols = ifelse(pressure_score == 0 , "white",
-                              ifelse(pressure_score > 0 & pressure_score <= 0.1, cols10[1], 
-                              ifelse(pressure_score > 0.1 & pressure_score <= 0.2,cols10[2],
-                              ifelse(pressure_score > 0.2 & pressure_score <= 0.3,cols10[3],
-                              ifelse(pressure_score > 0.3 & pressure_score <= 0.4,cols10[4],
-                              ifelse(pressure_score > 0.4 & pressure_score <= 0.5,cols10[5],
-                              ifelse(pressure_score > 0.5 & pressure_score <= 0.6,cols10[6],
-                              ifelse(pressure_score > 0.6 & pressure_score <= 0.7,cols10[7],
-                              ifelse(pressure_score > 0.7 & pressure_score <= 0.8,cols10[8],
-                              ifelse(pressure_score > 0.8 & pressure_score <= 0.9,cols10[9],
-                              ifelse(pressure_score > 0.9 & pressure_score <= 1,cols10[10], NA))))))))))))
-
-head(BHIshp_plotP@data)
-
-plot(BHIshp_plotP, col= BHIshp_plotP@data$cols,
-     main="P Load Pressure")
-legend("bottomright", ncol=3, fill=c("white",cols10), 
-       legend=c("0",">0-0.1","0.1-0.2","0.2-0.3","0.3-0.4","0.4-0.5","0.5-0.6","0.6-0.7","0.7-0.8","0.8-0.9","0.9-1.0"), title="Pressure Value", cex=.7,bty='n')
-
-
-
+p_current_score <- p_current %>%
+  full_join(p_min, by = "baltic_sea_subbasin") %>%
+  full_join(p_max, by = "baltic_sea_subbasin") %>%
+  mutate(p_rescaled = (p_current - p_min)/abs(p_max - p_min)) %>%
+  mutate(p_score = pmin(1, pmax(0, p_rescaled))) %>%
+  mutate(p_score = round(p_score, 2)) %>% 
+  select(year, baltic_sea_subbasin, p_score, p_current, p_min, p_max)
 ```
 
 
-## Save data as csv in Layers
-Save pressure data as csv in layers folder.  
-Register layers in layers.csv
 
-```{r save layers as a csv}
+<br/>
 
-write.csv(po_nload , file.path(dir_layers, 'po_nload_bhi2015.csv'), row.names=FALSE)
-write.csv(po_pload , file.path(dir_layers, 'po_pload_bhi2015.csv'), row.names=FALSE)
+### 3.2 Save the Nutrient Load Pressure Layers {-}
+
+Save nutrient loading pressure data as csv in layers folder.
+
+```{r save nutrient load pressure layers as a csvs}
+write_csv(
+  po_nload %>% 
+    select(region_id, year, pressure_score = n_score), 
+  file.path(dir_layers, "po_nload_bhi2019.csv")
+)
+write_csv(
+  po_pload %>% 
+    select(region_id, year, pressure_score = p_score), 
+  file.path(dir_layers, "po_pload_bhi2019.csv")
+)
 ```
 
+<br>
+
+## 4. Visualizing Data Layers {-}
+
+### 4.1 Nutrient Load Pressure Scores by Subbasin {-}
+
+```{r nutrient load pressure scores, results  = "show", fig.width  = 9.5}
+ggplot(distinct(po_nload, year, subbasin, n_score)) +
+  geom_col(aes(x = year, y = n_score)) +
+  facet_wrap(~subbasin, scales = "free_y", nrow = 6) +
+  labs(x = NULL, y = "Nitrogen Load, Pressure Score")
+
+ggplot(distinct(po_pload, year, subbasin, p_score)) +
+  geom_col(aes(x = year, y = p_score)) +
+  facet_wrap(~subbasin, scales = "free_y", nrow = 6) +
+  labs(x = NULL, y = "Phosphorus Load, Pressure Score")
+```
+
+
+### 4.2 Timeseries {-}
+
+```{r timeseries plots of n and p loads, results = "show", fig.width = 9.5, fig.height = 3}
+gridExtra::grid.arrange(
+  ggplot(n_current) + # p_load
+    geom_vline(xintercept = 1997, color = "snow", size = 2) +
+    geom_vline(xintercept = 2003, color = "snow", size = 2) +
+    geom_hline(aes(yintercept = maximum_allowable_input), color = "maroon") +
+    geom_point(aes(year, n_current)) + # input_tonnes
+    geom_line(aes(year, n_current), size = 0.5) +
+    facet_wrap(~baltic_sea_subbasin, scales = "free_y", nrow = 1) +
+    labs(x = NULL, y = "Nitrogen Input (tonnes)\n", title = "Nutrient Inputs, 3 Year rolling Means"),
+  # ggplot(c) +
+  
+  ggplot(p_current) + # p_load
+    geom_vline(xintercept = 1997, color = "snow", size = 2) +
+    geom_vline(xintercept = 2003, color = "snow", size = 2) +
+    geom_hline(aes(yintercept = maximum_allowable_input), color = "maroon") +
+    geom_point(aes(year, p_current)) + # input_tonnes
+    geom_line(aes(year, p_current), size = 0.5) +
+    facet_wrap(~baltic_sea_subbasin, scales = "free_y", nrow = 1) +
+    labs(x = NULL, y = "Phosphorus Input (tonnes)\n"),
+  nrow = 2
+)
+```
+
+
+### 4.3 Map of N & P pressure scores by BHI region {-}
+
+```{r nutrient load pressure on map, results = "show", fig.width = 9.5}
+source(here::here("R", "spatial.R"))
+
+bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
+bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
+  sf::st_as_sf() %>% 
+  select(region_id = BHI_ID, rgn_nam, subbasin = Subbasin) %>% 
+  mutate(region_nam = paste(rgn_nam, subbasin, sep  = ", "))
+
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+cols <- colorRampPalette(c("royalblue", "springgreen", "yellow", "red"))(10)
+
+basemap +
+  geom_sf(
+    data = left_join(
+      bhi_rgn_simple,
+      po_nload %>%
+        select(region_id, year, n_score) %>% 
+        tidyr::pivot_wider(names_from = "year", names_prefix = "yr", values_from = "n_score"),
+      by = "region_id"
+    ),
+    mapping = aes(fill = yr2017)
+  ) +
+  scale_fill_gradientn(mid = "thistle", midpoint = 0.65, limits = c(0.45, 25))
+
+
+```
+
+
+<br>
+
+## 5. Considerations for `BHI3.0` {-}
