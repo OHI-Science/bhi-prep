@@ -1,4 +1,4 @@
-baltic_sea_subbasin,total_nitrogen_tonnes,total_phosphorus_tonnes
+baltic_sea_basin,total_nitrogen_tonnes,total_phosphorus_tonnes
 Kattegat,74000,1687
 Danish Straits,65998,1601
 Baltic Proper,325000,7360
@@ -6,4 +6,3 @@ Bothnian Sea,79372,2773
 Bothnian Bay,57622,2675
 Gulf of Riga,88417,2020
 Gulf of Finland,101800,3600
-Baltic Sea,792209,21716

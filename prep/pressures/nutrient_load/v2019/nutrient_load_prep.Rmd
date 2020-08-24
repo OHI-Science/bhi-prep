@@ -66,103 +66,50 @@ These are saved to the `layers` folder. All these are derived from or informed b
 dir_intermediate <- file.path(dir_prep, "data", "pressures", "nutrient_load", version_year, "intermediate")
 
 ## read in N and P data
-n_load <- read.csv(file.path(dir_intermediate, "basin_n_load.csv")) %>% 
-  filter(baltic_sea_subbasin != "Baltic Sea")
-n_atmos_load <- read.csv(file.path(dir_intermediate, "basin_n_atmos_load.csv")) %>% 
-  filter(baltic_sea_subbasin != "Baltic Sea")
-p_load <- read.csv(file.path(dir_intermediate, "basin_p_load.csv")) %>% 
-  filter(baltic_sea_subbasin != "Baltic Sea") 
+n_load <- read.csv(file.path(dir_intermediate, "basin_n_load.csv"))
+n_atmos_load <- read.csv(file.path(dir_intermediate, "basin_n_atmos_load.csv"))
+p_load <- read.csv(file.path(dir_intermediate, "basin_p_load.csv"))
 
 ## read in maximum allowable inputs
-mai <- read.csv(file.path(dir_intermediate, "n_p_load_targets.csv")) %>% 
-  filter(baltic_sea_subbasin != "Baltic Sea")
+mai <- read.csv(file.path(dir_intermediate, "n_p_load_targets.csv"))
 ```
 
 
 ```{r merge nutrient load pressure datasets with targets}
 n_load <- left_join(
-  n_load, 
-  select(mai, baltic_sea_subbasin, maximum_allowable_input = total_nitrogen_tonnes),
-  by = "baltic_sea_subbasin"
+  rename(n_load, n_waterborne = input_tonnes), 
+  select(mai, baltic_sea_basin, maximum_allowable_input = total_nitrogen_tonnes),
+  by = "baltic_sea_basin"
 )
 p_load <- left_join(
   p_load,
-  select(mai, baltic_sea_subbasin, maximum_allowable_input = total_phosphorus_tonnes),
-  by = "baltic_sea_subbasin"
+  select(mai, baltic_sea_basin, maximum_allowable_input = total_phosphorus_tonnes),
+  by = "baltic_sea_basin"
 )
-```
-
-**Match nutrient loading values by Subbasin to BHI regions**
-
-```{r expand n and p pressure to bhi regions}
-bhi_basin_match <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
-  select(region_id, subbasin) %>% 
-  left_join(
-    tibble(
-      subbasin = c(
-        "Great Belt", "Kiel Bay", "Bay of Mecklenburg", 
-        "The Sound", "Kattegat", 
-        "Arkona Basin", "Bornholm Basin", "Gdansk Basin", "Northern Baltic Proper", 
-        "Eastern Gotland Basin", "Western Gotland Basin", 
-        "Gulf of Riga", 
-        "Gulf of Finland", 
-        "Aland Sea", "Bothnian Sea", 
-        "The Quark", "Bothnian Bay"
-      ),
-      baltic_sea_subbasin = c(
-        "Danish Straits", "Danish Straits", "Danish Straits", 
-        "Kattegat", "Kattegat",
-        "Baltic Proper", "Baltic Proper", "Baltic Proper", "Baltic Proper", 
-        "Baltic Proper", "Baltic Proper", 
-        "Gulf of Riga", 
-        "Gulf of Finland", 
-        "Bothnian Sea", "Bothnian Sea", 
-        "Bothnian Bay", "Bothnian Bay"
-      )
-    )
-  )
-
-n_load <- full_join(bhi_basin_match, n_load, by = "baltic_sea_subbasin")
-p_load <- full_join(bhi_basin_match, p_load, by = "baltic_sea_subbasin")
 ```
 
 
 ```{r add the atmospheric nitrogen deposition to the waterborne inputs}
-bhi_basin_match <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
-  select(region_id, subbasin) %>% 
-  mutate(baltic_sea_subbasin = case_when(
-    region_id %in% 39:42 ~ "Bothnian Bay",
-    region_id %in% c(35, 37:38) ~ "Bothnian Sea",
-    region_id == 36 ~ "Archipelago Sea",
-    region_id %in% c(11:26, 29:31) ~ "Baltic Proper",
-    region_id %in% c(3:4, 7:10) ~ "Western Baltic",
-    TRUE ~ subbasin
-  ))
-n_atmos_load <- full_join(bhi_basin_match, n_atmos_load, by = "baltic_sea_subbasin")
-
-n_load <- left_join(
-  select(n_atmos_load, region_id, year, subbasin, n_atmos = input_tonnes), 
-  select(n_load, region_id, year, subbasin, n_waterborne = input_tonnes), 
-  by = c("region_id", "year", "subbasin")
-)
-n_load <- mutate(n_load, input_tonnes = n_atmos + n_waterborne)
+n_load <- n_atmos_load %>% 
+  rename(n_atmos = input_tonnes) %>% 
+  left_join(n_load, by = c("year", "baltic_sea_basin")) %>% 
+  mutate(input_tonnes = n_atmos + n_waterborne)
 ```
-
 
 <br>
 
 ### 3.1 Calculate Load Pressure Scores {-}
 
 
-**Calculate average loads**
+**Calculate average loads of Subbasins**
 
 ```{r current n pressure calculation}
 n_current <- n_load %>% 
   
   ## three year assessment period
   ## take rolling means with three year window
-  arrange(region_id, year) %>% 
-  group_by(region_id) %>% 
+  arrange(basin_code, year) %>% 
+  group_by(basin_code) %>% 
   mutate(n_current = zoo::rollapply(input_tonnes, 3, mean, na.rm = TRUE, align = "right", fill = NA)) %>% 
   ungroup() %>% 
   filter(!is.na(n_current)) %>% 
@@ -190,13 +137,13 @@ Data layer needs to be rescaled between 0 (min pressure) and 1 (max pressure).
 
 ```{r rescale n pressure scores}
 n_min <- n_load %>% 
-  distinct(baltic_sea_subbasin, maximum_allowable_input) %>%
+  distinct(baltic_sea_basin, maximum_allowable_input) %>%
   dplyr::rename(n_min = maximum_allowable_input)
 
 n_max <- n_load %>% 
   filter(year %in% 1997:2003) %>%
-  select(year, baltic_sea_subbasin, input_tonnes) %>%
-  group_by(baltic_sea_subbasin) %>%
+  select(year, baltic_sea_basin, input_tonnes) %>%
+  group_by(baltic_sea_basin) %>%
   summarise(n_max = max(input_tonnes)) %>%
   ungroup()
         
@@ -204,37 +151,70 @@ n_max <- n_load %>%
 ## high pressure score corresponds to high pressure, i.e. is a bad thing
 ## pressure of zero indicates the target is achieved
 n_current_score <- n_current %>%
-  full_join(n_min, by = "baltic_sea_subbasin") %>%
-  full_join(n_max, by = "baltic_sea_subbasin") %>%
+  full_join(n_min, by = "baltic_sea_basin") %>%
+  full_join(n_max, by = "baltic_sea_basin") %>%
   mutate(n_rescaled = (n_current - n_min)/abs(n_max - n_min)) %>%
   mutate(n_score = pmin(1, pmax(0, n_rescaled))) %>%
   mutate(n_score = round(n_score, 2)) %>% 
-  select(year, baltic_sea_subbasin, n_score, n_current, n_min, n_max)
+  select(year, baltic_sea_basin, n_score, n_current, n_min, n_max)
 ```
 
 ```{r rescale p pressure scores}
 p_min <- p_load %>% 
-  distinct(baltic_sea_subbasin, maximum_allowable_input) %>%
+  distinct(baltic_sea_basin, maximum_allowable_input) %>%
   dplyr::rename(p_min = maximum_allowable_input)
 
 p_max <- p_load %>% 
   filter(year %in% 1997:2003) %>%
-  select(year, baltic_sea_subbasin, input_tonnes) %>%
-  group_by(baltic_sea_subbasin) %>%
+  select(year, baltic_sea_basin, input_tonnes) %>%
+  group_by(baltic_sea_basin) %>%
   summarise(p_max = max(input_tonnes)) %>%
   ungroup()
         
 ## to normalize data: normalized = (x-min(x))/(max(x)-min(x))
 p_current_score <- p_current %>%
-  full_join(p_min, by = "baltic_sea_subbasin") %>%
-  full_join(p_max, by = "baltic_sea_subbasin") %>%
+  full_join(p_min, by = "baltic_sea_basin") %>%
+  full_join(p_max, by = "baltic_sea_basin") %>%
   mutate(p_rescaled = (p_current - p_min)/abs(p_max - p_min)) %>%
   mutate(p_score = pmin(1, pmax(0, p_rescaled))) %>%
   mutate(p_score = round(p_score, 2)) %>% 
-  select(year, baltic_sea_subbasin, p_score, p_current, p_min, p_max)
+  select(year, baltic_sea_basin, p_score, p_current, p_min, p_max)
 ```
 
 
+**Match nutrient loading values by Subbasin to BHI regions**
+
+```{r expand n and p pressure to bhi regions}
+bhi_basin_match <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+  select(region_id, subbasin) %>% 
+  left_join(
+    tibble(
+      subbasin = c(
+        "Great Belt", "Kiel Bay", "Bay of Mecklenburg", 
+        "The Sound", "Kattegat", 
+        "Arkona Basin", "Bornholm Basin", "Gdansk Basin", "Northern Baltic Proper", 
+        "Eastern Gotland Basin", "Western Gotland Basin", 
+        "Gulf of Riga", 
+        "Gulf of Finland", 
+        "Aland Sea", "Bothnian Sea", 
+        "The Quark", "Bothnian Bay"
+      ),
+      baltic_sea_basin = c(
+        "Danish Straits", "Danish Straits", "Danish Straits", 
+        "Kattegat", "Kattegat",
+        "Baltic Proper", "Baltic Proper", "Baltic Proper", "Baltic Proper", 
+        "Baltic Proper", "Baltic Proper", 
+        "Gulf of Riga", 
+        "Gulf of Finland", 
+        "Bothnian Sea", "Bothnian Sea", 
+        "Bothnian Bay", "Bothnian Bay"
+      )
+    )
+  )
+
+po_nload <- full_join(bhi_basin_match, n_current_score, by = "baltic_sea_basin")
+po_pload <- full_join(bhi_basin_match, p_current_score, by = "baltic_sea_basin")
+```
 
 <br/>
 
@@ -278,24 +258,28 @@ ggplot(distinct(po_pload, year, subbasin, p_score)) +
 
 ```{r timeseries plots of n and p loads, results = "show", fig.width = 9.5, fig.height = 3}
 gridExtra::grid.arrange(
-  ggplot(n_current) + # p_load
+  ggplot(n_current) +
     geom_vline(xintercept = 1997, color = "snow", size = 2) +
     geom_vline(xintercept = 2003, color = "snow", size = 2) +
     geom_hline(aes(yintercept = maximum_allowable_input), color = "maroon") +
-    geom_point(aes(year, n_current)) + # input_tonnes
     geom_line(aes(year, n_current), size = 0.5) +
-    facet_wrap(~baltic_sea_subbasin, scales = "free_y", nrow = 1) +
-    labs(x = NULL, y = "Nitrogen Input (tonnes)\n", title = "Nutrient Inputs, 3 Year rolling Means"),
-  # ggplot(c) +
-  
-  ggplot(p_current) + # p_load
+    geom_point(aes(year, input_tonnes)) +
+    labs(
+      x = NULL, y = "Input (tonnes)\n", 
+      title = "Nitrogen Inputs (atmospheric and waterborne), line shows 3 year rolling mean"
+    ) +
+    facet_wrap(~baltic_sea_basin, scales = "free_y", nrow = 1),
+  ggplot(p_current) +
     geom_vline(xintercept = 1997, color = "snow", size = 2) +
     geom_vline(xintercept = 2003, color = "snow", size = 2) +
     geom_hline(aes(yintercept = maximum_allowable_input), color = "maroon") +
-    geom_point(aes(year, p_current)) + # input_tonnes
     geom_line(aes(year, p_current), size = 0.5) +
-    facet_wrap(~baltic_sea_subbasin, scales = "free_y", nrow = 1) +
-    labs(x = NULL, y = "Phosphorus Input (tonnes)\n"),
+    geom_point(aes(year, input_tonnes)) +
+    labs(
+      x = NULL, y = "Input (tonnes)\n", 
+      title = "Phosphorus Inputs (only waterborne), line shows 3 year rolling mean"
+    ) +
+    facet_wrap(~baltic_sea_basin, scales = "free_y", nrow = 1),
   nrow = 2
 )
 ```
@@ -303,7 +287,7 @@ gridExtra::grid.arrange(
 
 ### 4.3 Map of N & P pressure scores by BHI region {-}
 
-```{r nutrient load pressure on map, results = "show", fig.width = 9.5}
+```{r load spatial info for nutrient load presures maps}
 source(here::here("R", "spatial.R"))
 
 bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
@@ -318,22 +302,54 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) 
 
-cols <- colorRampPalette(c("royalblue", "springgreen", "yellow", "red"))(10)
+cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+```
 
+
+```{r nitrogen nutrient load pressures map, results = "show", fig.width = 9.5}
 basemap +
   geom_sf(
     data = left_join(
       bhi_rgn_simple,
       po_nload %>%
         select(region_id, year, n_score) %>% 
-        tidyr::pivot_wider(names_from = "year", names_prefix = "yr", values_from = "n_score"),
+        filter(year %in% seq(1997, 2017, by = 2)),
+      # %>% 
+      #   tidyr::pivot_wider(names_from = "year", names_prefix = "yr", values_from = "n_score"),
       by = "region_id"
     ),
-    mapping = aes(fill = yr2017)
+    mapping = aes(fill = n_score),
+    alpha = 0.8
   ) +
-  scale_fill_gradientn(mid = "thistle", midpoint = 0.65, limits = c(0.45, 25))
+  scale_fill_gradientn(
+    colors = rev(cols), 
+    values = c(0, 10^(-7), 0.3, 0.65, 0.8, 1), 
+    limits = c(0, 1)
+  ) +
+  facet_wrap(~year)
+```
 
-
+```{r phosphorus nutrient load pressures map, results = "show", fig.width = 9.5}
+basemap +
+  geom_sf(
+    data = left_join(
+      bhi_rgn_simple,
+      po_pload %>%
+        select(region_id, year, p_score) %>% 
+        filter(year %in% seq(1997, 2017, by = 2)),
+      # %>% 
+      #   tidyr::pivot_wider(names_from = "year", names_prefix = "yr", values_from = "n_score"),
+      by = "region_id"
+    ),
+    mapping = aes(fill = p_score),
+    alpha = 0.8
+  ) +
+  scale_fill_gradientn(
+    colors = rev(cols), 
+    values = c(0, 10^(-7), 0.3, 0.65, 0.8, 1), 
+    limits = c(0, 1)
+  ) +
+  facet_wrap(~year)
 ```
 
 

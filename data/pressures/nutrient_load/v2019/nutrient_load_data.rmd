@@ -60,15 +60,17 @@ newcolnames <- str_split(str_split(mai_txt, "\n")[[1]][1], "(?<=[a-z])  +")[[1]]
   str_to_lower()
 
 mai_tab <- tidyr::separate(mai_tab, col = "alldata", into = newcolnames, sep = "(?<=[a-z0-9])  +") %>% 
+  rename(baltic_sea_basin = baltic_sea_subbasin) %>% 
   mutate(
-    baltic_sea_subbasin = str_extract(baltic_sea_subbasin, "[A-Z].*"),
+    baltic_sea_basin = str_extract(baltic_sea_basin, "[A-Z].*"),
     total_nitrogen_tonnes = str_remove(total_nitrogen_tonnes, ","),
     total_phosphorus_tonnes = str_remove(total_phosphorus_tonnes, ",")
   ) %>% 
    mutate(
     total_nitrogen_tonnes = as.numeric(total_nitrogen_tonnes),
     total_phosphorus_tonnes = as.numeric(total_phosphorus_tonnes)
-  )
+  ) %>% 
+  filter(baltic_sea_basin != "Baltic Sea") 
 ```
 
 
