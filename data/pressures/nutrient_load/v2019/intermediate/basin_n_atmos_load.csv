@@ -1,208 +1,162 @@
-year,basin_code,input,input_tonnes,baltic_sea_subbasin
-1995,ARC,9,9000,Archipelago Sea
-1995,BAP,164,164000,Baltic Proper
-1995,BOB,11.3,11300,Bothnian Bay
-1995,BOS,25.2,25200,Bothnian Sea
-1995,GUF,19.9,19900,Gulf of Finland
-1995,GUR,12.6,12600,Gulf of Riga
-1995,KAT,25.4,25400,Kattegat
-1995,SOU,3.2,3200,The Sound
-1995,WEB,26.5,26500,Western Baltic
-1996,ARC,9.5,9500,Archipelago Sea
-1996,BAP,166,166000,Baltic Proper
-1996,BOB,9.5,9500,Bothnian Bay
-1996,BOS,24,24000,Bothnian Sea
-1996,GUF,20.4,20400,Gulf of Finland
-1996,GUR,13,13000,Gulf of Riga
-1996,KAT,24.7,24700,Kattegat
-1996,SOU,2.9,2900,The Sound
-1996,WEB,24.5,24500,Western Baltic
-1997,ARC,7.2,7200,Archipelago Sea
-1997,BAP,145,145000,Baltic Proper
-1997,BOB,7.8,7800,Bothnian Bay
-1997,BOS,19.9,19900,Bothnian Sea
-1997,GUF,16.5,16500,Gulf of Finland
-1997,GUR,11.3,11300,Gulf of Riga
-1997,KAT,25.7,25700,Kattegat
-1997,SOU,3,3000,The Sound
-1997,WEB,25.2,25200,Western Baltic
-1998,ARC,9,9000,Archipelago Sea
-1998,BAP,178,178000,Baltic Proper
-1998,BOB,11.3,11300,Bothnian Bay
-1998,BOS,25.1,25100,Bothnian Sea
-1998,GUF,19.7,19700,Gulf of Finland
-1998,GUR,12.8,12800,Gulf of Riga
-1998,KAT,27.5,27500,Kattegat
-1998,SOU,3.6,3600,The Sound
-1998,WEB,31.1,31100,Western Baltic
-1999,ARC,9.5,9500,Archipelago Sea
-1999,BAP,169,169000,Baltic Proper
-1999,BOB,11.2,11200,Bothnian Bay
-1999,BOS,26.1,26100,Bothnian Sea
-1999,GUF,19.1,19100,Gulf of Finland
-1999,GUR,12.6,12600,Gulf of Riga
-1999,KAT,31.2,31200,Kattegat
-1999,SOU,3.2,3200,The Sound
-1999,WEB,27.4,27400,Western Baltic
-2000,ARC,10.1,10100,Archipelago Sea
-2000,BAP,171,171000,Baltic Proper
-2000,BOB,12.7,12700,Bothnian Bay
-2000,BOS,30.5,30500,Bothnian Sea
-2000,GUF,19.3,19300,Gulf of Finland
-2000,GUR,12.4,12400,Gulf of Riga
-2000,KAT,31.9,31900,Kattegat
-2000,SOU,3.5,3500,The Sound
-2000,WEB,29.1,29100,Western Baltic
-2001,ARC,8.6,8600,Archipelago Sea
-2001,BAP,162,162000,Baltic Proper
-2001,BOB,10,10000,Bothnian Bay
-2001,BOS,23.2,23200,Bothnian Sea
-2001,GUF,17.5,17500,Gulf of Finland
-2001,GUR,12,12000,Gulf of Riga
-2001,KAT,26.8,26800,Kattegat
-2001,SOU,3.2,3200,The Sound
-2001,WEB,26.7,26700,Western Baltic
-2002,ARC,7,7000,Archipelago Sea
-2002,BAP,151,151000,Baltic Proper
-2002,BOB,8.1,8100,Bothnian Bay
-2002,BOS,18.9,18900,Bothnian Sea
-2002,GUF,15.1,15100,Gulf of Finland
-2002,GUR,10.1,10100,Gulf of Riga
-2002,KAT,24.6,24600,Kattegat
-2002,SOU,3,3000,The Sound
-2002,WEB,25.9,25900,Western Baltic
-2003,ARC,7.8,7800,Archipelago Sea
-2003,BAP,144,144000,Baltic Proper
-2003,BOB,9.7,9700,Bothnian Bay
-2003,BOS,22,22000,Bothnian Sea
-2003,GUF,17.5,17500,Gulf of Finland
-2003,GUR,10.6,10600,Gulf of Riga
-2003,KAT,25.6,25600,Kattegat
-2003,SOU,2.9,2900,The Sound
-2003,WEB,24.6,24600,Western Baltic
-2004,ARC,7.1,7100,Archipelago Sea
-2004,BAP,143,143000,Baltic Proper
-2004,BOB,8.4,8400,Bothnian Bay
-2004,BOS,18.2,18200,Bothnian Sea
-2004,GUF,17.3,17300,Gulf of Finland
-2004,GUR,10.8,10800,Gulf of Riga
-2004,KAT,23.9,23900,Kattegat
-2004,SOU,2.9,2900,The Sound
-2004,WEB,26.1,26100,Western Baltic
-2005,ARC,7.3,7300,Archipelago Sea
-2005,BAP,143,143000,Baltic Proper
-2005,BOB,10.5,10500,Bothnian Bay
-2005,BOS,20.9,20900,Bothnian Sea
-2005,GUF,16.4,16400,Gulf of Finland
-2005,GUR,10.6,10600,Gulf of Riga
-2005,KAT,24.7,24700,Kattegat
-2005,SOU,2.7,2700,The Sound
-2005,WEB,24.7,24700,Western Baltic
-2006,ARC,7.9,7900,Archipelago Sea
-2006,BAP,159,159000,Baltic Proper
-2006,BOB,9,9000,Bothnian Bay
-2006,BOS,22.6,22600,Bothnian Sea
-2006,GUF,16.1,16100.000000000002,Gulf of Finland
-2006,GUR,11,11000,Gulf of Riga
-2006,KAT,27.9,27900,Kattegat
-2006,SOU,3.1,3100,The Sound
-2006,WEB,27.5,27500,Western Baltic
-2007,ARC,7.4,7400,Archipelago Sea
-2007,BAP,145,145000,Baltic Proper
-2007,BOB,8.3,8300,Bothnian Bay
-2007,BOS,18.3,18300,Bothnian Sea
-2007,GUF,17.5,17500,Gulf of Finland
-2007,GUR,11.3,11300,Gulf of Riga
-2007,KAT,21.2,21200,Kattegat
-2007,SOU,2.8,2800,The Sound
-2007,WEB,23.3,23300,Western Baltic
-2008,ARC,7.8,7800,Archipelago Sea
-2008,BAP,148,148000,Baltic Proper
-2008,BOB,8.6,8600,Bothnian Bay
-2008,BOS,20.1,20100,Bothnian Sea
-2008,GUF,19.2,19200,Gulf of Finland
-2008,GUR,12,12000,Gulf of Riga
-2008,KAT,23.4,23400,Kattegat
-2008,SOU,2.7,2700,The Sound
-2008,WEB,24.1,24100,Western Baltic
-2009,ARC,6.8,6800,Archipelago Sea
-2009,BAP,134,134000,Baltic Proper
-2009,BOB,7.9,7900,Bothnian Bay
-2009,BOS,18.8,18800,Bothnian Sea
-2009,GUF,14.3,14300,Gulf of Finland
-2009,GUR,9.6,9600,Gulf of Riga
-2009,KAT,23.3,23300,Kattegat
-2009,SOU,2.7,2700,The Sound
-2009,WEB,23.8,23800,Western Baltic
-2010,ARC,7.4,7400,Archipelago Sea
-2010,BAP,144,144000,Baltic Proper
-2010,BOB,9.4,9400,Bothnian Bay
-2010,BOS,21.9,21900,Bothnian Sea
-2010,GUF,16.9,16900,Gulf of Finland
-2010,GUR,10.6,10600,Gulf of Riga
-2010,KAT,20.5,20500,Kattegat
-2010,SOU,2.4,2400,The Sound
-2010,WEB,22.3,22300,Western Baltic
-2011,ARC,7.4,7400,Archipelago Sea
-2011,BAP,139,139000,Baltic Proper
-2011,BOB,8.9,8900,Bothnian Bay
-2011,BOS,20.4,20400,Bothnian Sea
-2011,GUF,16.2,16200,Gulf of Finland
-2011,GUR,10.6,10600,Gulf of Riga
-2011,KAT,23,23000,Kattegat
-2011,SOU,2.6,2600,The Sound
-2011,WEB,23.6,23600,Western Baltic
-2012,ARC,8.5,8500,Archipelago Sea
-2012,BAP,148,148000,Baltic Proper
-2012,BOB,10.1,10100,Bothnian Bay
-2012,BOS,22.5,22500,Bothnian Sea
-2012,GUF,17.6,17600,Gulf of Finland
-2012,GUR,11.7,11700,Gulf of Riga
-2012,KAT,23.7,23700,Kattegat
-2012,SOU,2.7,2700,The Sound
-2012,WEB,23.7,23700,Western Baltic
-2013,ARC,7,7000,Archipelago Sea
-2013,BAP,126,126000,Baltic Proper
-2013,BOB,6.9,6900,Bothnian Bay
-2013,BOS,15.7,15700,Bothnian Sea
-2013,GUF,15.9,15900,Gulf of Finland
-2013,GUR,9.5,9500,Gulf of Riga
-2013,KAT,20,20000,Kattegat
-2013,SOU,2.4,2400,The Sound
-2013,WEB,22.1,22100,Western Baltic
-2014,ARC,6.7,6700,Archipelago Sea
-2014,BAP,133,133000,Baltic Proper
-2014,BOB,8.1,8100,Bothnian Bay
-2014,BOS,19.5,19500,Bothnian Sea
-2014,GUF,14.5,14500,Gulf of Finland
-2014,GUR,9,9000,Gulf of Riga
-2014,KAT,24,24000,Kattegat
-2014,SOU,2.6,2600,The Sound
-2014,WEB,24.3,24300,Western Baltic
-2015,ARC,6.2,6200,Archipelago Sea
-2015,BAP,135,135000,Baltic Proper
-2015,BOB,8.1,8100,Bothnian Bay
-2015,BOS,17.2,17200,Bothnian Sea
-2015,GUF,14.6,14600,Gulf of Finland
-2015,GUR,9.6,9600,Gulf of Riga
-2015,KAT,22.9,22900,Kattegat
-2015,SOU,2.8,2800,The Sound
-2015,WEB,26.1,26100,Western Baltic
-2016,ARC,5.5,5500,Archipelago Sea
-2016,BAP,115,115000,Baltic Proper
-2016,BOB,7.2,7200,Bothnian Bay
-2016,BOS,16.9,16900,Bothnian Sea
-2016,GUF,13.7,13700,Gulf of Finland
-2016,GUR,8,8000,Gulf of Riga
-2016,KAT,20.4,20400,Kattegat
-2016,SOU,2.3,2300,The Sound
-2016,WEB,23.4,23400,Western Baltic
-2017,ARC,5.9,5900,Archipelago Sea
-2017,BAP,128,128000,Baltic Proper
-2017,BOB,7.2,7200,Bothnian Bay
-2017,BOS,16.7,16700,Bothnian Sea
-2017,GUF,13.9,13900,Gulf of Finland
-2017,GUR,9,9000,Gulf of Riga
-2017,KAT,21.3,21300,Kattegat
-2017,SOU,2.6,2600,The Sound
-2017,WEB,23.7,23700,Western Baltic
+year,baltic_sea_basin,input_tonnes
+1995,Baltic Proper,164000
+1995,Bothnian Bay,11300
+1995,Bothnian Sea,34200
+1995,Danish Straits,29700
+1995,Gulf of Finland,19900
+1995,Gulf of Riga,12600
+1995,Kattegat,25400
+1996,Baltic Proper,166000
+1996,Bothnian Bay,9500
+1996,Bothnian Sea,33500
+1996,Danish Straits,27400
+1996,Gulf of Finland,20400
+1996,Gulf of Riga,13000
+1996,Kattegat,24700
+1997,Baltic Proper,145000
+1997,Bothnian Bay,7800
+1997,Bothnian Sea,27100
+1997,Danish Straits,28200
+1997,Gulf of Finland,16500
+1997,Gulf of Riga,11300
+1997,Kattegat,25700
+1998,Baltic Proper,178000
+1998,Bothnian Bay,11300
+1998,Bothnian Sea,34100
+1998,Danish Straits,34700
+1998,Gulf of Finland,19700
+1998,Gulf of Riga,12800
+1998,Kattegat,27500
+1999,Baltic Proper,169000
+1999,Bothnian Bay,11200
+1999,Bothnian Sea,35600
+1999,Danish Straits,30600
+1999,Gulf of Finland,19100
+1999,Gulf of Riga,12600
+1999,Kattegat,31200
+2000,Baltic Proper,171000
+2000,Bothnian Bay,12700
+2000,Bothnian Sea,40600
+2000,Danish Straits,32600
+2000,Gulf of Finland,19300
+2000,Gulf of Riga,12400
+2000,Kattegat,31900
+2001,Baltic Proper,162000
+2001,Bothnian Bay,10000
+2001,Bothnian Sea,31800
+2001,Danish Straits,29900
+2001,Gulf of Finland,17500
+2001,Gulf of Riga,12000
+2001,Kattegat,26800
+2002,Baltic Proper,151000
+2002,Bothnian Bay,8100
+2002,Bothnian Sea,25900
+2002,Danish Straits,28900
+2002,Gulf of Finland,15100
+2002,Gulf of Riga,10100
+2002,Kattegat,24600
+2003,Baltic Proper,144000
+2003,Bothnian Bay,9700
+2003,Bothnian Sea,29800
+2003,Danish Straits,27500
+2003,Gulf of Finland,17500
+2003,Gulf of Riga,10600
+2003,Kattegat,25600
+2004,Baltic Proper,143000
+2004,Bothnian Bay,8400
+2004,Bothnian Sea,25300
+2004,Danish Straits,29000
+2004,Gulf of Finland,17300
+2004,Gulf of Riga,10800
+2004,Kattegat,23900
+2005,Baltic Proper,143000
+2005,Bothnian Bay,10500
+2005,Bothnian Sea,28200
+2005,Danish Straits,27400
+2005,Gulf of Finland,16400
+2005,Gulf of Riga,10600
+2005,Kattegat,24700
+2006,Baltic Proper,159000
+2006,Bothnian Bay,9000
+2006,Bothnian Sea,30500
+2006,Danish Straits,30600
+2006,Gulf of Finland,16100.000000000002
+2006,Gulf of Riga,11000
+2006,Kattegat,27900
+2007,Baltic Proper,145000
+2007,Bothnian Bay,8300
+2007,Bothnian Sea,25700
+2007,Danish Straits,26100
+2007,Gulf of Finland,17500
+2007,Gulf of Riga,11300
+2007,Kattegat,21200
+2008,Baltic Proper,148000
+2008,Bothnian Bay,8600
+2008,Bothnian Sea,27900
+2008,Danish Straits,26800
+2008,Gulf of Finland,19200
+2008,Gulf of Riga,12000
+2008,Kattegat,23400
+2009,Baltic Proper,134000
+2009,Bothnian Bay,7900
+2009,Bothnian Sea,25600
+2009,Danish Straits,26500
+2009,Gulf of Finland,14300
+2009,Gulf of Riga,9600
+2009,Kattegat,23300
+2010,Baltic Proper,144000
+2010,Bothnian Bay,9400
+2010,Bothnian Sea,29300
+2010,Danish Straits,24700
+2010,Gulf of Finland,16900
+2010,Gulf of Riga,10600
+2010,Kattegat,20500
+2011,Baltic Proper,139000
+2011,Bothnian Bay,8900
+2011,Bothnian Sea,27800
+2011,Danish Straits,26200
+2011,Gulf of Finland,16200
+2011,Gulf of Riga,10600
+2011,Kattegat,23000
+2012,Baltic Proper,148000
+2012,Bothnian Bay,10100
+2012,Bothnian Sea,31000
+2012,Danish Straits,26400
+2012,Gulf of Finland,17600
+2012,Gulf of Riga,11700
+2012,Kattegat,23700
+2013,Baltic Proper,126000
+2013,Bothnian Bay,6900
+2013,Bothnian Sea,22700
+2013,Danish Straits,24500
+2013,Gulf of Finland,15900
+2013,Gulf of Riga,9500
+2013,Kattegat,20000
+2014,Baltic Proper,133000
+2014,Bothnian Bay,8100
+2014,Bothnian Sea,26200
+2014,Danish Straits,26900
+2014,Gulf of Finland,14500
+2014,Gulf of Riga,9000
+2014,Kattegat,24000
+2015,Baltic Proper,135000
+2015,Bothnian Bay,8100
+2015,Bothnian Sea,23400
+2015,Danish Straits,28900
+2015,Gulf of Finland,14600
+2015,Gulf of Riga,9600
+2015,Kattegat,22900
+2016,Baltic Proper,115000
+2016,Bothnian Bay,7200
+2016,Bothnian Sea,22400
+2016,Danish Straits,25700
+2016,Gulf of Finland,13700
+2016,Gulf of Riga,8000
+2016,Kattegat,20400
+2017,Baltic Proper,128000
+2017,Bothnian Bay,7200
+2017,Bothnian Sea,22600
+2017,Danish Straits,26300
+2017,Gulf of Finland,13900
+2017,Gulf of Riga,9000
+2017,Kattegat,21300
