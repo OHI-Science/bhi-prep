@@ -130,7 +130,7 @@ colnames(atmos_n_tab) <- "alldata"
 
 newcolnames <- str_split(str_split(atmos_n_txt, "\n")[[1]][3], "(?<=[a-zA-Z])  +")[[1]] %>% 
   str_remove_all(" ")
-newcolnames <- c("year", newcolnames)
+newcolnames <- c("year", newcolnames, "BAS")
 
 atmos_n_tab <- tidyr::separate(atmos_n_tab, col = "alldata", into = newcolnames, sep = "(?<=[a-z0-9])  +") %>% 
   mutate_all(as.numeric)
@@ -186,21 +186,29 @@ p_normalized <- p_normalized %>%
 
 ## codes from figure 1 page 5 of pdf containing the input and flow data                                               
 basinsdf <- tibble(
-  baltic_sea_subbasin = c(
+  baltic_sea_basin = c(
     "Kattegat", "Danish Straits", "Baltic Proper", "Bothnian Sea", 
-    "Bothnian Bay", "Gulf of Riga", "Gulf of Finland", "Baltic Sea"
+    "Bothnian Bay", "Gulf of Riga", "Gulf of Finland"
   ),
   basin_code = c(
     "KAT", "DS", "BAP", "BOS",
-    "BOB", "GUR", "GUF", "BAS"
+    "BOB", "GUR", "GUF"
   )
 )
-n_normalized <- left_join(n_normalized, basinsdf, by = "basin_code")
-p_normalized <- left_join(p_normalized, basinsdf, by = "basin_code")
+n_normalized <- left_join(
+  filter(n_normalized, basin_code != "BAS"), 
+  basinsdf, 
+  by = "basin_code"
+)
+p_normalized <- left_join(
+  filter(p_normalized, basin_code != "BAS"), 
+  basinsdf, 
+  by = "basin_code"
+)
 
 
 ## wrangle atmospheric N deposition to match basin codes with subbasins
-## codes from figure 4 page 8 of pdf containing the atmospheric nitrogen data                                               
+## codes from figure 4 page 8 of pdf containing the atmospheric nitrogen data   
 basinsdf <- tibble(
   baltic_sea_subbasin = c(
     "Archipelago Sea", "Baltic Proper", "Bothnian Bay", "Bothnian Sea", 
@@ -209,18 +217,25 @@ basinsdf <- tibble(
   basin_code = c(
     "ARC", "BAP", "BOB", "BOS",
     "GUF", "GUR", "KAT", "SOU", "WEB"
+  ),
+  baltic_sea_basin = c(
+    "Bothnian Sea", "Baltic Proper", "Bothnian Bay", "Bothnian Sea", 
+    "Gulf of Finland", "Gulf of Riga", "Kattegat", "Danish Straits", "Danish Straits"
   )
 )
 
+## but need to aggregate to match the MAI and waterborne inputs spatial units...
 atmos_n_tab <- atmos_n_tab %>% 
   tidyr::pivot_longer(
     cols = matches("^[A-Z]{3}$"),
     names_to = "basin_code", 
     values_to = "input"
   ) %>% 
-  mutate(input_tonnes = input*1000)
-
-atmos_n_tab <- left_join(atmos_n_tab, basinsdf, by = "basin_code")
+  mutate(input_tonnes = input*1000) %>% 
+  filter(basin_code != "BAS") %>% 
+  left_join(basinsdf, by = "basin_code") %>% 
+  group_by(year, baltic_sea_basin) %>% 
+  summarise(input_tonnes = sum(input_tonnes))
 ```
 
 
