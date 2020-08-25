@@ -1,14 +1,18 @@
 
 <!-- GOAL_DATA.RMD -->
 
-```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
+```{r GOAL data preamble, echo = FALSE, include = FALSE, error = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "asis", fig.width = 9.5, fig.height = 6)
 source(here::here("R", "setup.R"))
+source(here::here("R", "spatial.R"))
 ```
 
 ### 2.1 Datasets with Sources
 <br/>
 
-**DATASET NAME/VARIABLE**  
+#### 2.1.1 DATA NAME/VARIABLE {-}
+
+**DATASET SUBSET/SUBGROUP NAME/VARIABLE**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/ -->
 
 ```{r echo = FALSE, results = "asis"}
@@ -29,7 +33,7 @@ knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded D
 
 ### 2.2 Centralization & Normalization
 
-```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
+```{r SUBGOAL load raw data, echo = TRUE, message = FALSE, warning = FALSE, results = "hide"}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "GOAL/OR/SUBGOAL")
 ```
@@ -53,6 +57,17 @@ dir_rawdata <- file.path(dir_B, "Goals", "GOAL/OR/SUBGOAL")
 
 #### 2.3.3 Map
 
+```{r GOAL basemap to be used in spatial plotting, echo = TRUE}
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+## make larger discrete color palette
+pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(18)
+```
+
 
 <!-- GOAL_PREP.RMD -->
 
@@ -69,20 +84,20 @@ output:
 <br>
 <br>
 
-```{r preamble prep, message = FALSE}
-loc <- here::here("prep", "GOAL", "SUBGOAL")
-
-source(here::here("R", "setup.R"))
+```{r SUBGOAL preamble prep, message = FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
+source(here::here("R", "setup.R"))
 
+loc <- here::here("prep", "GOAL", "SUBGOAL")
 bkgd_path <- here::here("supplement", "goal_summaries", "GOALCODE.Rmd")
 data_path <- here::here("data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
 refs_path <- file.path(loc, "GOALCODE_references.Rmd")
+# file.exists(c(bkgd_path, data_path, refs_path))
 ```
 
 ## 1. Background
 
-```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```{r SUBGOAL background, child = bkgd_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
@@ -95,12 +110,11 @@ This prep document is used to generate and explore the following data layers:
 - `LAYER2_bhi2019.csv` 
 - `LAYER3_bhi2019.csv` 
 
-These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermediate` are intermediate datasets: `DATASETINTEMED1.csv` and `DATASETINTEMED2.csv`. All these are derived from or informed by the raw datasets from RAW DATA SOURCES.
+These are saved to the `layers` folder. Saved to `data/GOAL/v2019/intermediate` are intermediate datasets: `DATASETINTEMED1.csv` and `DATASETINTEMED2.csv`. All these are derived from or informed by the raw datasets from RAW DATA SOURCES.
 
 <br>
 
-<!-- ## 2. Data --- header in the child  document -->
-```{r Data, child = data_path, results = "asis", echo = FALSE}
+```{r SUBGOAL prep load data, child = data_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
@@ -113,52 +127,8 @@ These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermed
 
 ### 4.1 Map
 
-```{r SOME MAAP, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-library(leaflet)
-source(here::here("R", "spatial.R"))
-regions_shape()
+```{r SOME MAP, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
 
-## join datalayers with simplified spatial data for mapping
-plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
-  sf::st_as_sf() %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, region_id = BHI_ID, Area_km2) %>% 
-  left_join(
-    DATALAYERS,
-    by = "region_id"
-  )
-  
-pal <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
-
-## create map
-leaflet(data = plotshp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5) %>% 
-  addMapPane("popup", zIndex = 450) %>% 
-  
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palProd(DATALAYER),
-    group = "GROUPNAME"s
-  ) %>% 
-  
-  ## layers controls, popup layer, and formatting
-  addLayersControl(
-    baseGroups = c(
-      BASEGROUPS
-    ),
-    options = layersControlOptions(collapsed = FALSE)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      plotshp$Name, "</h5>",
-      "<h5><strong>", "BHI Region ID:", "</strong>",
-      plotshp$region_id, "</h5>"
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    options = pathOptions(pane = "popup")
-  )
 ```
 
 <br>
@@ -169,5 +139,5 @@ leaflet(data = plotshp) %>%
 
 ## 6. References
 
-```{r References, child = refs_path, results = "asis", echo = FALSE}
+```{r SUBGOAL references, child = refs_path, results = "asis", echo = FALSE}
 ```
