@@ -22,8 +22,8 @@ regions_shape <- function(sp_dir = file.path(dirname(dir_B), "Shapefiles"), fold
     # "mpas_shapefile", 
     # "BHI_shapefile_25km_buffer",
     #"HELCOM_subbasins_holasbasins",
-    "BHI_shapefile_corrected", 
-    "ICES_areas"
+    "BHI_shapefile_corrected"
+   # "ICES_areas"
   )
   
   for(i in foldernames){
@@ -80,9 +80,9 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     message("loading BHI regions w/ HELCOM ID, and ICES shapefiles to global environment")
     regions_shape(sp_dir = rgn_shps_loc)
   }
-  if(is.na(st_crs(ICES_rgns_shp)$epsg) || st_crs(ICES_rgns_shp)$epsg != 4326){
-    ICES_rgns_shp <- st_transform(ICES_rgns_shp, 4326)
-  }
+  # if(is.na(st_crs(ICES_rgns_shp)$epsg) || st_crs(ICES_rgns_shp)$epsg != 4326){
+  #   ICES_rgns_shp <- st_transform(ICES_rgns_shp, 4326)
+  # }
   if("Bothian Sea" %in% unique(BHI_rgns_shp$Subbasin)){
     BHI_rgns_shp <- BHI_rgns_shp %>% 
       mutate(Subbasin = as.character(Subbasin)) %>% 
@@ -114,7 +114,7 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     ## also account for a few other stations specifically
     data_rgns_joined <- data_sf0 %>% 
       st_join(rename(BHI_rgns_shp, Area_km2_BHI = Area_km2)) %>% 
-      st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
+      # st_join(rename(ICES_rgns_shp, Area_km2_ICES = Area_km2)) %>% 
       mutate(in_25km_buffer = ifelse(!is.na(BHI_ID), FALSE, NA))
     
     if(!is.null(buffer_shp)){
@@ -166,7 +166,7 @@ join_rgns_info <- function(dataset, helcomID_col = "helcom_id", country_col = "c
     if(!return_spatial){
       data_rgns_joined <- data_rgns_joined %>% 
         st_drop_geometry() %>% 
-        select(-Area_km2_BHI, -Area_km2_ICES) %>% 
+        # select(-Area_km2_BHI, -Area_km2_ICES) %>% 
         mutate(Subbasin = as.character(Subbasin), HELCOM_ID = as.character(HELCOM_ID))
     }
   
