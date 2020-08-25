@@ -1,63 +1,5 @@
-<!-- GOAL_DATA.RMD -->
-
-```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
-source(here::here("R", "setup.R"))
-```
-
-### 2.1 Datasets with Sources
-<br/>
-
-**DATASET NAME/VARIABLE**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/ -->
-
-```{r echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("[option]:", "[specification]"), 
-  c("[option]:", "[specification]")))
-
-colnames(tab) <- c("Option", "Specification")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [ABC database](URL/LINK) <br/> Downloaded DATE by NAME")
-```
-
 ---
-
-<br/>
-
-
-### 2.2 Centralization & Normalization
-
-```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
-## root location of the raw data
-dir_rawdata <- file.path(dir_B, "Goals", "GOAL/OR/SUBGOAL")
-```
-
-#### 2.2.1 Rename Fields/Variables
-
-#### 2.2.2 Standardize Units
-
-#### 2.2.3 Save to BHI Database
-
-<br/>
-
-### 2.3 Initial Data Exploration
-
-#### 2.3.1 Compare versus Previous Years Data
-
-#### 2.3.2 Timeseries Plots
-
-```{r CODE CHUNK WITH FIGURE OR GRAPH, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
-```
-
-#### 2.3.3 Map
-
-
-<!-- GOAL_PREP.RMD -->
-
-
----
-title: "SUBGOAL - GOAL Subgoal data prep"
+title: "Tourism & Recreation goal data prep"
 output:
   html_document:
     toc: true
@@ -69,19 +11,19 @@ output:
 <br>
 
 ```{r preamble prep, message = FALSE}
-loc <- here::here("prep", "GOAL", "SUBGOAL")
+loc <- here::here("prep", "TR")
 
 source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 
-bkgd_path <- here::here("supplement", "goal_summaries", "GOALCODE.Rmd")
-data_path <- here::here("data", "GOAL", ["SUBGOAL"], version_year, "GOALCODE_data.rmd")
-refs_path <- file.path(loc, "GOALCODE_references.Rmd")
+bkgd_path <- here::here("supplement", "goal_summaries", "TR.Rmd")
+data_path <- here::here("data", "TR", version_year, "tr_data.rmd")
+refs_path <- file.path(loc, "tr_references.Rmd")
 ```
 
 ## 1. Background
 
-```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```{r tr goal background, child = bkgd_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
@@ -90,83 +32,86 @@ refs_path <- file.path(loc, "GOALCODE_references.Rmd")
 
 This prep document is used to generate and explore the following data layers:
 
-- `LAYER1_bhi2019.csv` 
-- `LAYER2_bhi2019.csv` 
-- `LAYER3_bhi2019.csv` 
+- `tr_accommodations_bhi2019.csv` 
+- `tr_coastal_tourism_gva_bhi2019.csv` 
 
-These are saved to the `layers/v2019` folder. Saved to `data/GOAL/v2019/intermediate` are intermediate datasets: `DATASETINTEMED1.csv` and `DATASETINTEMED2.csv`. All these are derived from or informed by the raw datasets from RAW DATA SOURCES.
+These are saved to the `layers` folder. These are derived from or informed by the raw datasets from Eurostat and coastal tourism revenue data from the EU Blue Growth 2020 Report.
 
 <br>
 
-<!-- ## 2. Data --- header in the child  document -->
-```{r Data, child = data_path, results = "asis", echo = FALSE}
+```{r tr goal data, child = data_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
+#### 3.1 Save Coastal Tourism Data Layer
+
+Already wrangled and combined tourism datasets in `tr_data.rmd` so just need to visualize to plan for status calculation and reference points...
+
+```{r wrangle and save coastal tourism data layers}
+## already wrangled and combined tourism datasets in tr_data.rmd
+## read data saved in data intermediate folder
+coastal_tourism_value <- read_csv(file.path(dir_prep, "data", "TR", version_year, "intermediate", "tourism_data_combined.csv"))
+
+
+## join with BHI regions
+bhi_tourism_value <- coastal_tourism_value %>% 
+  rename(eez = country) %>% 
+  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")), by = "eez") %>% 
+  select(region_id, year, cntry_tourism_gva = coastal_tour_country_gva_estimate)
+
+bhi_tourism_accomodations <- coastal_tourism_value %>% 
+  rename(eez = country) %>% 
+  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")), by = "eez") %>% 
+  select(region_id, year, accom_per_area = avg_accomm_per_area)
+
+
+## save TR data layers
+write_csv(bhi_tourism_value, file.path(dir_layers, "tr_coastal_tourism_gva_bhi2019.csv"))
+write_csv(bhi_tourism_accomodations, file.path(dir_layers, "tr_accommodations_bhi2019.csv"))
+```
 <br/>
+
 
 ## 4. Visualizing Data Layers
 
-### 4.1 Map
+#### 4.1 Timeseries Plots: check regional tourism accommodations time series
 
-```{r SOME MAAP, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5}
-library(leaflet)
-source(here::here("R", "spatial.R"))
-regions_shape()
-
-## join datalayers with simplified spatial data for mapping
-plotshp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% 
-  sf::st_as_sf() %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, region_id = BHI_ID, Area_km2) %>% 
-  left_join(
-    DATALAYERS,
-    by = "region_id"
-  )
-  
-pal <- leaflet::colorNumeric("RdYlBu", log10(seq(1, 5, 0.01)), "#fcfcfd", reverse = TRUE)
-
-## create map
-leaflet(data = plotshp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5) %>% 
-  addMapPane("popup", zIndex = 450) %>% 
-  
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.95,
-    fillColor = ~palProd(DATALAYER),
-    group = "GROUPNAME"s
-  ) %>% 
-  
-  ## layers controls, popup layer, and formatting
-  addLayersControl(
-    baseGroups = c(
-      BASEGROUPS
-    ),
-    options = layersControlOptions(collapsed = FALSE)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      plotshp$Name, "</h5>",
-      "<h5><strong>", "BHI Region ID:", "</strong>",
-      plotshp$region_id, "</h5>"
-    ),
-    fillOpacity = 0,
-    stroke = FALSE,
-    options = pathOptions(pane = "popup")
-  )
+```{r plot and check regional employment time series, results = "show", fig.width = 9.5, fig.height = 4}
+gridExtra::grid.arrange(
+  ggplot(coastal_tourism_value) +
+    geom_col(aes(x = year, y = avg_accomm_per_area), size = 0.8) +
+    facet_wrap(~country, ncol = 2) +
+    labs(x = NULL, y = "Accommodations per sq. km \n"),
+  ggplot(coastal_tourism_value) +
+    geom_col(aes(x = year, y = coastal_tour_country_gva_estimate), size = 0.8) +
+    facet_wrap(~country, ncol = 2) +
+    labs(x = NULL, y = "Coastal Tourism Revenue (GVA, M€) \n"),
+  ggplot(coastal_tourism_value) +
+    geom_col(aes(x = year, y = tourism_gva_per_accom), size = 0.8) +
+    facet_wrap(~country, ncol = 2) +
+    labs(x = NULL, y = "Coastal Tourism Revenue relative to \nAccommodations Density (M€/Nights/Sq.km) \n"),
+  nrow = 1
+)
 ```
 
 <br>
 
 ## 5. Considerations for `BHI3.0`
 
+An interesting [report form 2008 about how tourism and recreation industries in the Baltic Sea area are affected by the state of the marine environment](https://www.naturvardsverket.se/Documents/publikationer/978-91-620-5878-4.pdf). May contain interesting information relevant to out Tourism & recreation goal, particularly if we want to incorporate in the future some kind of sustainability measure.
+
+The [Baltic Sea Tourism Center](https://bstc.eu/) may also be a good source of information, to start upgrading the BHI TR goal.
+
+Also the World Economic Forum, [Travel and Tourism competitiveness reports](https://www.weforum.org/reports?utf8=%E2%9C%93&query=travel+and+tourism+competitiveness) contain many key preformance indicators, including and environmental sustainability indicator (though these are not specific to coastal tourism).
+
 <br>
 
 ## 6. References
 
-```{r References, child = refs_path, results = "asis", echo = FALSE}
+```{r tr goal references, child = refs_path, results = "asis", echo = FALSE}
 ```
+
+<br>

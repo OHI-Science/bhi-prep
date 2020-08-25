@@ -1,11 +1,13 @@
 
-```{r tr data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r tr data preamble, echo = TRUE, message = FALSE, warning = FALSE}
 source(here::here("R", "setup.R"))
 source(here::here("R", "spatial.R"))
 
 ## root location of the raw data
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "TR")
+
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 ```
 
 
@@ -69,6 +71,7 @@ As part of EU's Blue Growth strategy, the [coastal and maritime tourism sector](
 
 The [Study in support of policy measures for maritime and coastal tourism at EU level](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/docs/body/study-maritime-and-coastal-tourism_en.pdf) (Page 157) states that the Nordic Countries sea basins tourism has a potential to grow annually by 2.2 % until 2020. We therefore keep the target to an annual growth of 2.2%.
 
+<br>
 
 ### 2.2 Centralization & Normalization {-}
 
@@ -111,7 +114,7 @@ Steps in the spatial wrangling code below:
 - spatially intersect NUTS2 and NUTS3 to match level 3 with level 2 codes
 - calculate 'coastal area in nuts2 region' column based on coastal types of their nested nuts3 regions
 
-```{r NUTS polygons}
+```{r NUTS polygons, warning = FALSE, message = FALSE}
 ## NUTS2 shapefiles because tourism is only provided at NUTS2 level
 ## NUTS3 because Coastal regions are regions defined at NUTS level 3
 ## https://ec.europa.eu/eurostat/statistics-explained/index.php/Archive:Coastal_region_statistics
@@ -164,7 +167,7 @@ nuts2and3 <- nuts2and3 %>%
 # nrow(distinct(nuts2and3, nuts3)) == nrow(distinct(nuts3_2016_shp, nuts3))
 ```
 
-```{r bhi 25km inland buffer and mapping spatial datasets, results = "show", fig.width = 9.5, fig.height = 9}
+```{r bhi 25km inland buffer and mapping spatial datasets, warning = FALSE, message = FALSE}
 ## create some spatial objects for making maps later
 ## 25km inland buffer for BHI regions
 buffer_25km_inland <- st_read(
@@ -183,8 +186,9 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
   theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
   scale_x_continuous(limit = c(4, 32)) +
   scale_y_continuous(limit = c(53.5, 66)) 
+```
 
-
+```{r nuts 2 and 3 regions with coastal designations, results = "show", fig.width = 9.5, fig.height = 9, warning = FALSE, message = FALSE}
 ## make a map showing intersection of nuts polygons and coastal vs noncoastal
 basemap + 
   geom_sf(
@@ -201,7 +205,7 @@ basemap +
   ) +
   labs(subtitle = paste(
     "The darker solid lines outline NUTS2 regions,",
-    "finer light grey lines show NUTS3 boundaries within NUTS2 regions,",
+    "finer light grey lines show NUTS3 boundaries within NUTS2 regions,\n",
     "and the different shades of blue fill indicate coastal vs non-coastal NUTS3 designations."
   ))
 ```
@@ -264,10 +268,10 @@ tourism_accommod_clean <- tourism_accommod %>%
   )
 
 ## check dataflags
-unique(tourism_accommod_clean$flag_notes)
-filter(tourism_accommod_clean, flag_notes == "low reliability") # no Baltic countries
-filter(tourism_accommod_clean, flag_notes == "break in timeseries and low reliability") # none
-filter(tourism_accommod_clean, flag_notes == "break in timeseries") # not such a concern...?
+# unique(tourism_accommod_clean$flag_notes)
+# filter(tourism_accommod_clean, flag_notes == "low reliability") # no Baltic countries
+# filter(tourism_accommod_clean, flag_notes == "break in timeseries and low reliability") # none
+# filter(tourism_accommod_clean, flag_notes == "break in timeseries") # not such a concern...?
 
 ## remove flags_notes
 tourism_accommod_clean <- tourism_accommod_clean %>% 
@@ -296,10 +300,10 @@ tourism_accommod_coastal_clean <- tourism_accommod_coastal %>%
   )
 
 ## check dataflags
-unique(tourism_accommod_coastal_clean$flag_notes)
-filter(tourism_accommod_coastal_clean, flag_notes == "low reliability") # no Baltic countries
-filter(tourism_accommod_coastal_clean, flag_notes == "break in timeseries and low reliability") # none
-filter(tourism_accommod_coastal_clean, flag_notes == "break in timeseries") # not such a concern...?
+# unique(tourism_accommod_coastal_clean$flag_notes)
+# filter(tourism_accommod_coastal_clean, flag_notes == "low reliability") # no Baltic countries
+# filter(tourism_accommod_coastal_clean, flag_notes == "break in timeseries and low reliability") # none
+# filter(tourism_accommod_coastal_clean, flag_notes == "break in timeseries") # not such a concern...?
 
 ## remove flags_notes
 tourism_accommod_coastal_clean <- tourism_accommod_coastal_clean %>% 
@@ -393,9 +397,8 @@ gridExtra::grid.arrange(
       values = c(0, 0.0001, 0.001, 0.1, 0.3, 0.6, 1),
       limits = c(0, 2.5*10^4)
     ) +
-    labs(fill = "Number of Nights") +
-    theme(legend.position = c(0.15, 0.85)) +
-    ggtitle("Tourism Accommodations per NUTS2 area in 2019"),
+    labs(fill = "Number of Nights", subtitle = "Tourism Accomm. per NUTS2 area 2019") +
+    theme(legend.position = c(0.15, 0.8)),
   basemap + 
     geom_sf(data = tourism_coastal_per_area, aes(fill = tour_2019), size = 0.1, show.legend = FALSE) +
     geom_sf(data = buffer_25k_simple, fill = NA, color = "snow", size = 0.4) +
@@ -404,13 +407,14 @@ gridExtra::grid.arrange(
       values = c(0, 0.0001, 0.001, 0.1, 0.3, 0.6, 1),
       limits = c(0, 2.5*10^4)
     ) +
-    labs(fill = "Number of Nights") +
-    ggtitle("Tourism Coastal Accommodations per Coastal area in 2019"),
+    labs(fill = "Num. Nights", subtitle = "Tourism Coastal Accomm. per Coastal area 2019"),
   nrow = 1
 )
 ## loop through all years to check employment data alignment with reporting regions...
 ```
 
+<br>
+<br>
 
 ```{r intersect relevant NUTS2 polygons and BHI 25km inland buffer, results = "show", fig.width = 9.5, fig.height = 7}
 ## create polygons intersecting NUTS regions and 25km-BHI Buffer
@@ -465,10 +469,10 @@ ggplot(plotdf) +
     position = position_dodge(),
     show.legend = FALSE
   ) +
-  ggrepel::geom_text_repel(aes(x = nuts3, y = accomm_per_area/2, label = txt), segment.color = NA) +
-  facet_wrap(~region_id, scales = "free", ncol = 6) +
+  ggrepel::geom_text_repel(aes(x = nuts3, y = accomm_per_area/2, label = txt), segment.color = NA, size = 2) +
+  facet_wrap(~region_id, scales = "free", ncol = 5) +
   labs(
-    x = "NUTS level 3 Region", 
+    x = "\nNUTS level 3 Region", 
     y = "Accommodations per Area (Nights/Sq. KM)\n", 
     title = "Blue outlines indicates accommodation per area values from coastal data"
   ) +
@@ -546,6 +550,7 @@ for(f in grep(".*csv", list.files(dir_ecodata), value = TRUE)){
 
 **Clean, explore and merge GVA datasets**
 
+
 ```{r merging and exploring eu gva data for tourism goal, results = "show", fig.width = 9.5, fig.height = 6}
 ## estimate coastal tourism GVA at years 2010 to 2018
 eco_data_combined <- rbind(den_gva, est_gva, fin_gva, ger_gva, lat_gva, lit_gva, pol_gva, swe_gva) %>% 
@@ -578,8 +583,8 @@ ggplot(eco_data_combined) +
 ```{r merging eu gva data for tourism goal}
 
 eco_data_combined <- eco_data_combined %>% 
-  ## will actually only keep the coastal tourism categories: accommodations, transport, other expenditure
-  filter(!activity %in% c("Sea and coastal passenger water transport", "Inland passenger water transport")) %>% 
+  ## will actually only keep the coastal tourism categories: accommodations, transport
+  filter(activity %in% c("Accommodation", "Transport")) %>% 
   ## group and aggregate by country
   group_by(country, year) %>% 
   summarize(coastal_tour_country_gva_estimate = sum(coastal_tour_country_gva_estimate, na.rm = TRUE)) %>% 
@@ -606,55 +611,12 @@ coastal_tourism_value <- bhinuts_tourism_coastal %>%
   rename(country = eez) %>% 
   left_join(eco_data_combined, by = c("country", "year")) %>% 
   mutate(tourism_gva_per_accom = coastal_tour_country_gva_estimate/avg_accomm_per_area)
-```
-
-<br>
-
-#### 2.2.4 Save Coastal Tourism Data Layer
-
-```{r save coastal tourism accommodations data layers}
-
-bhi_tourism_value <- coastal_tourism_value %>% 
-  rename(eez = country) %>% 
-  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")), by = "eez") %>% 
-  select(region_id, year, cntry_tourism_gva = coastal_tour_country_gva_estimate)
-
-bhi_tourism_accomodations <- coastal_tourism_value %>% 
-  rename(eez = country) %>% 
-  left_join(readr::read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")), by = "eez") %>% 
-  select(region_id, year, accom_per_area = avg_accomm_per_area)
 
 
-write_csv(bhi_tourism_value, file.path(dir_layers, "tr_coastal_tourism_gva_bhi2019.csv"))
-write_csv(bhi_tourism_accomodations, file.path(dir_layers, "tr_accommodations_bhi2019.csv"))
-```
-
-<br>
-
-### 2.3 Initial Data Exploration
-
-
-#### 2.3.1 Timeseries Plots: check regional tourism accommodations time series
-
-```{r plot and check regional employment time series, results = "show", fig.width = 9.5}
-pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(42)[sample(1:42)]
-
-gridExtra::grid.arrange(
-  ggplot(coastal_tourism_value) +
-    geom_col(aes(x = year, y = avg_accomm_per_area), size = 0.8) +
-    facet_wrap(~country, ncol = 2) +
-    labs(x = NULL, y = "Accommodations per sq. km \n") + 
-    scale_color_manual(values = pal),
-  ggplot(coastal_tourism_value) +
-    geom_col(aes(x = year, y = coastal_tour_country_gva_estimate), size = 0.8) +
-    facet_wrap(~country, ncol = 2) +
-    labs(x = NULL, y = "Coastal Tourism Revenue (GVA, M€) \n") + 
-    scale_color_manual(values = pal),
-  ggplot(coastal_tourism_value) +
-    geom_col(aes(x = year, y = tourism_gva_to_accom), size = 0.8) +
-    facet_wrap(~country, ncol = 2) +
-    labs(x = NULL, y = "Coastal Tourism Revenue relative to Accommodations Density (M€/Nights/Sq.km) \n") + 
-    scale_color_manual(values = pal),
-  nrow = 1
+write_csv(
+  coastal_tourism_value, 
+  file.path(dir_prep, "data", "TR", version_year, "intermediate", "tourism_data_combined.csv")
 )
 ```
+
+<br>
