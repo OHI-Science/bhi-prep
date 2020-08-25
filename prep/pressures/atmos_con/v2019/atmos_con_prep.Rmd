@@ -225,37 +225,20 @@ ggplot(pcb153_rescale1) +
 #### 4.4.1 Apply basin values to BHI regions
 ```{r apply basin values to BHI regions}
 pcb153_rgn <- pcb153_rescale1 %>%
-            full_join(., basin_lookup, by = "subbasin") %>%
-            select(rgn_id, pcb153_normalize)%>%
-            arrange(rgn_id)
-
-pcddf_rgn = pcddf_rescale1 %>%
-            full_join(., bhi_lookup, by = "holas_basin") %>%
-            select(rgn_id, pcddf_normalize)%>%
-            arrange(rgn_id)
-
+  full_join(., basin_lookup, by = "subbasin") %>%
+  select(bhi_id, pcb153_normalize) %>%
+  arrange(bhi_id)
 ```
 
 #### 4.4.2 Plot Pressure layer by BHI regions
 ```{r Plot Pressure layer by BHI regions}
 ggplot(pcb153_rgn)+
-  geom_point(aes(rgn_id,pcb153_normalize), size= 2.5)+
+  geom_point(aes(bhi_id, pcb153_normalize), size= 2.5)+
   ylab("Pressure Value")+
   ylim(0,1)+
    theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
                                 hjust=.5, vjust=.5, face = "plain"))+
   ggtitle("PCB 153 pressure value by BHI regions")
-
-
-
-
-ggplot(pcddf_rgn)+
-  geom_point(aes(rgn_id, pcddf_normalize), size= 2.5) +
- ylab("Pressure Value")+
-  ylim(0,1)+
-   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
-                                hjust=.5, vjust=.5, face = "plain"))+
-  ggtitle("PCDD/F Pressure value by BHI regions")
 
 ```
 
@@ -264,18 +247,13 @@ ggplot(pcddf_rgn)+
 
 #### 4.5.1 Prepare objects
 ```{r prepare object for layers}
-po_atmos_pcb153 = pcb153_rgn %>%
-                  dplyr::rename(pressure_score = pcb153_normalize)
+po_atmos_pcb153 <- pcb153_rgn %>%
+  dplyr::rename(pressure_score = pcb153_normalize)
 
-
-po_atmos_pcddf = pcddf_rgn %>%
-                  dplyr::rename(pressure_score = pcddf_normalize)
 ```
 
 #### 4.5.2 Save objects to layers
 ```{r save objects to layers}
-write.csv(po_atmos_pcb153,file.path(dir_layers,"po_atmos_pcb153_bhi2015.csv"), row.names = FALSE)
-
-write.csv(po_atmos_pcddf,file.path(dir_layers,"po_atmos_pcddf_bhi2015.csv"), row.names = FALSE)
+write.csv(po_atmos_pcb153, file.path(dir_layers,"po_atmos_pcb153_bhi2019.csv"), row.names = FALSE)
 ```
 
