@@ -54,33 +54,8 @@ The MSCE-POP model results were compared with measurements of EMEP monitoring ne
 ### 2.2 Atmospheric deposition of PCDD/Fs on the Baltic Sea
 Data downloaded from the [HELCOM website](https://helcom.fi/baltic-sea-trends/environment-fact-sheets/hazardous-substances/) on 19 August 2020 by Andrea De Cervo. Data are provided on the basin level and extracted from the pdf file. 
 
-**No tables found in the document (investigate furthur on database [EMEP Centre on Emission Inventories and Projections (CEIP)](http://www.ceip.at/).**  
-
-Table 1. Computed annual atmospheric deposition of PCDD/Fs over the six Baltic Sea sub-basins, the whole Baltic Sea (BAS) and normalized deposition to the Baltic Sea (Norm) for period 1990-2015 obtained using emission scenario.
-
-Table 2. Computed contributions by country to annual total deposition of PCDD/Fs to nine Baltic Sea sub- basins for the year 2015 obtained using scenario emissions.
+**No tables found in the document (it is [EMEP Centre on Emission Inventories and Projections (CEIP)](http://www.ceip.at/) who makes the deposition estimations for HELCOM, but we didn't get any response from them, so we will skip the PCDD/Fs layer for now.**  
 
 #### 2.2.1 Additional reference information as provided on the HELCOM website
 **Data Source: EMEP/MSC**
 
-#### 2.2.2 Description of data
-Annual atmospheric deposition fluxes of PCDD/Fs were obtained using the latest version of MSCE-POP model developed at EMEP/MSC-E (Gusev et al., 2005). The latest available official emission data for the HELCOM countries have been used in the model computations. Emissions of PCDD/Fs for each year of this period were officially reported to the UN ECE Secretariat by most of the HELCOM countries. These data are available from the EMEP Centre on Emission Inventories and Projections (CEIP) (http://www.ceip.at/).
- 
- 
-#### 2.2.3 Geographical coverage
-Annual atmospheric deposition fluxes of PCDD/Fs were obtained for the European region.  
-
-#### 2.2.4 Temporal coverage
-Timeseries of annual atmospheric deposition are available for the period 1990 – 2015.  
-
-#### 2.2.5 Methodology and frequency of data collection 
-Atmospheric input and source allocation budgets of PCDD/Fs to the Baltic Sea and its catchment area were computed using the latest version of MSCE-POP model. MSCE-POP is the regional-scale model operating within the EMEP region. This is a three-dimensional Eulerian model which includes processes of emission, advection, turbulent diffusion, wet and dry deposition, degradation, gaseous exchange with underlying surface, and inflow of pollutant into the model domain. Horizontal grid of the model is defined using stereographic projection with spatial resolution 50 km at 60º latitude. The description of EMEP horizontal grid system can be found in the internet (http://www.emep.int/grid/index.html). Vertical structure of the model consists of 15 non-uniform layers defined in the terrain-following s-coordinates and covers almost the whole troposphere. Detailed description of the model can be found in EMEP reports (Gusev et al., 2005) and in the Internet on EMEP web page (http://www.emep.int/) under the link to information on Persistent Organic Pollutants. Meteorological data used in the calculations for 1990-2012 were obtained using MM5 meteorological data preprocessor on the basis of meteorological analysis of European Centre for Medium-Range Weather Forecasts (ECMWF).  
-
-Results of model simulation of atmospheric transport and annual deposition of PCDD/Fs are provided on the regular basis annually two years in arrears on the basis of emission data officially submitted by Parties to CLRTAP Convention.  
-
-#### 2.2.6 Quality information
-**Strength:** annually updated information on atmospheric input of PCDD/Fs to the Baltic Sea and its sub-basins.  
-**Weakness:** uncertainties in officially submitted data on emissions of PCDD/Fs.  
-
-#### 2.2.7 Uncertainty
-The MSCE-POP model results were compared with measurements of EMEP monitoring network [Gusev et al., 2006, Shatalov et al., 2005]. The model was evaluated through the comparison with available measurements during EMEP TFMM meetings held in 2005. It was concluded that the MSCE-POP model is suitable for the evaluation of the long range transboundary transport and deposition of POPs in Europe.  
