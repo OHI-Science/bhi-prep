@@ -1,4 +1,4 @@
-"region_id","assessment_year_red_list","scientific_name","species_group","red_list_category"
+"region_id","year","scientific_name","species_group","red_list_category"
 1,2013,"Abra prismatica","Benthic Invertebrates","VU - Vulnerable"
 1,2013,"Balanus crenatus","Benthic Invertebrates","LC - Least Concern"
 1,2013,"Modiolus modiolus","Benthic Invertebrates","VU - Vulnerable"
