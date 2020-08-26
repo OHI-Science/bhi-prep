@@ -276,6 +276,9 @@ r.status <- mpa_mgmt_with_wt %>%
 #  full_join(r.status_bhi, 
 #            by = 'rgn_id')
 
+# Save status layer
+write_csv(r.status, file.path(dir_layers, 'lsp_status_bhi2019.csv'))
+
 ```
 <br/>
 
@@ -289,7 +292,7 @@ plot_status <- ggplot(status_by_bhiregion, aes(x = rgn_nam, y = status)) +
       x = 'BHI Region', 
       y = 'LSP status')
 
-print(status_by_bhiregion_plot)
+print(plot_status)
 ```
 <br/>
 
@@ -358,7 +361,9 @@ r.trend_by_bhi <- dplyr::select(mpa_mgmt_with_wt, BHI_ID, country, rgn_nam) %>%
   dplyr::select(rgn_id = BHI_ID, 
                 score) %>% 
   mutate(dimension = "trend")
-  
+
+# Save trend layer
+write_csv(r.trend_by_bhi, file.path(dir_layers, 'lsp_trend_bhi2019.csv'))  
 
 ### plot r.status
 trend_plot <- ggplot(r.trend, aes(x = rgn_nam, y = score)) +
