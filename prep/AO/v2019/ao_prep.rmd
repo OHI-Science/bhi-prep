@@ -57,8 +57,8 @@ basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.
 
 This prep document is used to generate and explore the following data layers:
 
+- `ao_stock_status_bhi2019.csv`
 - `ao_stock_slope_bhi2019.csv` 
-- `ao_stock_status_bhi2019.csv` 
 
 These are saved to the `layers` folder. Saved to `data/AO/v2019/intermediate` are intermediate datasets: `ao_merged_rawdata.csv` and `ao_cleaned_cpue.csv`. All these are derived from or informed by the raw datasets from Jens Olsson (goalkeeper).
 
@@ -99,15 +99,22 @@ combined_coastal_fish1 <- combined_coastal_fish %>%
     Subbasin = str_replace(Subbasin, "Estern Gotland Basin", "Eastern Gotland Basin"),
     Subbasin = str_replace(Subbasin, "Mecklenburg Bight", "Bay Of Mecklenburg"),
     Subbasin = str_replace(Subbasin, "Bay Of Mecklenburg", "Bay of Mecklenburg"),
-    Subbasin = str_replace(Subbasin, "Northern Baltic Sea", "Northern Baltic Proper"))
+    Subbasin = str_replace(Subbasin, "Northern Baltic Sea", "Northern Baltic Proper")) %>% 
+  rename(subbasin = Subbasin)
 # need to check if "Archipelago Sea" (Finland) is actually Aland Sea subbasin
 #detach("package:raster", unload=TRUE) 
+
+bhibuffer <- sf::st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"))
 coastalfish_rgns <- join_rgns_info(
   combined_coastal_fish1, helcomID_col = "helcom_id", country_col = "country", 
   latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"), 
   buffer_shp = NULL
 ) 
+
+# Use the basin lookup table for now, as the above function is not working 
+coastalfish_rgns <- combined_coastal_fish1 %>% 
+  full_join(basin_lookup, by = "subbasin")
 ```
 
 <br/>
@@ -118,13 +125,13 @@ source(here::here("R", "spatial.R"))
 regions_shape()
 
 # Remove data points out of the bhi regions
-coastalfish_rgns <- coastalfish_rgns %>% 
-  filter(monitoring.area != "Northern Limfjord" & 
-           monitoring.area != "Skive Fiord and Lovns Broad") %>% 
+coastalfish_rgns1 <- coastalfish_rgns %>% 
+  filter(Monitoring.area != "Northern Limfjord" & 
+           Monitoring.area != "Skive Fiord and Lovns Broad") %>% 
   # assign bhi_id with na value
-  mutate(BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Finbo", 36),
-         BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Jurkalne", 24),
-         BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Præstø Fiord", 12))
+  mutate(bhi_id = replace(bhi_id, is.na(bhi_id) & Monitoring.area == "Finbo", 36),
+         bhi_id = replace(bhi_id, is.na(bhi_id) & Monitoring.area == "Jurkalne", 24),
+         bhi_id = replace(bhi_id, is.na(bhi_id) & Monitoring.area == "Præstø Fiord", 12))
 
 ## make basemap
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
@@ -135,12 +142,12 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 
 bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 
-coastal_fish <- basemap +
+coatal_fish <- basemap +
   geom_sf(data = bhi_rgns_simple, fill = "white", size = 0.2, color = "burlywood") +
   geom_sf(
-    mapping = aes(colour = monitoring.area),
+    mapping = aes(colour = Monitoring.area),
     data = sf::st_as_sf(
-      coastalfish_rgns, 
+      coastalfish_rgns1, 
       coords = c("lon", "lat"), 
       crs = 4326
     ),
@@ -148,6 +155,7 @@ coastal_fish <- basemap +
   ) +
   labs(x = NULL, y = NULL, colour = "Monitoring area") +
   ggtitle("Sampling Locations")
+
 # + theme(legend.position = c(0.9, 0.1)) +
 #  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
 
@@ -178,52 +186,52 @@ Xao = Mean Stock Indicator Value / Reference Point
 ## Number of time series that will contribute to the mean score in each basin
 ## these are the number of GES assessments (across indicators and taxa)
 basin_n_obs <- combined_coastal_fish1 %>% 
-  select(Subbasin) %>%
-  count(Subbasin)
+  dplyr::select(subbasin) %>%
+  count(subbasin)
 
 ## Indicator mean by monitoring area
 monitoring_indicator_mean <- combined_coastal_fish1 %>% 
-  select(
-    Subbasin, Country, Monitoring.area, lat, lon, core_indicator, Status.value.monitoring.location, threshold_value
+  dplyr::select(
+    subbasin, Country, Monitoring.area, lat, lon, core_indicator, Status.value.monitoring.location, threshold_value
     ) %>%
-  group_by(Subbasin, Country, Monitoring.area, lat, lon, core_indicator, threshold_value)%>%
+  group_by(subbasin, Country, Monitoring.area, lat, lon, core_indicator, threshold_value)%>%
   summarise(mean_core_monitoring_score = mean(Status.value.monitoring.location, na.rm=TRUE))%>%
   ungroup()
 
 # Monitoring area score (mean across the two indicators)
 monitoring_mean_score <- monitoring_indicator_mean %>%
-  group_by(Monitoring.area, Subbasin, Country, lat, lon, threshold_value) %>%
+  group_by(Monitoring.area, subbasin, Country, lat, lon, threshold_value) %>%
   summarise(mean_monitoring_score = round(mean(mean_core_monitoring_score, na.rm=TRUE), 2)) %>%
   ungroup()
 
 # join basin lookup
 bhi_monitoring_mean_score <- monitoring_mean_score %>% 
-  full_join(., basin_lookup, by = c("Subbasin" = "subbasin"))  
+  full_join(., basin_lookup, by = "subbasin")  
 
 # Indicator mean by Subbasin (per country)
 country_indicator_mean <- monitoring_indicator_mean %>%
-  full_join(., basin_lookup, by = c("Subbasin" = "subbasin")) %>% 
-  group_by(Subbasin, rgn_nam, core_indicator, threshold_value)%>%
+  full_join(., basin_lookup, by = "subbasin") %>% 
+  group_by(subbasin, rgn_nam, core_indicator, threshold_value)%>%
   summarise(mean_core_country_score = mean(mean_core_monitoring_score, na.rm=TRUE)) %>%
   ungroup()
 
 # Indicator mean by Subbasin
 basin_indicator_mean <- country_indicator_mean %>%
-  group_by(Subbasin, core_indicator, threshold_value)%>%
+  group_by(subbasin, core_indicator, threshold_value)%>%
   summarise(mean_core_basin_score = mean(mean_core_country_score, na.rm=TRUE)) %>%
   ungroup()
 
 # Subbasin score (mean across the two indicators)
 basin_mean_score <- basin_indicator_mean %>%
-  group_by(Subbasin, threshold_value) %>%
+  group_by(subbasin, threshold_value) %>%
   summarise(mean_basin_score = round(mean(mean_core_basin_score, na.rm=TRUE), 2)) %>%
   ungroup()
   
 ## BHI score
 # join basin lookup
 bhi_mean_score <- basin_mean_score %>% 
-  full_join(., basin_lookup, by = c("Subbasin" = "subbasin")) %>% 
-  group_by(Subbasin, bhi_id, rgn_nam, threshold_value) %>%
+  full_join(., basin_lookup, by = "subbasin") %>% 
+  group_by(subbasin, bhi_id, rgn_nam, threshold_value) %>%
   summarise(mean_basin_score = round(mean(mean_basin_score, na.rm=TRUE), 2)) %>%
   ungroup()
 
@@ -253,7 +261,7 @@ ggplot(monitoring_indicator_mean) +
 
 ## Plot monitoring area indicator mean scores by Subbasin
 ggplot(monitoring_indicator_mean) + 
-  geom_jitter(aes(Subbasin, mean_core_monitoring_score, color = Monitoring.area, 
+  geom_jitter(aes(subbasin, mean_core_monitoring_score, color = Monitoring.area, 
                   shape = factor(core_indicator))) +
   guides(colour=FALSE)+
   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
@@ -264,7 +272,7 @@ ggplot(monitoring_indicator_mean) +
 
 
 ggplot(monitoring_indicator_mean)+
-  geom_boxplot(aes(Subbasin, mean_core_monitoring_score))+
+  geom_boxplot(aes(subbasin, mean_core_monitoring_score))+
   facet_wrap(~core_indicator)+
   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90,
                                    hjust=.5, vjust=.5, face = "plain")) +
@@ -317,7 +325,7 @@ ggplot(country_indicator_mean) +
 
 ## Plot basin indicator mean scores
 ggplot(basin_indicator_mean) + 
-  geom_point(aes(Subbasin, mean_core_basin_score, color = core_indicator, 
+  geom_point(aes(subbasin, mean_core_basin_score, color = core_indicator, 
                  shape = core_indicator), size = 2, alpha = 0.7) +
   geom_hline(yintercept = 0.6, color = "red") +
   scale_shape_manual(values = c(6,19)) +
@@ -335,7 +343,7 @@ The mean of the two indicator scores was taken for each basin
 ```{r plot basin mean across indicators}
 ## Plot basin mean score across indicators
 ggplot(basin_mean_score) + 
-  geom_point(aes(Subbasin, mean_basin_score), size=2) +
+  geom_point(aes(subbasin, mean_basin_score), size=2) +
   geom_hline(yintercept = 0.6, color = "red") +
   theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90, 
                                    hjust = .5, vjust = .5, face = "plain"),
@@ -363,7 +371,7 @@ There are no scores for Kiel Bay and Gdansk Basin, therefore no scores for BHI r
 ```{r final score objects, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 ## Calculate bhi status as: basin_mean/basin_target, constraining values to 1 as maximum score
 bhi_status <- bhi_mean_score %>%
-  select(bhi_id, mean_basin_score, threshold_value) %>%
+  dplyr::select(bhi_id, mean_basin_score, threshold_value) %>%
   mutate(
     mean_basin_score = ifelse(bhi_id %in% c(4,7,8,10,13,16,17,18,19,21,22,33), NA, mean_basin_score),
     dimension= "status"
@@ -371,7 +379,7 @@ bhi_status <- bhi_mean_score %>%
   dplyr::rename(rgn_id = bhi_id) %>%
   mutate(score = pmin(1, mean_basin_score/threshold_value),
          score = round(score * 100, 2)) %>% # keep decimal places, will round when combine eut indicators
-  select(rgn_id, dimension, score)
+  dplyr::select(rgn_id, dimension, score)
 
 ```
 <br/>
@@ -480,7 +488,7 @@ cpue_trans <- cpue %>%
 
 ## check zscore mean should be = 0, sd should be = 1
 cpue_trans %>% 
-  select(monitoring_area, core_indicator, Taxa,cpue_z) %>%
+  dplyr::select(monitoring_area, core_indicator, Taxa,cpue_z) %>%
   group_by(monitoring_area, core_indicator, Taxa) %>%
   summarise(mean_check = mean(cpue_z, na.rm = TRUE),
             sd_check = sd(cpue_z, na.rm = TRUE)) %>%
@@ -514,7 +522,7 @@ ggplot(filter(cpue_trans, Taxa =="Piscivores")) +
 ```{r fit linear model, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 # library(broom)
 cpue_mdl <- cpue_trans %>%
-  select(Subbasin, Country, monitoring_area, core_indicator, Taxa, Year, cpue_z) %>%
+  dplyr::select(Subbasin, Country, monitoring_area, core_indicator, Taxa, Year, cpue_z) %>%
   mutate(Year = as.numeric(Year)) %>% 
   group_by(Subbasin, Country, monitoring_area, core_indicator, Taxa) %>%
   drop_na(cpue_z) %>% # need to drop 'NA' to make the lm work
@@ -531,7 +539,7 @@ cpue_mdl <- cpue_trans %>%
 
 ## Is the number of observations ever less than 5 for lm?
 cpue_mdl %>% 
-  select(nobs) %>% 
+  dplyr::select(nobs) %>% 
   min()  ## yes, there is a row with 3 obs (remove that?)
 
 ```
@@ -615,7 +623,7 @@ slope <- slope_country %>%
 
 ## number of time series for each basin
 basin_n_obs_slope <- slope %>%
-  select(Subbasin)%>%
+  dplyr::select(Subbasin)%>%
   count(Subbasin)
 
 ## Plot
@@ -630,7 +638,7 @@ ggplot(slope) +
 
 ## new object only mean value
 slope2 <- slope %>%
-  select(Subbasin, Country, core_indicator, Taxa, slope_mean_basin_taxa)
+  dplyr::select(Subbasin, Country, core_indicator, Taxa, slope_mean_basin_taxa)
 ```
 
 
@@ -656,7 +664,7 @@ ggplot(slope2) +
   
 ## new object only basin and indicator mean
 slope3 <- slope2 %>%
-  select(Subbasin, core_indicator, slope_mean_basin_indicator)
+  dplyr::select(Subbasin, core_indicator, slope_mean_basin_indicator)
 ```
 
 
@@ -701,7 +709,7 @@ ggplot(slope22) +
 
 ## new object, only basin mean
 slope4 <- slope3 %>%
-  select(Subbasin, slope_mean_basin) %>%
+  dplyr::select(Subbasin, slope_mean_basin) %>%
   mutate(
     Subbasin = str_replace(Subbasin, "Arkona basin", "Arkona Basin"),
     Subbasin = str_replace(Subbasin, "Bornholm basin", "Bornholm Basin")) %>% 
@@ -726,12 +734,12 @@ slope4 <- slope4 %>%
 ```{r final slope object, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 ## object slope from basin joined to bhi region
 bhi_slope <- slope4 %>%
-  select(bhi_id, slope_mean_basin)%>%
+  dplyr::select(bhi_id, slope_mean_basin)%>%
   dplyr::rename(rgn_id = bhi_id,
                 score = slope_mean_basin) %>%
   mutate(dimension="trend",
          score = round(score, 2)) %>% ## round to 2 decimal places
-  select(rgn_id, dimension,score)
+  dplyr::select(rgn_id, dimension,score)
 ```
 
 
@@ -767,11 +775,10 @@ ggplot(rbind(plot_status, plot_slope)) +
 ## Data layers for the stock component of AO
 
 ## Status Score
-write.csv(bhi_status, here::here("layers", 'ao_stock_status_bhi2019.csv'), row.names=FALSE)
-
+write_csv(bhi_status, file.path(dir_layers, 'ao_stock_status_bhi2019.csv'))
 
 ## Slope for Trend
-write.csv(bhi_slope, here::here("layers", 'ao_stock_slope_bhi2019.csv'), row.names=FALSE)
+write_csv(bhi_slope, file.path(dir_layers, 'ao_stock_slope_bhi2019.csv'))
 ```
 
 
