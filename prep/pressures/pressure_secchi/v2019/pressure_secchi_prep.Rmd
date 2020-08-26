@@ -1,106 +1,197 @@
-# Prepare water clarity pressure data layer (using secchi data) 
+---
+title: "Secchi depth pressure layer prep"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    code_folding: hide
+---
 
-## 1. Background 
-Water clarity / transparency is a direct pressure on Lasting Special Places and Tourism as it affects people's perception of aesthetic properties of nature.  
+<br>
+<br>
 
-## 2. Data 
-[Data sources and data preparation are found in the CW subgoal NUT](https://github.com/OHI-Science/bhi/blob/draft/baltic2015/prep/CW/secchi/secchi_prep.md) which uses secchi data as a measure of nutrient status.  
-
-## 3. Pressure model 
-This pressure layer is the inverse of the NUT goal status for the most recent year. This varies among basins (the scale at which the status is calculated).  The most recent year is 2013 for all basins except: Aland Sea (2012), Bothian Sea(2011), Great Belt (2009), Gulf of Finland (2012), Gulf of Riga (2012),The Quark (2012).  
-
-## 4. Prepare pressure layer
-
-```{r setup}
-
-## Libraries
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(RMySQL)
-library(stringr)
-library(tools)
-library(rprojroot) # install.packages('rprojroot')
-
-## source common libraries, directories, functions, etc
-source('~/github/bhi/baltic2015/prep/common.r')
-
-## rprojroot
-root <- rprojroot::is_rstudio_project
-
-
-## make_path() function to 
-make_path <- function(...) rprojroot::find_root_file(..., criterion = is_rstudio_project)
-
-
-
-dir_layers = make_path('baltic2015/layers') # replaces  file.path(dir_baltic, 'layers')
-
-
-# root$find_file("README.md")
-# 
-# root$find_file("ao_need_gl2014.csv")
-# 
-# root <- find_root_file("install_ohicore.r", 
-# 
-# withr::with_dir(
-#   root_file("DESCRIPTION"))
-
-
-dir_pres_sec    = file.path(dir_prep,'pressures/pressure_secchi')
-
-
-## add a README.md to the prep directory with the rawgit.com url for viewing on GitHub
-create_readme(dir_pres_sec, 'pressure_secchi_prep.rmd')  
+```{r secchi depth pressure preamble prep, message = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
+source(here::here("R", "setup.R"))
+loc <- here::here("prep", "pressures", "pressure_secchi")
+data_path <- here::here("data", "pressures", "pressure_secchi", version_year, "pressure_secchi_data.rmd")
 ```
 
-### 4.1 Read in NUT status layer
+<br>
 
-```{r read in data}
-nut_status = read.csv(file.path(dir_layers, "cw_nu_status_bhi2015.csv"))
+## 1. Background {-}
 
+Water clarity / transparency is a direct pressure on Lasting Special Places and Tourism as it affects people's perception of aesthetic properties of nature. Water clarity is measured using Secchi depth data.
+
+
+### 1.1 Pressure Model {-}
+
+This pressure layer is the inverse of the Eutrophication subgoal secchi indicator status, for the most recent year. The most recent year varies among sub-basins (the scale at which the Secchi indicator status is calculated).
+
+### 1.2 Reference points {-}
+
+Data sources and data preparation are found in the [Clean Water subgoal Eutrophication](https://github.com/OHI-Science/bhi-prep/blob/master/data/CW/eutrophication/v2019/eut_data.rmd) which uses secchi data as one measure of nutrient status. The respective targets are also saved and organized in the Eutrophication goal prep.  
+
+
+
+## 2. Data {-}
+
+This prep document is used to generate and explore the following data layer:
+
+- `po_inverse_secchi_bhi2019.csv`
+
+This is saved to the `layers` folder. The layer is derived from the raw datasets from the ICES Oceanographic database.
+
+<br>
+
+```{r nutrient load pressure prep data, child = data_path, results = "asis", echo = FALSE}
 ```
 
-### 4.2 Transform status from 0-100 value to 0-1 value
-```{r Transform status to zero to one value}
-nut_status1 = nut_status %>%
-              mutate(score = score /100)
+<br/>
 
-```
-
-### 4.3 Inverse of NUT status for pressure layer
-```{r Inverse of NUT status for pressure layer}
-
-inv_secchi = nut_status1 %>%
-             mutate(pressure_score = 1- score)%>%
-             select(rgn_id,pressure_score)
-
-```
-
-### 4.4 Plot pressure layer
-```{r plot inverse secchi pressure layer}
-
-ggplot(inv_secchi)+
-  geom_point(aes(rgn_id, pressure_score), size = 2.5)+
-  ylab("Pressure value")+
-  ylim(0,1)+
-  ggtitle("Water clarity pressure score")
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
 
+```{r read in the secchi depth data and eutrophication targets}
+## read in the secchi depth data, prepared in the eutrophication goal prep
+secchi_depths <- read.csv(file.path(dir_layers, "cw_eut_secchi_bhi2019.csv"))
+
+## read in target values for eutrophication indicators
+cw_eut_targets <- read.csv(file.path(dir_layers, "cw_eut_targets_bhi2019.csv")) %>% 
+  filter(indicator == "summer_secchi") %>%
+  select(helcom_id, target = value)
 ```
 
 
-## 5. Prepare and save object to layers
+### 3.1 Calculate Secchi Status Scores {-}
 
-### 5.1 Prepare object
-```{r prepare object}
-inv_secchi
+
+```{r calculate secchi indicator status as it is calculated in the eutrophication function}
+## join regions info for grouping by subbasins
+## also if there is no helcom_id column, add one with subbasin_id values
+rgns <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))
+secchi_depths <- left_join(secchi_depths, rgns, by = "region_id")
+
+
+## Calculate mean monthly value for each month
+monthly_means <- secchi_depths %>%
+  group_by(subbasin_id, year, month) %>%
+  summarise(
+    month_mean = mean(secchi_depth, na.rm = TRUE),
+    month_sd = sd(secchi_depth, na.rm = TRUE),
+    n_pts = n()
+  ) %>%
+  mutate(month_sd = ifelse(is.na(month_sd), 0, month_sd)) %>%
+  ungroup()
+
+
+## Calculate seasonal mean for each year, with min max and 5-year moving average
+seasonal_means <- monthly_means %>%
+  group_by(subbasin_id, year) %>%
+  summarise(
+    season_mean = mean(month_mean, na.rm = TRUE),
+    season_sd = sqrt(mean((month_sd^2), na.rm = TRUE)),
+    n_pts = sum(n_pts)
+  ) %>%
+  ungroup() %>%
+  arrange(subbasin_id, year) %>%
+  group_by(subbasin_id) %>%
+  mutate(moving_avg_5yr = zoo::rollapply(season_mean, 5, mean, na.rm = TRUE, align = "right", fill = NA)) %>%
+  mutate(indicator_min = season_mean-season_sd, indicator_max = season_mean+season_sd) %>%
+  ungroup()
+
+
+## calculate Secchi indicator status
+## join regions lookup expands from subbasins to one row per BHI region
+status_all_yrs <- seasonal_means %>%
+  mutate(subbasin_id = as.character(as.numeric(subbasin_id))) %>%
+  rowwise() %>%
+  mutate(helcom_id = sprintf("SEA-0%s", substr(subbasin_id, 2, 3))) %>%
+  left_join(cw_eut_targets, by = "helcom_id") %>%
+  select(-helcom_id) %>% 
+  mutate(ratio = moving_avg_5yr/target) %>%
+  mutate(status = pmin(1, ratio)) %>%
+  ungroup() %>%
+  mutate(subbasin_id = as.numeric(subbasin_id)) %>% 
+  left_join(rgns, by = "subbasin_id")
 ```
 
-### 5.2 Save object
-```{r save object}
 
-write.csv(inv_secchi, file.path(dir_layers, 'po_inverse_secchi_bhi2015.csv'), row.names = FALSE)
+### 3.2 Calculate Secchi Pressure Scores from Secchi Status {-}
+
+```{r calculate Secchi pressure as inverse of secchi status}
+inv_secchi <- status_all_yrs %>%
+  mutate(pressure_score = 1 - status) %>%
+  filter(!is.na(pressure_score))
 ```
 
+
+### 3.3 Save the Secchi Pressure Layers {-}
+
+Save Secchi depth pressure data as csv in layers folder.
+
+```{r save secchi pressure layer as csv}
+write_csv(
+  inv_secchi %>% 
+    select(region_id, year, pressure_score), 
+  file.path(dir_layers, "po_inverse_secchi_bhi2019.csv")
+)
+```
+
+<br>
+
+## 4. Visualizing Data Layers {-}
+
+### 4.1 Secchi (Water Clarity/Transparency) Pressure Scores by Subbasin {-}
+
+```{r secchi pressure scores, results  = "show", fig.width  = 9.5}
+ggplot(distinct(inv_secchi, year, subbasin, pressure_score)) +
+  geom_col(aes(x = year, y = pressure_score)) +
+  facet_wrap(~subbasin, scales = "free_y", nrow = 6) +
+  labs(x = NULL, y = "Secchi (Water clarity / transparency), Pressure Score")
+```
+
+### 4.2 Secchi (Water Clarity/Transparency) Pressure Scores by Subbasin {-}
+
+```{r load spatial info for secchi pressure map}
+source(here::here("R", "spatial.R"))
+
+bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
+bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
+  sf::st_as_sf() %>% 
+  select(region_id = BHI_ID, rgn_nam, subbasin = Subbasin) %>% 
+  mutate(region_nam = paste(rgn_nam, subbasin, sep  = ", "))
+
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+```
+
+
+```{r secchi pressure map, results = "show", fig.width = 9.5}
+basemap +
+  geom_sf(
+    data = left_join(
+      bhi_rgn_simple,
+      inv_secchi %>% 
+        select(region_id, year, pressure_score) %>% 
+        # filter(year %in% seq(2005, 2019, by = 2)),
+        filter(year %in% c(2004, 2007, 2010, 2013, 2016:2019)),
+      by = "region_id"
+    ),
+    mapping = aes(fill = pressure_score),
+    alpha = 0.8
+  ) +
+  scale_fill_gradientn(
+    colors = rev(cols),
+    values = c(0, 10^(-7), 0.3, 0.65, 0.8, 1),
+    limits = c(0, 1)
+  ) +
+  facet_wrap(~year, nrow = 2)
+```
+
+<br>
