@@ -1,77 +1,19 @@
-#Preparation of Munitions pressure data layer 
-These data need to be explored before can be determined to be a useful pressure layer.  
 
-```{r setup}
+```{r munitions setup}
+## root location of the raw data
+source(here::here("R", "setup.R"))
+source(here::here("R", "spatial.R"))
 
-## Libraries
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(RMySQL)
-library(stringr)
-library(tools)
-library(rprojroot) # install.packages('rprojroot')
+dir_A <- file.path(dirname(dir_prep), "bhi-data")
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Pressure", "munitions")
+dir_intermediate <- file.path(here::here("data", "pressures", "bottom_trawling", version_year, "intermediate"))
 
-source('~/github/bhi/baltic2015/prep/common.r')
-
-## rprojroot
-root <- rprojroot::is_rstudio_project
-
-
-## make_path() function to 
-make_path <- function(...) rprojroot::find_root_file(..., criterion = is_rstudio_project)
-
-
-
-dir_layers = make_path('baltic2015/layers') # replaces  file.path(dir_baltic, 'layers')
-
-
-# root$find_file("README.md")
-# 
-# root$find_file("ao_need_gl2014.csv")
-# 
-# root <- find_root_file("install_ohicore.r", 
-# 
-# withr::with_dir(
-#   root_file("DESCRIPTION"))
-
-
-
-dir_mun    = file.path(dir_prep, 'pressures/munitions')
-
-
-## add a README.md to the prep directory with the rawgit.com url for viewing on GitHub
-create_readme(dir_mun, 'munitions_prep.rmd')
+bhi_basin_lookup <- read_delim(file.path(dir_prep, "supplement", "lookup_tabs", "bhi_basin_country_lookup.csv"), delim = ";") %>% 
+  rename(subbasin = Subbasin) 
 ```
 
-## 1. Background
-Legacy of munitions dumping in the Baltic Sea.
-
-
-## 2. Data
-
-###2.1 Data source
-Multiple shape files downloaded from [HELCOM's Baltic Sea Pressures and Human Activities Map Service](http://maps.helcom.fi/website/Pressures/index.html).  
-
-Under 'Pressures and Human Activities' then under 'Dumped chemical munitions'  
-
-Downloaded 17 March 2016  
-
-### 2.2 Data layers
-1. Areas where sea dumped chemical warfare materials have been encountered  
-2. Chemical munition transport routes to dumpsites  
-3. Chemical weapons dumpsites in the Baltic Sea  
-4. Emergency relocation areas for netted sea dumped chemical warfare material  
-5. Reported encounters with chemical warfare materials 1961 to 2012  
-6. Suspected en route dumping areas  
-
-### 2.3 Data formats
-Different data layers hae different formats: areas (polygons), points, tracks.  
-
-Unclear how best to combine.  
-
-### 2.4 Data exploration Needed
+### 2.3 Data exploration Needed
 Need to plot evaluate information associated with each data layer available.  
 
 ## 3. Pressure model
