@@ -127,8 +127,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 16 April 2020 by Andrea De Cervo")
-
+knitr::kable(tab, caption = "Source: [SMHI database](https://sharkweb.smhi.se/) <br/> Downloaded 16 April 2020 by Andrea De Cervo")
 ```
 
 <br/>
