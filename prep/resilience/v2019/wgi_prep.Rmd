@@ -167,10 +167,9 @@ wgi_all <- wgi_all %>%
       
 ```
 
-#### 5.2 Save object
+### 2.8 Save object
 ```{r save object}
-
-write.csv(wgi_all, file.path(dir_layers, 'wgi_all_bhi2015.csv'), row.names=FALSE)
+write.csv(wgi_all, file.path(dir_layers, 'wgi_all_bhi2019.csv'), row.names=FALSE)
 ```
 
 
