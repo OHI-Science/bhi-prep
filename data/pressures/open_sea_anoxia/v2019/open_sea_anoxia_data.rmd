@@ -1,3 +1,77 @@
+
+### 2.1 Datasets with Sources {-}
+<br/>
+
+#### 2.1.1 Oxygen Data {-}
+
+
+
+**ICES Oxygen Data**
+
+Each dataset has been extracted by country and Denmark split into five (5) because too big otherwise.
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Period:", "2000-2020"), 
+  c("Parameter:", "Oxygen"),
+  c("Country:", "(choose each Baltic country at a time)"),
+  c("Ship:", "Any")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 30 March 2020 by Andrea De Cervo. Note: the maximum number of stations per download is 20000.")
+```
+
+
+**ICES CTD Data**
+
+Each dataset has been extracted by country, Denmark split into three (3) and Germany into five (5) because too big otherewise. No CTD found for Lithuania.
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Period:", "2000-2020"), 
+  c("Parameter:", "CTD"),
+  c("Country:", "(choose each Baltic country at a time)"),
+  c("Ship:", "Any")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 10 April 2020 by Andrea De Cervo. Note: the maximum number of stations per download is 20000.")
+```
+
+**SMHI CTD Data**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Datatype:", "Physical and Chemical"), 
+  c("Parameter:", "Dissolved oxygen O2 CTD"),
+  c("Months:", "All"),
+  c("Years:", "2000-2020"),
+  c("Decimal/fält-avgränsare (decimal/delimiter):", "punkt/semikolon (period/semicolon)"),
+  c("Teckenkodning:", "UTF-8"),
+  c("Rubrikrad:", "Englelska (English)")
+))
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes) <br/> Downloaded 16 April 2020 by Andrea De Cervo")
+
+```
+
+
+
+Data are the same as were used for the secchi clean water indicator, obtained from the [ICES Oceanographic database](http://ecosystemdata.ices.dk/inventory/Index.aspx?). More about the data sources and data preparation can be found in the [Clean Water subgoal Eutrophication](https://github.com/OHI-Science/bhi-prep/blob/master/data/CW/eutrophication/v2019/eut_data.rmd) which uses secchi data as one measure of eutrophication status.  
+
+<br>
+
+
+##################---------------------------------------------##################
+
+
 ## 1. Background on open sea anoxia data  
 
 ### 1.1 Why anoxia?

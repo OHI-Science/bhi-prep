@@ -1,19 +1,21 @@
 ---
-title: "SUBGOAL - GOAL Subgoal data prep"
+title: "Species - Biodiversity Subgoal data prep"
 output:
-  word_document:
-    toc: yes
-    toc_depth: '4'
   html_document:
-    toc: yes
+    toc: true
     toc_depth: 4
+    code_folding: hide
 ---
 
+
 <br>
 <br>
 
-```{r preamble prep, message = FALSE}
+```{r spp biodiversity preamble prep, message = FALSE}
+source(here::here("R", "setup.R"))
+
 loc <- here::here("prep", "SPP")
+dir_rawdata <- file.path(dir_B, "Goals", "BD")
 
 source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
@@ -25,7 +27,7 @@ refs_path <- file.path(loc, "spp_references.Rmd")
 
 ## 1. Background
 
-```{r Background, child = bkgd_path, results = "asis", echo = FALSE}
+```{r biodiversity background, child = bkgd_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
@@ -43,7 +45,7 @@ These are saved to the layers folder. Saved to `data/SPP/v2019/intermediate` are
 <br>
 
 <!-- ## 2. Data --- header in the child  document -->
-```{r Data, child = data_path, results = "asis", echo = FALSE}
+```{r biodiversity data, child = data_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
@@ -880,14 +882,14 @@ For use in ICO status calculation, does not contain red_list_category numeric.
 ## Write as bd_spp to layers folder
 shared_list %>% 
   right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
-  select(region_id, assessment_year_red_list, scientific_name, species_group, red_list_category) %>% 
+  select(region_id, year = assessment_year_red_list, scientific_name, species_group, red_list_category) %>% 
   write.csv(here::here("layers/bd_spp_assessments_bhi2019.csv"), row.names = FALSE)
 
 ## save 'no records this decade' info also as a BD layer, so can use for penalty/scaling?
 shared_list %>% 
   right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
   filter(no_rec_this_dec == TRUE) %>% 
-  select(region_id, assessment_year_red_list, scientific_name) %>% 
+  select(region_id, year = assessment_year_red_list, scientific_name) %>% 
   write.csv(here::here("layers/bd_spp_norec_bhi2019.csv"), row.names = FALSE)
 ```
 
@@ -1188,7 +1190,8 @@ spp_by_taxa <- spp_vuln %>%
 spp_status_by_taxa_penalized <- spp_by_taxa %>% 
   group_by(Subbasin) %>% 
   summarize(
-    status_basin_initial = exp(mean(log(status_taxa_initial))),
+    # status_basin_initial = exp(mean(log(status_taxa_initial))),
+    status_basin_initial = exp(weighted.mean(log(status_taxa_initial), nspp)),
     status_basin_penalized = exp(mean(log(status_taxa_penalized)))
   ) %>% 
   mutate(
@@ -1311,7 +1314,7 @@ basemap +
     aes(fill = status), 
     size = 0.1, alpha = 0.7
   ) +
-  scale_fill_gradientn(colors = statusmapcols, limits = c(50, 100), na.value = "gainsboro") +
+  scale_fill_gradientn(colors = statusmapcols, limits = c(70, 100), na.value = "gainsboro") +
   theme(
     legend.background = element_rect(color = "grey"),
     legend.position = c(0.15, 0.75)
