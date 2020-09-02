@@ -56,6 +56,12 @@ Data downloaded from the [HELCOM website](https://helcom.fi/baltic-sea-trends/en
 
 **No tables found in the document (it is [EMEP Centre on Emission Inventories and Projections (CEIP)](http://www.ceip.at/) who makes the deposition estimations for HELCOM, but we didn't get any response from them, so we will skip the PCDD/Fs layer for now.**  
 
+Gridded raw data of 23PeCDF were provided by Irina Strijkina
+(EMEP/Meteorological Synthesizing Centre-East (MSC-E)) on 26 August 2020 via email 
+(http://en.msceast.org/database/EMEP/pcdd_dep_2018.dat)
+
+**Table:** Annual total deposition flux 23PeCDF (emissions 2018, meteorology 2018) g TEQ/km2/year EMEP_01x01
+
 #### 2.2.1 Additional reference information as provided on the HELCOM website
 **Data Source: EMEP/MSC**
 
