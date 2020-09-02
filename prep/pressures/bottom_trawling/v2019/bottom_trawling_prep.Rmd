@@ -58,8 +58,10 @@ Plot below shows the trawling intensity per area in each region in 2016.
 bottom_trawling_score <- swept_area %>%
   mutate(max = max(swept), 
          min = min(swept),
-         score = round((swept - min) / (max - min), 1)) %>%
-  summarize(mean_score = mean(score, na.rm = TRUE)) %>% 
+         score = round((swept - min) / (max - min), 1),
+         score = ifelse(is.na(score), min, score)) %>% # only one value for bhi_id = 4
+  group_by(BHI_ID) %>% 
+  summarize(mean_score = round(mean(score, na.rm = TRUE), 3)) %>% 
   dplyr::select(BHI_ID, 
          score = mean_score) 
 
