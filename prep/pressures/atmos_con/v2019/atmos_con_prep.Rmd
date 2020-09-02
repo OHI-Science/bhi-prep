@@ -265,24 +265,11 @@ pcb153_rescale <- current_pcb153 %>%
   dplyr:: rename(current = value)
 
 
-pcdd_rescale <- pcdd_rgns_bhi %>%
-  mutate(max = max_pcdd, 
-         min = min_pcdd)
-  group_by(BHI_ID) %>% 
-  summarize(mean_value = mean(value, na.rm = TRUE)) %>% 
-  dplyr::select(BHI_ID, 
-         score = mean_score) 
-
-
-pcdd_rescale <- pcdd_rgns_bhi %>%
-  select(BHI_ID, Subbasin, value, unit) %>% 
-  group_by(BHI_ID) %>% 
-  summarize(mean_value = mean(value, na.rm = TRUE)) %>% 
+pcdd_rescale <- current_pcdd %>%
   mutate(min = min_pcdd, 
-         max= max_pcdd,
-         year = "2018") %>%
-  dplyr:: rename(current = mean_value) %>% 
-  select(BHI_ID, Subbasin, year, current, min, max, unit)
+         max= max_pcdd) %>% 
+  dplyr:: rename(current = value)
+
 ```
 
 #### 4.3.4 Plot current, max and min
@@ -294,8 +281,8 @@ ggplot(gather(pcb153_rescale, type, concentration, -subbasin, -unit, -year)) +
                                 hjust=.5, vjust=.5, face = "plain"))+
   ggtitle("PCB 153 minimum, maximum, and current pressure value")
 
-ggplot(gather(pcdd_rescale, type, concentration, -Subbasin, -unit, -year)) +
-  geom_boxplot(aes(Subbasin, concentration, colour = type, shape = type), size= 2.5)+
+ggplot(gather(pcdd_rescale, type, concentration, -BHI_ID, -Subbasin, -unit, -year)) +
+  geom_point(aes(Subbasin, concentration, colour = type, shape = type), size= 2.5)+
   ylab("23PeCDF ug TEQ/km2/year") +
    theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
                                 hjust=.5, vjust=.5, face = "plain"))+
@@ -308,6 +295,9 @@ ggplot(gather(pcdd_rescale, type, concentration, -Subbasin, -unit, -year)) +
 ```{r rescale data}
 pcb153_rescale1 <- pcb153_rescale %>%
   mutate(pcb153_normalize = (current - min)/(max - min))
+
+pcdd_rescale1 <- pcdd_rescale %>%
+  mutate(pcdd_normalize = (current - min)/(max - min))
 ```
 
 #### 4.3.6 Plot rescaled pressure layer
@@ -341,6 +331,14 @@ ggplot(pcb153_rgn)+
                                 hjust=.5, vjust=.5, face = "plain"))+
   ggtitle("PCB 153 pressure value by BHI regions")
 
+ggplot(pcdd_rescale1) +
+  geom_point(aes(BHI_ID, pcdd_normalize), size= 2.5)+
+  ylab("Pressure Value") +
+  ylim(0,1)+
+   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+                                hjust=.5, vjust=.5, face = "plain"))+
+  ggtitle("PCDD pressure value")
+
 ```
 
 
@@ -351,10 +349,15 @@ ggplot(pcb153_rgn)+
 po_atmos_pcb153 <- pcb153_rgn %>%
   dplyr::rename(pressure_score = pcb153_normalize)
 
+po_atmos_pcdd <- pcdd_rescale1 %>%
+  dplyr::rename(pressure_score = pcdd_normalize) %>% 
+  select(bhi_id = BHI_ID, pressure_score)
 ```
 
 #### 4.5.2 Save objects to layers
 ```{r save objects to layers}
 write.csv(po_atmos_pcb153, file.path(dir_layers,"po_atmos_pcb153_bhi2019.csv"), row.names = FALSE)
+
+write.csv(po_atmos_pcdd, file.path(dir_layers,"po_atmos_pcdd_bhi2019.csv"), row.names = FALSE)
 ```
 
