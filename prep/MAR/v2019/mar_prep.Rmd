@@ -3,6 +3,8 @@
 loc <- here::here("prep", "MAR")
 
 source(here::here("R", "setup.R"))
+source(here::here("R", "spatial.R"))
+regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
 
 bkgd_path <- here::here("supplement", "goal_summaries", "MAR.Rmd")
@@ -27,7 +29,8 @@ This prep document is used to generate and explore the following data layers:
 
 - `mar_harvest_bhi2019.csv` 
 - `mar_harvest_bhi2019.csv` 
-- `fis_ffmsy_bhi2019.csv` 
+- `mar_status_bhi2019.csv` 
+- `mar_trend_bhi2019.csv` 
 
 These are saved to the `layers/v2019` folder. Saved to `data/MAR/v2019/intermediate` are two intermediate datasets: `mar_full_merged_dataset.csv` and `mar_gapfilling.csv`. All these are derived from or informed by the raw datasets from HELCOM, national databases, and FAO.
 
@@ -131,9 +134,9 @@ mar_datalayers <- mar_gapfilling %>%
   ## get summarized values by BHI region
   group_by(year, region_id) %>% 
   summarize(
-    n_kg = sum(split_N_gf, na.rm = TRUE),
-    p_kg = sum(split_P_gf, na.rm = TRUE),
-    produced_tonnes = sum(split_prod_gf, na.rm = TRUE),
+    n_kg = round(sum(split_N_gf, na.rm = TRUE), 3),
+    p_kg = round(sum(split_P_gf, na.rm = TRUE), 3),
+    produced_tonnes = round(sum(split_prod_gf, na.rm = TRUE), 3),
     pct_prod_gf = sum(gapfill_prod)/n(),
     pct_nutrient_gf = sum(gapfill_nutrients)/n(),
     pct_gf = sum(gapfilled)/n()
@@ -174,7 +177,7 @@ write_csv(
 
 ### 4.1 Nutrient Use {-}
 
-As noted above, the HELCOM recommnedation is 50gN and 7kgP per kg of fish. The plots below explore differences between recorded and recommended nutrient use. The histogram plots show the distributions of differences with max allowable nutrients minus actual or estimated, so negative values are in excess of the recommendation.
+As noted above, the HELCOM recommnedation is 50gN and 7gP per kg of fish. The plots below explore differences between recorded and recommended nutrient use. The histogram plots show the distributions of differences with max allowable nutrients minus actual or estimated, so negative values are in excess of the recommendation.
 
 ```{r nutrients allowances minus nutrients values, echo = TRUE}
 ## using gapfilled data
@@ -187,9 +190,9 @@ plotdf <- mar_datalayers %>%
     by = "region_id"
   ) %>% 
   mutate(
-    region_id = as.factor(region_id), 
-    diffsN = 50*produced_tonnes - n_kg, 
-    diffsP = 7*produced_tonnes - p_kg,
+    region_id = as.factor(region_id), #somehow, without doing the conversion, the values look more normal (?)
+    diffsN = 50*produced_tonnes - n_kg, # if converting: ref. value = 50g --> 0.05kg
+    diffsP = 7*produced_tonnes - p_kg,  # ref. value = 7g --> 0.007kg
     diffsN_Ratio = 50 - n_ratio, 
     diffsP_Ratio = 7 - p_ratio
   ) %>% 
@@ -413,13 +416,77 @@ percentagegf +
 
 <br>
 
-## 5. Considerations for `BHI3.0` {-}
+## 5. Status {-}
+
+`Xmar =  Current_value /ref_point`
+
+- Data are allocated to BHI region by taking the production from a country production region and dividing it equally among associated BHI regions.  
+- In goal calculation, data are taken as 5 year running mean.
+- Data unit kg of nutrients/tonnes of fish produced.
+- Reference point is the [nutrient limit values](http://www.helcom.fi/Recommendations/Rec%2025-4.pdf) per fish produced.
+
+```{r mar status}
+#calculate ref nutrient values used to fish produced
+    
+mar_calc <- mar_datalayers %>% 
+  select(-pct_prod_gf, -pct_nutrient_gf, -pct_gf) %>%
+  # if converting to kg, the values look weird (?)
+  mutate(ref_n_kg = 50*produced_tonnes,
+         ref_p_kg = 7*produced_tonnes)
+
+## Calculate status
+mar_status_score <- mar_calc %>% 
+  filter(year >= 2014) %>% 
+  group_by(rgn_id = region_id, year) %>%
+  mutate(n_status = round(pmin(1, ref_n_kg/n_kg) * 100, 2), #calculate status per year
+         p_status = round(pmin(1, ref_p_kg/p_kg) * 100, 2),
+         score = mean(c(n_status, p_status), na.rm = T),
+         dimension = 'status') %>% 
+  ungroup() %>% 
+  dplyr::select(rgn_id, year, score, dimension) 
+
+# save the status layer
+write_csv(
+  mar_status_score,
+  file.path(dir_layers, "mar_status_bhi2019.csv"))
+```
+
+
+```{r}
+# Plot status
+
+
+```
+
+
+## 6. Trend {-}
+
+```{r}
+## Calulate trend
+regr_length = 5
+mar_trend <- mar_status_score %>%
+  group_by(rgn_id) %>%
+  do(tail(. , n = regr_length)) %>% #select the years for trend calculate (regr_length # years from the end of the time series)
+  #regr_length replaces the need to read in the trend_yrs from the csv file
+  do({if(sum(!is.na(.$score)) >= 5)      #calculate trend only if X years of data (min_regr_length) in the last Y years of time serie (regr_length)
+    data.frame(score = max(-1, min(1, coef(lm(score ~ year, .))['year'] * 0.05))) #future_year set in contants, this is the value 5 in the old code
+    else data.frame(score = NA)}) %>%
+  ungroup() %>%
+  mutate(score = round(score, 2),
+         dimension = 'trend') 
+
+# save trend layer
+write_csv(mar_trend, file.path(dir_layers, 'mar_trend_bhi2019.csv')) 
+```
+
+
+## 7. Considerations for `BHI3.0` {-}
 
 If more adequate data are available, mariculture sites may be matched to BHI regions more precisely using spatial files (shapefiles). In particular, regarding Sweden, there are reports (e.g. [page 8, table 9](https://www.scb.se/contentassets/8964475d3a8b4aa88af32e4fcbc248eb/jo1201_2014a01_sm_jo60sm1501.pdf)) where information about rainbow trout production in "other coasts" is split into two areas: sounth-eastern coast and south-western coast. However, these data are only available until 2014.  
 
 <br>
 
-## 6. References {-}
+## 8. References {-}
 
 ```{r mar references, child = refs_path, results = "asis", echo = FALSE}
 ```
