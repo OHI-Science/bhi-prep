@@ -1,219 +1,311 @@
+---
+title: "Climate change pressure layer prep"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    code_folding: hide
+---
 
-```{r setup}
+<br>
+<br>
 
-## Libraries
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(RMySQL)
-library(stringr)
-library(tools)
-library(rprojroot) # install.packages('rprojroot')
-
-## root location of the raw data
+```{r climate change pressure preamble prep, message = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 source(here::here("R", "setup.R"))
-source(here::here("R", "data.R"))
-source(here::here("R", "spatial.R"))
-
-dir_A <- file.path(dirname(dir_prep), "bhi-data")
-dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
-dir_rawdata <- file.path(dir_B, "Pressure", "climate_change")
-regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
-
+loc <- here::here("prep", "pressures", "climate_change")
+data_path <- here::here("data", "pressures", "climate_change", version_year, "climate_change_data.rmd")
 ```
 
-## 3. HELCOM data organization
+<br>
 
-Two data layers, surface water salinity and temperature. 
+## 1. Background {-}
 
-### 3.1 Current conditions
-Current conditions = mean salinity 2010-2014  
+The direct effects of climate change in the abiotic environment will be changes to water temperature and salinity. In the BHI framework, we will include sea surface temperature (SST) and surface salinity (SS) as climate change pressures. Depth of bottom water varies by basin. In BHI1.0 we also used bottom water salinity (BWS), but were not able to obtain this (modeled) data for more recent years to include.
 
-### 3.2 Rescaling data
+
+### 1.1 Notes on the Data {-}
+
+In BHI 1.0, data were extracted from the [BALTSEM model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html), run by Bärbel Muller-Karulis from the Baltic Sea Centre at Stockholm University. In BHI 2.0, since the BALTSEM is not as easily accessible, [data from HELCOM stations, obtained from ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead.
+
+These pressure layers are both calculated on the sub-basin scale, the scores which are then applied for all BHI regions  within the respective sub-basin.
+
+
+### 1.2 Reference points and Rescaling {-}
+
+
+Current conditions = mean salinity of recent 5 years
+
 Salinity is projected to decrease with climate change, therefore we take the maximum from the historical period and the minimum from the current period. 
 
 min value = minimum annual salinity during the future projection period (2020-2050)   
 
-max value = maximum annual salinity duing reference period (1960-1990)  
+max value = maximum annual salinity during reference period (1960-1990)  
 
 **Greater pressure with lower salinity, so will need to take the inverse of the rescaling**
 
-### 3.3 BHI region pressure
-Apply basin values to BHI regions.  
 
-## 4 Prepare surface salinity Data layer
+<br/>
 
-### 4.1 Read in surface salinity data
-Read in all datasets
-```{r read surface sal in data}
-## read in data
-climate_change_ices <- read.csv(file.path(dir_rawdata, "Helcom", 'helcom.csv'))
+## 2. Data {-}
 
-basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
-  read_csv() %>%
-  dplyr::select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
-  mutate(
-    subbasin = as.character(subbasin),
-    rgn_nam = as.character(rgn_nam)
-  )
+This prep document is used to generate and explore the following data layer:
+
+- `cc_sst_bhi2019.csv` 
+- `cc_sal_surf_bhi2019.csv` 
+
+These are saved to the `layers` folder. These are derived from or informed by the raw Oceanographic datasets obtained from ICES.
+
+<br>
+
+```{r climate change pressure prep data, child = data_path, results = "asis", echo = FALSE}
 ```
 
-### 4.2 Clean data
-```{r clean surface sal data}
-## remove where year is NA - these are for basins from baltsem not used
-ices_sst <- climate_change_ices %>% 
-  rename(
-    latitude = Latitude..degrees_north.,
-    longitude = Longitude..degrees_east., 
-    temp = TEMP..deg.C.
-  ) %>%
-  mutate(
-    date =  as.Date(yyyy.mm.ddThh.mm), 
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+
+
+Two data layers, surface water salinity and temperature. 
+
+```{r read in the climate change pressure data}
+## read in the climate raw data from ICES
+## data.table::fread is faster than read.csv or readr
+ices_cc_data <- data.table::fread(
+  file.path(dir_B, "Pressure", "climate_change", "Helcom",  "helcom.csv"), 
+  stringsAsFactors = FALSE
+)
+```
+
+```{r load spatial data for climate change layers prep}
+source(here::here("R", "spatial.R"))
+rgns_complete <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")
+regions_shape()
+```
+
+###  3.1 Initial Cleaning {-}
+
+```{r rename and take subset of cc data columns}
+ices_cc_data <- ices_cc_data %>% 
+  dplyr::mutate(
+    date = as.Date(`yyyy-mm-ddThh:mm`),
     year = format(date, "%Y"), 
     month = format(date, "%m"),
     month = str_replace(month, "^0+", ""),
     cruise = as.character(Cruise),
-    station = as.character(Station)
-  ) %>%
-  filter(year >= 1990) %>% 
-  select(cruise, station, date, year, month, latitude, longitude, temp) 
-
-ices_sal <- climate_change_ices %>% 
-  rename(
-    lat = Latitude..degrees_north.,
-    lon = Longitude..degrees_east., 
-    sal = PSAL..psu.
-  ) %>%
-  mutate(
-    date =  as.Date(yyyy.mm.ddThh.mm), 
-    year = format(date, "%Y"), 
-    month = format(date, "%m"),
-    month = str_replace(month, "^0+", ""),
-    cruise = as.character(Cruise),
-    station = as.character(Station)
-  ) %>%
-  filter(year >= 1990) %>% 
-  select(cruise, station, date, year, month, lat, lon, sal) 
+    station = as.character(Station),
+    bottom_m = as.numeric(`Bot. Depth [m]`)
+  ) %>% 
+  dplyr::select(
+    year,
+    month,
+    cruise,
+    station,
+    latitude = `Latitude [degrees_north]`, 
+    longitude = `Longitude [degrees_east]`,
+    temp = `TEMP [deg C]`,
+    surfsal = `PSAL [psu]`
+  ) %>% 
+  filter(year >= 1960)
 ```
 
 
-### 4.3 Match BHI regions {-}
-```{r match bhi regions}
-## assign bhi basins to sal and temp data 
-sal_rgns <- join_rgns_info(
-  ices_sal, helcomID_col = "helcom_id", country_col = "country", 
-  latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
+### 3.2 Match Monitoring Stations to Subbasins {-}
+
+```{r match cc pressure layers data to subbasins using lat long and spatial files}
+cc_data_w_rgns <- join_rgns_info(
+  ices_cc_data, helcomID_col = "helcom_id", country_col = "country", 
+  latlon_vars = c("latitude", "longitude"), return_spatial = TRUE, 
   rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"), 
   buffer_shp = NULL
 ) 
-
-# Filter out data points out of the Baltic Sea
-sal_rgns_nobs <- sal_rgns %>% 
-  filter(!(between(lon, 8.4118, 9.6403)),
-         !(between(lat, 53.547, 53.570)))
-
-## Make these points (x = 24.4800, y = 64.670); (y = 63.952,	x = 22.850); (y = 63.950,	x = 22.850) part of "Finland	FIN	Bothnian Bay	SEA-017	BHI_ID42	14930.90	FALSE"
-
-# Check data points where no BHI_id can be assigned
-sal_rgns_nobhi <- sal_rgns_nobs %>% 
-  filter(is.na(BHI_ID))      
-
-temp_rgns <- join_rgns_info(
-  ices_sst, helcomID_col = "helcom_id", country_col = "country", 
-  latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
-  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"), 
-  buffer_shp = NULL
-) 
-
-# Check data points where no BHI_id can be assigned
-temp_rgns_nobhi <- temp_rgns %>% 
-  filter(is.na(BHI_ID))
 ```
 
-### 4.4 Plot data
-```{r plot surface sal data}
-## make basemap
-basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
+
+### 3.2 Check Spatial Assignment of Data, Distributions, Timeseries {-}
+
+```{r load spatial files for climate change pressures maps}
+bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
+bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
+  sf::st_as_sf() %>% 
+  select(region_id = BHI_ID, rgn_nam, subbasin = Subbasin) %>% 
+  mutate(region_nam = paste(rgn_nam, subbasin, sep  = ", "))
+```
+
+```{r climate change pressure data spatial checks}
+library(leaflet)
+
+## check points not assigned to BHI regions...
+## first, to speed mapping, identify unique lat/long missing BHI regions
+## also reproject to match leaflet epsg:3857 proj??
+mapdf <- filter(cc_data_w_rgns, is.na(BHI_ID)) 
+mapdf <- sf::st_transform(mapdf, crs = 3857)
+data.table::setDT(mapdf)
+selectedcols <- c("latitude", "longitude")
+mapdf <- mapdf[!duplicated(mapdf, by = selectedcols), selectedcols, with = FALSE]
+  
+leaflet::leaflet(data = mapdf) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  setView(18, 59, zoom = 5) %>%
+  addCircleMarkers(radius = 2) %>% 
+  addPolygons(data = bhi_rgn_simple, fillOpacity = 0.1, fill = "grey", weight = 0.5)
+
+## seems like there are many points near north sea or in denmark which are and should be exculded
+## but others especially along Finnish coast, where there are lots of islands, should be included...
+
+## going back to assignment fo BHI regions (join_rgns_info) and including the coastal buffer, 
+## more points are assigned to BHI regions...
+bhibuffer <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"))
+cc_data_w_rgns <- join_rgns_info(
+  ices_cc_data, helcomID_col = "helcom_id", country_col = "country", 
+  latlon_vars = c("latitude", "longitude"), return_spatial = TRUE, 
+  rgn_shps_loc = file.path(dirname(dir_B), "Shapefiles"), 
+  ## using buffer to assign more of the points, will need still to exclude eg north sea or estuaries...
+  buffer_shp = bhibuffer
+) 
+
+## keep if not in the buffer zone, or
+## if in the buffer zone, keep if not in BHI regions 1, 2, 8, 10
+cc_data_w_rgns <- cc_data_w_rgns %>% 
+  filter(!in_25km_buffer|(in_25km_buffer & !BHI_ID %in% c(1, 2, 8, 10))) %>% 
+  sf::st_drop_geometry() %>% 
+  mutate(month = as.numeric(month))
+```
+
+```{r climate change pressure datasets maps}
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
   geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
   scale_x_continuous(limit = c(4, 32)) +
-  scale_y_continuous(limit = c(53.5, 66)) +
-  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3"))
+  scale_y_continuous(limit = c(53.5, 66)) 
 
-bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+```
 
-sal_nobhi_map <- basemap +
-  geom_sf(data = bhi_rgns_simple, fill = "white", size = 0.2, color = "burlywood") +
+```{r surface salinity data points map, fig.width = 9.5, fig.heigth = 3, results = "show"}
+basemap +
   geom_sf(
-    mapping = aes(colour = station),
-    data = sf::st_as_sf(
-      sal_rgns_nobhi, 
-      coords = c("lon", "lat"), 
-      crs = 4326
-    ),
-    size = 1.8
+    data = st_as_sf(cc_data_w_rgns, coords = c("longitude", "latitude"), crs = 4326) %>% 
+      filter(year %in% c(1998, 2008, 2018), !is.na(surfsal)),
+    mapping = aes(color = surfsal),
+    size = 2,
+    alpha = 0.2
   ) +
-  labs(x = NULL, y = NULL, colour = "Station") +
-  ggtitle("Sampling Locations")
+  scale_color_gradientn(
+    colors = c("khaki", "lightblue", "steelblue"),
+    values = c(0, 0.4, 1)
+  ) +
+   labs(color = "Salinity") +
+  facet_grid(cols = vars(year))
+```
 
-# library(ggmap)
-map <- get_map(location = c(8.5, 53, 32, 67.5))
-no_coastal_or_bhi_id <- ggmap(map) + 
-  geom_point(aes(x = 24.4800, y = 64.670), data = sal_rgns, color = "red", size = 1) +
-  labs(x = NULL, y = NULL)
-## there are locations outside of the Baltic Sea
-### Remove: 53.547	9.863, 53.550	9.820, 53.570	9.670, 53.6500	9.5167
-	
-# Plot salinity time series
-ggplot(sal_rgns)+
-  geom_line(aes(year, sal)) + 
-  facet_wrap(~Subbasin, scales = "free_y") +
-  theme(axis.text.x = element_text(colour = "grey20", size = 8, angle=90, 
-                                    hjust = .5, vjust = .5, face = "plain")) +
-  ggtitle("ICES Annual Surface Salinity time series")
-
-# Plot temperature time series
-ggplot(temp_rgns)+
-  geom_line(aes(year, temp)) + 
-  facet_wrap(~Subbasin, scales = "free_y") +
-  theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90, 
-                                    hjust=.5, vjust=.5, face = "plain")) +
-  ggtitle("ICES Annual Temperature time series")
+```{r sea surface temperatures data points map, fig.width = 9.5, fig.heigth = 3, results = "show"}
+basemap +
+  geom_sf(
+    data = st_as_sf(cc_data_w_rgns, coords = c("longitude", "latitude"), crs = 4326) %>% 
+      filter(year %in% c(1998, 2008, 2018), !is.na(temp)),
+    mapping = aes(color = temp),
+    size = 2,
+    alpha = 0.2
+  ) +
+  scale_color_gradientn(
+    colors = c("khaki", "lightblue", "steelblue"),
+    values = c(0, 0.4, 1)
+  ) +
+  labs(color = "SST") +
+  facet_grid(cols = vars(year))
 ```
 
 
-### 4.4 Current conditions 2015-2019
+<br>
 
-#### 4.4.1 Current conditions if taken from the hindcast data
-Five most recent years
+### 3.3 Current Conditions {-}
 
-```{r current surface sal ices}
-max_year <- 2019
+Current conditions if taken from the hindcast data. Each scenario year takes average from the five most recent years (e.g. for 2019 assessment, pressure score is derived from 2015-2019 average, rescaled).
 
-surf_sal_current <- sal_rgns %>%
-  filter(year >= (max_year - 4)) %>%
-  select(Subbasin, sal) %>%
+```{r current surface sal and temp ices, results = "show", fig.width = 9.5}
+surf_sal_current <- cc_data_w_rgns %>%
+  group_by(Subbasin, year) %>% 
+  summarize(annual_mean_surfsal = mean(surfsal, na.rm = TRUE)) %>% 
+  arrange(Subbasin, year) %>% 
   group_by(Subbasin) %>%
-  summarise(current_surf_sal = mean(sal)) %>%
+  mutate(
+    ma5_surf_sal = zoo::rollapply(annual_mean_surfsal, 5, mean, na.rm = TRUE, align = "right", fill = NA),
+    year = as.numeric(year)
+  ) %>% 
+  rename(basin_name_holas = Subbasin) %>% 
+  ungroup() %>% 
+  arrange(desc(year))
+
+surf_temp_current <- cc_data_w_rgns %>%
+  group_by(Subbasin, year) %>% 
+  summarize(annual_mean_temp = mean(temp, na.rm = TRUE)) %>% 
+  arrange(Subbasin, year) %>% 
+  group_by(Subbasin) %>%
+  mutate(
+    ma5_surf_temp = zoo::rollapply(annual_mean_temp, 5, mean, na.rm = TRUE, align = "right", fill = NA),
+    year = as.numeric(year)
+  ) %>% 
+  rename(basin_name_holas = Subbasin) %>% 
+  ungroup() %>% 
+  arrange(desc(year))
+
+## plot timeseries of surface salinity and temp, annual means and 5year moving average
+## data for BHI1.0 had ECHAM5 model data, projections; we don't have that here, only have hindcast... 
+gridExtra::grid.arrange(
+  ggplot(tidyr::pivot_longer(surf_sal_current, cols = c("annual_mean_surfsal", "ma5_surf_sal"))) +
+    geom_point(aes(year, value, color = name), alpha = 0.6) +
+    facet_wrap(~basin_name_holas, scales = "free_y", ncol = 4) +
+    theme(legend.position = c(0.9, 0.1)) +
+    scale_x_continuous(breaks = c(1990, 2000, 2010, 2020)) +
+    labs(color = "Name", x = NULL, y = "Annual Average Salinity (PSU)"),
+   ggplot(tidyr::pivot_longer(surf_temp_current, cols = c("annual_mean_temp", "ma5_surf_temp"))) +
+    geom_point(aes(year, value, color = name), alpha = 0.6) +
+    facet_wrap(~basin_name_holas, scales = "free_y", ncol = 4) +
+    theme(legend.position = c(0.9, 0.1)) +
+    scale_x_continuous(breaks = c(1990, 2000, 2010, 2020)) +
+    labs(color = "Name", x = NULL, y = "Annual Average Temp (deg C)"),
+  nrow = 1
+)
+```
+
+
+
+### 3.4 Maximums and Minimums for Normalizing Salinity and Temperature Averages {-}
+
+**Maximum Annual Salinity**
+
+max value = maximum annual salinity during reference period (1960-1990)  
+From hindcast data, extract the maximum annual surface salinity for each basin between 1960-1990
+
+```{r max annual salinity}
+## take max from hindcast dataset
+## use moving average or annual means??
+max_surf_sal <- surf_sal_current %>%
+  filter(year %in% 1960:1990) %>%
+  select(basin_name_holas, ma5_surf_sal) %>%
+  group_by(basin_name_holas) %>%
+  summarise(max_surf_sal = max(ma5_surf_sal, na.rm = TRUE)) %>%
   ungroup()
-              
-
-surf_sal_current
-
 ```
 
-### 4.4.3 Plot Current condition - compare datasets
-```{r plot current surface sal condition}
-ggplot(bind_rows(
-       mutate(surf_sal_current, type = "hindcast"),
-       mutate(surf_sal_current_echam5, type = "echam5")))+
-  geom_point(aes(basin_name_holas, current_surf_sal, colour=type, shape=type), size=2.5)+
-   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
-                                    hjust=.5, vjust=.5, face = "plain"))+
-  ggtitle("Mean Surface Salinity 2010-2014, compare time series")
 
 
-```
+
+
+
+
+
+### 3.4 Calculate Surface Salinity Pressure Scores {-}
+
+### 3.5 Calculate Sea Surface Temperature Pressure Scores {-}
+
+
+
+
+
+########################----------------------------------------------------########################
+
 
 
 
