@@ -7,4 +7,9 @@
 
 In BHI 2.0, since the BALTSEM is not as easily accessible, [data from HELCOM stations, obtained from  ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead, only including sea surface temperature (SST) and surface salinity (SS) (as bottom water salinity -BWS- is not available). Data was downloaded on 24 August 2020 by Andrea De Cervo. 
 
+
+#### 2.1.2 Surface Salinity & Temperature Projections {-}
+
+From BHI 1.0, we have data extracted from the [BALTSEM model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html), run by Bärbel Muller-Karulis from the Baltic Sea Centre at Stockholm University. 
+
 <br>
