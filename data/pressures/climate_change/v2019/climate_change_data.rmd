@@ -1,16 +1,15 @@
-# Climate Change Pressure Layer
+
+### 2.1 Datasets with Sources {-}
+<br/>
+
+#### 2.1.1 Sea Surface Temperature & Surface Salinity {-}
+<!-- dataset save location BHI_share/BHI 2.0/Pressure/climate_change/Helcom/helcom.csv -->
+
+In BHI 2.0, since the BALTSEM is not as easily accessible, [data from HELCOM stations, obtained from  ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead, only including sea surface temperature (SST) and surface salinity (SS) (as bottom water salinity -BWS- is not available). Data was downloaded on 24 August 2020 by Andrea De Cervo. 
 
 
-## 1. Background 
-The direct effects of climate change in the abiotic environment will be changes to water temperature and salinity. In the BHI framework, we will include sea surface temperature (SST), surface salinity (SS), and bottom water salinity (BWS) as climate change pressures. Depth of bottom water varies by basin.
+#### 2.1.2 Surface Salinity & Temperature Projections {-}
 
-**Climate Change in the Baltic Sea**  
-[Second Assessment of Climate Change for the Baltic Sea Basin](http://www.springer.com/gp/book/9783319160054)  
+From BHI 1.0, we have data extracted from the [BALTSEM model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html), run by Bärbel Muller-Karulis from the Baltic Sea Centre at Stockholm University. 
 
-## 2. Data
-
-### 2.1 Data source
-In BHI 1.0, data were extracted from the [BALTSEM model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html), run by BÃ¤rbel MÃ¼ller Karulis from the Baltic Sea Centre at Stockholm University.
-
-In BHI 2.0, since the BALTSEM is not as easily accessible, [ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead, only including sea surface temperature (SST) and surface salinity (SS) (as bottom water salinity -BWS- is not available). Data was downloaded on 24 August 2020 by Andrea De Cervo. 
-
+<br>
