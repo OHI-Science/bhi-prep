@@ -31,9 +31,10 @@ regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
 
 basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
   read_csv() %>%
-  dplyr::select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
+  dplyr::select(BHI_ID = region_id, Subbasin = subbasin, rgn_nam = region_name, 
+                bhi_area_km2 = region_area_km2) %>%
   mutate(
-    subbasin = as.character(subbasin),
+    Subbasin = as.character(Subbasin),
     rgn_nam = as.character(rgn_nam)
   )
 ```
@@ -46,14 +47,14 @@ basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.
 
 <br/>
 
-## 2. Data
+## 2. Data {-}
 
 This prep document is used to generate and explore the following data layers:
 
 - `lsp_status_bhi2019.csv` 
 - `lsp_trend_bhi2019.csv` 
 
-These are saved to the `layers/v2019` folder. Saved to `data/LSP/v2019/intermediate` are intermediate datasets: `mpa_bhi_data.csv` and `DATASETINTEMED2.csv`. All these are derived from or informed by the raw datasets from HELCOM database.
+These are saved to the `layers/v2019` folder. Saved to `data/LSP/v2019/intermediate` are intermediate datasets: `mpa_bhi_data.csv`, `bhi_buffer.shp` and `bhi_transf.shp`. All these are derived from or informed by the raw datasets from HELCOM database.
 
 <br>
 
@@ -62,7 +63,7 @@ These are saved to the `layers/v2019` folder. Saved to `data/LSP/v2019/intermedi
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
 
 ```{r load lsp datasets, echo = TRUE}
@@ -90,9 +91,9 @@ mpa_bhi_data <- read_csv(file.path(dirname(data_path), "intermediate", "mpa_bhi_
 
 In BHI 1.0, MPA regions were divided by with BHI region shapefile, to be able to calculate the total MPA area within each BHI region. (MPA area per region was saved in the prep folder _bhi-1.0-archive/baltic2015/prep/LSP/mpa_area_per_rgn.csv_ and includes information on _Area per MPA, Date established, MPA status, total MPA area per region_).
 
-However, in April 2016, changes had been made on raw datasets, in particular the following attributes were removed: "Location_S", "AreaTot_Ha", "AreaMar_Ha", "N2K_Site", changed following attributes names: "BSPA_ID" to "MPA_ID", "BSAPLink" to "Site_link" and added attribute "Date_est". Therefore, the attribute "MPA.size.km.sup2" from the raw _report_sites_ dataset was used as total MPA area.
+However, in April 2016, changes had been made on raw datasets, in particular the following attributes were removed: "Location_S", "AreaTot_Ha", "AreaMar_Ha", "N2K_Site", changed following attributes names: "BSPA_ID" to "MPA_ID", "BSAPLink" to "Site_link" and added attribute "Date_est". Therefore, the attribute "MPA.size.km.sup2" from the raw _report_sites_ dataset will be used as total MPA area.
 
-### 3.1 MPA management status  
+### 3.1 MPA management status  {-}
 
 Joining information from the .csv file to the shapefile data.  
 
@@ -116,7 +117,7 @@ mpa_mgmt <- right_join(mgmt_status, mpa_bhi,
                 status_shape = MPA_status,
                 date_est = Date_est,
                 eez_area_km2 = Area_km2) %>% 
-mutate(mgmt_status = ifelse(is.na(status_csv), as.character(status_shape), status_csv))
+mutate(mgmt_status = ifelse(is.na(status_csv), as.character(status_shape), status_csv)) 
        # Mgmt_status = str_replace_all(mgmt_status, Managed, Designated_and_partially_managed)
              
 # count number of MPAs in shape file with no matches in csv file. 
@@ -125,7 +126,7 @@ mutate(mgmt_status = ifelse(is.na(status_csv), as.character(status_shape), statu
 ````
 <br/>
 
-### 3.2 Explore map data 
+### 3.2 Explore map data {-}
 
 ```{r explore mpa data in map, eval = FALSE, results = "show", fig.width = 9, fig.height = 6}
 library(leaflet)
@@ -172,11 +173,11 @@ mpa_plot <- basemap +
 ```
 <br/>
 
-## 4. Status calculation (HELCOM dataset)
+## 4. Status calculation {-}
 
-Following the same method as for the BHI 1.0, the model assesses the area of MPAs in each country in relation to its EEZs, and their management status. 
+Following a similar method as for the BHI 1.0, the model assesses the area of MPAs in each *bhi region* in relation to its EEZs, and their management status. 
 
-Status is calculated by country and a country's status is applied to all BHI regions associated with that country.
+Status is calculated by *bhi region* (which is also associated with that respective country).
 
 STEPS:
 
@@ -202,7 +203,7 @@ Weight (w_i) is based upon management status, which is broken down to three cate
 **Reference_pt_bhiregion** = 10% of the area in a bhi region's EEZ is designated as an MPA and is 100% managed = 10% area bhi region's EEZ  
 
 
-### 4.1 Calculate reference point
+### 4.1 Calculate reference point {-}
 
 ```{r status calculation, ECHO = FALSE, message = FALSE}
 mgmt_weight <- data.frame(mgmt_status = c(
@@ -211,15 +212,15 @@ mgmt_weight <- data.frame(mgmt_status = c(
                           
 mpa_mgmt_with_wt = full_join(mgmt_weight, mpa_mgmt, 
                               by = 'mgmt_status') %>% 
-  mutate(rgn_nam = paste(Subbasin,",",country))
+  mutate(rgn_nam = paste(Subbasin,",", country))
 
-### Calculate the reference point: 10% total eez per bhi region
+### Calculate the reference point: 10% total eez per bhi region 
 eez_data <- mpa_mgmt_with_wt %>%
-  dplyr::select(MPA_ID, BHI_ID, country, rgn_nam, eez_area_km2) %>%
-  filter(!duplicated(MPA_ID)) %>% #remove duplicated rows of the same MPA
+  dplyr::select(MPA_ID, BHI_ID, country, eez_area_km2) %>%
+#  filter(!duplicated(MPA_ID)) %>% #remove duplicated rows of the same MPA (but also MPA shared by two bhi_rgn)
   filter(!duplicated(BHI_ID)) %>%
-  group_by(rgn_nam) %>%
-  summarize(total_eez_km2 = sum(eez_area_km2)) %>%
+  group_by(BHI_ID) %>%
+  summarize(total_eez_km2 = sum(eez_area_km2)) %>% 
   ungroup() %>%
   mutate(ref_eez_km2 = 0.1 * total_eez_km2) %>%
   dplyr::select( -total_eez_km2)
@@ -228,9 +229,8 @@ eez_data <- mpa_mgmt_with_wt %>%
 ### cumulative_sum (weight * mpa_area_km2)
 cum_mpa_area_wt <- mpa_mgmt_with_wt %>%
   dplyr::select(MPA_ID, BHI_ID, weight, country, rgn_nam, mpa_area_km2, year = Year_est) %>%
-  filter(!is.na(year), 
-         !duplicated(MPA_ID)) %>% # the same MPA could exist in different BHI_IDs 
-  group_by(rgn_nam, year) %>%
+  filter(!is.na(year)) %>% 
+  group_by(BHI_ID, year) %>%
   dplyr::summarize(sum_mpa_wt = sum(mpa_area_km2 * weight)) %>%
   arrange(year) %>%
   mutate(cum_mpa_wt = cumsum(sum_mpa_wt)) %>%
@@ -239,21 +239,22 @@ cum_mpa_area_wt <- mpa_mgmt_with_wt %>%
 ### Calculate status per bhi region per year: 
 ### cumulative_sum (weight * mpa_area_km2) / ref_point
 status_per_year_by_bhiregion <- full_join(
-  cum_mpa_area_wt, eez_data, by = 'rgn_nam') %>% 
-  group_by(rgn_nam, year) %>%
-  summarize(status = round(max(-1, min(1, cum_mpa_wt/ref_eez_km2)) * 100, 1)) %>%
+  cum_mpa_area_wt, eez_data, by = 'BHI_ID') %>% 
+  group_by(BHI_ID, year) %>%
+  summarize(status = round(max(-1, pmin(1, cum_mpa_wt/ref_eez_km2)) * 100, 1)) %>%
   ungroup() %>%
-  arrange(rgn_nam, year)
+  arrange(BHI_ID, year)
 
 ### Calculate status per bhi region
 status_by_bhiregion <- status_per_year_by_bhiregion %>%
-  group_by(rgn_nam) %>%
-  filter(year == max(year)) %>%
-  dplyr::select(-year)
+  group_by(rgn_id = BHI_ID) %>%
+  filter(year == max(year)) %>% # there are also differences in MPA status among years
+  dplyr::select(-year, -BHI_ID)
 
 lsp_last_year <- status_per_year_by_bhiregion %>%
-  group_by(rgn_nam)%>%
+  group_by(BHI_ID)%>%
   summarise(last_year = last(year))
+# bhi_rgn have different last year data
 
 knitr::kable(
   lsp_last_year %>% 
@@ -266,7 +267,7 @@ r.status <- mpa_mgmt_with_wt %>%
   dplyr::select(rgn_id = BHI_ID, 
                 country, rgn_nam) %>%
   full_join(status_by_bhiregion, 
-            by = 'rgn_nam') %>% 
+            by = 'rgn_id') %>% 
   dplyr::select(rgn_id, 
                 score = status) %>% 
   mutate(rgn_id = as.integer(rgn_id)) %>% 
@@ -282,35 +283,94 @@ write_csv(r.status, file.path(dir_layers, 'lsp_status_bhi2019.csv'))
 ```
 <br/>
 
-### 4.2 Plot status per country
 
-```{r plot status by bhi region, ECHO = FALSE, message=FALSE}
-plot_status <- ggplot(status_by_bhiregion, aes(x = rgn_nam, y = status)) +
- geom_bar(stat = 'identity') +
- theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
- labs(title = 'LSP status by BHI region',
-      x = 'BHI Region', 
-      y = 'LSP status')
+#### 4.1.1 Alternative calculation of sum area {-}
 
-print(plot_status)
+It seems like the management weighs quite heavily in the score that even if there are lots of MPAs on the map, they are not worth much unless they are at least partly managed. Therefore, apply the managemnet designation weighting before doing proportion of area. 
+
+What the score would be before applying  the 'penalties' (the  different  management categories based on whether the MPA is managed)
+
+```{r}
+# Calculate the proportion
+alt <- mpa_mgmt_with_wt %>%
+  group_by(BHI_ID) %>%
+  mutate(
+    total_mpa_area_in_bhirgn = sum(mpa_area_km2),
+    area_refpt = 0.1 * eez_area_km2
+  ) %>% 
+  ungroup() %>% 
+  ## if the total MPA area exceeds the 10% mark,
+  ## don't want sum of weights for weighted sum to exceed 1
+  ## so need to use ratio of MPA area to Sum of MPA areas in given BHI region
+  ## but want to penalize for not reaching 10% mark
+  ## so use MPA area vs Reference Area (10%) in all other cases
+  mutate(mpa_prop = ifelse(
+    total_mpa_area_in_bhirgn >= area_refpt,
+    mpa_area_km2/total_mpa_area_in_bhirgn,
+    mpa_area_km2/area_refpt
+  )) %>% 
+  group_by(BHI_ID) %>% 
+  mutate(
+    ## check_area_ref_relationship should be less than 1 for BHI regions where 10% ref area as MPA is not achieved
+    ## but should never exceed 1!
+    ## (if you were to calc mpa_prop above without ifelse, i.e. mpa_prop = mpa_area/area_refpt, would get many cases above 1
+    check_area_ref_relationship = sum(mpa_prop),
+    status_score = sum(mpa_prop*weight))
+
+### Calculate status per year by bhi region
+status_per_year_by_bhiregion_alt <- alt %>% 
+  group_by(BHI_ID, year = Year_est) %>%
+  summarize(status = round(max(-1, pmin(1, status_score)) * 100, 1)) %>%
+  ungroup() %>%
+  arrange(BHI_ID, year)
+
+### Calculate status per bhi region
+status_by_bhiregion_alt <- status_per_year_by_bhiregion_alt %>%
+  group_by(rgn_id = BHI_ID) %>%
+  filter(year == max(year)) %>% # there are also differences in MPA status among years
+  dplyr::select(-year, -BHI_ID)
+
+lsp_last_year <- status_per_year_by_bhiregion_alt %>%
+  group_by(BHI_ID)%>%
+  summarise(last_year = last(year))
+# bhi_rgn have different last year data
+
+knitr::kable(
+  lsp_last_year %>% 
+    group_by(last_year) %>%
+    summarize(`Num. BHI Regions with Year` = n(), rgn_nam = paste(rgn_nam, collapse = ", ")) %>% 
+    rename(`Last Year ` = last_year))
+
+r.status_alt <- alt %>%
+  filter(!duplicated(BHI_ID)) %>%
+  dplyr::select(rgn_id = BHI_ID, 
+                country, rgn_nam) %>%
+  full_join(status_by_bhiregion_alt, 
+            by = 'rgn_id') %>% 
+  dplyr::select(rgn_id, 
+                score = status) %>% 
+  mutate(dimension= "status",
+         status = score/100)
+
+# Save status layer
+write_csv(r.status_alt, file.path(dir_layers, 'lsp_status_bhi2019.csv'))
+
 ```
-<br/>
 
 
-### 4.3  Plot final score objects
+#### 4.1.2 Plot alternative status {-}
 
-**Plot Status**
-```{r final score object plotted}
+```{r}
 ## plot the status
-plot_status <- r.status %>% 
-  full_join(.,basin_lookup, by = c("rgn_id"= "bhi_id")) 
+plot_status_alt <- r.status_alt %>% 
+  full_join(.,basin_lookup, by = c("rgn_id"= "BHI_ID")) 
 
 set.seed(2)
 statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
 
-ggplot(plot_status) +
+ggplot(plot_status_alt) +
   geom_col(
-    aes(rgn_nam, score, fill = subbasin),
+    aes(rgn_nam, score, fill = Subbasin),
     position = position_dodge(), 
     color = "black", 
     alpha = 0.6,
@@ -323,7 +383,210 @@ ggplot(plot_status) +
   theme_bw() +
   theme(axis.text.y = element_text(size = 9)) +
   scale_fill_manual(values = statuspal) +
-  ggtitle("LSP Status by Region")
+  ggtitle("LSP Status by BHI Region")
+```
+
+#### 4.1.3 Plot status map {-}
+
+```{r}
+# Make a map with score and mpa status categories
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+
+bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
+
+bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
+  sf::st_as_sf() %>% 
+  mutate(rgn_nam = stringr::str_replace(rgn_nam, ", ",  " , "))
+
+MPA_shp <- rmapshaper::ms_simplify(input = mpa_bhi) %>% 
+  sf::st_as_sf()
+
+## try joining data before plotting to make sure join works
+plotsf <- left_join(
+   bhi_rgn_simple,
+   r.status_alt,
+   by = c("BHI_ID" = "rgn_id")
+)
+
+statusmap <- basemap +
+  geom_sf(
+    data = plotsf,
+    mapping = aes(fill = score)
+  ) +
+  scale_fill_gradientn(
+    colors = (cols),
+    values = c(0, 0.1, 0.3, 0.65, 0.8, 1),
+    limits = c(0, 100)
+  )
+
+statusmap + geom_sf(data = MPA_shp, mapping = aes(color = MPA_status), fill = NA, alpha = 0.4)
+```
+
+
+### 4.2 Plot status per country {-}
+
+```{r plot status by bhi region, ECHO = FALSE, message=FALSE}
+plot_status <- ggplot(status_by_bhiregion, aes(x = rgn_id, y = status)) +
+ geom_bar(stat = 'identity') +
+ theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
+ labs(title = 'LSP status by BHI region',
+      x = 'BHI Region', 
+      y = 'LSP status')
+
+print(plot_status)
+```
+<br/>
+
+#### 4.2.3 Plot number of MPAs per bhi regions {-}
+
+```{r plot number of MPAs per country, ECHO = FALSE, message=FALSE}
+## plot the number of MPAs per bhi regions
+num_mpa_per_bhi_rgn = mpa_mgmt %>%
+  group_by(BHI_ID) %>%
+  summarize(count = length(!duplicated(name_shape))) %>%
+  ungroup %>% 
+  full_join(basin_lookup, by = "BHI_ID")
+
+mpa_per_bhi_rgn_plot <- ggplot(num_mpa_per_bhi_rgn, aes(x = rgn_nam, y = count)) +
+ geom_bar(stat = 'identity') +
+ geom_text(aes(label = sprintf('n = %s', count), y = count), 
+           size = 3, 
+           angle = 90, hjust = 0, color = 'grey30') +
+ theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
+ labs(title = 'Number of MPAs per BHI region',
+      x = 'BHI regions', 
+      y = 'Number of MPAs')
+
+```
+
+#### 4.2.4 Plot the number of MPAs per bhi region by management level {-}
+
+```{r plot number of MPAs per country by mgmt levels, ECHO = FALSE, message = FALSE}
+
+## plot number of MPAs per bhi rgn by mgmt levels 
+mgmt_weight_alt <- data.frame(mgmt_status = c("Designated", "Designated_and_partly_managed", "Designated_and_managed"),
+                              weight = c(0.1, 0.4, 1)) 
+
+num_mpa_per_bhi_rgn_mgmt <- mpa_mgmt_with_wt %>%
+  group_by(BHI_ID, weight) %>%
+  summarize(count = length(!duplicated(name_shape))) %>%
+  ungroup %>% 
+  full_join(mgmt_weight_alt, by = "weight") %>% 
+  full_join(basin_lookup, by = "BHI_ID")
+
+num_bhi_rgn_mgmt_plot <- ggplot(num_mpa_per_bhi_rgn_mgmt, aes(x = rgn_nam, y = count, fill = mgmt_status)) +
+ geom_bar(stat = 'identity') +
+ geom_text(aes(label = sprintf('n = %s', count), y = count), 
+           size = 3, 
+           angle = 90, hjust = 0, color = 'grey30') +
+ theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
+ labs(title = 'Number of MPAs by BHI region and management level',
+      x = 'BHI region', 
+      y = 'Number of MPAs',
+      fill = 'Management Level')
+
+```
+
+#### 4.2.5 Plot total MPA area vs. 10% of the EEZ 
+
+In the plot below, the red line represents where total MPA area equals that of the reference point (ie. 10% EEZ). Any point above that line means that the country has exceeded the reference point of designated MPA area and therefore will have a status score of 100, and any point below the line will have a score lower than 100.  
+
+```{r compare total MPA area with ref EEZ, ECHo = FALSE, message = FALSE}
+mpa_vs_eez <- mpa_mgmt_with_wt %>%
+  dplyr::select(MPA_ID, BHI_ID, country, mpa_area_km2, year = Year_est) %>%
+#  filter(!is.na(year), 
+#         !duplicated(MPA_ID)) %>%  # the same MPA could exist in different BHI_IDs 
+  group_by(BHI_ID, year)  %>%
+  summarize(total_mpa_per_year = sum(mpa_area_km2)) %>%
+  ungroup() %>%
+  group_by(BHI_ID) %>%
+  mutate(total_mpa = cumsum(total_mpa_per_year)) %>%
+  filter(year == max(year)) %>%
+  full_join(dplyr::select(eez_data, BHI_ID, ref_eez_km2), 
+            by = 'BHI_ID') %>%
+  dplyr::select( -total_mpa_per_year, -year) %>% 
+  full_join(basin_lookup, by = "BHI_ID")
+  
+mpa_vs_eez_plot <- ggplot(mpa_vs_eez, aes(x = ref_eez_km2, y = total_mpa)) +
+  geom_point(aes(color = BHI_ID), size = 3) +
+  geom_abline(slope = 1, intercept = 0, color = 'red') +
+  geom_text(aes(label = BHI_ID), nudge_y = -300) +
+  theme(legend.position = 'none') +
+  coord_cartesian(xlim = c(0, 15000), ylim = c(0, 15000)) +
+  labs(title = 'Total MPA vs. Reference EEZ area by BHI region',
+       x = '10% EEZ (km2)', 
+       y = 'Total MPA (km2)')
+
+print( mpa_vs_eez_plot)
+
+```
+
+
+#### 4.2.6 Plot the area of MPA by management level vs. 10% EEZ
+
+Even when a BHI region has many MPAs that are just designated but not managed, it can still achieve a score of 100, is it because the area of MPAs that are "managed" (ie. higher weight) is relatively larger compared to that of the "designated"" (ie. lower weight), and thus have a higher _weight*area_ score?  
+
+The plot below compares the total MPA area of each management level with the reference point (10% EEZ). 
+The black dots represent 10% EEZ. 
+
+```{r MPA area vs management level}
+area_vs_mgmt_lvl <- mpa_mgmt_with_wt %>%
+  dplyr::select(MPA_ID, BHI_ID, country, mpa_area_km2, year = Year_est, mgmt_status) %>%
+#  filter(!is.na(year), 
+#         !duplicated(BSPA_ID)) %>%  # the same MPA could exist in different BHI_IDs
+  group_by(BHI_ID, mgmt_status)  %>%
+  summarize(total_mpa_area = sum(mpa_area_km2)) %>%
+  full_join(eez_data, by = "BHI_ID") %>% 
+  full_join(basin_lookup, by = "BHI_ID")
+
+area_vs_mgmt_lvl_plot <- ggplot(area_vs_mgmt_lvl, aes(x = rgn_nam, y = total_mpa_area, fill = mgmt_status)) +
+ geom_bar(stat = 'identity') +
+ geom_point(aes(x = rgn_nam, y = ref_eez_km2, size = ref_eez_km2), col = "black", show.legend = NA) +
+ theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
+ labs(title = 'MPA area of each management level vs. 10% EEZ per BHI region',
+      x = 'BHI region', 
+      y = 'MPA area (km2)',
+      fill = 'Management Level',
+      size = '10% EEZ')
+
+print(area_vs_mgmt_lvl_plot)
+
+```
+
+
+### 4.3  Plot final score objects {-}
+
+**Plot Status**
+```{r final score object plotted}
+## plot the status
+plot_status <- r.status %>% 
+  full_join(.,basin_lookup, by = c("rgn_id"= "BHI_ID")) 
+
+set.seed(2)
+statuspal <- colorRampPalette(fullpal)(80)[sample(1:80, size = 18)]
+
+ggplot(plot_status) +
+  geom_col(
+    aes(rgn_nam, score, fill = Subbasin),
+    position = position_dodge(), 
+    color = "black", 
+    alpha = 0.6,
+    size = 0.2,
+    show.legend = FALSE
+  ) + 
+  geom_text(aes(rgn_nam, score, label = score), color = "black", size = 3) +
+  coord_flip() +
+  labs(x = NULL, y = "Score") +
+  theme_bw() +
+  theme(axis.text.y = element_text(size = 9)) +
+  scale_fill_manual(values = statuspal) +
+  ggtitle("LSP Status by BHI Region")
 
 ```
 <br/>
@@ -331,9 +594,10 @@ ggplot(plot_status) +
 This status score looks more similar to the previous assessment. 
 Will use this for the trend calculation.
 
-## 6. Trend calculation
 
-### 6.1 Linear trend of status scores
+## 6. Trend calculation {-}
+
+### 6.1 Linear trend of status scores {-}
 
 A linear trend was drawn on the status scores of the past five years. 
 
@@ -341,26 +605,27 @@ A linear trend was drawn on the status scores of the past five years.
 trend_data <- status_per_year_by_bhiregion %>% 
   filter(!is.na(year)) %>% # one russian MPA didn't have info on established year
   mutate(year = as.integer(year)) %>%
-  tidyr::complete(year = full_seq(year, 1), nesting(rgn_nam)) %>%
-  group_by(rgn_nam) %>%
+  tidyr::complete(year = full_seq(year, 1), nesting(BHI_ID)) %>%
+  group_by(BHI_ID) %>%
   fill(status) %>%
   mutate(status = ifelse(is.na(status), 0, status)) %>%
   ungroup()
 
 r.trend <- trend_data %>%
   filter(year > (max(year) - 5)) %>% # most recent 5 years of data (2013- 2018)
-  group_by(rgn_nam) %>%
+  group_by(BHI_ID) %>%
   do(dlm = lm(status ~ year, data = .)) %>%
   mutate(score = round(pmax(-1, pmin(1, coef(dlm)[['year']]* 5/100)), 1)) %>%
-  dplyr::select(rgn_nam, score) 
+  dplyr::select(BHI_ID, score)%>% 
+  full_join(basin_lookup, by = "BHI_ID")   
 
-r.trend_by_bhi <- dplyr::select(mpa_mgmt_with_wt, BHI_ID, country, rgn_nam) %>% 
+r.trend_by_bhi <- dplyr::select(mpa_mgmt_with_wt, BHI_ID, country) %>% 
   filter(!duplicated(BHI_ID)) %>% 
   full_join(r.trend,
-            by = "rgn_nam") %>% 
-  dplyr::select(rgn_id = BHI_ID, 
+            by = "BHI_ID") %>% 
+  dplyr::select(BHI_ID, 
                 score) %>% 
-  mutate(dimension = "trend")
+  mutate(dimension = "trend") 
 
 # Save trend layer
 write_csv(r.trend_by_bhi, file.path(dir_layers, 'lsp_trend_bhi2019.csv'))  
@@ -376,11 +641,12 @@ trend_plot <- ggplot(r.trend, aes(x = rgn_nam, y = score)) +
 ```
 
 
-### 6.2 Plot final slope object
+### 6.2 Plot final slope object {-}
 
 ```{r plot final code object}
 plot_slope <- r.trend_by_bhi %>%
-  full_join(., basin_lookup, by = c("rgn_id"="bhi_id")) 
+  full_join(., basin_lookup, by = "BHI_ID") %>% 
+  rename(rgn_id = BHI_ID)
 
 ggplot(plot_slope) +
   geom_hline(yintercept = 0) +
@@ -390,7 +656,7 @@ ggplot(plot_slope) +
   ggtitle("LSP Slope")
 
 ggplot(rbind(plot_status, plot_slope)) + 
-  geom_col(aes(rgn_nam, score, fill = subbasin), alpha = 0.5, show.legend = FALSE) +
+  geom_col(aes(rgn_nam, score, fill = Subbasin), alpha = 0.5, show.legend = FALSE) +
   coord_flip() +
   facet_wrap(~dimension, scales = "free_x", nrow = 1) +
   labs(x = "BHI Region\n", y = "Score") +
@@ -400,11 +666,11 @@ ggplot(rbind(plot_status, plot_slope)) +
 ```
 
 
-## 7. Considerations for `BHI3.0`
+## 7. Considerations for `BHI3.0` {-}
 
 <br>
 
-## 8. References
+## 8. References {-}
 
 ```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
