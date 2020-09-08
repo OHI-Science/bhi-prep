@@ -1,4 +1,4 @@
-BHI_ID,pressure_score,year
+region_id,pressure_score,year
 1,0,2019
 2,0,2019
 3,0.456,2019
