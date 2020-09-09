@@ -90,6 +90,8 @@ source(here::here("R", "spatial.R"))
 regions_shape()
 ```
 
+<br>
+
 ###  3.1 Initial Cleaning {-}
 
 ```{r rename and take subset of cc data columns}
@@ -120,7 +122,7 @@ ices_cc_data <- ices_cc_data %>%
 
 ### 3.2 Match Monitoring Stations to Subbasins {-}
 
-```{r match cc pressure layers data to subbasins using lat long and spatial files}
+```{r match cc pressure layers data to subbasins using lat long and spatial files, eval =  FALSE}
 cc_data_w_rgns_sp <- join_rgns_info(
   ices_cc_data, helcomID_col = "helcom_id", country_col = "country", 
   latlon_vars = c("latitude", "longitude"), return_spatial = TRUE, 
@@ -180,8 +182,8 @@ cc_data_w_rgns_sp <- join_rgns_info(
 ## also filter beyond certain depth, as we just want the surface layer??
 cc_data_w_rgns_sp <- cc_data_w_rgns_sp %>% 
   filter(!in_25km_buffer|(in_25km_buffer & !BHI_ID %in% c(1, 2, 8, 10))) %>% 
-  # filter((depth <= 40)|(!is.na(surfsal) & is.na(depth))) %>% 
-  mutate(month = as.numeric(month))
+  # filter((depth <= 50)|(!is.na(surfsal) & is.na(depth))) %>%
+  mutate(month = as.numeric(month), year = as.numeric(year))
 
 ## recheck points included, with leaflet map
 make_datapts_leafletmap(cc_data_w_rgns_sp)
@@ -244,8 +246,10 @@ Note that the climate projections for temperature are for months July-August, so
 
 ```{r current surface sal and temp ices, results = "show", fig.width = 9.5}
 surf_sal_current <- cc_data_w_rgns %>%
+  group_by(Subbasin, year, month) %>% 
+  summarize(monthly_mean_surfsal = mean(surfsal, na.rm = TRUE)) %>% 
   group_by(Subbasin, year) %>% 
-  summarize(annual_mean_surfsal = mean(surfsal, na.rm = TRUE)) %>% 
+  summarize(annual_mean_surfsal = mean(monthly_mean_surfsal, na.rm = TRUE)) %>% 
   arrange(Subbasin, year) %>% 
   group_by(Subbasin) %>%
   mutate(
@@ -258,8 +262,10 @@ surf_sal_current <- cc_data_w_rgns %>%
 
 surf_temp_current <- cc_data_w_rgns %>%
   filter(month %in% 7:8) %>% 
+  group_by(Subbasin, year, month) %>% 
+  summarize(monthly_mean_temp = mean(temp, na.rm = TRUE)) %>% 
   group_by(Subbasin, year) %>% 
-  summarize(julaug_mean_temp = mean(temp, na.rm = TRUE)) %>% 
+  summarize(julaug_mean_temp = mean(monthly_mean_temp, na.rm = TRUE)) %>% 
   arrange(Subbasin, year) %>% 
   group_by(Subbasin) %>%
   mutate(
@@ -277,13 +283,13 @@ gridExtra::grid.arrange(
     geom_point(aes(year, value, color = name), alpha = 0.6) +
     facet_wrap(~basin_name_holas, scales = "free_y", ncol = 4) +
     theme(legend.position = c(0.9, 0.1)) +
-    scale_x_continuous(breaks = c(1990, 2000, 2010, 2020)) +
+    scale_x_continuous(breaks = c(1960, 1975, 1990, 2005, 2020)) +
     labs(color = "Name", x = NULL, y = "Annual Average Salinity (PSU)"),
    ggplot(tidyr::pivot_longer(surf_temp_current, cols = c("julaug_mean_temp", "ma5_julaug_surf_temp"))) +
     geom_point(aes(year, value, color = name), alpha = 0.6) +
     facet_wrap(~basin_name_holas, scales = "free_y", ncol = 4) +
     theme(legend.position = c(0.9, 0.1)) +
-    scale_x_continuous(breaks = c(1990, 2000, 2010, 2020)) +
+    scale_x_continuous(breaks = c(1960, 1975, 1990, 2005, 2020)) +
     labs(color = "Name", x = NULL, y = "Jul-Aug Average Temp (deg C)"),
   nrow = 1
 )
@@ -454,7 +460,8 @@ ggplot(plot_surf_temp_refpts) +
 ```{r calculate surface salinity pressure scores, fig.width = 9.5, results = "show"}
 surf_sal_prs <- plot_surf_sal_refpts %>% 
   mutate(surf_sal_pressure = (ma5_surf_sal - max_surf_sal)/(min_salinity_hadcm3 - max_surf_sal)) %>% 
-  mutate(surf_sal_pressure = pmin(1, pmax(0, round(surf_sal_pressure, 2))))
+  mutate(surf_sal_pressure = pmin(1, pmax(0, round(surf_sal_pressure, 2)))) %>% 
+  rename(subbasin = basin_name_holas)
 ```
 
 
@@ -465,32 +472,37 @@ Note: Greater pressure occurs with lower salinity, so will need to take the inve
 ```{r calculate surface temperature pressure scores}
 surf_temps_prs <- plot_surf_temp_refpts %>% 
   mutate(surf_temp_pressure = (ma5_julaug_surf_temp - min_surf_temp)/(max_temp_hadcm3 - min_surf_temp)) %>% 
-  mutate(surf_temp_pressure = pmin(1, pmax(0, round(surf_temp_pressure, 2))))
+  mutate(surf_temp_pressure = pmin(1, pmax(0, round(surf_temp_pressure, 2)))) %>% 
+  rename(subbasin = basin_name_holas)
 ```
 
 
 ```{r assign the subbasin pressures to BHI regions and save the layer}
 rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))
-
-surf_sal_prs <- surf_sal_prs %>% 
-  rename(subbasin = basin_name_holas) %>% 
-  filter(year %in% 1990:2019) %>% 
-  left_join(rgns_complete, by = "subbasin") %>% 
-  select(region_id, year, surf_sal_pressure)
-
-surf_temps_prs <- surf_temps_prs %>% 
-  rename(subbasin = basin_name_holas) %>% 
-  filter(year %in% 1990:2019) %>% 
-  left_join(rgns_complete, by = "subbasin") %>% 
-  select(region_id, year, surf_temp_pressure)
-
 ## missing a few regions in a few years, add these...
 d <- expand.grid(list(region_id = 1:42, year = 1990:2019), stringsAsFactors = FALSE)
-surf_sal_prs <- dplyr::left_join(d, surf_sal_prs, by = c("region_id", "year"))
-surf_temps_prs <- dplyr::left_join(d, surf_temps_prs, by = c("region_id", "year"))
 
-write.csv(surf_sal_prs, file.path(dir_layers, "cc_sal_surf_bhi2019.csv"), row.names = FALSE)
-write.csv(surf_temps_prs, file.path(dir_layers, "cc_sst_bhi2019.csv"), row.names = FALSE)
+
+write.csv(
+  surf_sal_prs %>% 
+    filter(year %in% 1990:2019) %>%
+    left_join(rgns_complete, by = "subbasin") %>% 
+    dplyr::left_join(d, surf_sal_prs, by = c("region_id", "year")) %>% 
+    select(region_id, year, surf_sal_pressure), 
+  
+  file.path(dir_layers, "cc_sal_surf_bhi2019.csv"), 
+  row.names = FALSE
+)
+write.csv(
+  surf_temps_prs %>% 
+    filter(year %in% 1990:2019) %>%
+    left_join(rgns_complete, by = "subbasin") %>% 
+    dplyr::left_join(d, surf_temps_prs, by = c("region_id", "year")) %>% 
+    select(region_id, year, surf_temp_pressure), 
+  
+  file.path(dir_layers, "cc_sst_bhi2019.csv"), 
+  row.names = FALSE
+)
 ```
 
 
@@ -502,12 +514,12 @@ write.csv(surf_temps_prs, file.path(dir_layers, "cc_sst_bhi2019.csv"), row.names
 gridExtra::grid.arrange(
   ggplot(surf_sal_prs) +
     geom_col(aes(year, surf_sal_pressure, fill = surf_sal_pressure)) +
-    facet_wrap(~basin_name_holas) +
+    facet_wrap(~subbasin) +
     scale_fill_viridis_c() +
     labs(x = NULL, y = "Surface Salinity Pressure", fill = "Surface Salinity Pressure"),
   ggplot(surf_temps_prs) +
     geom_col(aes(year, surf_temp_pressure, fill = surf_temp_pressure)) +
-    facet_wrap(~basin_name_holas) +
+    facet_wrap(~subbasin) +
     scale_fill_viridis_c() +
     labs(x = NULL, y = "Surface Temperature Pressure", fill = "Surface Temperature Pressure"),
   nrow = 2
