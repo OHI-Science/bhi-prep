@@ -1,0 +1,58 @@
+
+### 2.1 Datasets with Sources {-}
+<br/>
+
+The data for the Biodiversity goal consists of 4 shapefiles downloaded from HELCOM Metadata catalogue, with status and metrics reported by HELCOM Assessment Units – HELCOM open sea sub-basins and coastal WFD water bodies.
+
+
+#### 2.1.1 Habitats {-}
+
+**Integrated biodiversity status assessment - Benthic Habitats**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue: ](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/478d52dd-08b7-4777-b879-8806b1188b27) 
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Benthic Habitats](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/benthic-habitats/).
+
+
+**Integrated biodiversity status assessment - Pelagic Habitats**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue: ](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/821b33a7-35b3-489c-93ab-9ef8f4422f2a)
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Pelagic Habitats](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/pelagic-habitats/).
+
+
+#### 2.1.2 Species {-}
+
+
+**Integrated biodiversity status assessment - Fish**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue: ](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/ee20ad8b-c826-4561-b63a-bf203bb481b9) 
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Fish](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/fish/).
+
+
+**Integrated biodiversity status assessment - Seals**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue: ](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/c1662d7b-f63a-48cc-96f6-3072d328ae56)
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Marine Mammals (Seals) ](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/c1662d7b-f63a-48cc-96f6-3072d328ae56).
+
+
+
+#### 2.1.3 Reference values {-}
+
+
+<br>
+

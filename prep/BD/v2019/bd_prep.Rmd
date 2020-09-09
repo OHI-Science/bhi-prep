@@ -1,0 +1,195 @@
+---
+title: "Biodiversity Goal Data Preparation"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    code_folding: hide
+---
+
+<br>
+<br>
+
+```{r bd preamble prep, message = FALSE}
+source(here::here("R", "setup.R"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
+
+loc <- here::here("prep", "BD")
+dir_rawdata <- file.path(dir_B, "Goals", "BD")
+dir_intermediate <- here::here("data", "BD", version_year, "intermediate")
+
+bkgd_path <- here::here("supplement", "goal_summaries", "BD.Rmd")
+data_path <- here::here("data", "ECO", version_year, "bd_data.rmd")
+refs_path <- file.path(loc, "bd_references.Rmd")
+# file.exists(c(loc, bkgd_path, data_path, refs_path))
+```
+
+## 1. Background
+
+```{r bd background, child = bkgd_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 2. Data
+
+This prep document is used to generate and explore the following data layers:
+
+- `bd_hab_benthic_bhi2019.csv` 
+- `bd_hab_pelagic_bhi2019.csv`
+- `bd_spp_fish_bhi2019.csv` 
+- `bd_spp_seals_bhi2019.csv`
+
+These are saved to the `layers` folder. All these are derived from or informed by the raw datasets from the HELCOM 2018 integrated biodiversity status assessments.
+
+<br>
+
+```{r bd data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+
+
+### 3.1 Load datasets, Subset, replace zeros with NAs where zone Not Assessed {-}
+
+```{r load habitats and fish and seals spatial data layers}
+files <- grep(
+  "helcom_.*\\.shp$", 
+  list.files(dir_rawdata, recursive = TRUE, full.names = TRUE), 
+  value = TRUE
+)
+lapply(
+  files,
+  function(x){
+    assign(
+      sprintf("%s_shp", str_extract(x, "benthic|Fish|Seals|pelagic")),
+      sf::st_read(x) %>% 
+        dplyr::select(helcom_id = HELCOM_ID, country, subbasin = level_2, area_km2 = Area_km2, BQR, status = STATUS) %>% 
+        mutate(BQR = ifelse(status == "Not assessed", NA, BQR)) %>% 
+        ## these are just the 2018 integrated assessment
+        mutate(year = 2018) %>% 
+        select(-status)
+    )
+  }
+)
+```
+
+
+### 3.2 Match the BHI regions by Country and Subbasin {-}
+
+```{r match bhi regions to biodiversity datasets}
+rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+  select(region_id, subbasin, country = eez, region_name, region_area_km2) %>% 
+  mutate(subbasin = ifelse(subbasin == "Aland Sea", "Åland Sea", subbasin))
+
+## to match BHI regions, need to split the 'opensea' areas between adjacent countries
+benthic_shp <- bind_rows(
+  benthic_shp %>% 
+    filter(country != "Opensea") %>% 
+    left_join(rgns_complete, by = c("subbasin", "country")) %>% 
+    mutate(coastal = TRUE),
+  benthic_shp %>% 
+    filter(country == "Opensea") %>% 
+    left_join(tidyr::nest(rgns_complete, data = c(region_id, region_name, country, region_area_km2)), by = "subbasin") %>% 
+    select(-country) %>% 
+    tidyr::unnest(cols = c(data)) %>% 
+    mutate(coastal = FALSE)
+)
+benthic_shp <- benthic_shp %>% 
+  group_by(region_id) %>% 
+  mutate(coastal_area  = sum(area_km2*coastal)) %>% 
+  ungroup() %>% 
+  mutate(area_km2 = ifelse(coastal, area_km2, region_area_km2 - coastal_area)) %>% 
+  select(-coastal, -coastal_area, -region_area_km2)
+```
+
+
+```{r save bd layers}
+
+```
+
+
+```{r trial bd status calculations to test calculations and visualize}
+bd_all_data <- bind_rows(
+  benthic_shp %>% 
+    st_drop_geometry() %>% 
+    mutate(indicator = "hab_benthic"),
+  pelagic_shp %>% 
+    st_drop_geometry() %>% 
+    mutate(indicator = "hab_pelagic"),
+  Fish_shp %>% 
+    st_drop_geometry() %>% 
+    mutate(indicator = "spp_fishes"),
+  Seals_shp %>% 
+    st_drop_geometry() %>% 
+    mutate(indicator = "spp_seals")
+)
+
+bd_status <- bd_all_data %>% 
+  group_by(region_id, region_name, indicator) %>% 
+  summarize(averageBQR = weighted.mean(BQR, area_km2, na.rm = TRUE)) %>% 
+  ungroup()
+```
+
+
+<br/>
+
+## 4. Visualizing Data Layers {-}
+
+### 4.1 Maps {-}
+
+```{r simplify bd shapefiles and plot for visual inspection}
+source(here::here("R", "spatial.R"))
+bhirgn_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+
+## simplify the polygons before creating maps
+benthic_shp <- rmapshaper::ms_simplify(input = benthic_shp) %>% sf::st_as_sf()
+pelagic_shp <- rmapshaper::ms_simplify(input = pelagic_shp) %>% sf::st_as_sf()
+Fish_shp <- rmapshaper::ms_simplify(input = Fish_shp) %>% sf::st_as_sf()
+Seals_shp <- rmapshaper::ms_simplify(input = Seals_shp) %>% sf::st_as_sf()
+
+## basemap and color palettes
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+
+cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
+```
+
+
+#### 4.1.1 Benthic Habitats {-}
+
+```{r map of benthic habitats, eval = FALSE, results = "show", fig.width = 9.5, fig.height = 8.5}
+## maps of BQR for each layer: habitats (benthic and pelagic), fish, seals
+# ggplot2::ggplot() +
+#   geom_sf(
+#     data = bhirgn_simple,
+#     size = 0.1, color = "burlywood", fill = NA
+#   ) +
+#   geom_sf(data = , mapping = )
+```
+
+
+#### 4.1.2 Pelagic Habitats {-}
+
+#### 4.1.3 Fish {-}
+
+#### 4.1.4 Seals {-}
+
+
+<br>
+
+## 5. Considerations for `BHI3.0`
+
+
+
+<br>
+
+## 6. References
+
+```{r bd references, child = refs_path, results = "asis", echo = FALSE}
+```
