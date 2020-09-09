@@ -76,6 +76,11 @@ piscivores_status_raw <- read.csv(
 cyprinids_status_raw <- read.csv(
   file.path(dir_rawdata, "cyprinids_status.csv"), 
   sep = ";")
+
+coastal_areas <- sf::st_read(file.path(
+  dir_rawdata, "Coastal fish monitoring areas",
+  "CoastalFishAreas.shp"
+)) # CRS: 3035
 ```
 
 **Explore and clean coastal fish data for trend calculation**

@@ -104,7 +104,7 @@ combined_coastal_fish1 <- combined_coastal_fish %>%
 # need to check if "Archipelago Sea" (Finland) is actually Aland Sea subbasin
 #detach("package:raster", unload=TRUE) 
 
-bhibuffer <- sf::st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"))
+# bhibuffer <- sf::st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"))
 coastalfish_rgns <- join_rgns_info(
   combined_coastal_fish1, helcomID_col = "helcom_id", country_col = "country", 
   latlon_vars = c("^lat", "^lon"), return_spatial = FALSE, 
@@ -112,9 +112,6 @@ coastalfish_rgns <- join_rgns_info(
   buffer_shp = NULL
 ) 
 
-# Use the basin lookup table for now, as the above function is not working 
-coastalfish_rgns <- combined_coastal_fish1 %>% 
-  full_join(basin_lookup, by = "subbasin")
 ```
 
 <br/>
@@ -126,12 +123,12 @@ regions_shape()
 
 # Remove data points out of the bhi regions
 coastalfish_rgns1 <- coastalfish_rgns %>% 
-  filter(Monitoring.area != "Northern Limfjord" & 
-           Monitoring.area != "Skive Fiord and Lovns Broad") %>% 
+  filter(monitoring.area != "Northern Limfjord" & 
+           monitoring.area != "Skive Fiord and Lovns Broad") %>% 
   # assign bhi_id with na value
-  mutate(bhi_id = replace(bhi_id, is.na(bhi_id) & Monitoring.area == "Finbo", 36),
-         bhi_id = replace(bhi_id, is.na(bhi_id) & Monitoring.area == "Jurkalne", 24),
-         bhi_id = replace(bhi_id, is.na(bhi_id) & Monitoring.area == "Præstø Fiord", 12))
+  mutate(BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Finbo", 36),
+         BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Jurkalne", 24),
+         BHI_ID = replace(BHI_ID, is.na(BHI_ID) & monitoring.area == "Præstø Fiord", 12))
 
 ## make basemap
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) + 
@@ -164,15 +161,15 @@ coatal_fish <- basemap +
 
 ## 4 BHI Status score {-}
 
+Since there will be 12 BHI regions with NA assigned to them (due to missing data or no sampling there), the status score will be calculated at BHI region scale (therefore skipping the 'subbasin' scale).
+
 Step 1. Take mean score for each indicator type in each monitoring region.  
 
-Step 2. Take mean score for each indicator at the HOLAS basin scale (per country). 
+Step 2. Take mean score for each indicator at the BHI region scale. 
 
-Step 3. Take mean score for each indicator at the whole HOLAS basin scale. 
+Step 3. Take mean of the two indicators for each BHI region.  
 
-Step 4. Take mean of the two indicators for each basin.  
-
-Step 5. Apply basin score to each BHI region  
+Step 4. Apply basin score to each BHI region  
 
 
 Xao = Mean Stock Indicator Value / Reference Point
@@ -180,60 +177,45 @@ Xao = Mean Stock Indicator Value / Reference Point
 - Stock indicators = two HELCOM core indicators assessed for good environmental status (each scored between 0 and 1 by BHI)
 - Reference point = value = 0.6
 
-**A status of 100 indicates target (GES) is achieved**
-
+**A status of 100 indicates target is achieved**
 ```{r status calculation, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
-## Number of time series that will contribute to the mean score in each basin
-## these are the number of GES assessments (across indicators and taxa)
-basin_n_obs <- combined_coastal_fish1 %>% 
-  dplyr::select(subbasin) %>%
-  count(subbasin)
+## Number of time series that will contribute to the mean score in each bhi rgn
+basin_n_obs <- coastalfish_rgns1 %>% 
+  dplyr::select(BHI_ID) %>%
+  count(BHI_ID)
 
 ## Indicator mean by monitoring area
-monitoring_indicator_mean <- combined_coastal_fish1 %>% 
+monitoring_indicator_mean <- coastalfish_rgns1 %>% 
   dplyr::select(
-    subbasin, Country, Monitoring.area, lat, lon, core_indicator, Status.value.monitoring.location, threshold_value
+    BHI_ID, subbasin, country, monitoring.area, lat, lon, core_indicator, status.value.monitoring.location, threshold_value
     ) %>%
-  group_by(subbasin, Country, Monitoring.area, lat, lon, core_indicator, threshold_value)%>%
-  summarise(mean_core_monitoring_score = mean(Status.value.monitoring.location, na.rm=TRUE))%>%
+  group_by(BHI_ID, subbasin, country, monitoring.area, lat, lon, core_indicator, threshold_value)%>%
+  summarise(mean_core_monitoring_score = mean(status.value.monitoring.location, na.rm=TRUE))%>%
   ungroup()
 
 # Monitoring area score (mean across the two indicators)
 monitoring_mean_score <- monitoring_indicator_mean %>%
-  group_by(Monitoring.area, subbasin, Country, lat, lon, threshold_value) %>%
+  group_by(monitoring.area, BHI_ID, subbasin, country, lat, lon, threshold_value) %>%
   summarise(mean_monitoring_score = round(mean(mean_core_monitoring_score, na.rm=TRUE), 2)) %>%
   ungroup()
 
 # join basin lookup
 bhi_monitoring_mean_score <- monitoring_mean_score %>% 
-  full_join(., basin_lookup, by = "subbasin")  
+  full_join(., basin_lookup, by = c("BHI_ID" = "bhi_id", "subbasin"))  
 
-# Indicator mean by Subbasin (per country)
-country_indicator_mean <- monitoring_indicator_mean %>%
-  full_join(., basin_lookup, by = "subbasin") %>% 
-  group_by(subbasin, rgn_nam, core_indicator, threshold_value)%>%
-  summarise(mean_core_country_score = mean(mean_core_monitoring_score, na.rm=TRUE)) %>%
+# Indicator mean by bhi region
+bhi_indicator_mean <- monitoring_indicator_mean %>%
+  group_by(BHI_ID, subbasin, country, core_indicator, threshold_value)%>%
+  summarise(mean_core_bhi_score = mean(mean_core_monitoring_score, na.rm=TRUE)) %>%
   ungroup()
 
-# Indicator mean by Subbasin
-basin_indicator_mean <- country_indicator_mean %>%
-  group_by(subbasin, core_indicator, threshold_value)%>%
-  summarise(mean_core_basin_score = mean(mean_core_country_score, na.rm=TRUE)) %>%
-  ungroup()
-
-# Subbasin score (mean across the two indicators)
-basin_mean_score <- basin_indicator_mean %>%
-  group_by(subbasin, threshold_value) %>%
-  summarise(mean_basin_score = round(mean(mean_core_basin_score, na.rm=TRUE), 2)) %>%
-  ungroup()
-  
-## BHI score
+## BHI score (mean across the two indicators)
 # join basin lookup
-bhi_mean_score <- basin_mean_score %>% 
-  full_join(., basin_lookup, by = "subbasin") %>% 
-  group_by(subbasin, bhi_id, rgn_nam, threshold_value) %>%
-  summarise(mean_basin_score = round(mean(mean_basin_score, na.rm=TRUE), 2)) %>%
-  ungroup()
+bhi_mean_score <- bhi_indicator_mean %>%  
+  group_by(BHI_ID, threshold_value) %>%
+  summarise(mean_bhi_score = round(mean(mean_core_bhi_score, na.rm=TRUE), 2)) %>%
+  ungroup() %>% 
+  full_join(., basin_lookup, by = c("BHI_ID" = "bhi_id"))
 
 ```
 <br/>
@@ -250,7 +232,7 @@ Plot the monitoring stations, basins, and BHI regions
 ```{r plot scores levels of aggregation}
 ## Plot monitoring area indicator mean scores
 ggplot(monitoring_indicator_mean) + 
-  geom_point(aes(Monitoring.area, mean_core_monitoring_score, color = core_indicator,
+  geom_point(aes(monitoring.area, mean_core_monitoring_score, color = core_indicator,
                  shape = core_indicator), size = 3, alpha = 0.6) +
   geom_hline(yintercept = 0.6, color = "red") +
   theme(axis.text.x = element_text(colour="grey20", size=6, angle=90, 
@@ -261,7 +243,7 @@ ggplot(monitoring_indicator_mean) +
 
 ## Plot monitoring area indicator mean scores by Subbasin
 ggplot(monitoring_indicator_mean) + 
-  geom_jitter(aes(subbasin, mean_core_monitoring_score, color = Monitoring.area, 
+  geom_jitter(aes(subbasin, mean_core_monitoring_score, color = monitoring.area, 
                   shape = factor(core_indicator))) +
   guides(colour=FALSE)+
   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
@@ -371,12 +353,12 @@ There are no scores for Kiel Bay and Gdansk Basin, therefore no scores for BHI r
 ```{r final score objects, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 ## Calculate bhi status as: basin_mean/basin_target, constraining values to 1 as maximum score
 bhi_status <- bhi_mean_score %>%
-  dplyr::select(bhi_id, mean_basin_score, threshold_value) %>%
+  dplyr::select(BHI_ID, mean_bhi_score, threshold_value) %>%
   mutate(
-    mean_basin_score = ifelse(bhi_id %in% c(4,7,8,10,13,16,17,18,19,21,22,33), NA, mean_basin_score),
+    mean_basin_score = ifelse(BHI_ID %in% c(4,7,8,10,13,16,17,18,19,21,22,33), NA, mean_bhi_score),
     dimension= "status"
     ) %>%  
-  dplyr::rename(rgn_id = bhi_id) %>%
+  dplyr::rename(rgn_id = BHI_ID) %>%
   mutate(score = pmin(1, mean_basin_score/threshold_value),
          score = round(score * 100, 2)) %>% # keep decimal places, will round when combine eut indicators
   dplyr::select(rgn_id, dimension, score)
@@ -394,7 +376,7 @@ bhi_status <- bhi_mean_score %>%
 ##Plot points
 plot_status <- bhi_status %>% 
   full_join(.,basin_lookup, by = c("rgn_id"= "bhi_id")) %>%
-  full_join(., basin_n_obs, by= c("subbasin" ="Subbasin"))
+  full_join(., basin_n_obs, by= c("rgn_id" ="BHI_ID"))
 
 # ggplot(plot_status) +
 #  geom_point(aes(rgn_id, status, color = n, size = n)) +
