@@ -12,6 +12,7 @@ output:
 
 ```{r bd preamble prep, message = FALSE}
 source(here::here("R", "setup.R"))
+source(here::here("R", "spatial.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
 loc <- here::here("prep", "BD")
@@ -52,64 +53,220 @@ These are saved to the `layers` folder. All these are derived from or informed b
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
 
-### 3.1 Load datasets, Subset, replace zeros with NAs where zone Not Assessed {-}
+### 3.1 Initial Data Wrangling/Harmonizing {-}
 
-```{r load habitats and fish and seals spatial data layers}
+**Load all Biodiversity Datasets**
+
+```{r load habitats and fish and seals spatial data layers, warning = FALSE, message = FALSE, results = "hide"}
 files <- grep(
   "helcom_.*\\.shp$", 
   list.files(dir_rawdata, recursive = TRUE, full.names = TRUE), 
   value = TRUE
 )
 lapply(
-  files,
-  function(x){
-    assign(
-      sprintf("%s_shp", str_extract(x, "benthic|Fish|Seals|pelagic")),
-      sf::st_read(x) %>% 
-        dplyr::select(helcom_id = HELCOM_ID, country, subbasin = level_2, area_km2 = Area_km2, BQR, status = STATUS) %>% 
-        mutate(BQR = ifelse(status == "Not assessed", NA, BQR)) %>% 
-        ## these are just the 2018 integrated assessment
-        mutate(year = 2018) %>% 
-        select(-status)
-    )
+  X = files,
+  FUN = function(x){
+    tmp <- sf::st_read(x)
+    colnames(tmp) <- str_to_lower(names(tmp))
+    nm <- sprintf("%s_shp", str_extract(x, "benthic|Fish|Seals|pelagic|wintering|briding")) %>% 
+      str_replace("wintering", "wintering_birds") %>% 
+      str_replace("briding", "breeding_birds") %>% 
+      str_to_lower()
+    assign(nm, tmp, envir = .GlobalEnv)
   }
 )
 ```
 
 
-### 3.2 Match the BHI regions by Country and Subbasin {-}
+**Subset, replace zeros with NAs where zone Not Assessed, add Year column**
 
-```{r match bhi regions to biodiversity datasets}
+```{r initial wrangling of bd datasets}
+## HABITATS
+## benthic and pelagic habitats have the same columns and spatial units
+for(shp in c("benthic_shp", "pelagic_shp")){
+  
+  habshp <- get(shp)
+  colnames(habshp) <- str_to_lower(names(habshp))
+  
+  habshp <- habshp %>% 
+    dplyr::select(helcom_id, country, subbasin = level_2, area_km2, BQR = bqr, status) %>% 
+    mutate(BQR = ifelse(str_detect(status, "Not assessed"), NA, BQR)) %>% 
+    ## these are just the 2018 integrated assessment
+    mutate(year = 2018) %>% 
+    select(-status)
+  
+  assign(shp, habshp)
+}
+
+
+## FISH
+## fish have data by coastal area (by country) and open sea sub-basins, similar to habitats spatial units
+colnames(fish_shp) <- str_to_lower(names(fish_shp))
+fish_shp$country <- as.character(fish_shp$country)
+fish_shp <- fish_shp %>% 
+  mutate(country = ifelse(country == "Open sea", "Opensea", country)) %>% 
+  ## create subbasins column from name; need some corrections
+  mutate(subbasin = ifelse(
+    country == "Opensea",
+    "Opensea",
+    str_extract(name, "^.* (?=Finnish|Swedish|Estonian|Latvian|Lithuanian|Danish)"))
+  ) %>% 
+  mutate(subbasin = str_remove(subbasin, "(?=-).*$")) %>% 
+  mutate(subbasin = str_remove(subbasin, " $")) %>%
+  mutate(subbasin = case_when(
+    subbasin == "Western Gotlland Basin" ~ "Western Gotland Basin",
+    subbasin == "Mecklenburg Bight" ~ "Bay of Mecklenburg",
+    subbasin == "Belts" ~ "Great Belt",
+    TRUE ~ subbasin
+  )) %>% 
+  ## filter to keep assessed, select only cols needed for the bhi status calculations
+  filter(!(is.na(subbasin) & is.na(ecosystemc))) %>% 
+  select(helcom_id, country, subbasin, BQR = bqr) %>% 
+  ## these data are just the 2018 integrated assessment
+  mutate(year = 2018)
+
+## calculate area of the polygons - coastal and open sea regions
+fish_shp <- cbind(fish_shp, area_km2 = as.numeric(sf::st_area(fish_shp)/(1000^2))) 
+
+
+## SEALS
+## seal data is by subbasin rather than country and subbasin,
+## will expand to have data by bhi regions to be on same scale as other data, 
+## but original data is at subbasin level!
+seals_shp <- seals_shp %>%
+  dplyr::select(helcom_id, subbasin = level_2, area_km2, BQR = bqr) %>% 
+  ## these are just the 2018 integrated assessment
+  mutate(year = 2018) %>% 
+  ## will join subbasins as for the seal data as for other layers' opensea data
+  mutate(country = "Opensea")
+
+
+## WATERBIRDS
+for(shp in c("wintering_birds_shp", "breeding_birds_shp")){
+  
+  birdshp <- get(shp)
+  colnames(birdshp) <- str_to_lower(names(birdshp))
+  
+  birdshp <- birdshp %>% 
+    mutate_if(is.factor, as.character) %>% 
+    dplyr::select(
+      helcom_id, country, subbasin = level_2, area_km2, 
+      wading_feeders = wading_fee, wading_status = wading_f_1,
+      surface_feeders = surface_fe, surface_status = surface__1,
+      pelagic_feeders = pelagic_fe, pelagic_status = pelagic__1,
+      benthic_feeders = benthic_fe, benthic_status = benthic_fe,
+      grazing_feeders = grazing_fe, grazing_status = grazing__1,
+      name
+    ) %>% 
+    mutate(
+      wading_feeders = ifelse(str_detect(wading_status, "Not Assessed"), NA, wading_feeders),
+      surface_feeders = ifelse(str_detect(surface_status, "Not Assessed"), NA, surface_feeders),
+      pelagic_feeders = ifelse(str_detect(pelagic_status, "Not Assessed"), NA, pelagic_feeders),
+      benthic_feeders = ifelse(str_detect(benthic_status, "Not Assessed"), NA, benthic_feeders),
+      grazing_feeders = ifelse(str_detect(grazing_status, "Not Assessed"), NA, grazing_feeders)
+    ) %>% 
+    ## these are just the 2018 integrated assessment
+    mutate(year = 2018) %>% 
+    select(-wading_status, -surface_status, -pelagic_status, -benthic_status, -grazing_status) %>% 
+    mutate(wading_feeders = as.numeric(wading_feeders), surface_feeders = as.numeric(surface_feeders))
+  
+  assign(shp, habshp)
+}
+
+```
+
+
+### 3.2 Match BHI regions by Country and/or Subbasin {-}
+
+```{r wrangle habitats datasets including matching to bhi regions}
+library(lwgeom)
+regions_shape()
+
 rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
   select(region_id, subbasin, country = eez, region_name, region_area_km2) %>% 
   mutate(subbasin = ifelse(subbasin == "Aland Sea", "Åland Sea", subbasin))
 
-## to match BHI regions, need to split the 'opensea' areas between adjacent countries
-benthic_shp <- bind_rows(
-  benthic_shp %>% 
+for(shp in c("benthic_shp", "pelagic_shp")){# "fish_shp", "seals_shp")){
+  
+  ## to match BHI regions, need to split the 'opensea' areas between adjacent countries
+  ## for fish will need to spatially intersect opensea areas with BHI regions to evaluate overlap
+  if(shp == "fish_shp"){
+    # opensea_w_rgns <- sf::st_intersection(
+    #   st_buffer(filter(get(shp), country == "Opensea"), 0), 
+    #   st_transform(BHI_rgns_shp, crs = 3035)
+    # )
+    opensea_w_rgns <- sf::st_intersection(
+      st_make_valid(filter(get(shp), country == "Opensea")), 
+      st_transform(BHI_rgns_shp %>% rename(subbasin = Subbasin), crs = 3035)
+    )
+    opensea_w_rgns <- opensea_w_rgns %>% 
+      select(region_id = BHI_ID, region_name = rgn_nam, subbasin, country, region_area_km2 = Area_km2) %>% 
+      mutate(coastal = FALSE)
+    
+  } else {
+    opensea_w_rgns <- get(shp) %>% 
+      filter(country == "Opensea") %>% 
+      left_join(tidyr::nest(rgns_complete, data = c(region_id, region_name, country, region_area_km2)), by = "subbasin") %>% 
+      select(-country) %>% 
+      tidyr::unnest(cols = c(data)) %>% 
+      mutate(coastal = FALSE)
+  }
+  coastal_w_rgns <- get(shp) %>% 
     filter(country != "Opensea") %>% 
     left_join(rgns_complete, by = c("subbasin", "country")) %>% 
-    mutate(coastal = TRUE),
-  benthic_shp %>% 
-    filter(country == "Opensea") %>% 
-    left_join(tidyr::nest(rgns_complete, data = c(region_id, region_name, country, region_area_km2)), by = "subbasin") %>% 
-    select(-country) %>% 
-    tidyr::unnest(cols = c(data)) %>% 
-    mutate(coastal = FALSE)
-)
-benthic_shp <- benthic_shp %>% 
-  group_by(region_id) %>% 
-  mutate(coastal_area  = sum(area_km2*coastal)) %>% 
-  ungroup() %>% 
-  mutate(area_km2 = ifelse(coastal, area_km2, region_area_km2 - coastal_area)) %>% 
-  select(-coastal, -coastal_area, -region_area_km2)
+    mutate(coastal = TRUE)
+
+  ## calculate areas for opensea fractions of BHI regions
+  shp_w_rgns <- bind_rows(opensea_w_rgns, coastal_w_rgns) %>% 
+    group_by(region_id) %>% 
+    mutate(coastal_area  = sum(area_km2*coastal)) %>% 
+    ungroup() %>% 
+    mutate(area_km2 = ifelse(coastal, area_km2, region_area_km2 - coastal_area)) %>% 
+    select(-coastal, -coastal_area, -region_area_km2)
+  
+  assign(shp, shp_w_rgns)
+}
 ```
 
+
+### 3.3 Waterbirds Data {-}
+
+```{r wrangle water birds data}
+
+```
+
+
+### 3.4 Save Biodiversity Layers {-}
 
 ```{r save bd layers}
-
+write_csv(
+  benthic_shp %>% 
+    st_drop_geometry() %>% 
+    select(region_id, year, BQR, area_km2), 
+  file.path(dir_layers, "bd_hab_benthic_bhi2019.csv")
+)
+write_csv(
+  pelagic_shp %>% 
+    st_drop_geometry() %>% 
+    select(region_id, year, BQR, area_km2), 
+  file.path(dir_layers, "bd_hab_pelagic_bhi2019.csv")
+)
+write_csv(
+  Fish_shp %>% 
+    st_drop_geometry() %>% 
+    select(region_id, year, BQR, area_km2), 
+  file.path(dir_layers, "bd_spp_fish_bhi2019.csv")
+)
+write_csv(
+  Seals_shp %>% 
+    st_drop_geometry() %>% 
+    select(region_id, year, BQR, area_km2), 
+  file.path(dir_layers, "bd_spp_seals_bhi2019.csv")
+)
 ```
 
+
+### 3.5 Biodiversity Trial Status & Trend Calculations {-}
 
 ```{r trial bd status calculations to test calculations and visualize}
 bd_all_data <- bind_rows(
@@ -127,12 +284,45 @@ bd_all_data <- bind_rows(
     mutate(indicator = "spp_seals")
 )
 
+## is it better to calculate status (which involves capping at 1) first and then aggregate indicators, 
+## or aggregate indicators first? 
+## aggregating first would mean status over ref point in some areas couldn't go towards compensating for areas under ref point...
+## also, will use geometric mean to represent how components are not interchangeable
+
+## geometric mean function
+## https://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
+gm_mean = function(x, na.rm = TRUE, zero.propagate = FALSE){
+  if(any(x < 0, na.rm = TRUE)){
+    return(NaN)
+  }
+  if(zero.propagate){
+    if(any(x == 0, na.rm = TRUE)){
+      return(0)
+    }
+    exp(mean(log(x), na.rm = na.rm))
+  } else {
+    exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
+  }
+}
+
+## at BQR of 0.6 is the reference point
+## will rescale so BQR = 0.6 or above is a status of 1, while BQR = 0 is a status of zero
 bd_status <- bd_all_data %>% 
   group_by(region_id, region_name, indicator) %>% 
   summarize(averageBQR = weighted.mean(BQR, area_km2, na.rm = TRUE)) %>% 
-  ungroup()
-```
+  ungroup() %>% 
+  mutate(status = pmin(1, (5/3)*averageBQR)) %>% 
+  select(-averageBQR)
 
+bd_status <- bind_rows(
+  bd_status,
+  bd_status %>% 
+    group_by(region_id, region_name) %>% 
+    summarize(status = gm_mean(indicator_status)) %>% 
+    ungroup() %>% 
+    mutate(indicator = "combined")
+)
+```
 
 <br/>
 
@@ -141,14 +331,18 @@ bd_status <- bd_all_data %>%
 ### 4.1 Maps {-}
 
 ```{r simplify bd shapefiles and plot for visual inspection}
-source(here::here("R", "spatial.R"))
 bhirgn_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 
 ## simplify the polygons before creating maps
-benthic_shp <- rmapshaper::ms_simplify(input = benthic_shp) %>% sf::st_as_sf()
-pelagic_shp <- rmapshaper::ms_simplify(input = pelagic_shp) %>% sf::st_as_sf()
-Fish_shp <- rmapshaper::ms_simplify(input = Fish_shp) %>% sf::st_as_sf()
-Seals_shp <- rmapshaper::ms_simplify(input = Seals_shp) %>% sf::st_as_sf()
+## first transforming to match rnaturalearth basemap crs...
+benthic_shp <- rmapshaper::ms_simplify(input = sf::st_transform(benthic_shp, crs = 4326)) %>%
+  sf::st_as_sf()
+pelagic_shp <- rmapshaper::ms_simplify(input = sf::st_transform(pelagic_shp, crs = 4326)) %>%
+  sf::st_as_sf()
+Fish_shp <- rmapshaper::ms_simplify(input = sf::st_transform(Fish_shp, crs = 4326)) %>% 
+  sf::st_as_sf()
+Seals_shp <- rmapshaper::ms_simplify(input = sf::st_transform(Seals_shp, crs = 4326)) %>% 
+  sf::st_as_sf()
 
 ## basemap and color palettes
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
@@ -163,14 +357,36 @@ cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 
 #### 4.1.1 Benthic Habitats {-}
 
-```{r map of benthic habitats, eval = FALSE, results = "show", fig.width = 9.5, fig.height = 8.5}
-## maps of BQR for each layer: habitats (benthic and pelagic), fish, seals
-# ggplot2::ggplot() +
-#   geom_sf(
-#     data = bhirgn_simple,
-#     size = 0.1, color = "burlywood", fill = NA
-#   ) +
-#   geom_sf(data = , mapping = )
+```{r map of benthic and pelagic habitats, eval = FALSE, results = "show", fig.width = 9.5, fig.height = 8.5}
+
+
+## maps of BQR for each layer: benthic and pelagic habitats
+basemap +
+  geom_sf(
+    data = benthic_shp, 
+    mapping = aes(fill = BQR),
+    alpha = 0.7, color = "steelblue", size = 0.3
+  ) +
+  # geom_sf(
+  #   data = bhirgn_simple,
+  #   size = 0.1, color = "burlywood", fill = NA
+  # ) +
+  scale_fill_viridis_c()
+```
+
+
+```{r map of fish and seal assessments, eval = FALSE, results = "show", fig.width = 9.5, fig.height = 8.5}
+## Fish Open Sea areas Map
+basemap + 
+  geom_sf(
+    data = mapsf %>% 
+      filter(country == "Opensea"), 
+    mapping = aes(fill = BQR), 
+    alpha = 0.7, size = 0.2
+  ) +
+  scale_fill_viridis_c()
+
+
 ```
 
 
