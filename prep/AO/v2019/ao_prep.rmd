@@ -38,7 +38,7 @@ regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
 
 basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
   read_csv() %>%
-  dplyr::select(bhi_id = region_id, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
+  dplyr::select(bhi_id = region_id, country = eez, subbasin, rgn_nam = region_name, HELCOM_ID = helcom_id) %>%
   mutate(
     subbasin = as.character(subbasin),
     rgn_nam = as.character(rgn_nam)
@@ -423,11 +423,11 @@ STEPS:
 2. Use time series from both indicators, Key Species and Functional groups. For functional groups,
     include both cyprinid and piscivore time series.
  3. For each time series:  square-root transform data, z-score, fit linear regression, extract slope
- 4. Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each basin (per country) and then within each basin
- 5. Within each basin take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean)
- 6. For each basin take overall mean slope - mean of key species and functional group
- 7. Multiple by five for future year value?
- 8. Apply trend value for basin to all BHI regions (except in Gulf of Finland, do not apply Finnish site value to Estonia and Russian regions)
+ 4. Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each bhi region
+ 5. Within each bhi region take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean)
+ 6. For each bhi region take overall mean slope - mean of key species and functional group
+ 7. Multiple by five for future year value
+ 8. Apply trend value for all BHI regions (except in Gulf of Finland, do not apply Finnish site value to Estonia and Russian regions)
  
 **Select time period and plot data**  
 ```{r select time period and plot data, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
@@ -587,88 +587,83 @@ ggplot(filter(cpue_mdl, core_indicator == "Key species")) +
   ggtitle("Time Series slope for Key Species by Taxa")
 ```
 
-### 5.3 Mean Slope group per basin
+### 5.3 Mean Slope group per bhi region
 
-Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each basin (per country) and then by basin  
-```{r mean slope by group per basin, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
-## slope (per country)
-slope_country <- cpue_mdl %>%
-  group_by(Subbasin, Country, core_indicator, Taxa) %>%
-  mutate(slope_mean_country_taxa = mean(slope)) %>%
+Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each bhi region 
+```{r mean slope by group per bhi region, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+## slope (per bhi region)
+slope_bhi <- cpue_mdl %>%
+  right_join(basin_lookup, by = c("Subbasin" = "subbasin", "Country" = "country")) %>% 
+  group_by(bhi_id, core_indicator, Taxa) %>%
+  mutate(slope_mean_bhi_taxa = mean(slope)) %>%
   ungroup()
 
-## slope (per basin)
-slope <- slope_country %>%
-  group_by(Subbasin, core_indicator, Taxa) %>%
-  mutate(slope_mean_basin_taxa = mean(slope_mean_country_taxa)) %>%
-  ungroup()
-
-## number of time series for each basin
-basin_n_obs_slope <- slope %>%
-  dplyr::select(Subbasin)%>%
-  count(Subbasin)
+## number of time series for each bhi region
+bhi_n_obs_slope <- slope_bhi %>%
+  dplyr::select(bhi_id)%>%
+  count(bhi_id)
 
 ## Plot
-ggplot(slope) + 
+ggplot(slope_bhi) + 
   geom_hline(yintercept = 0) +
-  geom_boxplot(aes(Subbasin, slope)) +
-  geom_point(aes(Subbasin, slope_mean_basin_taxa), colour = "red") +
+  geom_boxplot(aes(bhi_id, slope)) +
+  geom_point(aes(bhi_id, slope_mean_bhi_taxa), colour = "red") +
   facet_wrap(~core_indicator + Taxa)+
   theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90,
                                    hjust = .5, vjust = .5, face = "plain")) +
-  ggtitle("Mean slope by basin and indicator taxa")
+  ggtitle("Mean slope by bhi region and indicator taxa")
 
 ## new object only mean value
-slope2 <- slope %>%
-  dplyr::select(Subbasin, Country, core_indicator, Taxa, slope_mean_basin_taxa)
+slope <- slope_bhi %>%
+  dplyr::select(bhi_id, core_indicator, Taxa, slope_mean_bhi_taxa)
 ```
 
 
 ### 5.4 Mean slope for each indicator (Functional group, Key Spp)
 
-Within each basin take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean) and take mean of each Key species indicator
+Within each bhi region take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean) and take mean of each Key species indicator
 ```{r  mean indicator slope}
-slope2 <- slope2 %>%
-  group_by(Subbasin, core_indicator) %>%
-  mutate(slope_mean_basin_indicator = mean(slope_mean_basin_taxa)) %>%
+slope2 <- slope %>%
+  group_by(bhi_id, core_indicator) %>%
+  mutate(slope_mean_bhi_indicator = mean(slope_mean_bhi_taxa)) %>%
   ungroup()
 # str(slope2)
 
 ggplot(slope2) + 
   geom_hline(yintercept = 0) +
-  geom_point(aes(Subbasin, slope_mean_basin_indicator), colour = "red") +
+  geom_point(aes(bhi_id, slope_mean_bhi_indicator), colour = "red") +
   facet_wrap(~core_indicator) +
   theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90,
                                    hjust = .5, vjust = .5, face = "plain")) +
   ylim(-.3,.3) +
-  labs(y = "Slope", x = "Subbasins") +
-  ggtitle("Mean slope by basin and indicator type")
+  labs(y = "Slope", x = "BHI region") +
+  ggtitle("Mean slope by bhi region and indicator type")
   
-## new object only basin and indicator mean
+## new object only bhi rgn and indicator mean
 slope3 <- slope2 %>%
-  dplyr::select(Subbasin, core_indicator, slope_mean_basin_indicator)
+  dplyr::select(bhi_id, core_indicator, slope_mean_bhi_indicator)
 ```
 
 
-### 5.5 Basin mean slope
+### 5.5 BHI region mean slope
 
-Take the mean for each basin across the indicator types (Functional groups, key species)
+Take the mean for each bhi region across the indicator types (Functional groups, key species)
 ```{r basin mean slope}
 slope3 <- slope3 %>%
-  group_by(Subbasin) %>%
-  mutate(slope_mean_basin = mean(slope_mean_basin_indicator)) %>%
+  group_by(bhi_id) %>%
+  mutate(slope_mean_bhi = mean(slope_mean_bhi_indicator)) %>%
   ungroup()
 
 ggplot(slope3) + 
   geom_hline(yintercept = 0) +
-  geom_point(aes(Subbasin, slope_mean_basin), colour = "black", size = 3) +
-  geom_point(aes(Subbasin, slope_mean_basin_indicator, shape = core_indicator), colour = "red") +
+  geom_point(aes(bhi_id, slope_mean_bhi), colour = "black", size = 3) +
+  geom_point(aes(bhi_id, slope_mean_bhi_indicator, shape = core_indicator), colour = "red") +
   theme(axis.text.x = element_text(colour = "grey20", size = 8, angle = 90,
                                    hjust = .5, vjust = .5, face = "plain")) +
   scale_shape_manual(values = c(1:2)) +
   ylim(-.3,.3) +
-  labs(y = "Slope", x = "Subbasins") +
-  ggtitle("Mean slope (black dots) by basin")
+  labs(y = "Slope", x = "BHI region") +
+  ggtitle("Mean slope (black dots) by bhi region")
 
 slope22 <- slope2 %>%
   group_by(Subbasin, core_indicator) %>%
@@ -689,24 +684,19 @@ ggplot(slope22) +
   ggtitle("Functional Groups mean slope (black dots) by basin")
 ## This plot might help explaining the overall positive trend of functional groups
 
-## new object, only basin mean
+## new object, only bhi rgn mean
 slope4 <- slope3 %>%
-  dplyr::select(Subbasin, slope_mean_basin) %>%
-  mutate(
-    Subbasin = str_replace(Subbasin, "Arkona basin", "Arkona Basin"),
-    Subbasin = str_replace(Subbasin, "Bornholm basin", "Bornholm Basin")) %>% 
+  dplyr::select(bhi_id, slope_mean_bhi) %>% 
   distinct(.)
 ```
 
 
-### 5.6 Apply slopes by Basin to BHI Region
+### 5.6 Merge basin lookup table to BHI Region
 
-Apply slopes from the Basins to their BHI regions. 
-For Gulf of Finland do not apply values to Russian and Estonian waters because observations only from Finnish waters.
+(For Gulf of Finland do not apply values to Russian and Estonian waters because observations only from Finnish waters).
 ```{r slope basin to region, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 slope4 <- slope4 %>%
-  full_join(., basin_lookup, by = c("Subbasin" = "subbasin")) %>%
-  mutate(slope_mean_basin = ifelse(bhi_id %in% c(33,34), NA, slope_mean_basin)) %>%
+  full_join(., basin_lookup, by = "bhi_id") %>%
   arrange(bhi_id)
 ```
 
@@ -716,9 +706,9 @@ slope4 <- slope4 %>%
 ```{r final slope object, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 ## object slope from basin joined to bhi region
 bhi_slope <- slope4 %>%
-  dplyr::select(bhi_id, slope_mean_basin)%>%
+  dplyr::select(bhi_id, slope_mean_bhi)%>%
   dplyr::rename(rgn_id = bhi_id,
-                score = slope_mean_basin) %>%
+                score = slope_mean_bhi) %>%
   mutate(dimension="trend",
          score = round(score, 2)) %>% ## round to 2 decimal places
   dplyr::select(rgn_id, dimension,score)
