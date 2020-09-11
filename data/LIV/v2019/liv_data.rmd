@@ -89,6 +89,30 @@ knitr::kable(tab, caption = "Source: [eurostat database](http://appsso.eurostat.
 ```
 <br/>
 
+
+**Population change - Demographic balance and crude rates at regional level (NUTS 3), Filter to NUTS3 Level** 
+<!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Population_NUTS3/demo_r_pjangrp3_w_nutscodes -->
+
+```{r population change demographics nuts2-3 regions, echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("TIME (Years):", "2014-2019"), 
+  c("GEO:", "NUTS3 (Filtering - Nuts level) SHOW: CODES") # need NUTS codes to match to BHI regions!
+))
+
+colnames(tab) <- c("Option", "Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [eurostat database](http://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=demo_r_pjangrp3&lang=en) <br/> Downloaded 11 September, 2020 by Andrea De Cervo")
+```
+
+<br/>
+
+**Employment rate** 
+<!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Employment_NUTS3 -->
+
+Data were extracted from the [EU Blue Economy report](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-annexes-ld-part1_final.pdf) for each Baltic country.
+
+
 #### 2.1.2 HYDE Database {-}
 
 **Population density data**  
