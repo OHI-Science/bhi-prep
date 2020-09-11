@@ -40,6 +40,8 @@ This prep document is used to generate and explore the following data layers:
 - `bd_hab_pelagic_bhi2019.csv`
 - `bd_spp_fish_bhi2019.csv` 
 - `bd_spp_seals_bhi2019.csv`
+- `bd_spp_winter_birds_bhi2019.csv` 
+- `bd_spp_breeding_birds_bhi2019.csv`
 
 These are saved to the `layers` folder. All these are derived from or informed by the raw datasets from the HELCOM 2018 integrated biodiversity status assessments.
 
@@ -168,9 +170,13 @@ for(shp in c("wintering_birds_shp", "breeding_birds_shp")){
     ## these are just the 2018 integrated assessment
     mutate(year = 2018) %>% 
     select(-wading_status, -surface_status, -pelagic_status, -benthic_status, -grazing_status) %>% 
-    mutate(wading_feeders = as.numeric(wading_feeders), surface_feeders = as.numeric(surface_feeders))
+    mutate(
+      wading_feeders = as.numeric(wading_feeders), 
+      surface_feeders = as.numeric(surface_feeders),
+      winter_or_breeding = str_extract(shp, "-.*(?<=_)")
+    )
   
-  assign(shp, habshp)
+  assign(shp, birdshp)
 }
 
 ```
@@ -179,7 +185,6 @@ for(shp in c("wintering_birds_shp", "breeding_birds_shp")){
 ### 3.2 Match BHI regions by Country and/or Subbasin {-}
 
 ```{r wrangle habitats datasets including matching to bhi regions}
-library(lwgeom)
 regions_shape()
 
 rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
@@ -188,19 +193,43 @@ rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns
 
 for(shp in c("benthic_shp", "pelagic_shp")){# "fish_shp", "seals_shp")){
   
+  coastal_w_rgns <- get(shp) %>% 
+    filter(country != "Opensea") %>% 
+    left_join(rgns_complete, by = c("subbasin", "country")) %>% 
+    mutate(coastal = TRUE)
+  
   ## to match BHI regions, need to split the 'opensea' areas between adjacent countries
   ## for fish will need to spatially intersect opensea areas with BHI regions to evaluate overlap
   if(shp == "fish_shp"){
-    # opensea_w_rgns <- sf::st_intersection(
-    #   st_buffer(filter(get(shp), country == "Opensea"), 0), 
-    #   st_transform(BHI_rgns_shp, crs = 3035)
-    # )
+    
+    ## need to fix weird geometries and also invalid geometries of bhi regions, then intersect...
+    ## https://strimas.com/smoothr/reference/drop_crumbs.html
     opensea_w_rgns <- sf::st_intersection(
-      st_make_valid(filter(get(shp), country == "Opensea")), 
-      st_transform(BHI_rgns_shp %>% rename(subbasin = Subbasin), crs = 3035)
+      lwgeom::st_make_valid(st_transform(BHI_rgns_shp, crs = 3035)),
+      smoothr::drop_crumbs(filter(get(shp), country == "Opensea"), 300*(1000^2), drop_empty = TRUE)
+    )
+    
+    ## view map of intersection between fish open sea and BHI regions
+    # rmapshaper::ms_simplify(input = opensea_w_rgns) %>%
+    #   sf::st_as_sf() %>%
+    #   mutate(BHI_ID = as.character(BHI_ID)) %>%
+    #   ggplot() +
+    #   geom_sf(aes(fill = BHI_ID)) +
+    #   scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(6, "Dark2"))(80)[sample(1:80, 42)])
+    
+    opensea_w_rgns <- cbind(
+      select(opensea_w_rgns, -area_km2, -subbasin),
+      ## recalculate area of opensea after intersection with BHI regions
+      area_km2 = as.numeric(sf::st_area(opensea_w_rgns)/(1000^2))
     )
     opensea_w_rgns <- opensea_w_rgns %>% 
-      select(region_id = BHI_ID, region_name = rgn_nam, subbasin, country, region_area_km2 = Area_km2) %>% 
+      mutate(region_name = sprintf("%s, %s", subbasin, rgn_nam)) %>% 
+      select(
+        helcom_id = HELCOM_ID, subbasin = Subbasin, 
+        area_km2, BQR, year, 
+        region_id = BHI_ID, region_name, country = rgn_nam, 
+        region_area_km2 = Area_km2
+      ) %>% 
       mutate(coastal = FALSE)
     
   } else {
@@ -211,15 +240,11 @@ for(shp in c("benthic_shp", "pelagic_shp")){# "fish_shp", "seals_shp")){
       tidyr::unnest(cols = c(data)) %>% 
       mutate(coastal = FALSE)
   }
-  coastal_w_rgns <- get(shp) %>% 
-    filter(country != "Opensea") %>% 
-    left_join(rgns_complete, by = c("subbasin", "country")) %>% 
-    mutate(coastal = TRUE)
 
   ## calculate areas for opensea fractions of BHI regions
   shp_w_rgns <- bind_rows(opensea_w_rgns, coastal_w_rgns) %>% 
     group_by(region_id) %>% 
-    mutate(coastal_area  = sum(area_km2*coastal)) %>% 
+    mutate(coastal_area = sum(area_km2*coastal)) %>% 
     ungroup() %>% 
     mutate(area_km2 = ifelse(coastal, area_km2, region_area_km2 - coastal_area)) %>% 
     select(-coastal, -coastal_area, -region_area_km2)
@@ -232,7 +257,18 @@ for(shp in c("benthic_shp", "pelagic_shp")){# "fish_shp", "seals_shp")){
 ### 3.3 Waterbirds Data {-}
 
 ```{r wrangle water birds data}
+## need to merge and reshape as the waterbirds data is by bird groups: 
+## wading, surface, pelagic, benthic, grazing feeders
+## and also wintering vs breeding
 
+birds_data <- bind_rows(wintering_birds_shp, breeding_birds_shp) %>% 
+  tidyr::pivot_longer(
+    cols = c(),
+    names_to = "feeder_group",
+    values_to = "BQR"
+  ) %>% 
+  mutate(feeder_group = sprintf("%s, %s", feeder_group, winter_or_breeding)) %>% 
+  select(-winter_or_breeding)
 ```
 
 
@@ -262,6 +298,12 @@ write_csv(
     st_drop_geometry() %>% 
     select(region_id, year, BQR, area_km2), 
   file.path(dir_layers, "bd_spp_seals_bhi2019.csv")
+)
+write_csv(
+  Seals_shp %>% 
+    st_drop_geometry() %>% 
+    select(region_id, year, feeder_group, wintBQR, area_km2), 
+  file.path(dir_layers, "bd_spp_birds_bhi2019.csv")
 )
 ```
 
