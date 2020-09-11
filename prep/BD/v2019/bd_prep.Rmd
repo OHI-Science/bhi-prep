@@ -287,30 +287,30 @@ birds_data <- bind_rows(wintering_birds_w_rgns, breeding_birds_w_rgns) %>%
 write_csv(
   benthic_w_rgns %>% 
     st_drop_geometry() %>% 
-    select(region_id, coastal, year, BQR, area_km2), 
+    select(region_id, helcom_id, year, BQR, area_km2), 
   file.path(dir_layers, "bd_hab_benthic_bhi2019.csv")
 )
 write_csv(
   pelagic_w_rgns %>% 
     st_drop_geometry() %>% 
-    select(region_id, coastal, year, BQR, area_km2), 
+    select(region_id, helcom_id, year, BQR, area_km2), 
   file.path(dir_layers, "bd_hab_pelagic_bhi2019.csv")
 )
 write_csv(
   fish_w_rgns %>% 
     st_drop_geometry() %>% 
-    select(region_id, coastal, year, BQR, area_km2), 
+    select(region_id, helcom_id, year, BQR, area_km2), 
   file.path(dir_layers, "bd_spp_fish_bhi2019.csv")
 )
 write_csv(
   seals_w_rgns %>% 
     st_drop_geometry() %>% 
-    select(region_id, coastal, year, BQR, area_km2), 
+    select(region_id, helcom_id, year, BQR, area_km2), 
   file.path(dir_layers, "bd_spp_seals_bhi2019.csv")
 )
 write_csv(
   birds_data %>% 
-    select(region_id, coastal, year, BQR, area_km2, feeder_group, spatial_group), 
+    select(region_id, helcom_id, year, BQR, area_km2, feeder_group, spatial_group), 
   file.path(dir_layers, "bd_spp_birds_bhi2019.csv")
 )
 ```
