@@ -1,0 +1,821 @@
+region_id,year,feeder_group,spatial_group,BQR,area_km2
+1,2018,"wading_feeders, wintering_birds",Kattegat,NA,4158.78191212
+1,2018,"surface_feeders, wintering_birds",Kattegat,NA,4158.78191212
+1,2018,"pelagic_feeders, wintering_birds",Kattegat,NA,4158.78191212
+1,2018,"benthic_feeders, wintering_birds",Kattegat,0.25,4158.78191212
+1,2018,"grazing_feeders, wintering_birds",Kattegat,NA,4158.78191212
+2,2018,"wading_feeders, wintering_birds",Kattegat,NA,9983.41122649
+2,2018,"surface_feeders, wintering_birds",Kattegat,NA,9983.41122649
+2,2018,"pelagic_feeders, wintering_birds",Kattegat,NA,9983.41122649
+2,2018,"benthic_feeders, wintering_birds",Kattegat,0.25,9983.41122649
+2,2018,"grazing_feeders, wintering_birds",Kattegat,NA,9983.41122649
+3,2018,"wading_feeders, wintering_birds",Belt Group,NA,1385.0745693499994
+3,2018,"surface_feeders, wintering_birds",Belt Group,NA,1385.0745693499994
+3,2018,"pelagic_feeders, wintering_birds",Belt Group,NA,1385.0745693499994
+3,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,1385.0745693499994
+3,2018,"grazing_feeders, wintering_birds",Belt Group,NA,1385.0745693499994
+4,2018,"wading_feeders, wintering_birds",Belt Group,NA,98.620894352
+4,2018,"surface_feeders, wintering_birds",Belt Group,NA,98.620894352
+4,2018,"pelagic_feeders, wintering_birds",Belt Group,NA,98.620894352
+4,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,98.620894352
+4,2018,"grazing_feeders, wintering_birds",Belt Group,NA,98.620894352
+5,2018,"wading_feeders, wintering_birds",Belt Group,NA,142.28900467200003
+5,2018,"surface_feeders, wintering_birds",Belt Group,NA,142.28900467200003
+5,2018,"pelagic_feeders, wintering_birds",Belt Group,NA,142.28900467200003
+5,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,142.28900467200003
+5,2018,"grazing_feeders, wintering_birds",Belt Group,NA,142.28900467200003
+6,2018,"wading_feeders, wintering_birds",Belt Group,NA,290.86634618100004
+6,2018,"surface_feeders, wintering_birds",Belt Group,NA,290.86634618100004
+6,2018,"pelagic_feeders, wintering_birds",Belt Group,NA,290.86634618100004
+6,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,290.86634618100004
+6,2018,"grazing_feeders, wintering_birds",Belt Group,NA,290.86634618100004
+7,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,1119.9762443759998
+7,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,1119.9762443759998
+8,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,1319.5878126870002
+8,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,1319.5878126870002
+9,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,838.491977574
+9,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,838.491977574
+9,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,838.491977574
+9,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,838.491977574
+9,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,838.491977574
+10,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,2540.1992409709997
+10,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,2540.1992409709997
+11,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,3814.1523893450003
+11,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,3814.1523893450003
+12,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,4441.14997088
+12,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,4441.14997088
+12,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,4441.14997088
+12,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,4441.14997088
+12,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,4441.14997088
+13,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,4946.84220402
+13,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,4946.84220402
+13,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,4946.84220402
+13,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,4946.84220402
+13,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,4946.84220402
+14,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,13668.53701875
+14,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,13668.53701875
+14,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,13668.53701875
+14,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,13668.53701875
+14,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,13668.53701875
+15,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,6900.049217029
+15,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,6900.049217029
+15,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,6900.049217029
+15,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,6900.049217029
+15,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,6900.049217029
+16,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,1880.33051832
+16,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,1880.33051832
+16,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,1880.33051832
+16,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,1880.33051832
+16,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,1880.33051832
+17,2018,"wading_feeders, wintering_birds",Bornholm Group,NA,16340.021163932
+17,2018,"surface_feeders, wintering_birds",Bornholm Group,NA,16340.021163932
+17,2018,"pelagic_feeders, wintering_birds",Bornholm Group,NA,16340.021163932
+17,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,16340.021163932
+17,2018,"grazing_feeders, wintering_birds",Bornholm Group,NA,16340.021163932
+18,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"surface_feeders, wintering_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1993.4516081699999
+18,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,1993.4516081699999
+19,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"surface_feeders, wintering_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1473.1162000470001
+19,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,1473.1162000470001
+20,2018,"wading_feeders, wintering_birds",Gotland Group,NA,20810.78465972
+20,2018,"surface_feeders, wintering_birds",Gotland Group,NA,20810.78465972
+20,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,20810.78465972
+20,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,20810.78465972
+20,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,20810.78465972
+21,2018,"wading_feeders, wintering_birds",Gotland Group,NA,10905.629868163
+21,2018,"surface_feeders, wintering_birds",Gotland Group,NA,10905.629868163
+21,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,10905.629868163
+21,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,10905.629868163
+21,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,10905.629868163
+22,2018,"wading_feeders, wintering_birds",Gotland Group,NA,8025.706413699999
+22,2018,"surface_feeders, wintering_birds",Gotland Group,NA,8025.706413699999
+22,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,8025.706413699999
+22,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,8025.706413699999
+22,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,8025.706413699999
+23,2018,"wading_feeders, wintering_birds",Gotland Group,NA,5461.276416527
+23,2018,"surface_feeders, wintering_birds",Gotland Group,NA,5461.276416527
+23,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,5461.276416527
+23,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,5461.276416527
+23,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,5461.276416527
+24,2018,"wading_feeders, wintering_birds",Gotland Group,NA,20442.41787563
+24,2018,"surface_feeders, wintering_birds",Gotland Group,NA,20442.41787563
+24,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,20442.41787563
+24,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,20442.41787563
+24,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,20442.41787563
+25,2018,"wading_feeders, wintering_birds",Gotland Group,NA,4769.884478622
+25,2018,"surface_feeders, wintering_birds",Gotland Group,NA,4769.884478622
+25,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,4769.884478622
+25,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,4769.884478622
+25,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,4769.884478622
+26,2018,"wading_feeders, wintering_birds",Gotland Group,NA,18817.17654768
+26,2018,"surface_feeders, wintering_birds",Gotland Group,NA,18817.17654768
+26,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,18817.17654768
+26,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,18817.17654768
+26,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,18817.17654768
+27,2018,"wading_feeders, wintering_birds",Gotland Group,NA,6102.47794946
+27,2018,"surface_feeders, wintering_birds",Gotland Group,NA,6102.47794946
+27,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,6102.47794946
+27,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,6102.47794946
+27,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,6102.47794946
+28,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"surface_feeders, wintering_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"pelagic_feeders, wintering_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1987.4666405900007
+28,2018,"grazing_feeders, wintering_birds",Gotland Group,NA,1987.4666405900007
+29,2018,"wading_feeders, wintering_birds",Åland Group,NA,14379.32959086
+29,2018,"surface_feeders, wintering_birds",Åland Group,NA,14379.32959086
+29,2018,"pelagic_feeders, wintering_birds",Åland Group,NA,14379.32959086
+29,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,14379.32959086
+29,2018,"grazing_feeders, wintering_birds",Åland Group,NA,14379.32959086
+30,2018,"wading_feeders, wintering_birds",Åland Group,NA,9809.85368294
+30,2018,"surface_feeders, wintering_birds",Åland Group,NA,9809.85368294
+30,2018,"pelagic_feeders, wintering_birds",Åland Group,NA,9809.85368294
+30,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,9809.85368294
+30,2018,"grazing_feeders, wintering_birds",Åland Group,NA,9809.85368294
+31,2018,"wading_feeders, wintering_birds",Åland Group,NA,9822.280312730001
+31,2018,"surface_feeders, wintering_birds",Åland Group,NA,9822.280312730001
+31,2018,"pelagic_feeders, wintering_birds",Åland Group,NA,9822.280312730001
+31,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,9822.280312730001
+31,2018,"grazing_feeders, wintering_birds",Åland Group,NA,9822.280312730001
+32,2018,"wading_feeders, wintering_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"surface_feeders, wintering_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"pelagic_feeders, wintering_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"benthic_feeders, wintering_birds",Gulf of Finland,0.5,3637.1966311899996
+32,2018,"grazing_feeders, wintering_birds",Gulf of Finland,NA,3637.1966311899996
+33,2018,"wading_feeders, wintering_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"surface_feeders, wintering_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"pelagic_feeders, wintering_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"benthic_feeders, wintering_birds",Gulf of Finland,0.5,7430.919282609999
+33,2018,"grazing_feeders, wintering_birds",Gulf of Finland,NA,7430.919282609999
+34,2018,"wading_feeders, wintering_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"surface_feeders, wintering_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"pelagic_feeders, wintering_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"benthic_feeders, wintering_birds",Gulf of Finland,0.5,4444.3143660099995
+34,2018,"grazing_feeders, wintering_birds",Gulf of Finland,NA,4444.3143660099995
+35,2018,"wading_feeders, wintering_birds",Åland Group,NA,2139.737623843
+35,2018,"surface_feeders, wintering_birds",Åland Group,NA,2139.737623843
+35,2018,"pelagic_feeders, wintering_birds",Åland Group,NA,2139.737623843
+35,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,2139.737623843
+35,2018,"grazing_feeders, wintering_birds",Åland Group,NA,2139.737623843
+36,2018,"wading_feeders, wintering_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"surface_feeders, wintering_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"pelagic_feeders, wintering_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,-1529.3944908000012
+36,2018,"grazing_feeders, wintering_birds",Åland Group,NA,-1529.3944908000012
+37,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"surface_feeders, wintering_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"pelagic_feeders, wintering_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,24987.007993850002
+37,2018,"grazing_feeders, wintering_birds",Bothnia Group,NA,24987.007993850002
+38,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,24433.65419015
+38,2018,"surface_feeders, wintering_birds",Bothnia Group,NA,24433.65419015
+38,2018,"pelagic_feeders, wintering_birds",Bothnia Group,NA,24433.65419015
+38,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,24433.65419015
+38,2018,"grazing_feeders, wintering_birds",Bothnia Group,NA,24433.65419015
+39,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"surface_feeders, wintering_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"pelagic_feeders, wintering_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,1270.4418219800002
+39,2018,"grazing_feeders, wintering_birds",Bothnia Group,NA,1270.4418219800002
+40,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"surface_feeders, wintering_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"pelagic_feeders, wintering_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,1457.3841874500004
+40,2018,"grazing_feeders, wintering_birds",Bothnia Group,NA,1457.3841874500004
+41,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"surface_feeders, wintering_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"pelagic_feeders, wintering_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,11597.869080789998
+41,2018,"grazing_feeders, wintering_birds",Bothnia Group,NA,11597.869080789998
+42,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,9161.74512064
+42,2018,"surface_feeders, wintering_birds",Bothnia Group,NA,9161.74512064
+42,2018,"pelagic_feeders, wintering_birds",Bothnia Group,NA,9161.74512064
+42,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,9161.74512064
+42,2018,"grazing_feeders, wintering_birds",Bothnia Group,NA,9161.74512064
+42,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,5548.12301296
+42,2018,"surface_feeders, wintering_birds",Bothnia Group,1,5548.12301296
+42,2018,"pelagic_feeders, wintering_birds",Bothnia Group,1,5548.12301296
+42,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,5548.12301296
+42,2018,"grazing_feeders, wintering_birds",Bothnia Group,1,5548.12301296
+41,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,5349.79599391
+41,2018,"surface_feeders, wintering_birds",Bothnia Group,1,5349.79599391
+41,2018,"pelagic_feeders, wintering_birds",Bothnia Group,1,5349.79599391
+41,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,5349.79599391
+41,2018,"grazing_feeders, wintering_birds",Bothnia Group,1,5349.79599391
+40,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,3404.89563885
+40,2018,"surface_feeders, wintering_birds",Bothnia Group,1,3404.89563885
+40,2018,"pelagic_feeders, wintering_birds",Bothnia Group,1,3404.89563885
+40,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,3404.89563885
+40,2018,"grazing_feeders, wintering_birds",Bothnia Group,1,3404.89563885
+39,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,1894.20339705
+39,2018,"surface_feeders, wintering_birds",Bothnia Group,1,1894.20339705
+39,2018,"pelagic_feeders, wintering_birds",Bothnia Group,1,1894.20339705
+39,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,1894.20339705
+39,2018,"grazing_feeders, wintering_birds",Bothnia Group,1,1894.20339705
+38,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,3518.72901725
+38,2018,"surface_feeders, wintering_birds",Bothnia Group,1,3518.72901725
+38,2018,"pelagic_feeders, wintering_birds",Bothnia Group,1,3518.72901725
+38,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,3518.72901725
+38,2018,"grazing_feeders, wintering_birds",Bothnia Group,1,3518.72901725
+37,2018,"wading_feeders, wintering_birds",Bothnia Group,NA,6252.65935355
+37,2018,"surface_feeders, wintering_birds",Bothnia Group,1,6252.65935355
+37,2018,"pelagic_feeders, wintering_birds",Bothnia Group,1,6252.65935355
+37,2018,"benthic_feeders, wintering_birds",Bothnia Group,1,6252.65935355
+37,2018,"grazing_feeders, wintering_birds",Bothnia Group,1,6252.65935355
+35,2018,"wading_feeders, wintering_birds",Åland Group,NA,592.382602237
+35,2018,"surface_feeders, wintering_birds",Åland Group,0.33,592.382602237
+35,2018,"pelagic_feeders, wintering_birds",Åland Group,0.5,592.382602237
+35,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,592.382602237
+35,2018,"grazing_feeders, wintering_birds",Åland Group,1,592.382602237
+36,2018,"wading_feeders, wintering_birds",Åland Group,NA,14341.4191511
+36,2018,"surface_feeders, wintering_birds",Åland Group,0.33,14341.4191511
+36,2018,"pelagic_feeders, wintering_birds",Åland Group,0.5,14341.4191511
+36,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,14341.4191511
+36,2018,"grazing_feeders, wintering_birds",Åland Group,1,14341.4191511
+29,2018,"wading_feeders, wintering_birds",Åland Group,NA,3467.46917034
+29,2018,"surface_feeders, wintering_birds",Åland Group,0.33,3467.46917034
+29,2018,"pelagic_feeders, wintering_birds",Åland Group,0.5,3467.46917034
+29,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,3467.46917034
+29,2018,"grazing_feeders, wintering_birds",Åland Group,1,3467.46917034
+31,2018,"wading_feeders, wintering_birds",Åland Group,NA,1863.48124417
+31,2018,"surface_feeders, wintering_birds",Åland Group,0.33,1863.48124417
+31,2018,"pelagic_feeders, wintering_birds",Åland Group,0.5,1863.48124417
+31,2018,"benthic_feeders, wintering_birds",Åland Group,0.8,1863.48124417
+31,2018,"grazing_feeders, wintering_birds",Åland Group,1,1863.48124417
+32,2018,"wading_feeders, wintering_birds",Gulf of Finland,NA,5739.28467986
+32,2018,"surface_feeders, wintering_birds",Gulf of Finland,1,5739.28467986
+32,2018,"pelagic_feeders, wintering_birds",Gulf of Finland,1,5739.28467986
+32,2018,"benthic_feeders, wintering_birds",Gulf of Finland,0.5,5739.28467986
+32,2018,"grazing_feeders, wintering_birds",Gulf of Finland,0.67,5739.28467986
+34,2018,"wading_feeders, wintering_birds",Gulf of Finland,NA,3677.60617531
+34,2018,"surface_feeders, wintering_birds",Gulf of Finland,1,3677.60617531
+34,2018,"pelagic_feeders, wintering_birds",Gulf of Finland,1,3677.60617531
+34,2018,"benthic_feeders, wintering_birds",Gulf of Finland,0.5,3677.60617531
+34,2018,"grazing_feeders, wintering_birds",Gulf of Finland,0.67,3677.60617531
+33,2018,"wading_feeders, wintering_birds",Gulf of Finland,NA,3848.18703719
+33,2018,"surface_feeders, wintering_birds",Gulf of Finland,1,3848.18703719
+33,2018,"pelagic_feeders, wintering_birds",Gulf of Finland,1,3848.18703719
+33,2018,"benthic_feeders, wintering_birds",Gulf of Finland,0.5,3848.18703719
+33,2018,"grazing_feeders, wintering_birds",Gulf of Finland,0.67,3848.18703719
+28,2018,"wading_feeders, wintering_birds",Gotland Group,NA,8369.41978651
+28,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,8369.41978651
+28,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,8369.41978651
+28,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,8369.41978651
+28,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,8369.41978651
+27,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1743.55966125
+27,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,1743.55966125
+27,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,1743.55966125
+27,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1743.55966125
+27,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,1743.55966125
+26,2018,"wading_feeders, wintering_birds",Gotland Group,NA,8495.68349062
+26,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,8495.68349062
+26,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,8495.68349062
+26,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,8495.68349062
+26,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,8495.68349062
+25,2018,"wading_feeders, wintering_birds",Gotland Group,NA,594.758546588
+25,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,594.758546588
+25,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,594.758546588
+25,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,594.758546588
+25,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,594.758546588
+24,2018,"wading_feeders, wintering_birds",Gotland Group,NA,549.89748327
+24,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,549.89748327
+24,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,549.89748327
+24,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,549.89748327
+24,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,549.89748327
+23,2018,"wading_feeders, wintering_birds",Gotland Group,NA,622.449106303
+23,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,622.449106303
+23,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,622.449106303
+23,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,622.449106303
+23,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,622.449106303
+20,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1093.52232208
+20,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,1093.52232208
+20,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,1093.52232208
+20,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1093.52232208
+20,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,1093.52232208
+22,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1376.76200347
+22,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,1376.76200347
+22,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,1376.76200347
+22,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1376.76200347
+22,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,1376.76200347
+21,2018,"wading_feeders, wintering_birds",Gotland Group,NA,108.077651137
+21,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,108.077651137
+21,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,108.077651137
+21,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,108.077651137
+21,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,108.077651137
+19,2018,"wading_feeders, wintering_birds",Gotland Group,NA,620.399041853
+19,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,620.399041853
+19,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,620.399041853
+19,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,620.399041853
+19,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,620.399041853
+18,2018,"wading_feeders, wintering_birds",Gotland Group,NA,1604.63304771
+18,2018,"surface_feeders, wintering_birds",Gotland Group,0.75,1604.63304771
+18,2018,"pelagic_feeders, wintering_birds",Gotland Group,1,1604.63304771
+18,2018,"benthic_feeders, wintering_birds",Gotland Group,0.75,1604.63304771
+18,2018,"grazing_feeders, wintering_birds",Gotland Group,0.75,1604.63304771
+14,2018,"wading_feeders, wintering_birds",Bornholm Group,1,1390.67304035
+14,2018,"surface_feeders, wintering_birds",Bornholm Group,1,1390.67304035
+14,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,1390.67304035
+14,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,1390.67304035
+14,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,1390.67304035
+17,2018,"wading_feeders, wintering_birds",Bornholm Group,1,891.055032868
+17,2018,"surface_feeders, wintering_birds",Bornholm Group,1,891.055032868
+17,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,891.055032868
+17,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,891.055032868
+17,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,891.055032868
+15,2018,"wading_feeders, wintering_birds",Bornholm Group,1,232.621443821
+15,2018,"surface_feeders, wintering_birds",Bornholm Group,1,232.621443821
+15,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,232.621443821
+15,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,232.621443821
+15,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,232.621443821
+16,2018,"wading_feeders, wintering_birds",Bornholm Group,1,651.89957406
+16,2018,"surface_feeders, wintering_birds",Bornholm Group,1,651.89957406
+16,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,651.89957406
+16,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,651.89957406
+16,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,651.89957406
+11,2018,"wading_feeders, wintering_birds",Bornholm Group,1,414.949726805
+11,2018,"surface_feeders, wintering_birds",Bornholm Group,1,414.949726805
+11,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,414.949726805
+11,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,414.949726805
+11,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,414.949726805
+12,2018,"wading_feeders, wintering_birds",Bornholm Group,1,1737.33448584
+12,2018,"surface_feeders, wintering_birds",Bornholm Group,1,1737.33448584
+12,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,1737.33448584
+12,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,1737.33448584
+12,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,1737.33448584
+13,2018,"wading_feeders, wintering_birds",Bornholm Group,1,1996.90010738
+13,2018,"surface_feeders, wintering_birds",Bornholm Group,1,1996.90010738
+13,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,1996.90010738
+13,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,1996.90010738
+13,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,1996.90010738
+10,2018,"wading_feeders, wintering_birds",Bornholm Group,1,840.420645819
+10,2018,"surface_feeders, wintering_birds",Bornholm Group,1,840.420645819
+10,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,840.420645819
+10,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,840.420645819
+10,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,840.420645819
+9,2018,"wading_feeders, wintering_birds",Bornholm Group,1,302.615336326
+9,2018,"surface_feeders, wintering_birds",Bornholm Group,1,302.615336326
+9,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,302.615336326
+9,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,302.615336326
+9,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,302.615336326
+7,2018,"wading_feeders, wintering_birds",Bornholm Group,1,91.229960734
+7,2018,"surface_feeders, wintering_birds",Bornholm Group,1,91.229960734
+7,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,91.229960734
+7,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,91.229960734
+7,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,91.229960734
+8,2018,"wading_feeders, wintering_birds",Bornholm Group,1,677.306066603
+8,2018,"surface_feeders, wintering_birds",Bornholm Group,1,677.306066603
+8,2018,"pelagic_feeders, wintering_birds",Bornholm Group,1,677.306066603
+8,2018,"benthic_feeders, wintering_birds",Bornholm Group,0.75,677.306066603
+8,2018,"grazing_feeders, wintering_birds",Bornholm Group,0.86,677.306066603
+3,2018,"wading_feeders, wintering_birds",Belt Group,0,8602.73712277
+3,2018,"surface_feeders, wintering_birds",Belt Group,NA,8602.73712277
+3,2018,"pelagic_feeders, wintering_birds",Belt Group,0.6,8602.73712277
+3,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,8602.73712277
+3,2018,"grazing_feeders, wintering_birds",Belt Group,0.8,8602.73712277
+5,2018,"wading_feeders, wintering_birds",Belt Group,0,452.433908407
+5,2018,"surface_feeders, wintering_birds",Belt Group,NA,452.433908407
+5,2018,"pelagic_feeders, wintering_birds",Belt Group,0.6,452.433908407
+5,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,452.433908407
+5,2018,"grazing_feeders, wintering_birds",Belt Group,0.8,452.433908407
+6,2018,"wading_feeders, wintering_birds",Belt Group,0,287.002547789
+6,2018,"surface_feeders, wintering_birds",Belt Group,NA,287.002547789
+6,2018,"pelagic_feeders, wintering_birds",Belt Group,0.6,287.002547789
+6,2018,"benthic_feeders, wintering_birds",Belt Group,0.25,287.002547789
+6,2018,"grazing_feeders, wintering_birds",Belt Group,0.8,287.002547789
+1,2018,"wading_feeders, wintering_birds",Kattegat,1,2406.80456761
+1,2018,"surface_feeders, wintering_birds",Kattegat,NA,2406.80456761
+1,2018,"pelagic_feeders, wintering_birds",Kattegat,0.6,2406.80456761
+1,2018,"benthic_feeders, wintering_birds",Kattegat,0.25,2406.80456761
+1,2018,"grazing_feeders, wintering_birds",Kattegat,0.5,2406.80456761
+2,2018,"wading_feeders, wintering_birds",Kattegat,1,6332.07394851
+2,2018,"surface_feeders, wintering_birds",Kattegat,NA,6332.07394851
+2,2018,"pelagic_feeders, wintering_birds",Kattegat,0.6,6332.07394851
+2,2018,"benthic_feeders, wintering_birds",Kattegat,0.25,6332.07394851
+2,2018,"grazing_feeders, wintering_birds",Kattegat,0.5,6332.07394851
+1,2018,"wading_feeders, breeding_birds",Kattegat,NA,4158.78191212
+1,2018,"surface_feeders, breeding_birds",Kattegat,NA,4158.78191212
+1,2018,"pelagic_feeders, breeding_birds",Kattegat,NA,4158.78191212
+1,2018,"benthic_feeders, breeding_birds",Kattegat,NA,4158.78191212
+1,2018,"grazing_feeders, breeding_birds",Kattegat,NA,4158.78191212
+2,2018,"wading_feeders, breeding_birds",Kattegat,NA,9983.41122649
+2,2018,"surface_feeders, breeding_birds",Kattegat,NA,9983.41122649
+2,2018,"pelagic_feeders, breeding_birds",Kattegat,NA,9983.41122649
+2,2018,"benthic_feeders, breeding_birds",Kattegat,NA,9983.41122649
+2,2018,"grazing_feeders, breeding_birds",Kattegat,NA,9983.41122649
+3,2018,"wading_feeders, breeding_birds",Belt Group,NA,1385.0745693499994
+3,2018,"surface_feeders, breeding_birds",Belt Group,NA,1385.0745693499994
+3,2018,"pelagic_feeders, breeding_birds",Belt Group,NA,1385.0745693499994
+3,2018,"benthic_feeders, breeding_birds",Belt Group,NA,1385.0745693499994
+3,2018,"grazing_feeders, breeding_birds",Belt Group,NA,1385.0745693499994
+4,2018,"wading_feeders, breeding_birds",Belt Group,NA,98.620894352
+4,2018,"surface_feeders, breeding_birds",Belt Group,NA,98.620894352
+4,2018,"pelagic_feeders, breeding_birds",Belt Group,NA,98.620894352
+4,2018,"benthic_feeders, breeding_birds",Belt Group,NA,98.620894352
+4,2018,"grazing_feeders, breeding_birds",Belt Group,NA,98.620894352
+5,2018,"wading_feeders, breeding_birds",Belt Group,NA,142.28900467200003
+5,2018,"surface_feeders, breeding_birds",Belt Group,NA,142.28900467200003
+5,2018,"pelagic_feeders, breeding_birds",Belt Group,NA,142.28900467200003
+5,2018,"benthic_feeders, breeding_birds",Belt Group,NA,142.28900467200003
+5,2018,"grazing_feeders, breeding_birds",Belt Group,NA,142.28900467200003
+6,2018,"wading_feeders, breeding_birds",Belt Group,NA,290.86634618100004
+6,2018,"surface_feeders, breeding_birds",Belt Group,NA,290.86634618100004
+6,2018,"pelagic_feeders, breeding_birds",Belt Group,NA,290.86634618100004
+6,2018,"benthic_feeders, breeding_birds",Belt Group,NA,290.86634618100004
+6,2018,"grazing_feeders, breeding_birds",Belt Group,NA,290.86634618100004
+7,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,1119.9762443759998
+7,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,1119.9762443759998
+8,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,1319.5878126870002
+8,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,1319.5878126870002
+9,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,838.491977574
+9,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,838.491977574
+9,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,838.491977574
+9,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,838.491977574
+9,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,838.491977574
+10,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,2540.1992409709997
+10,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,2540.1992409709997
+11,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,3814.1523893450003
+11,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,3814.1523893450003
+12,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,4441.14997088
+12,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,4441.14997088
+12,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,4441.14997088
+12,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,4441.14997088
+12,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,4441.14997088
+13,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,4946.84220402
+13,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,4946.84220402
+13,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,4946.84220402
+13,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,4946.84220402
+13,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,4946.84220402
+14,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,13668.53701875
+14,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,13668.53701875
+14,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,13668.53701875
+14,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,13668.53701875
+14,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,13668.53701875
+15,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,6900.049217029
+15,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,6900.049217029
+15,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,6900.049217029
+15,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,6900.049217029
+15,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,6900.049217029
+16,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,1880.33051832
+16,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,1880.33051832
+16,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,1880.33051832
+16,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,1880.33051832
+16,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,1880.33051832
+17,2018,"wading_feeders, breeding_birds",Bornholm Group,NA,16340.021163932
+17,2018,"surface_feeders, breeding_birds",Bornholm Group,NA,16340.021163932
+17,2018,"pelagic_feeders, breeding_birds",Bornholm Group,NA,16340.021163932
+17,2018,"benthic_feeders, breeding_birds",Bornholm Group,NA,16340.021163932
+17,2018,"grazing_feeders, breeding_birds",Bornholm Group,NA,16340.021163932
+18,2018,"wading_feeders, breeding_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"surface_feeders, breeding_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,1993.4516081699999
+18,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,1993.4516081699999
+19,2018,"wading_feeders, breeding_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"surface_feeders, breeding_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,1473.1162000470001
+19,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,1473.1162000470001
+20,2018,"wading_feeders, breeding_birds",Gotland Group,NA,20810.78465972
+20,2018,"surface_feeders, breeding_birds",Gotland Group,NA,20810.78465972
+20,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,20810.78465972
+20,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,20810.78465972
+20,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,20810.78465972
+21,2018,"wading_feeders, breeding_birds",Gotland Group,NA,10905.629868163
+21,2018,"surface_feeders, breeding_birds",Gotland Group,NA,10905.629868163
+21,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,10905.629868163
+21,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,10905.629868163
+21,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,10905.629868163
+22,2018,"wading_feeders, breeding_birds",Gotland Group,NA,8025.706413699999
+22,2018,"surface_feeders, breeding_birds",Gotland Group,NA,8025.706413699999
+22,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,8025.706413699999
+22,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,8025.706413699999
+22,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,8025.706413699999
+23,2018,"wading_feeders, breeding_birds",Gotland Group,NA,5461.276416527
+23,2018,"surface_feeders, breeding_birds",Gotland Group,NA,5461.276416527
+23,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,5461.276416527
+23,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,5461.276416527
+23,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,5461.276416527
+24,2018,"wading_feeders, breeding_birds",Gotland Group,NA,20442.41787563
+24,2018,"surface_feeders, breeding_birds",Gotland Group,NA,20442.41787563
+24,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,20442.41787563
+24,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,20442.41787563
+24,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,20442.41787563
+25,2018,"wading_feeders, breeding_birds",Gotland Group,NA,4769.884478622
+25,2018,"surface_feeders, breeding_birds",Gotland Group,NA,4769.884478622
+25,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,4769.884478622
+25,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,4769.884478622
+25,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,4769.884478622
+26,2018,"wading_feeders, breeding_birds",Gotland Group,NA,18817.17654768
+26,2018,"surface_feeders, breeding_birds",Gotland Group,NA,18817.17654768
+26,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,18817.17654768
+26,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,18817.17654768
+26,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,18817.17654768
+27,2018,"wading_feeders, breeding_birds",Gotland Group,NA,6102.47794946
+27,2018,"surface_feeders, breeding_birds",Gotland Group,NA,6102.47794946
+27,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,6102.47794946
+27,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,6102.47794946
+27,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,6102.47794946
+28,2018,"wading_feeders, breeding_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"surface_feeders, breeding_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"pelagic_feeders, breeding_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"benthic_feeders, breeding_birds",Gotland Group,NA,1987.4666405900007
+28,2018,"grazing_feeders, breeding_birds",Gotland Group,NA,1987.4666405900007
+29,2018,"wading_feeders, breeding_birds",Åland Group,NA,14379.32959086
+29,2018,"surface_feeders, breeding_birds",Åland Group,NA,14379.32959086
+29,2018,"pelagic_feeders, breeding_birds",Åland Group,NA,14379.32959086
+29,2018,"benthic_feeders, breeding_birds",Åland Group,NA,14379.32959086
+29,2018,"grazing_feeders, breeding_birds",Åland Group,NA,14379.32959086
+30,2018,"wading_feeders, breeding_birds",Åland Group,NA,9809.85368294
+30,2018,"surface_feeders, breeding_birds",Åland Group,NA,9809.85368294
+30,2018,"pelagic_feeders, breeding_birds",Åland Group,NA,9809.85368294
+30,2018,"benthic_feeders, breeding_birds",Åland Group,NA,9809.85368294
+30,2018,"grazing_feeders, breeding_birds",Åland Group,NA,9809.85368294
+31,2018,"wading_feeders, breeding_birds",Åland Group,NA,9822.280312730001
+31,2018,"surface_feeders, breeding_birds",Åland Group,NA,9822.280312730001
+31,2018,"pelagic_feeders, breeding_birds",Åland Group,NA,9822.280312730001
+31,2018,"benthic_feeders, breeding_birds",Åland Group,NA,9822.280312730001
+31,2018,"grazing_feeders, breeding_birds",Åland Group,NA,9822.280312730001
+32,2018,"wading_feeders, breeding_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"surface_feeders, breeding_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"pelagic_feeders, breeding_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"benthic_feeders, breeding_birds",Gulf of Finland,NA,3637.1966311899996
+32,2018,"grazing_feeders, breeding_birds",Gulf of Finland,NA,3637.1966311899996
+33,2018,"wading_feeders, breeding_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"surface_feeders, breeding_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"pelagic_feeders, breeding_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"benthic_feeders, breeding_birds",Gulf of Finland,NA,7430.919282609999
+33,2018,"grazing_feeders, breeding_birds",Gulf of Finland,NA,7430.919282609999
+34,2018,"wading_feeders, breeding_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"surface_feeders, breeding_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"pelagic_feeders, breeding_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"benthic_feeders, breeding_birds",Gulf of Finland,NA,4444.3143660099995
+34,2018,"grazing_feeders, breeding_birds",Gulf of Finland,NA,4444.3143660099995
+35,2018,"wading_feeders, breeding_birds",Åland Group,NA,2139.737623843
+35,2018,"surface_feeders, breeding_birds",Åland Group,NA,2139.737623843
+35,2018,"pelagic_feeders, breeding_birds",Åland Group,NA,2139.737623843
+35,2018,"benthic_feeders, breeding_birds",Åland Group,NA,2139.737623843
+35,2018,"grazing_feeders, breeding_birds",Åland Group,NA,2139.737623843
+36,2018,"wading_feeders, breeding_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"surface_feeders, breeding_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"pelagic_feeders, breeding_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"benthic_feeders, breeding_birds",Åland Group,NA,-1529.3944908000012
+36,2018,"grazing_feeders, breeding_birds",Åland Group,NA,-1529.3944908000012
+37,2018,"wading_feeders, breeding_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"surface_feeders, breeding_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"pelagic_feeders, breeding_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"benthic_feeders, breeding_birds",Bothnia Group,NA,24987.007993850002
+37,2018,"grazing_feeders, breeding_birds",Bothnia Group,NA,24987.007993850002
+38,2018,"wading_feeders, breeding_birds",Bothnia Group,NA,24433.65419015
+38,2018,"surface_feeders, breeding_birds",Bothnia Group,NA,24433.65419015
+38,2018,"pelagic_feeders, breeding_birds",Bothnia Group,NA,24433.65419015
+38,2018,"benthic_feeders, breeding_birds",Bothnia Group,NA,24433.65419015
+38,2018,"grazing_feeders, breeding_birds",Bothnia Group,NA,24433.65419015
+39,2018,"wading_feeders, breeding_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"surface_feeders, breeding_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"pelagic_feeders, breeding_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"benthic_feeders, breeding_birds",Bothnia Group,NA,1270.4418219800002
+39,2018,"grazing_feeders, breeding_birds",Bothnia Group,NA,1270.4418219800002
+40,2018,"wading_feeders, breeding_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"surface_feeders, breeding_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"pelagic_feeders, breeding_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"benthic_feeders, breeding_birds",Bothnia Group,NA,1457.3841874500004
+40,2018,"grazing_feeders, breeding_birds",Bothnia Group,NA,1457.3841874500004
+41,2018,"wading_feeders, breeding_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"surface_feeders, breeding_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"pelagic_feeders, breeding_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"benthic_feeders, breeding_birds",Bothnia Group,NA,11597.869080789998
+41,2018,"grazing_feeders, breeding_birds",Bothnia Group,NA,11597.869080789998
+42,2018,"wading_feeders, breeding_birds",Bothnia Group,NA,9161.74512064
+42,2018,"surface_feeders, breeding_birds",Bothnia Group,NA,9161.74512064
+42,2018,"pelagic_feeders, breeding_birds",Bothnia Group,NA,9161.74512064
+42,2018,"benthic_feeders, breeding_birds",Bothnia Group,NA,9161.74512064
+42,2018,"grazing_feeders, breeding_birds",Bothnia Group,NA,9161.74512064
+42,2018,"wading_feeders, breeding_birds",Bothnia Group,0.5,5548.12301296
+42,2018,"surface_feeders, breeding_birds",Bothnia Group,1,5548.12301296
+42,2018,"pelagic_feeders, breeding_birds",Bothnia Group,1,5548.12301296
+42,2018,"benthic_feeders, breeding_birds",Bothnia Group,0.67,5548.12301296
+42,2018,"grazing_feeders, breeding_birds",Bothnia Group,1,5548.12301296
+41,2018,"wading_feeders, breeding_birds",Bothnia Group,0.5,5349.79599391
+41,2018,"surface_feeders, breeding_birds",Bothnia Group,1,5349.79599391
+41,2018,"pelagic_feeders, breeding_birds",Bothnia Group,1,5349.79599391
+41,2018,"benthic_feeders, breeding_birds",Bothnia Group,0.67,5349.79599391
+41,2018,"grazing_feeders, breeding_birds",Bothnia Group,1,5349.79599391
+40,2018,"wading_feeders, breeding_birds",Bothnia Group,0.5,3404.89563885
+40,2018,"surface_feeders, breeding_birds",Bothnia Group,1,3404.89563885
+40,2018,"pelagic_feeders, breeding_birds",Bothnia Group,1,3404.89563885
+40,2018,"benthic_feeders, breeding_birds",Bothnia Group,0.67,3404.89563885
+40,2018,"grazing_feeders, breeding_birds",Bothnia Group,1,3404.89563885
+39,2018,"wading_feeders, breeding_birds",Bothnia Group,0.5,1894.20339705
+39,2018,"surface_feeders, breeding_birds",Bothnia Group,1,1894.20339705
+39,2018,"pelagic_feeders, breeding_birds",Bothnia Group,1,1894.20339705
+39,2018,"benthic_feeders, breeding_birds",Bothnia Group,0.67,1894.20339705
+39,2018,"grazing_feeders, breeding_birds",Bothnia Group,1,1894.20339705
+38,2018,"wading_feeders, breeding_birds",Bothnia Group,0.5,3518.72901725
+38,2018,"surface_feeders, breeding_birds",Bothnia Group,1,3518.72901725
+38,2018,"pelagic_feeders, breeding_birds",Bothnia Group,1,3518.72901725
+38,2018,"benthic_feeders, breeding_birds",Bothnia Group,0.67,3518.72901725
+38,2018,"grazing_feeders, breeding_birds",Bothnia Group,1,3518.72901725
+37,2018,"wading_feeders, breeding_birds",Bothnia Group,0.5,6252.65935355
+37,2018,"surface_feeders, breeding_birds",Bothnia Group,1,6252.65935355
+37,2018,"pelagic_feeders, breeding_birds",Bothnia Group,1,6252.65935355
+37,2018,"benthic_feeders, breeding_birds",Bothnia Group,0.67,6252.65935355
+37,2018,"grazing_feeders, breeding_birds",Bothnia Group,1,6252.65935355
+35,2018,"wading_feeders, breeding_birds",Åland Group,0.8,592.382602237
+35,2018,"surface_feeders, breeding_birds",Åland Group,0.71,592.382602237
+35,2018,"pelagic_feeders, breeding_birds",Åland Group,0.8,592.382602237
+35,2018,"benthic_feeders, breeding_birds",Åland Group,0.33,592.382602237
+35,2018,"grazing_feeders, breeding_birds",Åland Group,0.67,592.382602237
+36,2018,"wading_feeders, breeding_birds",Åland Group,0.8,14341.4191511
+36,2018,"surface_feeders, breeding_birds",Åland Group,0.71,14341.4191511
+36,2018,"pelagic_feeders, breeding_birds",Åland Group,0.8,14341.4191511
+36,2018,"benthic_feeders, breeding_birds",Åland Group,0.33,14341.4191511
+36,2018,"grazing_feeders, breeding_birds",Åland Group,0.67,14341.4191511
+29,2018,"wading_feeders, breeding_birds",Åland Group,0.8,3467.46917034
+29,2018,"surface_feeders, breeding_birds",Åland Group,0.71,3467.46917034
+29,2018,"pelagic_feeders, breeding_birds",Åland Group,0.8,3467.46917034
+29,2018,"benthic_feeders, breeding_birds",Åland Group,0.33,3467.46917034
+29,2018,"grazing_feeders, breeding_birds",Åland Group,0.67,3467.46917034
+31,2018,"wading_feeders, breeding_birds",Åland Group,0.8,1863.48124417
+31,2018,"surface_feeders, breeding_birds",Åland Group,0.71,1863.48124417
+31,2018,"pelagic_feeders, breeding_birds",Åland Group,0.8,1863.48124417
+31,2018,"benthic_feeders, breeding_birds",Åland Group,0.33,1863.48124417
+31,2018,"grazing_feeders, breeding_birds",Åland Group,0.67,1863.48124417
+32,2018,"wading_feeders, breeding_birds",Gulf of Finland,0.67,5739.28467986
+32,2018,"surface_feeders, breeding_birds",Gulf of Finland,0.17,5739.28467986
+32,2018,"pelagic_feeders, breeding_birds",Gulf of Finland,0.67,5739.28467986
+32,2018,"benthic_feeders, breeding_birds",Gulf of Finland,0.33,5739.28467986
+32,2018,"grazing_feeders, breeding_birds",Gulf of Finland,1,5739.28467986
+34,2018,"wading_feeders, breeding_birds",Gulf of Finland,0.67,3677.60617531
+34,2018,"surface_feeders, breeding_birds",Gulf of Finland,0.17,3677.60617531
+34,2018,"pelagic_feeders, breeding_birds",Gulf of Finland,0.67,3677.60617531
+34,2018,"benthic_feeders, breeding_birds",Gulf of Finland,0.33,3677.60617531
+34,2018,"grazing_feeders, breeding_birds",Gulf of Finland,1,3677.60617531
+33,2018,"wading_feeders, breeding_birds",Gulf of Finland,0.67,3848.18703719
+33,2018,"surface_feeders, breeding_birds",Gulf of Finland,0.17,3848.18703719
+33,2018,"pelagic_feeders, breeding_birds",Gulf of Finland,0.67,3848.18703719
+33,2018,"benthic_feeders, breeding_birds",Gulf of Finland,0.33,3848.18703719
+33,2018,"grazing_feeders, breeding_birds",Gulf of Finland,1,3848.18703719
+28,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,8369.41978651
+28,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,8369.41978651
+28,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,8369.41978651
+28,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,8369.41978651
+28,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,8369.41978651
+27,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,1743.55966125
+27,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,1743.55966125
+27,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,1743.55966125
+27,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,1743.55966125
+27,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,1743.55966125
+26,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,8495.68349062
+26,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,8495.68349062
+26,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,8495.68349062
+26,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,8495.68349062
+26,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,8495.68349062
+25,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,594.758546588
+25,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,594.758546588
+25,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,594.758546588
+25,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,594.758546588
+25,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,594.758546588
+24,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,549.89748327
+24,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,549.89748327
+24,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,549.89748327
+24,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,549.89748327
+24,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,549.89748327
+23,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,622.449106303
+23,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,622.449106303
+23,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,622.449106303
+23,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,622.449106303
+23,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,622.449106303
+20,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,1093.52232208
+20,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,1093.52232208
+20,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,1093.52232208
+20,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,1093.52232208
+20,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,1093.52232208
+22,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,1376.76200347
+22,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,1376.76200347
+22,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,1376.76200347
+22,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,1376.76200347
+22,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,1376.76200347
+21,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,108.077651137
+21,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,108.077651137
+21,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,108.077651137
+21,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,108.077651137
+21,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,108.077651137
+19,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,620.399041853
+19,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,620.399041853
+19,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,620.399041853
+19,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,620.399041853
+19,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,620.399041853
+18,2018,"wading_feeders, breeding_birds",Gotland Group,0.33,1604.63304771
+18,2018,"surface_feeders, breeding_birds",Gotland Group,0.63,1604.63304771
+18,2018,"pelagic_feeders, breeding_birds",Gotland Group,0.86,1604.63304771
+18,2018,"benthic_feeders, breeding_birds",Gotland Group,0.33,1604.63304771
+18,2018,"grazing_feeders, breeding_birds",Gotland Group,0.67,1604.63304771
+14,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,1390.67304035
+14,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,1390.67304035
+14,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,1390.67304035
+14,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,1390.67304035
+14,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,1390.67304035
+17,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,891.055032868
+17,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,891.055032868
+17,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,891.055032868
+17,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,891.055032868
+17,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,891.055032868
+15,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,232.621443821
+15,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,232.621443821
+15,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,232.621443821
+15,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,232.621443821
+15,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,232.621443821
+16,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,651.89957406
+16,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,651.89957406
+16,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,651.89957406
+16,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,651.89957406
+16,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,651.89957406
+11,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,414.949726805
+11,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,414.949726805
+11,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,414.949726805
+11,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,414.949726805
+11,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,414.949726805
+12,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,1737.33448584
+12,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,1737.33448584
+12,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,1737.33448584
+12,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,1737.33448584
+12,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,1737.33448584
+13,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,1996.90010738
+13,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,1996.90010738
+13,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,1996.90010738
+13,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,1996.90010738
+13,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,1996.90010738
+10,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,840.420645819
+10,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,840.420645819
+10,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,840.420645819
+10,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,840.420645819
+10,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,840.420645819
+9,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,302.615336326
+9,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,302.615336326
+9,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,302.615336326
+9,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,302.615336326
+9,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,302.615336326
+7,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,91.229960734
+7,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,91.229960734
+7,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,91.229960734
+7,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,91.229960734
+7,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,91.229960734
+8,2018,"wading_feeders, breeding_birds",Bornholm Group,0.4,677.306066603
+8,2018,"surface_feeders, breeding_birds",Bornholm Group,0.44,677.306066603
+8,2018,"pelagic_feeders, breeding_birds",Bornholm Group,0.5,677.306066603
+8,2018,"benthic_feeders, breeding_birds",Bornholm Group,0.5,677.306066603
+8,2018,"grazing_feeders, breeding_birds",Bornholm Group,1,677.306066603
+3,2018,"wading_feeders, breeding_birds",Belt Group,1,8602.73712277
+3,2018,"surface_feeders, breeding_birds",Belt Group,0.875,8602.73712277
+3,2018,"pelagic_feeders, breeding_birds",Belt Group,0.5,8602.73712277
+3,2018,"benthic_feeders, breeding_birds",Belt Group,NA,8602.73712277
+3,2018,"grazing_feeders, breeding_birds",Belt Group,1,8602.73712277
+5,2018,"wading_feeders, breeding_birds",Belt Group,1,452.433908407
+5,2018,"surface_feeders, breeding_birds",Belt Group,0.875,452.433908407
+5,2018,"pelagic_feeders, breeding_birds",Belt Group,0.5,452.433908407
+5,2018,"benthic_feeders, breeding_birds",Belt Group,NA,452.433908407
+5,2018,"grazing_feeders, breeding_birds",Belt Group,1,452.433908407
+6,2018,"wading_feeders, breeding_birds",Belt Group,1,287.002547789
+6,2018,"surface_feeders, breeding_birds",Belt Group,0.875,287.002547789
+6,2018,"pelagic_feeders, breeding_birds",Belt Group,0.5,287.002547789
+6,2018,"benthic_feeders, breeding_birds",Belt Group,NA,287.002547789
+6,2018,"grazing_feeders, breeding_birds",Belt Group,1,287.002547789
+1,2018,"wading_feeders, breeding_birds",Kattegat,0,2406.80456761
+1,2018,"surface_feeders, breeding_birds",Kattegat,0.43,2406.80456761
+1,2018,"pelagic_feeders, breeding_birds",Kattegat,1,2406.80456761
+1,2018,"benthic_feeders, breeding_birds",Kattegat,NA,2406.80456761
+1,2018,"grazing_feeders, breeding_birds",Kattegat,NA,2406.80456761
+2,2018,"wading_feeders, breeding_birds",Kattegat,0,6332.07394851
+2,2018,"surface_feeders, breeding_birds",Kattegat,0.43,6332.07394851
+2,2018,"pelagic_feeders, breeding_birds",Kattegat,1,6332.07394851
+2,2018,"benthic_feeders, breeding_birds",Kattegat,NA,6332.07394851
+2,2018,"grazing_feeders, breeding_birds",Kattegat,NA,6332.07394851
