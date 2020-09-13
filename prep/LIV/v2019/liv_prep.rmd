@@ -13,6 +13,7 @@ loc <- here::here("prep", "LIV")
 source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
+dir_rawdata <- file.path(dir_B, "Goals", "LE", "LIV")
 bkgd_path <- here::here("supplement", "goal_summaries", "LIV.Rmd")
 data_path <- here::here("data", "LIV", version_year, "liv_data.rmd")
 refs_path <- file.path(loc, "liv_references.Rmd")
@@ -30,8 +31,9 @@ refs_path <- file.path(loc, "liv_references.Rmd")
 
 This prep document is used to generate and explore the following data layers:
 
-- `le_liv_regional_employ_bhi2019.csv` 
-- `le_liv_national_employ_bhi2019.csv` 
+- `le_liv_coastal_employ_bhi2019.csv`
+- `le_liv_coastal_pop_bhi2019.csv` 
+- `le_liv_national_pop_bhi2019.csv` 
 
 These are saved to the `layers` folder. Saved to `data/LIV/v2019/intermediate` are intermediate datasets: `rgn_coastalpop_bhi2019.csv` and `DATASETINTEMED2.csv`. All these are derived from or informed by the raw datasets from Eurostat employment rates and population change, and population densities from the [HYDE database](https://themasites.pbl.nl/tridion/en/themasites/hyde/).
 
@@ -44,15 +46,290 @@ These are saved to the `layers` folder. Saved to `data/LIV/v2019/intermediate` a
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
-### 3.1 Goal Model
+#### 3.1 Spatial Data {-}
+
+[Eurostat NUTS regions shapefiles can be found here](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts). The NUTS 2016, 2013, 2010, 2006, and 2003 were downloaded at 1:10 million resolution (NUTS_RG_10M_year_4326_LEVL_2or3 files within the zipped downloads are the polygons in espg 4326 projection).
+
+```{r NUTS2 polygons}
+##  NUTS3 shapefiles because coastal regions are distinguished from non-coastal at this level
+nutsshpfiles <- grep(
+  "NUTS_RG_10M_[0-9]{4}_4326_LEVL_3/.*\\.shp", 
+  list.files(file.path(dirname(dir_B), "Shapefiles", "all_NUTS_shapefiles"), recursive = TRUE),
+  value = TRUE
+)
+## will check 2013 in cases where matching with 2016 version doesn't work
+## gives GDAL Errors / CPL_read_ogr warnings, but still reads in the shapefiles...
+for(f in grep("2013|2016", nutsshpfiles, value = TRUE)){
+  shp <- sf::st_read(
+    dsn = file.path(dirname(dir_B), "Shapefiles", "all_NUTS_shapefiles", stringr::str_extract(f, "ref.*LEVL_3(?=/)")),
+    stringsAsFactors = FALSE
+  )
+  shp_baltic <- shp %>% filter(CNTR_CODE %in% c("SE", "FI", "EE", "LV", "LT", "PL", "DE", "DK"))
+  assign(sprintf("nuts3_%s_shp", stringr::str_extract(f, "(?<=10M_)[0-9]{4}")), shp_baltic)
+}
+
+## 25km inland buffer for BHI regions
+buffer_25km_inland <- sf::st_read(
+  file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile_25km_buffer"),
+  "BHI_shapefile_25km_buffer"
+)
+buffer_25km_inland <- cbind(
+  buffer_25km_inland,
+  buffer_area_km2 = as.numeric(sf::st_area(buffer_25km_inland)/(1000^2))
+)
+
+
+## create some spatial objects for making maps later
+buffer_25k_simple <- rmapshaper::ms_simplify(input = buffer_25km_inland) %>% sf::st_as_sf()
+
+basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
+  geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
+  theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
+  scale_x_continuous(limit = c(4, 32)) +
+  scale_y_continuous(limit = c(53.5, 66)) 
+```
+
+<br>
+
+### 3.2 Clean and Merge Employment Rate Data: standardize units, rename fields/variables {-}
+
+```{r read in datasets with liv employment by country}
+employ_data <- do.call(rbind, lapply(
+  grep("emp-rate.csv", list.files(dir_rawdata, recursive = TRUE, full.names = TRUE), value = TRUE),
+  function(x){
+    joindf <- read.delim(x, sep = ";")
+    colnames(joindf) <- c("sector_or_metric", "2009", "2011", "2013", "2015", "2016", "2017", "2018")
+    joindf <- joindf %>% 
+      filter(str_length(sector_or_metric) > 0) %>% 
+      tidyr::pivot_longer(
+        cols = starts_with("20"), 
+        names_to = "year", 
+        values_to = "persons_emp_thousand"
+      ) %>% 
+      mutate(sector_or_metric = str_to_lower(str_replace_all(sector_or_metric, " ", "_"))) %>% 
+      mutate(persons_emp_thousand = str_replace(persons_emp_thousand, ",", ".")) %>% 
+      mutate(persons_emp_thousand = str_replace(persons_emp_thousand, " ", "")) %>% 
+      tidyr::pivot_wider(names_from = sector_or_metric, values_from = persons_emp_thousand) %>% 
+      mutate(country = str_extract(x, "(?<=NUTS3/)[a-z]+(?=_emp-rate\\.csv)"))
+    return(joindf)
+  }
+))
+```
 
 
 
-### 3.2 
+
+### 3.3 Clean Population Data: standardize units, rename fields/variables {-}
+
+```{r BHI coastal population estimation from NUTS2 population data}
+## regional employment per NUTS3 assessemnt areas, raw data from eurostat
+regional_pop_data <- file.path(
+    dir_rawdata, "Population_NUTS3", 
+    "demo_r_pjangrp3_w_nutscodes", 
+    "demo_r_pjangrp3_1_Data.csv"
+  )
+regional_pop <- read.csv(
+  regional_pop_data, 
+  stringsAsFactors = FALSE
+)
+```
+
+```{r clean regional population data}
+rgn_pop_clean <- regional_pop %>%
+  filter(SEX == "Total") %>% 
+  dplyr::select(
+    year = TIME, nuts3 = GEO,
+    value = Value,
+    flag_notes = Flag.and.Footnotes
+  ) %>%
+  mutate(
+    value = as.numeric(stringr::str_remove_all(value, ",")),
+    flag_notes = case_when(
+      flag_notes == "b" ~ "break in timeseries",
+      flag_notes == "u" ~ "low reliability",
+      flag_notes == "bu" ~ "break in timeseries and low reliability",
+      !flag_notes %in% c("b", "u", "bu") ~ ""
+    )
+  )
+
+## check dataflags
+unique(rgn_pop_clean$flag_notes)
+## no rows "low reliability" or "break in timeseries and low reliability"
+## breaks in timeseries a concern?
+filter(rgn_pop_clean, flag_notes == "break in timeseries")
+
+## remove flags_notes
+rgn_pop_clean <- rgn_pop_clean %>% 
+  dplyr::select(-flag_notes) %>% 
+  filter(substr(nuts3, 1, 2) %in% c("SE", "FI", "EE", "LV", "LT", "PL", "DE", "DK"))
+# summary(rgn_pop_clean$value)
+# summary(filter(rgn_pop_clean, str_length(nuts3)>4)$value)
+```
+
+
+**Join population info with NUTS3 shapefiles**
+
+```{r join pop data with nuts3 shapefile, results = "show", fig.width = 9.5, fig.height = 8}
+rgn_pop_nuts_spatial <- tidyr::pivot_wider(
+  rgn_pop_clean,
+  names_from = year, names_prefix = "pop_", 
+  values_from = value
+)
+rgn_pop_nuts_spatial <- nuts3_2016_shp %>% 
+  sf::st_transform(crs = 4326) %>% 
+  rename(nuts3 = NUTS_ID) %>% 
+  left_join(rgn_pop_nuts_spatial, by = "nuts3") %>% 
+  filter(COAST_TYPE %in% 1:2)
+
+## plotting initial values, raw NUTS2 regions employment rates
+## loop through all years to check population data alignment with reporting regions...
+basemap + 
+  geom_sf(data = rgn_pop_nuts_spatial, aes(fill = pop_2019), size = 0.1) +
+  geom_sf(data = buffer_25k_simple, fill = NA, color = "red", size = 0.2) +
+  scale_fill_viridis_c() +
+  labs(fill = "Population") +
+  theme(legend.position = c(0.15, 0.85)) +
+  ggtitle("Population 2019")
+```
+
+
+
+### 3.4 Wrangle and Save LIV data Layers {-}
+
+
+```{r merge with bhi regions save data layers for the liv subgoal}
+rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))
+
+## join bhi regions with employment rates ----
+emp_lyr <- left_join(
+  employ_data %>% 
+    select(year, eez = country, blue_economy_pct_of_natl = `blue_economy_(%_of_national_jobs)`) %>% 
+    mutate(blue_economy_pct_of_natl = str_extract(blue_economy_pct_of_natl, "[0-9]\\.[0-9]")) %>% 
+    mutate(blue_economy_pct_of_natl = as.numeric(blue_economy_pct_of_natl)) %>% 
+    mutate(
+      eez = str_to_sentence(eez),
+      year = as.numeric(year)
+    ),
+  rgns_complete %>% 
+    select(eez, region_id, region_name) %>% 
+    mutate(region_id = as.numeric(region_id)),
+  by = "eez"
+)
+emp_lyr <- emp_lyr %>% filter(!is.na(region_id))
+
+## join bhi regions with national coastal population ----
+rgn_coast_pop <- left_join(
+  rgn_pop_nuts_spatial %>% 
+    st_drop_geometry() %>% 
+    tidyr::pivot_longer(
+      cols = starts_with("pop_"), 
+      names_to = "year", names_prefix = "pop_", 
+      values_to = "population"
+    ) %>% 
+    group_by(year, CNTR_CODE) %>% 
+    summarize(natl_coastal_pop = sum(population)) %>% 
+    ungroup() %>% 
+    mutate(eez = case_when(
+      CNTR_CODE == "SE" ~ "Sweden",
+      CNTR_CODE == "FI" ~ "Finland",
+      CNTR_CODE == "EE" ~ "Estonia",
+      CNTR_CODE == "LV" ~ "Latvia",
+      CNTR_CODE == "LT" ~ "Lithuania",
+      CNTR_CODE == "PL" ~ "Poland",
+      CNTR_CODE == "DE" ~ "Germany",
+      CNTR_CODE == "DK" ~ "Denmark"
+    )),
+  rgns_complete %>% 
+    select(eez, region_id, region_name),
+  by = "eez"
+)
+
+## join bhi regions with national total population ----
+natl_pop <- left_join(
+  rgn_pop_clean %>% 
+    rename(natl_population = value) %>% 
+    filter(nuts3 %in% c("SE", "FI", "EE", "LV", "LT", "PL", "DE", "DK")) %>% 
+    mutate(eez = case_when(
+      nuts3 == "SE" ~ "Sweden",
+      nuts3 == "FI" ~ "Finland",
+      nuts3 == "EE" ~ "Estonia",
+      nuts3 == "LV" ~ "Latvia",
+      nuts3 == "LT" ~ "Lithuania",
+      nuts3 == "PL" ~ "Poland",
+      nuts3 == "DE" ~ "Germany",
+      nuts3 == "DK" ~ "Denmark"
+    )),
+  rgns_complete %>% 
+    select(eez, region_id, region_name),
+  by = "eez"
+)
+
+
+## save layers ----
+write_csv(
+  select(emp_lyr, region_id, year, blue_economy_pct_of_natl),
+  file.path(dir_layers, "le_liv_coastal_employ_bhi2019.csv")
+)
+write_csv(
+  select(rgn_coast_pop, region_id, year, natl_coastal_pop),
+  file.path(dir_layers, "le_liv_coastal_pop_bhi2019.csv")
+)
+write_csv(
+  select(natl_pop, region_id, year, natl_population),
+  file.path(dir_layers, "le_liv_national_pop_bhi2019.csv")
+)
+```
+
 
 <br/>
 
 ## 4. Visualizing Data Layers {-}
+
+
+**Calculating the LIV Status**
+
+```{r calculate liv status}
+coastal_pop_percentage <- left_join(
+  rgn_coast_pop %>% 
+    select(region_id, region_name, eez, year, natl_coastal_pop) %>% 
+    mutate(year = as.numeric(year)),
+  natl_pop %>% 
+    select(region_id, region_name, eez, year, natl_population),
+  by = c("region_id", "region_name", "eez", "year")
+)
+coastal_pop_percentage <- coastal_pop_percentage %>% 
+  mutate(coastal_pop_pct = natl_coastal_pop/natl_population)
+
+liv_status <- emp_lyr %>% 
+  filter(year %in% unique(coastal_pop_percentage$year)) %>% 
+  left_join(coastal_pop_percentage, by = c("region_id", "region_name", "eez", "year")) %>% 
+  select(region_id, region_name, eez, year, blue_economy_pct_of_natl, coastal_pop_pct) %>% 
+  mutate(coastal_emp_vs_coastal_pop = blue_economy_pct_of_natl/coastal_pop_pct)
+
+distinct(liv_status, eez, year, blue_economy_pct_of_natl, coastal_pop_pct, coastal_emp_vs_coastal_pop)
+```
+
+
+**Plotting LIV Status**
+
+```{r plot of liv status, fig.width = 9.5, results = "show"}
+gridExtra::grid.arrange(
+  ggplot(liv_status) + 
+    geom_col(aes(x = year, y = blue_economy_pct_of_natl, fill = blue_economy_pct_of_natl)) +
+    scale_fill_gradient(low = "grey", high = "paleturquoise") +
+    facet_wrap(~region_name, labeller = label_wrap_gen(width = 15)) +
+    labs(x = NULL, y = NULL, fill = "Percentage", title = "Blue Econ. Empl. % of National Empl.") +
+    theme(legend.direction = "horizontal", legend.position = c(0.85, 0.08)),
+  ggplot(liv_status) + 
+    geom_col(aes(x = year, y = coastal_emp_vs_coastal_pop, fill = coastal_emp_vs_coastal_pop)) +
+    scale_fill_gradient(low = "grey", high = "paleturquoise") +
+    facet_wrap(~region_name, labeller = label_wrap_gen(width = 15)) +
+    labs(x = NULL, y = NULL, fill = "Ratio", title = "Blue Econ. Empl. %\n Normalized by Coastal % of National Pop.") +
+    theme(legend.direction = "horizontal", legend.position = c(0.85, 0.08)),
+  nrow = 1
+)
+```
+
 
 <br/>
 
@@ -60,9 +337,12 @@ These are saved to the `layers` folder. Saved to `data/LIV/v2019/intermediate` a
 
 ## 5. Considerations for `BHI3.0` {-}
 
-Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units) and [R package 'eurostat: Tools for Eurostat Open Data'](https://cran.r-project.org/web/packages/eurostat/index.html). See tutorial about the R package here: https://ropengov.github.io/eurostat/articles/eurostat_tutorial.html
+In the EU Blue Growth Reports, the Blue Economy metrics by country don't distinguish between coasts i.e. Baltic vs North Sea.
 
-Explore whether using NUTS3 regions (finer spatial resolution) gives better results, and is feasible i.e. doesn't require too much gapfilling...
+Consider: should employment in marine-related sectors be normalize just by coastal vs total national population, or is potential for coastal jobs more related to geography (e.g. length coastline vs total area)?
+
+
+Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units) and [R package 'eurostat: Tools for Eurostat Open Data'](https://cran.r-project.org/web/packages/eurostat/index.html). See tutorial about the R package here: https://ropengov.github.io/eurostat/articles/eurostat_tutorial.html
 
 [Eurostat regional yearbook 2018 > Background Maps > GEOSTAT population grid 2011](https://ec.europa.eu/eurostat/statistical-atlas/gis/viewer/?mids=BKGCNT,BKGPGR,CNTOVL&o=1,1,0.7&ch=BKG,C02&center=56.62571,21.14265,5&) shows how population density along coast is typically higher than inland; using pop. reported by NUTS2 or even NUTS3 spatial units to cannnot result in accurate representation of the coastal population...
 
