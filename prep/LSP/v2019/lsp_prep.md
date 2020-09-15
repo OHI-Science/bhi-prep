@@ -1,81 +1,164 @@
----
-title: "Lasting Special Places (LSP) Data Preparation"
-output:
-  github_document:
-    toc: true
-    toc_depth: 3
-params: 
-    datasource: csv
----
+Lasting Special Places (LSP) Data Preparation
+================
 
-```{r lsp preamble, message = FALSE, warning = FALSE, include = FALSE}
-loc <- here::here("prep", "LSP")
+## 1\. Background
 
-source(here::here("R", "setup.R"))
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide", fig.width = 9.5)
+### Goal Description
 
-bkgd_path <- here::here("supplement", "goal_summaries", "LSP.Rmd")
-data_path <- here::here("data", "LSP", version_year, "lsp_data.rmd")
-refs_path <- file.path(loc, "lsp_references.Rmd")
+The Lasting Special Places sub-goal focuses on those geographic
+locations that hold particular value for aesthetic, spiritual, cultural,
+recreational or existence reasons, and assesses how well they are
+protected. **For the BHI, the designation and management of marine
+protected areas (MPAs) captures the commitment of a country to
+preserving areas of biological, aesthetic or ecosystem service value.**
 
-dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
-dir_rawdata <- file.path(dir_B, "Goals", "LSP")
-dir_intermediate <- file.path(here::here("data", "LSP", version_year, "intermediate"))
+### Other information
 
-fullpal <- c(
-  RColorBrewer::brewer.pal(8, "Dark2"),
-  RColorBrewer::brewer.pal(9, "Set1")
-)
-```
-
-```{r lsp setup spatial functions and files, warning = FALSE, include = FALSE}
-## in order to assign bhi regions to data, must run this function first, to load required shapefiles:
-source(here::here("R", "spatial.R"))
-regions_shape(sp_dir = file.path(dirname(dir_B), "Shapefiles"))
-
-basin_lookup <- file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv") %>% 
-  read_csv() %>%
-  dplyr::select(BHI_ID = region_id, subbasin, rgn_nam = region_name, 
-                bhi_area_km2 = region_area_km2) %>%
-  mutate(
-    subbasin = as.character(subbasin),
-    rgn_nam = as.character(rgn_nam)
-  )
-
-# there is some difference in bhi region area between the 'BHI shapefile' and the 'rgns_complete.csv' dataset
-# bhi <- sf::st_read(file.path(dir_A, "Shapefiles", "BHI_shapefile", "BHI_shapefile.shp")) %>% 
-#  right_join(basin_lookup, by = c("BHI_ID", "Subbasin"))
-```
-
-
-## 1. Background {-}
-
-```{r lsp prep background, child = bkgd_path, results = "asis", echo = FALSE}
-```
+*External advisors/goalkeepers: Sofia Wikström*
 
 <br/>
 
-## 2. Data {-}
+## 2\. Data
 
-This prep document is used to generate and explore the following data layers:
+This prep document is used to generate and explore the following data
+layers:
 
-- `lsp_status_bhi2019.csv` 
-- `lsp_trend_bhi2019.csv` 
+  - `lsp_status_bhi2019.csv`
+  - `lsp_trend_bhi2019.csv`
 
-These are saved to the `layers/v2019` folder. 
-Saved to `data/LSP/v2019/intermediate` are intermediate datasets: `mpa_bhi_data.csv`, `bhi_buffer.shp` and `bhi_transf.shp`. All these are derived from or informed by the raw datasets from HELCOM database.
+These are saved to the `layers/v2019` folder. Saved to
+`data/LSP/v2019/intermediate` are intermediate datasets:
+`mpa_bhi_data.csv`, `bhi_buffer.shp` and `bhi_transf.shp`. All these are
+derived from or informed by the raw datasets from HELCOM database.
 
 <br>
 
-```{r lsp prep data, child = data_path, results = "asis", echo = FALSE}
-```
+### 2.1 Datasets with Sources
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+#### 2.1.1 MPA Data
 
+**HELCOM MPAs**
 
-```{r load lsp datasets, echo = TRUE}
+This dataset contains borders of the HELCOM MPAs (former Baltic Sea
+Protected Areas (BSPAs). The dataset has been compiled from data
+submitted by HELCOM Contracting Parties. It includes the borders of
+designated HELCOM MPAs stored in the [HELCOM Marine Protected Areas
+database](http://mpas.helcom.fi/apex/f?p=103:1::::::). The designation
+is based on the HELCOM Recommendation 15/5 (1994).
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LSP/ -->
+
+| Option           | Specification   |
+| :--------------- | :-------------- |
+| Biodiversity:    | Protected areas |
+| Protected areas: | HELCOM MPAs     |
+
+Source: [HELCOM Map and Data
+Service](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/d27df8c0-de86-4d13-a06d-35a8f50b16fa)
+<br/> Downloaded 23 June 2020 by Andrea De Cervo
+
+<br/>
+
+**MPAs**
+
+Data were downloaded from the *MPAs* tab on the HELCOM MPA database.  
+These MPA status levels depend upon the existence of implemented
+management plans for the MPA areas. Also, MPA status is based on
+self-reporting. If countries differ in their definitions of “managed” or
+inflate their MPA status, we cannot account for those biases in the
+data.
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LSP/ -->
+
+| Option   | Specification |
+| :------- | :------------ |
+| MPAs     | Actions       |
+| Download | .csv          |
+
+Source: [HELCOM Marine Protected Areas
+database](http://mpas.helcom.fi/apex/f?p=103:5::::::) <br/> Downloaded
+23 June 2020 by Andrea De Cervo
+
+<br/>
+
+**Management Plans**
+
+The status of the management plans associated with each MPA were
+downloaded from HELCOM MPA database, under the *Management Plans* tab.
+There are three levels of management plan status that can be assigned to
+each MPA: *No plan*, *In development*, *Implemented*.
+
+A challenge is that each MPA can have multiple management plans
+associated with it. There is no limit to the number of plans not an
+ability to assess their relative importance. Different management plans
+for the same MPA can have different levels of implementation.
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/LSP/ -->
+
+| Option           | Specification |
+| :--------------- | :------------ |
+| Management plans | Actions       |
+| Download         | .csv          |
+
+Source: [HELCOM Marine Protected Areas
+database](http://mpas.helcom.fi/apex/f?p=103:5::::::) <br/> Downloaded
+23 June 2020 by Andrea De Cervo
+
+<br/>
+
+### 2.1.2 Reference values
+
+The [Convention on Biodiversity’s
+target](https://www.cbd.int/sp/targets/rationale/target-11/) is for 10%
+of a country’s EEZs is designated as MPAs, and are fully managed.
+
+For the BHI 2.0, the designation of at least 10% of the BHI region area
+as MPAs with a full implemented management plan, in order to give a fair
+representation of spatial coverage to the country and its respective
+basin. Management status are broken down to three categories and
+weighted on a 0-1 scale:
+
+0.1 = designated 0.4 = designated and partly managed 1.0 = designated
+and managed
+
+### 2.2 Centralization & Normalization
+
+#### 2.2.1 MPAs datasets
+
+Get them in the same coordinate reference system for the Baltic. The MPA
+file is in the [LAEA coordinate reference
+system](http://spatialreference.org/ref/epsg/etrs89-etrs-laea/).
+
+**Read in MPA and BHI regions shapefiles** OGR data source with driver:
+ESRI Shapefile Source:
+“/Users/andreadecervo/github/bhi-data/Shapefiles/BHI\_shapefile”,
+layer: “BHI\_shapefile” with 42 features It has 6 fields rgn\_nam
+rgn\_key Subbasin HELCOM\_ID BHI\_ID Area\_km2 0 Denmark DNK Arkona
+Basin SEA-006 12 6272.534 1 Denmark DNK Bay of Mecklenburg SEA-005 9
+1144.293 2 Denmark DNK Bornholm Basin SEA-007 15 7152.798 3 Denmark DNK
+Great Belt SEA-002 3 10369.113 4 Denmark DNK Kattegat SEA-001 2
+15300.700 5 Denmark DNK Kiel Bay SEA-004 7 1208.876 OGR data source with
+driver: ESRI Shapefile Source: “/Users/andreadecervo/github/bhi-data/BHI
+2.0/Goals/LSP/HELCOM\_MPAs”, layer: “HELCOM\_MPAs” with 177 features It
+has 8 fields Integer64 fields read as strings: OBJECTID\_1 Year\_est
+![](lsp_prep_files/figure-gfm/read%20in%20shapefiles-1.png)<!-- -->
+
+#### 2.2.2 Intersect BHI and HELCOM\_MPA polygons
+
+MPA regions were divided by with BHI region shapefile, and thus we were
+able to calculate the total MPA area within each BHI region. MPA area
+per region is saved in the prep folder (`mpa_area_per_rgn.csv`).
+
+The .csv file includes information: Area per MPA, Date established, MPA
+status, total MPA area per region.
+
+<br/>
+
+## 3\. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+
+``` r
 management_plans <- read.delim(
   file.path(dir_rawdata, "management_plans.csv"), 
   sep = ",",
@@ -98,15 +181,26 @@ mpa_bhi_data <- read_csv(file.path(dirname(data_path), "intermediate", "mpa_bhi_
 
 <br/>
 
-In BHI 1.0, MPA regions were divided by with BHI region shapefile, to be able to calculate the total MPA area within each BHI region. (MPA area per region was saved in the prep folder _bhi-1.0-archive/baltic2015/prep/LSP/mpa_area_per_rgn.csv_ and includes information on _Area per MPA, Date established, MPA status, total MPA area per region_).
+In BHI 1.0, MPA regions were divided by with BHI region shapefile, to be
+able to calculate the total MPA area within each BHI region. (MPA area
+per region was saved in the prep folder
+*bhi-1.0-archive/baltic2015/prep/LSP/mpa\_area\_per\_rgn.csv* and
+includes information on *Area per MPA, Date established, MPA status,
+total MPA area per region*).
 
-However, in April 2016, changes had been made on raw datasets, in particular the following attributes were removed: "Location_S", "AreaTot_Ha", "AreaMar_Ha", "N2K_Site", changed following attributes names: "BSPA_ID" to "MPA_ID", "BSAPLink" to "Site_link" and added attribute "Date_est". Therefore, the attribute "MPA.size.km.sup2" from the raw _report_sites_ dataset will be used as total MPA area.
+However, in April 2016, changes had been made on raw datasets, in
+particular the following attributes were removed: “Location\_S”,
+“AreaTot\_Ha”, “AreaMar\_Ha”, “N2K\_Site”, changed following
+attributes names: “BSPA\_ID” to “MPA\_ID”, “BSAPLink” to “Site\_link”
+and added attribute “Date\_est”. Therefore, the attribute
+“MPA.size.km.sup2” from the raw *report\_sites* dataset will be used
+as total MPA area.
 
-### 3.1 MPA management status  {-}
+### 3.1 MPA management status
 
-Joining information from the .csv file to the shapefile data.  
+Joining information from the .csv file to the shapefile data.
 
-``` {r combine management status with mpa area and establishment info, ECHO = FALSE, message=FALSE}
+``` r
 mgmt_status <- report_sites %>%
   mutate(status = str_replace_all(Status, " ", "_")) %>%
   dplyr::select(name_csv = HELCOM.MPA.name,
@@ -133,12 +227,13 @@ mpa_mgmt <- right_join(mgmt_status, mpa_bhi,
 # count number of MPAs in shape file with no matches in csv file. 
 # num_mismatch_new <- dplyr::count(mpa_mgmt, !status_csv== "NA") 
 # 1 rows (1 MPA) have no match from the status csv file. 
-````
+```
+
 <br/>
 
-### 3.2 Explore map data {-}
+### 3.2 Explore map data
 
-```{r explore mpa data in map, ECHO = FALSE, message=FALSE, results = "show", fig.width = 9, fig.height = 6}
+``` r
 library(leaflet)
 source(here::here("R", "spatial.R"))
 regions_shape()
@@ -157,13 +252,31 @@ bhi_buff <- sf::st_read(file.path(
   dir_intermediate, 
   "bhi_buffer.shp"
 ))
+```
 
+    ## Reading layer `bhi_buffer' from data source `/Users/andreadecervo/github/bhi-prep/data/LSP/v2019/intermediate/bhi_buffer.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 42 features and 6 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 4283762 ymin: 3397830 xmax: 5442611 ymax: 4818369
+    ## proj4string:    +proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs
+
+``` r
 ## previously merged in 'data/LSP/v2019/lsp_data.R' script
 bhi_transf <- sf::st_read(file.path(
   dir_intermediate, 
   "bhi_transf.shp"
 ))
+```
 
+    ## Reading layer `bhi_transf' from data source `/Users/andreadecervo/github/bhi-prep/data/LSP/v2019/intermediate/bhi_transf.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 42 features and 6 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 4283762 ymin: 3397830 xmax: 5442611 ymax: 4818369
+    ## proj4string:    +proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs
+
+``` r
 mpa_plot <- basemap +
   geom_sf(data = bhi_transf, fill = "white", size = 0.2, color = "burlywood") +
   geom_sf(
@@ -179,15 +292,20 @@ mpa_plot <- basemap +
   ggtitle("MPA Status in the Baltic Sea")
 
 print(mpa_plot)
+```
+
+![](lsp_prep_files/figure-gfm/explore%20mpa%20data%20in%20map-1.png)<!-- -->
+
+``` r
 # + theme(legend.position = c(0.9, 0.1)) +
 #  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
-
 ```
+
 <br/>
 
-### 3.3 Plot number of MPAs per bhi regions {-}
+### 3.3 Plot number of MPAs per bhi regions
 
-```{r plot number of MPAs per country, ECHO = FALSE, message=FALSE, results = "show", fig.width = 9, fig.height = 6}
+``` r
 ## plot the number of MPAs per bhi regions
 num_mpa_per_bhi_rgn = mpa_mgmt %>%
   group_by(BHI_ID) %>%
@@ -206,13 +324,14 @@ mpa_per_bhi_rgn_plot <- ggplot(num_mpa_per_bhi_rgn, aes(x = rgn_nam, y = count))
       y = 'Number of MPAs')
 
 print(mpa_per_bhi_rgn_plot)
-
 ```
+
+![](lsp_prep_files/figure-gfm/plot%20number%20of%20MPAs%20per%20country-1.png)<!-- -->
 <br/>
 
-### 3.4 Plot the number of MPAs per bhi region by management level {-}
+### 3.4 Plot the number of MPAs per bhi region by management level
 
-```{r plot number of MPAs per country by mgmt levels, ECHO = FALSE, message = FALSE, results = "show", fig.width = 9, fig.height = 6}
+``` r
 # Add the management categories and their respective value
 mgmt_weight <- data.frame(mgmt_status = c(
   "Designated", "Designated_and_partly_managed", "Designated_and_managed"),
@@ -240,46 +359,57 @@ num_bhi_rgn_mgmt_plot <- ggplot(num_mpa_per_bhi_rgn_mgmt, aes(x = rgn_nam, y = c
       fill = 'Management Level')
 
 print(num_bhi_rgn_mgmt_plot)
-
 ```
+
+![](lsp_prep_files/figure-gfm/plot%20number%20of%20MPAs%20per%20country%20by%20mgmt%20levels-1.png)<!-- -->
 <br/>
 
-## 4. New Status calculation {-}
+## 4\. New Status calculation
 
-In the BHI 1.0, the model assessed the area of MPAs in each *country* in relation to its EEZs, and their management status. 
+In the BHI 1.0, the model assessed the area of MPAs in each *country* in
+relation to its EEZs, and their management status.
 
-In order to give a more fair representation of MPA coverage to both the countries and their respective basins, the status is now calculated by *bhi region*.
+In order to give a more fair representation of MPA coverage to both the
+countries and their respective basins, the status is now calculated by
+*bhi region*.
 
 STEPS:
 
-1) Calculate the reference point: 10% BHI region area (instead of total EEZ per country)
+1)  Calculate the reference point: 10% BHI region area (instead of total
+    EEZ per country)
 
-2) Calculate total MPA area in a given BHI region (mpa_prop):
+2)  Calculate total MPA area in a given BHI region (mpa\_prop):
 
-- if the total MPA area exceeds the 10% target, use ratio MPA area/total MPA areas in given BHI region;
+<!-- end list -->
 
-- if the total MPA area does not reach the 10% target, use ratio MPA area/Reference Area (10%). 
+  - if the total MPA area exceeds the 10% target, use ratio MPA
+    area/total MPA areas in given BHI region;
 
-3) Calculate total mpa_area * weight, per BHI region per year 
+  - if the total MPA area does not reach the 10% target, use ratio MPA
+    area/Reference Area (10%).
 
-3) Calculate status by BHI region per year
+<!-- end list -->
 
-4) Calculate status by BHI region
+3)  Calculate total mpa\_area \* weight, per BHI region per year
 
-_Xlsp_country = sum(MPA_area/Reference_pt_bhiregions) * w_i_
+4)  Calculate status by BHI region per year
 
-Weight (w_i) is based upon management status, which is broken down to three categories and weighted on a 0-1 scale:
+5)  Calculate status by BHI region
 
-0.1 = designated
-0.4 = designated and partly managed
-1.0 = designated and managed
+*Xlsp\_country = sum(MPA\_area/Reference\_pt\_bhiregions) \* w\_i*
 
-**Reference_pt_bhiregion** = 10% of the bhi region area is designated as an MPA and is fully managed. 
+Weight (w\_i) is based upon management status, which is broken down to
+three categories and weighted on a 0-1 scale:
 
+0.1 = designated 0.4 = designated and partly managed 1.0 = designated
+and managed
 
-### 4.1 New calculation of sum area {-}
+**Reference\_pt\_bhiregion** = 10% of the bhi region area is designated
+as an MPA and is fully managed.
 
-```{r calculate sum mpa area, ECHO = FALSE, message = FALSE}
+### 4.1 New calculation of sum area
+
+``` r
 # Calculate the proportion
 mpa_status <- mpa_mgmt_with_wt %>%
   group_by(BHI_ID) %>%
@@ -306,13 +436,19 @@ mpa_status <- mpa_mgmt_with_wt %>%
     check_area_ref_relationship = sum(mpa_prop),
     status_score = sum(mpa_prop*weight))
 ```
+
 <br/>
 
-#### 4.1.1 Plot total MPA area vs. 10% of the EEZ 
+#### 4.1.1 Plot total MPA area vs. 10% of the EEZ
 
-In the plot below, the red line represents where total MPA area equals that of the reference point (ie. 10% EEZ). Any point above that line means that the country has exceeded the reference point of designated MPA area and therefore will have a status score of 100, and any point below the line will have a score lower than 100.  
+In the plot below, the red line represents where total MPA area equals
+that of the reference point (ie. 10% EEZ). Any point above that line
+means that the country has exceeded the reference point of designated
+MPA area and therefore will have a status score of 100, and any point
+below the line will have a score lower than
+100.
 
-```{r compare total MPA area with ref area, ECHo = FALSE, message = FALSE, results = "show", fig.width = 9, fig.height = 6}
+``` r
 mpa_vs_bhiarea_plot <- ggplot(mpa_status, aes(x = area_refpt, y = total_mpa_area_in_bhirgn)) +
   geom_point(aes(color = BHI_ID), size = 3) +
   geom_abline(slope = 1, intercept = 0, color = 'red') +
@@ -324,15 +460,19 @@ mpa_vs_bhiarea_plot <- ggplot(mpa_status, aes(x = area_refpt, y = total_mpa_area
        y = 'Total MPA (km2)')
 
 print(mpa_vs_bhiarea_plot)
-
 ```
+
+![](lsp_prep_files/figure-gfm/compare%20total%20MPA%20area%20with%20ref%20area-1.png)<!-- -->
 <br/>
 
-#### 4.1.2 Plot the area of MPA by management level vs. 10% EEZ
-  
-The plot below compares the total MPA area of each management level with the reference point (10% BHI region area). The black dots represent 10% BHI region area. 
+#### 4.1.2 Plot the area of MPA by management level vs. 10% EEZ
 
-```{r MPA area vs management level, ECHO = FALSE, message = FALSE, results = "show", fig.width = 9, fig.height = 6}
+The plot below compares the total MPA area of each management level with
+the reference point (10% BHI region area). The black dots represent 10%
+BHI region
+area.
+
+``` r
 area_vs_mgmt_lvl_plot <- ggplot(mpa_status, aes(x = rgn_nam, y = total_mpa_area_in_bhirgn, 
                                                 fill = mgmt_status)) +
  geom_bar(stat = 'identity') +
@@ -346,11 +486,13 @@ area_vs_mgmt_lvl_plot <- ggplot(mpa_status, aes(x = rgn_nam, y = total_mpa_area_
 
 print(area_vs_mgmt_lvl_plot)
 ```
+
+![](lsp_prep_files/figure-gfm/MPA%20area%20vs%20management%20level-1.png)<!-- -->
 <br/>
 
-### 4.2 LSP Status {-}
+### 4.2 LSP Status
 
-```{r calcutate lsp status, ECHO = FALSE, message = FALSE, results= "show"}
+``` r
 ### Calculate status per year by bhi region
 status_per_year_by_bhiregion <- mpa_status %>% 
   group_by(BHI_ID, year = Year_est) %>%
@@ -374,7 +516,20 @@ knitr::kable(
     group_by(last_year) %>%
     summarize(`Num. BHI Regions with Year` = n(), BHI_ID = paste(BHI_ID, collapse = ", ")) %>% 
     rename(`Last Year ` = last_year))
+```
 
+| Last Year | Num. BHI Regions with Year | BHI\_ID                                                            |
+| :-------- | -------------------------: | :----------------------------------------------------------------- |
+| 2005      |                          3 | 19, 30, 40                                                         |
+| 2008      |                          6 | 9, 10, 11, 29, 35, 39                                              |
+| 2009      |                         19 | 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 15, 16, 17, 18, 20, 21, 31, 34 |
+| 2011      |                          2 | 26, 41                                                             |
+| 2013      |                          3 | 25, 27, 28                                                         |
+| 2015      |                          6 | 24, 32, 33, 36, 37, 42                                             |
+| 2016      |                          2 | 22, 23                                                             |
+| 2018      |                          1 | 38                                                                 |
+
+``` r
 r.status_mpa <- mpa_status %>%
   filter(!duplicated(BHI_ID)) %>%
   dplyr::select(rgn_id = BHI_ID, 
@@ -388,13 +543,13 @@ r.status_mpa <- mpa_status %>%
 
 # Save status layer
 write_csv(r.status_mpa, file.path(dir_layers, 'lsp_status_bhi2019.csv'))
-
 ```
+
 <br/>
 
-#### 4.2.1 Plot status {-}
+#### 4.2.1 Plot status
 
-```{r plot lsp status, ECHO = FALSE, message = FALSE, results = "show", fig.width = 9, fig.height = 6}
+``` r
 ## plot the status
 plot_status <- r.status_mpa %>% 
   full_join(.,basin_lookup, by = c("rgn_id"= "BHI_ID")) 
@@ -419,11 +574,12 @@ ggplot(plot_status) +
   scale_fill_manual(values = statuspal) +
   ggtitle("LSP Status by BHI Region")
 ```
-<br/>
 
-#### 4.2.2 Plot status map {-}
+![](lsp_prep_files/figure-gfm/plot%20lsp%20status-1.png)<!-- --> <br/>
 
-```{r plot lsp status map, ECHO = FALSE, message = FALSE, results = "show", fig.width = 9, fig.height = 6}
+#### 4.2.2 Plot status map
+
+``` r
 # Make a map with score and mpa status categories
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
   geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
@@ -434,7 +590,16 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 
 bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
+```
 
+    ## Reading layer `BHI_shapefile' from data source `/Users/andreadecervo/github/bhi-data/Shapefiles/BHI_shapefile' using driver `ESRI Shapefile'
+    ## Simple feature collection with 42 features and 6 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 9.420778 ymin: 53.60164 xmax: 30.34708 ymax: 65.90708
+    ## CRS:            4326
+
+``` r
 bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
   sf::st_as_sf() %>% 
   mutate(rgn_nam = stringr::str_replace(rgn_nam, ", ",  " , "))
@@ -462,15 +627,17 @@ statusmap <- basemap +
 
 statusmap + geom_sf(data = MPA_shp, mapping = aes(color = MPA_status), fill = NA, alpha = 0.4)
 ```
+
+![](lsp_prep_files/figure-gfm/plot%20lsp%20status%20map-1.png)<!-- -->
 <br/>
 
-## 5. Trend calculation {-}
+## 5\. Trend calculation
 
-### 5.1 Linear trend of status scores {-}
+### 5.1 Linear trend of status scores
 
-A linear trend was drawn on the status scores of the past five years. 
+A linear trend was drawn on the status scores of the past five years.
 
-```{r lsp trend, ECHO = FALSE, message = FALSE}
+``` r
 library(tidyr)
 trend_data <- status_per_year_by_bhiregion %>% 
   filter(!is.na(year)) %>% # one russian MPA didn't have info on established year
@@ -499,13 +666,13 @@ r.trend_by_bhi <- dplyr::select(mpa_mgmt_with_wt, BHI_ID, country) %>%
 
 # Save trend layer
 write_csv(r.trend_by_bhi, file.path(dir_layers, 'lsp_trend_bhi2019.csv'))  
-
 ```
+
 <br/>
 
-### 5.2 Plot final slope object {-}
+### 5.2 Plot final slope object
 
-```{r plot final code object, ECHO = FALSE, message = FALSE, results = "show", fig.width = 9, fig.height = 6}
+``` r
 plot_slope <- r.trend_by_bhi %>%
   full_join(., basin_lookup, by = "BHI_ID") %>% 
   rename(rgn_id = BHI_ID)
@@ -519,40 +686,50 @@ ggplot(rbind(plot_status, plot_slope)) +
   scale_fill_manual(values = statuspal) +
   theme(axis.text.y = element_text(size = 7))
 ```
+
+![](lsp_prep_files/figure-gfm/plot%20final%20code%20object-1.png)<!-- -->
 <br/>
 
-## 6. Status calculation (previous alternative) {-}
+## 6\. Status calculation (previous alternative)
 
-Following a similar method as for the BHI 1.0, the model assesses the area of MPAs in each *bhi region* in relation to its EEZs, and their management status. 
+Following a similar method as for the BHI 1.0, the model assesses the
+area of MPAs in each *bhi region* in relation to its EEZs, and their
+management status.
 
-Status is calculated by *bhi region* (which is also associated with that respective country).
+Status is calculated by *bhi region* (which is also associated with that
+respective country).
 
 STEPS:
 
-1) Calculate the reference point: 10% total eez per BHI region (instead of per country)
+1)  Calculate the reference point: 10% total eez per BHI region (instead
+    of per country)
 
-2) Calculate cumulative mpa_area * weight, per BHI region per year [cumulative_sum (weight * mpa_area_km2)]
+2)  Calculate cumulative mpa\_area \* weight, per BHI region per year
+    \[cumulative\_sum (weight \* mpa\_area\_km2)\]
 
-3) Calculate status by BHI region per year [cumulative_sum (weight * mpa_area_km2) / ref_point]
+3)  Calculate status by BHI region per year \[cumulative\_sum (weight \*
+    mpa\_area\_km2) / ref\_point\]
 
-4) Calculate status by BHI region
+4)  Calculate status by BHI region
 
-_Xlsp_country = sum(w_i * MPA area)_m / Reference_pt_bhiregions_  
+\_Xlsp\_country = sum(w\_i \* MPA area)*m / Reference\_pt\_bhiregions*
 
-- Numerator is the sum over all MPAs within a bhi region's EEZ of the MPA area weighted by the management status.  
-- w_i = value between 0 -1   
+  - Numerator is the sum over all MPAs within a bhi region’s EEZ of the
+    MPA area weighted by the management status.  
+  - w\_i = value between 0 -1
 
-Weight (w_i) is based upon management status, which is broken down to three categories and weighted on a 0-1 scale:
+Weight (w\_i) is based upon management status, which is broken down to
+three categories and weighted on a 0-1 scale:
 
-0.1 = designated
-0.4 = designated and partly managed
-1.0 = designated and managed
+0.1 = designated 0.4 = designated and partly managed 1.0 = designated
+and managed
 
-**Reference_pt_bhiregion** = 10% of the area in a bhi region's EEZ is designated as an MPA and is 100% managed = 10% area bhi region's EEZ  
+**Reference\_pt\_bhiregion** = 10% of the area in a bhi region’s EEZ is
+designated as an MPA and is 100% managed = 10% area bhi region’s EEZ
 
-### 6.1 Calculate reference point {-}
+### 6.1 Calculate reference point
 
-```{r status calculation, ECHO = FALSE, message = FALSE}
+``` r
 ### Calculate the reference point: 10% total eez per bhi region 
 eez_data <- mpa_mgmt_with_wt %>%
   dplyr::select(MPA_ID, BHI_ID, country, eez_area_km2) %>%
@@ -618,15 +795,19 @@ r.status_alt <- mpa_mgmt_with_wt %>%
 
 # Save status layer
 # write_csv(r.status, file.path(dir_layers, 'lsp_status_bhi2019.csv'))
-
 ```
+
 <br/>
 
-#### 6.1.1 Plot total MPA area vs. 10% of the EEZ 
+#### 6.1.1 Plot total MPA area vs. 10% of the EEZ
 
-In the plot below, the red line represents where total MPA area equals that of the reference point (ie. 10% EEZ). Any point above that line means that the country has exceeded the reference point of designated MPA area and therefore will have a status score of 100, and any point below the line will have a score lower than 100.  
+In the plot below, the red line represents where total MPA area equals
+that of the reference point (ie. 10% EEZ). Any point above that line
+means that the country has exceeded the reference point of designated
+MPA area and therefore will have a status score of 100, and any point
+below the line will have a score lower than 100.
 
-```{r compare total MPA area with ref EEZ, ECHo = FALSE, message = FALSE}
+``` r
 mpa_vs_eez <- mpa_mgmt_with_wt %>%
   dplyr::select(MPA_ID, BHI_ID, country, mpa_area_km2, year = Year_est) %>%
 #  filter(!is.na(year), 
@@ -651,16 +832,16 @@ mpa_vs_eez_plot <- ggplot(mpa_vs_eez, aes(x = ref_eez_km2, y = total_mpa)) +
   labs(title = 'Total MPA vs. Reference EEZ area by BHI region',
        x = '10% EEZ (km2)', 
        y = 'Total MPA (km2)')
-
 ```
+
 <br/>
 
-## 7. Considerations for `BHI3.0` {-}
+## 7\. Considerations for `BHI3.0`
 
 <br>
 
-## 8. References {-}
+## 8\. References
 
-```{r References, child = refs_path, results = "asis", echo = FALSE}
-```
-
+[Baltic Sea Environment Proceedings No. 148 - Ecological coherence
+assessment of the Marine Protected Area network in the Baltic
+Sea](https://www.helcom.fi/wp-content/uploads/2019/08/BSEP148.pdf)
