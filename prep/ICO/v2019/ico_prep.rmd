@@ -16,6 +16,7 @@ source(here::here("R", "setup.R"))
 
 loc <- here::here("prep", "ICO")
 bkgd_path <- here::here("supplement", "goal_summaries", "ICO.Rmd")
+data_path <- here::here("data", "ICO", version_year, "ico_data.rmd")
 refs_path <- file.path(loc, "ico_references.Rmd")
 ```
 
