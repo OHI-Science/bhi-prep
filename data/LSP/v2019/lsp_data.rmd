@@ -1,3 +1,8 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
 
 ```{r lsp data preamble, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "data.R"))
