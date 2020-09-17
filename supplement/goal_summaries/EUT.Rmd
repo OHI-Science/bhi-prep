@@ -24,11 +24,11 @@ Moreover, **only offshore data were used for all the core indicators**, due to i
 
 #### 1.3.1 Method Overview {-}
 
-- After calculating the overall mean, we calculate a five-year moving average for each year in the dataset.
+- Regarding the status calculation, we calculate a five-year moving average for each year in the dataset only for three core indicators (Secchi depth, DIN and DIP) and an annual average for the other two core indicators (Chlorophyll a and Oxygen debt) due to gaps in the data.
 
 - Status is calculated on the basin level and then applied to all regions, for each year between 2000 and 2019. Status for the each indicator is calculated as basin mean divided by basin target. 
 
-- Regarding the trend calculation, the BHI framework uses a 5 year period, but as secchi depth or nutrients, for instance, are slow response variables, we use a longer time period. We use a 10 year period to calculate the trend with a minimum of 5 data points. The trend value is the slope of the linear regression (mean value vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
+- Regarding the trend calculation, as all core indicators are slow response variables, we use a 10-year period to calculate the trend with a minimum of 5 data points. The trend value is the slope of the linear regression (mean value vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
 
 
 <br/>
