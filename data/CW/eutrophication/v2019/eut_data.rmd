@@ -16,7 +16,7 @@ dir_rawdata <- file.path(dir_B, "Goals", "CW", "EUT")
 
 **ICES Secchi Depth Data**
 
-Extraction from ICES database is classified into HELCOM Assessment Units – HELCOM sub-basins with coastal WFD water bodies or water types.
+Extraction from ICES database follows HELCOM Assessment Units – HELCOM sub-basins with coastal WFD water bodies or water types.
 
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/SecchiDepth_ICES -->
 ```{r echo = FALSE, results = "asis"}
@@ -27,7 +27,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ices.dk/inventory/Index.aspx?) <br/> Requested 24 Feb 2020 by Andrea De Cervo and received 24 Feb 2020 by Else Juul Green") 
+knitr::kable(tab, caption = "Source: [ICES data portal](http://ecosystemdata.ices.dk/inventory/Index.aspx?) <br/> Requested 24 Feb 2020 by Andrea De Cervo and received 24 Feb 2020 from Else Juul Green") 
 ```
 *must request all records as web download limited to max 10000 records per layer*
 
@@ -57,7 +57,7 @@ knitr::kable(tab, caption = "Source: [SMHI Shark database](http://www.smhi.se/kl
 
 **ICES Oxygen Data**
 
-Each dataset has been extracted by country and Denmark split into five (5) because too big otherwise.
+Each dataset has been extracted by country and Denmark split into five (5) due to large file size.
 
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
@@ -77,7 +77,7 @@ knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydCh
 
 **ICES CTD Data**
 
-Each dataset has been extracted by country, Denmark split into three (3) and Germany into five (5) because too big otherewise. No CTD found for Lithuania.
+Each dataset has been extracted by country, Denmark split into three (3) and Germany into five (5) due to large file size. No CTD records found for Lithuania.
 
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
 ```{r echo = FALSE, results = "asis"}
@@ -178,7 +178,7 @@ tab <- t(data.frame(
   c("Years:", "2000-2020"),
   c("Decimal/fält-avgränsare (decimal/delimiter):", "punkt/semikolon (period/semicolon)"),
   c("Teckenkodning:", "UTF-8"),
-  c("Rubrikrad:", "Englelska (English)")))
+  c("Rubrikrad:", "Engelska (English)")))
 
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
@@ -206,9 +206,9 @@ knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydCh
 
 #### 2.1.4 HELCOM HOLAS Sub-basins {-}
 
-These sub-basins are the relevant physical units.  
+These sub-basins are the relevant physical units for the analyses.  
 
-Secchi data will be first assessed at this level and then assigned to BHI region. EEZ divisions may result in some BHI regions that have no data but they are physically the same basin as a BHI region with data. The dataset `HELCOM Subbasins with coastal and offshore division 2018` will be used for Secchi as well as Chlorophyll a, DIN and DIP, to assign 'coastal' and 'offshore' locations.
+Secchi data will be first assessed at the level of HELCOM subbasin and then assigned to specific BHI regions. The dataset `HELCOM Subbasins with coastal and offshore division 2018` will be used for Secchi as well as Chlorophyll a, DIN and DIP, to assign 'coastal' and 'offshore' locations.
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -240,6 +240,8 @@ knitr::kable(tab, caption = "Source: [HELCOM](http://metadata.helcom.fi/geonetwo
 
 #### 2.1.5 Reference Values {-}
 
+##### 2.1.5.1 Offshore reference values {-}
+
 The threshold values have been agreed on by HELCOM and by Heads of Delegation (HOD) and the applied threshold values for core and pre-core indicators in the HELCOM open sea assessment units are presented in the [Baltic Sea Environment Proceedings no.156](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2019/09/BSEP156-Eutrophication.pdf) (p.10, Table 2).
 
 ```{r review reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
@@ -257,7 +259,7 @@ eut_thresholds <- read_csv(file.path(dir_prep, "prep", "CW", "eutrophication", "
 ```
 <br/>
 
-##### 2.1.5.1 Coastal Chlorophyll a Reference Values {-}
+##### 2.1.5.2 Coastal Chlorophyll a Reference Values {-}
 
 The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Chlorophyll-a-HELCOM-core-indicator-2018.pdf) (p.5-10, Results Table 2).
 
@@ -267,9 +269,9 @@ chla_coastal_thresholds <- read_csv(file.path(dir_rawdata, "chla_coastal_thresho
 <br/>
 
 
-##### 2.1.5.2 Coastal DIN Reference Values {-}
+##### 2.1.5.3 Coastal DIN Reference Values {-}
 
-The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) (p.7-8, Results Table 2).
+The coastal threshold values for DIN are presented in the [HELCOM DIN core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) (p.7-8, Results Table 2).
 
 ```{r review coastal DIN reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 din_coastal_thresholds <- read_csv(file.path(dir_rawdata, "din_coastal_thresholds.csv"))
@@ -277,9 +279,9 @@ din_coastal_thresholds <- read_csv(file.path(dir_rawdata, "din_coastal_threshold
 <br/>
 
 
-##### 2.1.5.2 Coastal DIP Reference Values {-}
+##### 2.1.5.4 Coastal DIP Reference Values {-}
 
-The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-phosphorus-DIP-HELCOM-core-indicator-2018.pdf) (p.6-7, Results Table 2).
+The coastal threshold values for DIP are presented in the [HELCOM DIP core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-phosphorus-DIP-HELCOM-core-indicator-2018.pdf) (p.6-7, Results Table 2).
 
 ```{r review coastal DIP reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 dip_coastal_thresholds <- read_csv(file.path(dir_rawdata, "dip_coastal_thresholds.csv"))
@@ -305,14 +307,10 @@ secchi_raw_smhi <- read.delim(
 basin_add_lookup_table <- read.csv(file.path(dir_prep, "supplement", "lookup_tabs", "basin_add_lookup_table.csv"))
 ```
 
-**Duplicates in the Data** 
-
-ICES data contains profile data (eg temperature, but secchi is only measured once). Need only unique secchi records. It appears that SMHI also contains profiles. Also check to see if any SMHI data already in the ICES records.
-
 **Coastal data**  
 
 - Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
-- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
+- HELCOM basin shape files with coastal and non-coastal areas were overlaid with the secchi sampling locations, all locations were flagged with a code indicating coastal or offshore.  
 - Coastal data are later removed from the analysis  
 
 **Steps in Merging ICES and SMHI Secchi Datasets**
@@ -687,7 +685,7 @@ chla_raw_smhi <- read.delim(file.path(dir_rawdata, "chla_rawdata_smhi.csv"), sep
 **Coastal data**  
 
 - Non-coastal (offshore) data are flagged with the code "0" under the column *"HELCOM_COASTAL_CODE"*  
-- HOLAS basin shape files with coastal and non-coastal areas were overlaid with the Chl _a_ sampling locations, all locations were flagged with a code indicating coastal or offshore. 
+- HELCOM basin shape files with coastal and non-coastal areas were overlaid with the Chl _a_ sampling locations, all locations were flagged with a code indicating coastal or offshore. 
 
 **Steps in Merging ICES and SMHI Secchi Datasets**
 

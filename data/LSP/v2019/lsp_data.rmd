@@ -103,7 +103,7 @@ Get them in the same coordinate reference system for the Baltic.
 The MPA file is in the [LAEA coordinate reference system](http://spatialreference.org/ref/epsg/etrs89-etrs-laea/). 
 
 **Read in MPA and BHI regions shapefiles**
-```{r read in shapefiles, echo=FALSE, message=FALSE}
+```{r read in shapefiles, ECHO = FALSE, message=FALSE}
 library(rgdal)  # install.packages('rgdal')
 library(raster) # install.packages('raster')
 library(rgeos)  # install.packages('rgeos')
@@ -147,7 +147,7 @@ MPA regions were divided by with BHI region shapefile, and thus we were able to 
 
 The .csv file includes information: Area per MPA, Date established, MPA status, total MPA area per region.  
 
-```{r intersect BHI and MPA, eval = FALSE, echo=FALSE, message=FALSE, cache=TRUE}
+```{r intersect BHI and MPA, echo=FALSE, message=FALSE, cache=TRUE}
 # bhi <- gSimplify(bhi, tol = 0.00001)
 # helcom_mpas <- gSimplify(helcom_mpas, tol = 0.00001)
 

@@ -137,7 +137,7 @@ knitr::kable(tab)
 ```
 <br>
 
-**The basin-specific coastal thresholds used**
+**The basin-specific coastal thresholds** _(later excluded from the analyses)_
 
 Since only [Latvia, Poland, and Sweden have threshold values](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) for dissoved inorganic nutrients, we only assess offshore components for these indicators, despite the significant impact of coastal nutrients on overall Baltic Health. Nutrient inflows, however, are accounted for elsewhere in the index as pressures e.g. on Biodiversity. 
 
@@ -460,7 +460,7 @@ for(r in c("Subbasin", "BHI_ID")){
 
 **Plot summer Secchi with target values indicated**
 
-The following shows yearly mean summer Secchi depths in meters. Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3.
+The following shows annual mean summer Secchi depths in meters. Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3.
 
 ```{r summer secchi with targets, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 10}
 ## adding onto/calling plots made in code chunk above
@@ -578,7 +578,7 @@ ggplot(secchi_status %>% left_join(secchi_last_year, by = c("subbasin" = "Subbas
 
 #### 3.1.5 Trend Calculation {-}
 
-In our approach here, we use a 10 year period to calculate the trend with a minimum of 5 data points. In most cases, the BHI framework uses a 5 year period for the trend, but as Secchi is a slow response variable, we use a longer time period. The trend value is the slope of the linear regression (mean offshore summer Secchi depth vs year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
+In our approach here, we use a 10 year period to calculate the trend with a minimum of 5 data points. In most cases, the BHI framework uses a 5 year period for the trend, but as Secchi is a slow response variable, we use a longer time period. The trend value is the slope of the linear regression (mean offshore summer Secchi depth per year) multiplied by the year of future interest (5 years from status year) and this value is constrained to between -1 and 1.
 
 The trend plots show Secchi depth measurements by basin, with a red line indicating where the linear model predicts mean Secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the 5-year time frame over which trend is projected.
 
@@ -958,6 +958,8 @@ gridExtra::grid.arrange(
   chla_missing_data_or_targets + ggtitle("No Data (filled polygons) and/or No Threshold (outlined polygons)"),
   nrow = 2
 )
+
+# Strange how little offshore ICES chla, why is it completely missing in the north? It looks also that NEST data is missing some countries (Eg. Finland /SYKE) which should be there.
 ```
 
 <br/>
@@ -1060,7 +1062,7 @@ gridExtra::grid.arrange(
 
 #### 3.2.3 Mean Chlorophyll a Calculation
 
-_Chlorophyll a_ concentration averages are calculated per basin or BHI region, using coastal and offshore measurements in separate categories. Means are calculated for each coastal and offshore categories, first within each summer month. Then monthly means are averaged to get an overall summer mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
+_Chlorophyll a_ concentration averages are calculated per basin or BHI region, using offshore measurements (coastal measurements were added in a separate category just for the analyses). Means are calculated for each coastal and offshore categories, first within each summer month. Then the monthly means are averaged across to get an overall summer mean in each the coastal and offshore category. Variances (standard deviations squared) are also calculated within each month, then averaged to get an average variance across summer months for the subbasin or BHI region and coastal/offshore category. This is presented as a standard deviation (square root of variance across months) on the plots below.
 
 Along with the mean calculation, we calculate five-year moving averages. The moving average is an average of summer means from the current and previous four years. 
 
@@ -1144,7 +1146,7 @@ chla_meansplot <- wfd_area_target_chla %>%
 
 **Plot summer chlorophyll a with target values indicated**
 
-The following plot shows yearly mean summer chlorophyll a concentrations (ug/l). Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3. With one row per subbasin, the three columns show Coastal, Offshore, and Combined summer mean chlorophyll a concentrations. 
+The following plot shows annual mean summer chlorophyll a concentrations (ug/l). Horizontal lines are HELCOM target values, as summarized in the table at the top of section 3. With one row per subbasin, the three columns show Coastal, Offshore, and Combined summer mean chlorophyll a concentrations. 
 
 ```{r summer chl a with target, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 8}
 chla_meansplot + ggtitle(sprintf("Mean Summer (June-Sept) Chlorophyll a by WFD Area, organized by Subbasin"))
@@ -1176,9 +1178,9 @@ chla_last_year <- wfd_area_target_chla %>%
 
 <br>
 
-**Status calculation with mean summer chla by basin, from in situ measurements** 
+**Status calculation with mean summer Chla by basin, from in situ measurements** 
 
-Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
+Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calculation is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
 
 Status for the _chlorophyll a_ indicator is calculated as `basin target` divided by `basin summer means`, with the value capped at 1. We calculate status for each Coastal, Offshore, and Combined categories for evaluation, but select the Combined version for the indicator status. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the summer means calculation), and also indicates which data year the status is based on.
 
@@ -1257,7 +1259,7 @@ In our approach here, we use a 10 year period to calculate the trend with a mini
 
 The linear regressions look very different when combining offshore and coastal categories of data, e.g. for Western Gotland both offshore and coastal categories separately have slight positive trends (increasing chlorophyll a), but a linear regression using both offshore/coastal combined would have a negative trend (decreasing chlorophyll a). For this reason the _chlorophyll a_ indicator trend dimension is calculated as an average of trend scores calculated for coastal and offshore chlorophyll a.
 
-The trend plots show chlorophyll measurements by basin, with a red line indicating where the linear model predicts mean Secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which trend is projected.
+The trend plots show chlorophyll measurements by basin, with a red line indicating where the linear model predicts mean Secchi depths will be five years in the future, and a blue line indicating current assessment year summer mean. Vertical lines frame the five-year time frame over which the trend is projected.
 
 ```{r eut chl a trend calculation, results = "show", warning = FALSE, fig.width = 9, fig.height = 10}
 trendyrs <- min_year:(min_year + regr_length)
@@ -1509,7 +1511,7 @@ nut_rgns <- nut_rgns %>%
 
 **Spatial Visualization of DIN and DIP data, Offshore vs Coastal Measurements**
 
-The map shows locations of offshore (pink) and coastal (green) measurments. The two plots show temporal trends in offshore and coastal nutrients (right) and monthly distributions (left) by subbasins. Pink points correspond to offshore data, and green points to coastal data in both the map and the plots. 
+The map shows locations of offshore (pink) and coastal (green) measurements. The two plots show temporal trends in offshore and coastal nutrients (right) and monthly distributions (left) by subbasins. Pink points correspond to offshore data, and green points to coastal data in both the map and the plots. 
 
 ```{r eut nutrients map of raw data points, results = "show", fig.width = 9, fig.height = 6}
 bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
@@ -1680,7 +1682,7 @@ dip_subbasin_meansplot + ggtitle("Mean Winter Dissolved Inorganic Phosphorus (De
 
 <br>
 
-#### 3.3.4 Status Calculaions: Coastal and Offshore {-}
+#### 3.3.4 Status Calculations: Coastal and Offshore {-}
 
 **Explore years in data available for status calculation**
 
@@ -1723,9 +1725,9 @@ knitr::kable(
 
 **Status calculation with raw (non-modeled) mean winter nutrients by basin** 
 
-Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calcualtion is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
+Status is calculated on the basin level and then applied to all regions. It is calculated in data prep for additional visualization and evaluation, but the final method of status calculation is also completed by the EUT function in functions.R of the relevant `bhi` repository assessment folder.
 
-Status for each the _DIN_ and _DIP_ indicators is calculated as `basin target` divided by `basin winter means`, with the value capped at 1. We calculate status using only Offshore data for evaluation, and using the 5 year mnoving average. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the winter means calculation), and also indicates which data year the status is based on.
+Status for each the _DIN_ and _DIP_ indicators is calculated as `basin target` divided by `basin winter means`, with the value capped at 1. We calculate status using only Offshore data for evaluation, and using the 5 year moving average. The plot shows BHI region scores (uniform across regions within the same basin, as the data is aggregated by basin for the winter means calculation), and also indicates which data year the status is based on.
 
 ```{r constants for eut DIN and DIP status and trend calculations, echo = TRUE}
 ## Define constants for status and trend calculations
@@ -1986,7 +1988,7 @@ write_csv(
 
 ### 3.4 Oxygen Debt {-}
 
-For details on data preparation for oxygen debt layer, see [this github repository](https://github.com/OHI-Baltic/HEAT), forked from ICE HEAT assessment tool for fitting oxygen debt profiles to oxygen data measurements. Oxygen data measurements used were obtained from ICE and merged as documented in section 2.2.4.
+For details on data preparation for oxygen debt layer, see [this github repository](https://github.com/OHI-Baltic/HEAT), forked from ICES github page for the HEAT assessment tool for fitting oxygen debt profiles to oxygen data measurements. Oxygen data measurements used were obtained from ICES and merged as documented in section 2.2.4.
 
 ```{r read in oxy debt data from HEAT repository, results = "hide", message = FALSE}
 heat_output <- "https://raw.githubusercontent.com/OHI-Baltic/HEAT/master/analysis/output/"
@@ -2063,7 +2065,7 @@ ggplot(oxydebt_status) +
 ```
 <br>
 
-#### 3.4.3 Trend Calculaion {-}
+#### 3.4.3 Trend Calculation {-}
 
 #### 3.4.4 Status and Trend Timeseries Plots {-}
 
@@ -2225,6 +2227,8 @@ gridExtra::grid.arrange(
 
 
 ## 5. Considerations for `BHI3.0` {-}
+
+**Regarding coastal thresholds for nutrients**: Could use the nationally set nutrient indicators and their targets in the coastal areas. In some cases that could be DIN&DIP, in other cases total nutrients; in some cases for the winter period, sometimes summer, sometimes all-year. 
 
 <br>
 
