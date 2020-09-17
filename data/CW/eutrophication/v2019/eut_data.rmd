@@ -956,7 +956,7 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 pal <- colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(17)
 ```
 
-```{r chla raw datasets, results = "show", echo = TRUE, fig.height = 4.8, fig.width = 9}
+```{r chla raw datasets, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 7}
 smhi_secchi_map <- basemap +
   geom_sf(
     mapping = aes(color = Sea.basin), 
@@ -991,7 +991,7 @@ smhi_chla_map <- basemap +
   # theme(legend.position = c(0.2, 0.7)) +
   scale_color_manual(values = pal)
 
-gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1, widths = c(1, 1.3))
+gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 2, heights = c(1.3, 1))
 ```
 <br>
 
@@ -999,7 +999,7 @@ gridExtra::grid.arrange(smhi_secchi_map, smhi_chla_map, nrow = 1, widths = c(1, 
 
 In the depth vs dissolved oxygen plots below, the lighter greens and yellow correspond to earlier years, and darker greens and purples represent more recent years.
 
-```{r map showing oxygen datasets, results = "show", message = FALSE, warning = FALSE, echo = TRUE, fig.height = 4.5, fig.width = 4}
+```{r map showing oxygen datasets, results = "show", message = FALSE, warning = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 6}
 dir_interm <- here::here("data", "CW", "eutrophication", version_year, "intermediate")
 ox_merged_w_rgns <- readr::read_csv(file.path(dir_interm, "ox_merged_rawdata.csv"))
 ctd_merged_w_rgns <- readr::read_csv(file.path(dir_interm, "ctd_merged_rawdata.csv"))
@@ -1083,12 +1083,12 @@ oxtsplot <- ggplot(tsplotdf, aes(Date, Oxygen, color = measure_type)) +
   theme(plot.caption = element_text(hjust = 0))
 
 
-gridExtra::grid.arrange(oxmap, ctdmap, nrow = 1, widths = c(1.2, 1))
+gridExtra::grid.arrange(oxmap, ctdmap, nrow = 2, widths = c(1.2, 1))
 
-gridExtra::grid.arrange(
-  oxplot, ctdplot, oxtsplot,
-  layout_matrix = matrix(c(1,2,3,3), ncol = 2, byrow = TRUE)
-)
+#gridExtra::grid.arrange(
+#  oxplot, ctdplot, oxtsplot,
+#  layout_matrix = matrix(c(1,2,3,3), ncol = 2, byrow = TRUE)
+#)
 ```
 
 <br>

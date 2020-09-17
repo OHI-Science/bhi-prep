@@ -1,10 +1,11 @@
 ---
 title: "Clean Water (CW) - Eutrophication (EUT) Subgoal Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
     toc_depth: 3
-    code_folding: hide
+params:
+    datasource: csv
 ---
 
 <br>
@@ -514,7 +515,7 @@ future_year <- 5 # the year at which we want the likely future status
 min_regr_length <- 5 # min actual number of years with data to use for regression
 ```
 
-```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 4.5, fig.height = 3}
+```{r eut secchi indicator status calculation, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
 ## Calculate basin status as: basin_mean/basin_target, constraining values to 1 as maximum score
 secchi_status_allyrs <- subbasin_target_secchi %>%
   filter(year >= min_year) %>% 
@@ -595,7 +596,7 @@ secchi_lm_estim <- secchi_status_allyrs %>%
   ## have at least X yrs data (min_regr_length) in the last Y yrs (regr_length) of time series
   do(tail(., n = regr_length)) %>%
   do(data.frame(enough_data = ifelse(sum(!is.na(.$mean_secchi)) >= min_regr_length, TRUE, FALSE))) %>%
-  right_join(secchi_status_allyrs %>% filter(yeaar %in% trendyrs), by  = "subbasin") %>%
+  right_join(secchi_status_allyrs %>% filter(year %in% trendyrs), by  = "subbasin") %>%
   group_by(subbasin, enough_data, target_secchi) %>%
   do(trend_mdl = lm(mean_secchi ~ year, data = .))
 
@@ -765,7 +766,7 @@ distinct(chla_rgns, Subbasin, HELCOM_ID, coastal) %>%
 
 ## not all coastal regions have data... 76 of 257 do not have data
 length(levels(coastal_codes$HELCOM_ID))
-coastalareas_nodata <- setdiff(levels(coastal_codes$HELCOM_ID), as.character(unique(chla_rgns$code)))
+coastalareas_nodata <- setdiff(unique(coastal_codes$HELCOM_ID), as.character(unique(chla_rgns$code)))
 length(coastalareas_nodata)
 
 ## 17 of 257 are offshore, 240 are coastal
@@ -877,7 +878,7 @@ chla_offshore_spatial <- basemap +
   ) +
   labs(x = NULL, y = NULL, colour = "Data Source") +
   theme(legend.position = c(0.9, 0.1)) +
-  scale_color_manual(values = c("tomato", "aquamarine2"))
+  scale_color_manual(values = c("tomato", "aquamarine2", "gold"))
 ## taking only offshore data is a substantial reduction in the number of observations, 
 ## especially in the northern Baltic 
 
@@ -959,7 +960,7 @@ gridExtra::grid.arrange(
   nrow = 2
 )
 
-# Strange how little offshore ICES chla, why is it completely missing in the north? It looks also that NEST data is missing some countries (Eg. Finland /SYKE) which should be there.
+# Comment from Vivi: Strange how little offshore ICES chla, why is it completely missing in the north? It looks also that NEST data is missing some countries (Eg. Finland /SYKE) which should be there.
 ```
 
 <br/>
