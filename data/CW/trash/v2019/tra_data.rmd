@@ -67,7 +67,7 @@ The Jambeck et al method includes:
 **Litter Exchange Data = (HH and LT) – continuously updated**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/DATRAS -->
 
-For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining (for more details and vocab see [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)).
+For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining (for details and vocab see [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)).
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -89,7 +89,7 @@ knitr::kable(tab, caption = "Source: [ICES database (DATRAS)](https://datras.ice
 **Litter Assessment Output (OSPAR) = (merged HH, LT, and GIS-info) – updated once a year** 
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/DATRAS -->
 
-For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining. [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)
+For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining (for details and vocab see [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)).
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -127,9 +127,13 @@ knitr::kable(tab, caption = "Source: [Plastic Marine Pollution Global Dataset, s
 
 #### 2.1.2 Reference Values {-}
 
-**From BHI 1.0:** The official good environmental status (reference point) from the [Marine Strategy Framework Directive](https://mcc.jrc.ec.europa.eu/main/dev.py?N=28&O=223&titre_chap=D10%20Marine%20litter) is "Properties and quantities of marine litter do not cause harm to the coastal and marine environment". Currently, there is no offical quantitative reference point set. Therefore we set reference points based on modeled data from Jambeck et al. 2015 to rescale the litter data and make them comparable across BHI regions. The upper reference point is the maximum amount of litter among all Baltic surrounding countries in 2010 - this will be used until an offical reference point is set. The lower reference point is zero litter in the Baltic Sea.
+**Marine Strategy Framework Directive** 
 
-**Beach litter threshold proposal:** The JRC presented a [proposal](https://circabc.europa.eu/ui/group/326ae5ac-0419-4167-83ca-e3c210534a69/library/254a8e7b-443f-4889-912a-941889b29cf3/details) for an EU-level beach litter threshold value for MSFD criterion D10C1. The threshold value proposed of a total abundance of 13 items/100m is based on the value achieved by the top 10 percent EU beaches in the baseline data set in 2015-2016. 
+From BHI 1.0:  The official good environmental status (reference point) from the [Marine Strategy Framework Directive](https://mcc.jrc.ec.europa.eu/main/dev.py?N=28&O=223&titre_chap=D10%20Marine%20litter) is "Properties and quantities of marine litter do not cause harm to the coastal and marine environment". Currently, there is no offical quantitative reference point set. Therefore we set reference points based on modeled data from Jambeck et al. 2015 to rescale the litter data and make them comparable across BHI regions. The upper reference point is the maximum amount of litter among all Baltic surrounding countries in 2010 - this will be used until an offical reference point is set. The lower reference point is zero litter in the Baltic Sea.
+
+**Beach litter threshold proposal** 
+
+The JRC presented a [beach litter threshold proposal](https://circabc.europa.eu/ui/group/326ae5ac-0419-4167-83ca-e3c210534a69/library/254a8e7b-443f-4889-912a-941889b29cf3/details) for an EU-level beach litter threshold value for MSFD criterion D10C1. The threshold value proposed of a total abundance of 13 items/100m is based on the value achieved by the top 10 percent EU beaches in the baseline data set in 2015-2016. 
 
 
 <br>
