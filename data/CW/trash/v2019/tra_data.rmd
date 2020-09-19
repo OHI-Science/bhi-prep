@@ -23,7 +23,9 @@ Marine litter can be found on beaches and shorelines, floating on the surface, s
 
 However, the majority of litter monitoring methods are not standardized specifically for the Baltic Sea. There is a need to harmonize data collection, give more information for reference, improve comparability of results and allow benchmarking. These proposed new actions will be discussed during 2020 by the relevant HELCOM Working Groups and probably inserted in the updated BSAP.
  
+ 
 **Overview of monitoring methods in the Baltic Sea**
+
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("Beach litter", "Marlin/ OSPAR", "Poland", "years"), 
@@ -46,32 +48,26 @@ source(here::here("R", "setup.R"))
 
 ### 2.1 Datasets with Sources {-}
 
-**Plastic Marine Pollution Global Dataset**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/Eriksen_PlasticMarine -->
 
-Dataset posted on 03.05.2014, 13:14 by Marcus Eriksen. *This is a global dataset of 1571 locations where surface manta tows were conducted.  Samples were divided into 4 size categories. Weights and particle counts were recoreded for each category.* Dataset supplement to paper [Plastic Pollution in the World's Oceans: More than 5 Trillion Plastic Pieces Weighing over 250,000 Tons Afloat at Sea](https://doi.org/10.1371/journal.pone.0111913) by Marcus Eriksen et al.
+#### 2.1.1  {-}
 
 
-```{r echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("Sheet1"), 
-  c("All columns"),
-  c("Remove column P and O (Comments) and save as .csv")))
+**Modelled Marine Litter and Trash Data**  
 
-colnames(tab) <- c("Specification")
-rownames(tab) <- NULL
+Data for litter/trash from [Plastic waste inputs from land into the ocean(Jambeck et al 2015)](http://science.sciencemag.org/content/347/6223/768.full.pdf+html)
 
-knitr::kable(tab, caption = "Source: [Plastic Marine Pollution Global Dataset, shared via figshare](http://dx.doi.org/10.6084/m9.figshare.1015289) <br/> Downloaded 10 March, 2020 by Ellie Campbell")
-```
 
----
+The Jambeck et al method includes:
 
-<br/>
+1. the mass of waste generated per capita annually; 
+2. the percentage of waste that is plastic; and 
+3. the percentage of plastic waste that is mismanaged and, therefore, has the potential to enter the ocean as marine debris (12) (data S1). By applying a range of conversion rates from mismanaged waste to marine debris, we estimated the mass of plastic waste entering the ocean from each country in 2010, used population growth data (13) to project the increase in mass to 2025, and predicted growth in the percentage of waste that is plastic.
+
 
 **Litter Exchange Data = (HH and LT) – continuously updated**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/DATRAS -->
 
-For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining. [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)
+For the Baltic Sea, data are delivered by Denmark, Estonia, Germany, Latvia, Lithuania, Poland, Russia and Sweden and are related mainly to BITS. In the Baltic Sea, the gears TVS and TVL are mostly used. Even if the coverage by year and country is quite good, some data gaps are still remaining (for more details and vocab see [DATRAS vocabulary](https://vocab.ices.dk/?theme=1)).
 
 ```{r echo = FALSE, results = "asis"}
 tab <- t(data.frame(
@@ -108,15 +104,35 @@ rownames(tab) <- NULL
 knitr::kable(tab, caption = "Source: [ICES database (DATRAS)](https://datras.ices.dk/Data_products/Download/Download_Data_public.aspx) <br/> Downloaded 8 May 2020 by Andrea De Cervo")
 ```
 
----
+
+**Plastic Marine Pollution Global Dataset**  
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/Eriksen_PlasticMarine -->
+
+Dataset posted on 03.05.2014, 13:14 by Marcus Eriksen. *This is a global dataset of 1571 locations where surface manta tows were conducted.  Samples were divided into 4 size categories. Weights and particle counts were recoreded for each category.* Dataset supplement to paper [Plastic Pollution in the World's Oceans: More than 5 Trillion Plastic Pieces Weighing over 250,000 Tons Afloat at Sea](https://doi.org/10.1371/journal.pone.0111913) by Marcus Eriksen et al.
+
+
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Sheet1"), 
+  c("All columns"),
+  c("Remove column P and O (Comments) and save as .csv")))
+
+colnames(tab) <- c("Specification")
+rownames(tab) <- NULL
+
+knitr::kable(tab, caption = "Source: [Plastic Marine Pollution Global Dataset, shared via figshare](http://dx.doi.org/10.6084/m9.figshare.1015289) <br/> Downloaded 10 March, 2020 by Ellie Campbell")
+```
 
 <br/>
 
-#### 2.1.1 Reference Values {-}
+#### 2.1.2 Reference Values {-}
 
 **From BHI 1.0:** The official good environmental status (reference point) from the [Marine Strategy Framework Directive](https://mcc.jrc.ec.europa.eu/main/dev.py?N=28&O=223&titre_chap=D10%20Marine%20litter) is "Properties and quantities of marine litter do not cause harm to the coastal and marine environment". Currently, there is no offical quantitative reference point set. Therefore we set reference points based on modeled data from Jambeck et al. 2015 to rescale the litter data and make them comparable across BHI regions. The upper reference point is the maximum amount of litter among all Baltic surrounding countries in 2010 - this will be used until an offical reference point is set. The lower reference point is zero litter in the Baltic Sea.
 
 **Beach litter threshold proposal:** The JRC presented a [proposal](https://circabc.europa.eu/ui/group/326ae5ac-0419-4167-83ca-e3c210534a69/library/254a8e7b-443f-4889-912a-941889b29cf3/details) for an EU-level beach litter threshold value for MSFD criterion D10C1. The threshold value proposed of a total abundance of 13 items/100m is based on the value achieved by the top 10 percent EU beaches in the baseline data set in 2015-2016. 
+
+
+<br>
 
 ### 2.2 Centralization & Normalization {-}
 
