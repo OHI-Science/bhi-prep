@@ -84,9 +84,9 @@ knitr::kable(tab, caption = "Source: [HELCOM Marine Protected Areas database](ht
 
 <br/>
 
-### 2.1.2 Reference values {-}
+#### 2.1.2 Reference values {-}
 
-The [Convention on Biodiversity's target](https://www.cbd.int/sp/targets/rationale/target-11/) is for 10% of a country's EEZs is designated as MPAs, and are fully managed.
+The Convention on Biodiversity's target is for 10% of a country's EEZs is designated as MPAs, and are fully managed. For more information see [Target 11 - Technical Rationale](https://www.cbd.int/sp/targets/rationale/target-11/).
 
 For the BHI 2.0, the designation of at least 10% of the BHI region area as MPAs with a full implemented management plan, in order to give a fair representation of spatial coverage to the country and its respective basin. 
 Management status are broken down to three categories and weighted on a 0-1 scale:
@@ -95,12 +95,15 @@ Management status are broken down to three categories and weighted on a 0-1 scal
 0.4 = designated and partly managed
 1.0 = designated and managed
 
+
+<br>
+
 ### 2.2 Centralization & Normalization {-}
 
 #### 2.2.1 MPAs datasets {-}
 
 Get them in the same coordinate reference system for the Baltic. 
-The MPA file is in the [LAEA coordinate reference system](http://spatialreference.org/ref/epsg/etrs89-etrs-laea/). 
+The MPA file is in the LAEA coordinate reference system, for details see [here](http://spatialreference.org/ref/epsg/etrs89-etrs-laea/). 
 
 **Read in MPA and BHI regions shapefiles**
 ```{r read in shapefiles, ECHO = FALSE, message=FALSE}
