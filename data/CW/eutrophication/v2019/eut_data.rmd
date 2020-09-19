@@ -240,7 +240,7 @@ knitr::kable(tab, caption = "Source: [HELCOM](http://metadata.helcom.fi/geonetwo
 
 #### 2.1.5 Reference Values {-}
 
-##### 2.1.5.1 Offshore reference values {-}
+**Offshore reference values**
 
 The threshold values have been agreed on by HELCOM and by Heads of Delegation (HOD) and the applied threshold values for core and pre-core indicators in the HELCOM open sea assessment units are presented in the [Baltic Sea Environment Proceedings no.156](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2019/09/BSEP156-Eutrophication.pdf) (p.10, Table 2).
 
@@ -259,7 +259,7 @@ eut_thresholds <- read_csv(file.path(dir_prep, "prep", "CW", "eutrophication", "
 ```
 <br/>
 
-##### 2.1.5.2 Coastal Chlorophyll a Reference Values {-}
+**Coastal Chlorophyll a Reference Values**
 
 The coastal threshold values for Chlorophyll a are presented in the [HELCOM Chlorophyll a core indicator](https://helcom.fi/media/core%20indicators/Chlorophyll-a-HELCOM-core-indicator-2018.pdf) (p.5-10, Results Table 2).
 
@@ -269,7 +269,7 @@ chla_coastal_thresholds <- read_csv(file.path(dir_rawdata, "chla_coastal_thresho
 <br/>
 
 
-##### 2.1.5.3 Coastal DIN Reference Values {-}
+**2.1.5.3 Coastal DIN Reference Values**
 
 The coastal threshold values for DIN are presented in the [HELCOM DIN core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-nitrogen-DIN-HELCOM-core-indicator-2018.pdf) (p.7-8, Results Table 2).
 
@@ -279,13 +279,14 @@ din_coastal_thresholds <- read_csv(file.path(dir_rawdata, "din_coastal_threshold
 <br/>
 
 
-##### 2.1.5.4 Coastal DIP Reference Values {-}
+**Coastal DIP Reference Values**
 
 The coastal threshold values for DIP are presented in the [HELCOM DIP core indicator](https://helcom.fi/media/core%20indicators/Dissolved-inorganic-phosphorus-DIP-HELCOM-core-indicator-2018.pdf) (p.6-7, Results Table 2).
 
 ```{r review coastal DIP reference points dataframe, message = FALSE, warning = FALSE, echo = TRUE, results = "hide"}
 dip_coastal_thresholds <- read_csv(file.path(dir_rawdata, "dip_coastal_thresholds.csv"))
 ```
+
 <br/>
 
 ### 2.2 Centralization & Normalization {-}
