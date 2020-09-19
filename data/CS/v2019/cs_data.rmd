@@ -20,7 +20,7 @@ The Carbon Storage goal captures the ability of the coastal habitats to remove c
 
 #### 2.1.1 Zostera marina Data {-}
 
-**Zostera marina (LC)**
+**Zostera marina observations (LC)**
 
 Observations of Zostera marina were collected from the Baltic Sea area for HELCOM Red List species list.
 Zostera marina has been placed to the Red List category of Least Concern (LC) species.
@@ -88,10 +88,6 @@ knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metada
 ```
 
 <br/>
-
-### 2.1.2 Reference values {-}
-
-Reference_condition = field description of 2 (ie. present after 1995) ???
 
 
 ### 2.2 Centralization & Normalization {-}
