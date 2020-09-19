@@ -73,7 +73,7 @@ knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metada
 
 **Seagrass Meadows**
 
-The data set is showing seagrass meadows in the Baltic Sea area as points used for the [BRISK project](http://www.brisk.helcom.fi/) (Sub-regional risk of spill of oil and hazardous substances in the Baltic Sea). This dataset has been produced by [COWI](http://www.cowi.dk) based on data from HELCOM.
+The data set is showing seagrass meadows in the Baltic Sea area as points used for the BRISK project (Sub-regional risk of spill of oil and hazardous substances in the Baltic Sea; learn more [here](http://www.brisk.helcom.fi/)). This dataset has been produced by [COWI](http://www.cowi.dk) based on data from HELCOM.
 
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CS/ -->
 ```{r echo = FALSE, results = "asis"}
