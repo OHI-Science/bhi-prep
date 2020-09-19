@@ -206,6 +206,8 @@ knitr::kable(tab, caption = "Source: [ICES database](https://ocean.ices.dk/HydCh
 
 #### 2.1.4 HELCOM HOLAS Sub-basins {-}
 
+**HELCOM HOLAS Sub-basins**
+
 These sub-basins are the relevant physical units for the analyses.  
 
 Secchi data will be first assessed at the level of HELCOM subbasin and then assigned to specific BHI regions. The dataset `HELCOM Subbasins with coastal and offshore division 2018` will be used for Secchi as well as Chlorophyll a, DIN and DIP, to assign 'coastal' and 'offshore' locations.
@@ -222,6 +224,8 @@ knitr::kable(tab, caption = "Source: [HELCOM](http://metadata.helcom.fi/geonetwo
 ```
 
 <br/>
+
+**HELCOM HOLAS Sub-basins with Coastal WFD Water Bodies**
 
 In addition to this, the dataset `HELCOM subbasins with coastal WFD water bodies or water types 2018` will be used for Chlorophyll a, to assign 'coastal' locations.
 
