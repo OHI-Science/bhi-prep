@@ -20,7 +20,7 @@ The Carbon Storage goal captures the ability of the coastal habitats to remove c
 
 #### 2.1.1 Zostera marina Data {-}
 
-**Zostera marina (LC)**
+**Zostera marina observations (LC)**
 
 Observations of Zostera marina were collected from the Baltic Sea area for HELCOM Red List species list.
 Zostera marina has been placed to the Red List category of Least Concern (LC) species.
@@ -73,7 +73,7 @@ knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metada
 
 **Seagrass Meadows**
 
-The data set is showing seagrass meadows in the Baltic Sea area as points used for the [BRISK project](http://www.brisk.helcom.fi/) (Sub-regional risk of spill of oil and hazardous substances in the Baltic Sea). This dataset has been produced by [COWI](http://www.cowi.dk) based on data from HELCOM.
+The data set is showing seagrass meadows in the Baltic Sea area as points used for the BRISK project (Sub-regional risk of spill of oil and hazardous substances in the Baltic Sea; learn more [here](http://www.brisk.helcom.fi/)). This dataset has been produced by [COWI](http://www.cowi.dk) based on data from HELCOM.
 
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CS/ -->
 ```{r echo = FALSE, results = "asis"}
@@ -88,10 +88,6 @@ knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metada
 ```
 
 <br/>
-
-### 2.1.2 Reference values {-}
-
-Reference_condition = field description of 2 (ie. present after 1995) ???
 
 
 ### 2.2 Centralization & Normalization {-}
