@@ -1,8 +1,3 @@
----
-output:
-  word_document: default
-  html_document: default
----
 
 ```{r ao data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 source(here::here("R", "setup.R"))
@@ -14,40 +9,14 @@ dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "AO")
 ```
 
-The Artisanal Fishing Opportunities goal, often also called small-scale fishing, provides a critical source of food, nutrition, poverty alleviation and livelihood opportunities for many people around the world, in particular in developing nations. 
-This goal measures whether people who need to fish on a small, local scale have the opportunity to do so. 
-It has three sub-components: stock, access, and need. 
-A score of 100 means the country or region is meeting the needs of artisanal fishermen or communities by implementing institutional supports, providing access to near-shore water, and maintaining the health of targeted species.
-
-For the BHI, the focus is on the **stock** sub-component and will use this as a proxy for the entire goal.
-
-Two core indicators are included:
-
-- abundance of coastal fish key functional groups (CPUE of cyprinids/mesopredators and CPUE of piscivores)
-- abundance of key coastal fish species (CPUE of perch, cod or flounder, depending on the sub-basin)
-
-
 ### 2.1 Datasets with Sources {-}
 <br/>
 
 #### 2.1.1 Coastal fish Data {-}
 
 Data were received by Jens Olsson via email (18 March 2020). 
-Dare from monitoring locations (described in the HELCOM core indicators). Finnish data are fisheries data from ICES assessment regions (ICES 29-32).
-
-
-### 2.1.2 Reference values {-}
-
-Previously, indicator status was scored per monitoring area using the assessment protocol for coastal fish (baseline or trend-based approach) => yielding whether or not the status per monitoring area is **GES** or **subGES**. If a monitoring station received a "sub-GES" assessment, it was given a qualifier as "low" or "high".  
-Environmental status assessments provided by Jens Olsson (SLU). See [HELCOM FISH-PRO II](http://www.helcom.fi/helcom-at-work/projects/fish-pro/) now in progress for the [HELCOM FISH-PRO III](https://helcom.fi/helcom-at-work/projects/fish-pro-iii/) 
-
-Now, to match the [BEAT-tool as developed within HOLAS II](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2017/07/HELCOM_The_integrated_assessment_of_biodiversity_supplementary_report_first_version_2017.pdf), indicator status was normalized in categorial classes:
-- Nearest lower value of 0.125 = 0.125
-- Nearest lower value of 0.375 = 0.375
-- Nearest lower value of 0.6 = 0.6
-- Nearest lower value of 0.875 = 0.875
-where **threshold value = 0.6**. 
-Threshold values for the status assessments are identified based on site-specific time-series data for each indicator. (Site specific values are used, as coastal fish generally have local population structures, limited migration, and show local responses to environmental change) _See also powerpoint provided by Jens Olsson of BHI shared folder_
+Dare from monitoring locations (described in the HELCOM core indicators). 
+Finnish data are fisheries data from ICES assessment regions (ICES 29-32).
 
 
 ### 2.2 Centralization & Normalization {-}
@@ -259,7 +228,7 @@ readr::write_csv(
 - 1 monitoring area with two Key_spp status: *Kvädöfjärden*  
 
 **Number of indicators by monitoring location**
-```{r unique indicators monitoring region}
+```{r unique indicators monitoring region, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
 ## how many core indicators, how many taxa
 indicator_count <- coastal_fish_status %>%
   select(
@@ -295,6 +264,7 @@ ggplot(indicator_taxa_count) +
   geom_point(aes(Monitoring.area, unique_taxa_func)) +
   facet_wrap(~core_indicator) +
   labs(y = "Taxa obs", x = "Monitoring Areas") +
+  ggtitle("Number of indicators by monitoring location") +
   theme(axis.text.x = element_text(colour="grey20", size=6, angle=90, 
                                    hjust=.5, vjust=.5, face = "plain"),
         plot.margin = unit(c(1,1,1,1), "cm")) 
@@ -309,9 +279,7 @@ indicator_taxa_count %>%
 <br>
 
 
-#### 2.3.2 Compare versus Previous Years Data {-}
-
-#### 2.3.3 Timeseries Plots {-}
+#### 2.3.2 Compare status values across taxa {-}
 
 ```{r show data, results = "show", eval = FALSE, echo = TRUE, fig.width = 7.5, fig.height = 4}
 # make coastal_fish_scores in long format then plot
@@ -334,18 +302,18 @@ ggplot(coastal_fish_status) +
                                    size=7, angle=90, hjust=.5, vjust=.5, face="plain"),
         plot.margin = unit(c(1,1,1,1), "cm")) +
   labs(x = "Monitoring Area", y = "Status Value") +
-  ggtitle("Coastal Fish Status Value (by monitoring area)")
+  ggtitle("Coastal Fish Status Values (by monitoring area)")
 
-# Coastal Fish Status Value (by subbasins)
+# Coastal Fish Status Value (by regions)
 ggplot(coastal_fish_status) + 
   geom_point(
-    aes(Subbasin, Status.value.monitoring.location, 
+    aes(coastal_water_type, Status.value.monitoring.location, 
         colour = Taxa, shape = Taxa)) +
   facet_wrap(~ core_indicator) +
   theme(axis.text.x = element_text(colour= "grey20", 
                                    size=7, angle=90, hjust=.5, vjust=.5, face="plain"),
         plot.margin = unit(c(1,1,1,1), "cm")) +
-  labs(x = "Subbasins", y = "Status Value") +
-  ggtitle("Coastal Fish Status Value (by Subbasins)")
+  labs(x = "Regions", y = "Status Value") +
+  ggtitle("Coastal Fish Status Values (by regions)")
 
 ```

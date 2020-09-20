@@ -1,29 +1,35 @@
-### Goal Description
+### 1.2 Goal Description {-}
 
-Artisanal fishing, often also called small-scale fishing, provides a critical source of food, nutrition, poverty alleviation and livelihood opportunities for many people around the world, in particular in developing nations. This goal measure whether people who need to fish on a small, local scale have the opportunity to do so. It has three sub-components: stock, access, and need. A score of 100 means the country or region is meeting the needs of artisanal fishermen or communities by implementing institutional supports, providing access to near-shore water, and maintaining the health of targeted species. 
+The Artisanal Fishing Opportunities goal, often also called small-scale fishing, provides a critical source of food, nutrition, poverty alleviation and livelihood opportunities for many people around the world, in particular in developing nations. 
+This goal measures whether people who need to fish on a small, local scale have the opportunity to do so. 
+It has three sub-components: stock, access, and need. 
+A score of 100 means the country or region is meeting the needs of artisanal fishermen or communities by implementing institutional supports, providing access to near-shore water, and maintaining the health of targeted species.
 
-**For the BHI, we focus on the *stock* sub-component and use this as a proxy for the entire goal.** 
+**For the BHI, the focus is on the *stock* sub-component and will use this as a proxy for the entire goal.**
 
-### Model & Data 
+### 1.3 Model & Data {-} 
 
-The artisanal fishing opportunity (AO) model assesses the health of fish stocks, represented by the mean of two core indicators for coastal fish stock abundance prepared by the Baltic Marine Environment Protection Commission - Helsinki Commission ([HELCOM](www.helcom.fi)), 
+The Artisanal Fishing Opportunities goal (AO) model assesses the health of fish stocks.
+Two HELCOM core indicators are included:
 
--	the [HELCOM Core Indicator Abundance of coastal fish key functional groups] (http://helcom.fi/baltic-sea-trends/indicators/abundance-of-coastal-fish-key-functional-groups/). It evaluates the abundance of selected functional groups of coastal fish in the Baltic Sea. As a rule, Good Environmental Status (GES) is achieved when the abundance of piscivores (i.e. fish that feed on other fish) is high and the abundance of cyprinids (i.e. fish that feed on e.g. benthic invertebrates) is within an acceptable range. 
-
--	the [HELCOM Core Indicator Abundance of key coastal fish species](http://helcom.fi/baltic-sea-trends/indicators/abundance-of-key-coastal-fish-species). It has been evaluated by assessing the status of piscivores and cyprinids during the period 2009-2013. The key coastal fish core indicator evaluates the abundance of typical species of fish, such as perch and flounder, in the coastal areas of the Baltic Sea, to assess environmental status. As a rule, Good Environmental Status (GES) is achieved when the abundance is above a set site and species specific boundary. The current evaluation assesses status during the period 2009-2013.
-
-Each of the indicators was then scaled between 0 and 1. GES is assessed as either GES or sub-GES based on data times series using either a baseline or a trend approach, see HELCOM for explanation (http://helcom.fi/baltic-sea-trends/indicators/abundance-of-key-coastal-fish-species/good-environmental-status/). There is only a single assessment for each region.
-For a dataset if a monitoring station receives a "sub-GES" assessment, it is given the status score 0.2.
+(1) abundance of coastal fish key functional groups (Catch-per-unit effort (CPUE) of cyprinids/mesopredators and CPUE of piscivores);
+(2) abundance of key coastal fish species (CPUE of perch, cod or flounder, depending on the area). 
 
 Environmental status assessments were provided by Jens Olsson (SLU, Sweden), see also HELCOM FISH-PRO II (http://www.helcom.fi/helcom-at-work/projects/fish-pro/).  CPUE data used in the GES assessment. Data provided by Jens Olsson was also used in trend. Slopes from each analysis available here, but CPUE data held internally in the BHI database and not accessible here.
 
-### Reference points 
+### 1.4 Reference values {-}
 
-Reference point was the maximum possible good environmental status (value = 1). 
+Previously, indicator status was scored per monitoring area using the assessment protocol for coastal fish (baseline or trend-based approach) => yielding whether or not the status per monitoring area is **Good Environmental Status (GES)** or **subGES**. If a monitoring station received a "sub-GES" assessment, it was given a qualifier as "low" or "high".  
+Environmental status assessments were provided by Jens Olsson (SLU, Sweden). See [HELCOM FISH-PRO II](http://www.helcom.fi/helcom-at-work/projects/fish-pro/) now in progress for the [HELCOM FISH-PRO III](https://helcom.fi/helcom-at-work/projects/fish-pro-iii/) 
 
-### Considerations for BHI 2.0
+Now, for the newer assessment, to match the [BEAT-tool as developed within HOLAS II](http://stateofthebalticsea.helcom.fi/wp-content/uploads/2017/07/HELCOM_The_integrated_assessment_of_biodiversity_supplementary_report_first_version_2017.pdf), indicator status was normalized in categorial classes:
+- Nearest lower value of 0.125 = 0.125
+- Nearest lower value of 0.375 = 0.375
+- Nearest lower value of 0.6 = 0.6
+- Nearest lower value of 0.875 = 0.875
+where **threshold value = 0.6**. 
+Threshold values for the status assessments are identified based on site-specific time-series data for each indicator, as coastal fish generally have local population structures, limited migration, and show local responses to environmental change. _See also powerpoint provided by Jens Olsson of BHI shared folder_
 
-Stock was one component of the AO goal. Model could be updated with parameters representing access and need of artisanal fishing opportunities in the future. 
+### 1.5 Other information {-}
 
-### Other information
-
+_External advisors/goalkeepers: Jens Olsson_
