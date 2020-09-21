@@ -276,13 +276,13 @@ do.call(rbind, lapply(as.list(unique(pcb_rawdata_bio$Country)), function(country
   cbind(
     pcb_rawdata_bio %>% 
       filter(Country == country) %>%
-      select(Species, MYEAR) %>%
+      dplyr::select(Species, MYEAR) %>%
       distinct(.) %>%
       group_by(Species) %>%
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
     Country = country
-  ) %>% select(Country, Species, NumYrs, LatestYr)
+  ) %>% dplyr::select(Country, Species, NumYrs, LatestYr)
 })) %>% DT::datatable(rownames = FALSE)
 ```
 
@@ -296,13 +296,13 @@ do.call(rbind, lapply(as.list(unique(pfos_rawdata_bio$Country)), function(countr
   cbind(
     pfos_rawdata_bio %>% 
       filter(Country == country) %>%
-      select(Species, MYEAR) %>%
+      dplyr::select(Species, MYEAR) %>%
       distinct(.) %>%
       group_by(Species) %>%
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
     Country = country
-  ) %>% select(Country, Species, NumYrs, LatestYr)
+  ) %>% dplyr::select(Country, Species, NumYrs, LatestYr)
 })) %>% DT::datatable(rownames = FALSE)
 ```
 
@@ -316,13 +316,13 @@ do.call(rbind, lapply(as.list(unique(dioxin_rawdata_bio$Country)), function(coun
   cbind(
     dioxin_rawdata_bio %>% 
       filter(Country == country) %>%
-      select(Species, MYEAR) %>%
+      dplyr::select(Species, MYEAR) %>%
       distinct(.) %>%
       group_by(Species) %>%
       summarise(NumYrs = n(), LatestYr = last(MYEAR)) %>%
       ungroup(),
     Country = country
-  ) %>% select(Country, Species, NumYrs, LatestYr)
+  ) %>% dplyr::select(Country, Species, NumYrs, LatestYr)
 })) %>% DT::datatable(rownames = FALSE)
 ```
 
@@ -1002,15 +1002,15 @@ lapply(
 ```{r combining con data for initial exploration, echo = TRUE, warning = FALSE, message = FALSE}
 ## to start running code from here, will need to load in cleaned  datasets...
 
-# dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
-# lapply(list.files(dir_interm), function(dat){
-#   dat_final <- read_csv(file.path(dir_interm, dat))
-#   assign(
-#     x = str_replace(dat, "cleaned.csv", "clean_df"),
-#     value = dat_final,
-#     envir = .GlobalEnv
-#   )
-# })
+ dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
+ lapply(list.files(dir_interm), function(dat){
+   dat_final <- read_csv(file.path(dir_interm, dat))
+   assign(
+     x = str_replace(dat, "cleaned.csv", "clean_df"),
+     value = dat_final,
+     envir = .GlobalEnv
+   )
+ })
 
 make_plotdf <- function(x, yrs){
   

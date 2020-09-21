@@ -1,5 +1,17 @@
+---
+title: "Clean Water (CW) - Contaminants (CON) Subgoal Data Preparation"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params:
+    datasource: csv
+always_allow_html: true
+---
 
-```{r preamble prep including spatial functions and files, message = FALSE, warning = FALSE, include = FALSE}
+<br>
+
+```{r con preamble prep including spatial functions and files, message = FALSE, warning = FALSE, include = FALSE}
 loc <- here::here("prep", "CW", "contaminants")
 
 source(here::here("R", "setup.R"))
