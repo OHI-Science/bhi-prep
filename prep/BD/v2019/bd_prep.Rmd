@@ -17,7 +17,7 @@ source(here::here("R", "spatial.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
 
 loc <- here::here("prep", "BD")
-dir_rawdata <- file.path(dir_B, "Goals", "BD")
+dir_rawdata <- file.path(dir_B, "Goals", "BD") # change to 'ICO' folder if having permission issues 
 dir_intermediate <- here::here("data", "BD", version_year, "intermediate")
 
 bkgd_path <- here::here("supplement", "goal_summaries", "BD.Rmd")
@@ -96,7 +96,7 @@ for(shp in c("benthic_shp", "pelagic_shp")){
     mutate(BQR = ifelse(str_detect(status, "Not assessed"), NA, BQR)) %>% 
     ## these are just the 2018 integrated assessment
     mutate(year = 2018) %>% 
-    select(-status)
+    dplyr::select(-status)
   
   assign(shp, habshp)
 }
@@ -124,7 +124,7 @@ fish_shp <- fish_shp %>%
   )) %>% 
   ## filter to keep assessed, select only cols needed for the bhi status calculations
   filter(!(is.na(subbasin) & is.na(ecosystemc))) %>% 
-  select(helcom_id, country, subbasin, BQR = bqr) %>% 
+  dplyr::select(helcom_id, country, subbasin, BQR = bqr) %>% 
   ## these data are just the 2018 integrated assessment
   mutate(year = 2018)
 
@@ -170,7 +170,7 @@ for(shp in c("wintering_birds_shp", "breeding_birds_shp")){
     ) %>% 
     ## these are just the 2018 integrated assessment
     mutate(year = 2018) %>% 
-    select(-wading_status, -surface_status, -pelagic_status, -benthic_status, -grazing_status) %>% 
+    dplyr::select(-wading_status, -surface_status, -pelagic_status, -benthic_status, -grazing_status) %>% 
     mutate(across(matches("feeders"), function(x){ifelse(x == "n/a", NA, x)})) %>% 
     mutate(across(matches("feeders"), as.numeric)) %>% 
     mutate(winter_or_breeding = str_extract(shp, ".*(?=_)")) %>% 
