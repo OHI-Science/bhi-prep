@@ -1,9 +1,18 @@
-### Goal Description
+### 1.1 Goal Description {-}
 
-The Trash sub-goal assesses a region's ability to manage litter to prevent them from entering the ocean to cause harm to the coastal and marine environment. Marine litter is a large global concern, impacting all marine environments of the world. 
+The Trash sub-goal assesses a region's ability to manage litter in order to prevent it from entering the ocean and causing harm to the coastal and marine environments. Marine litter is a large global concern, impacting all marine environments of the world and, therefore, needs to be monitored.
 
 
-### Model & Data
+### 1.2 Model & Data {-}
+
+Currently (2020), the [HELCOM Expert Network on Marine Litter](https://helcom.fi/helcom-at-work/groups/pressure/en-marine-litter/) is working on facilitating the implementation of the Regional Action Plan on Marine Litter, and developing [core indicators](http://stateofthebalticsea.helcom.fi/pressures-and-their-status/marine-litter/) to be used for the second HELCOM holistic assessment of the ecosystem health. 
+
+Marine litter can be found on beaches and shorelines, floating on the surface, submerged in the water column or sunk to the bottom. Therefore, different main indicators might be used:
+- beach litter monitoring
+- floating litter monitoring
+- seafloor litter monitoring
+
+However, the majority of litter monitoring methods are not standardized specifically for the Baltic Sea. There is a need to harmonize data collection, give more information for reference, improve comparability of results and allow benchmarking. These proposed new actions will be discussed during 2020 by the relevant HELCOM Working Groups and probably inserted in the updated BSAP.
 
 The status is calculated by a country's amount of mismanaged plastic litter that has the potential to enter the ocean:
 
@@ -11,13 +20,19 @@ The status is calculated by a country's amount of mismanaged plastic litter that
 
 The modelled data have been downweighted for Russia, Germany, Denmark and Sweden (proportion of coastal pop/national pop) to include only the litter that reaches the  the Baltic Sea from these countries.
 
-### Reference points
+### 1.3 Reference points {-}
 
-The official good environmental status (reference point) from the Marine Strategy Framework Directive is "Properties and quantities of marine litter do not cause harm to the coastal and marine environment". Currently, there is no offical quantitative reference point set. Therefore we set reference points based on modeled data from *Jambeck et al. 2015* to rescale the litter data and make them comparable across BHI regions. The upper reference point is the maximum amount of litter among all Baltic surrounding countries in 2010 - this will be used until an offical reference point is set. The lower reference point is zero litter in the Baltic Sea.
+The good environmental status from the Marine Strategy Framework Directive is qualitatively framed as the situation where 'properties and quantities of marine litter do not cause harm to the coastal and marine environment'. Currently, there is no official quantitative reference point set. Therefore, for this assessment the upper reference point was set as the maximum amount of litter among all Baltic surrounding countries in 2010, and the lower reference point is zero litter in the Baltic Sea.
 
-### Considerations for BHI 2.0
+**Beach litter threshold proposal (for next BHI iteration)** 
+The JRC presented a [beach litter threshold proposal](https://circabc.europa.eu/ui/group/326ae5ac-0419-4167-83ca-e3c210534a69/library/254a8e7b-443f-4889-912a-941889b29cf3/details) for an EU-level beach litter threshold value for MSFD criterion D10C1. The threshold value proposed of a total abundance of 13 items/100m is based on the value achieved by the top 10 percent EU beaches in the baseline data set in 2015-2016.
 
-Search for more datasets on trash, including microplastics, which are regularly/periodically updated.
+### 1.4 Considerations for BHI 3.0 {-}
 
-### Other information
+**Standardization:** The majority of litter monitoring methods are not standardized specifically for the Baltic Sea. Data collection needs to be harmonized, to improve comparability of results and thus allow benchmarking.
+**Microplastics:** Including data on microplastics would result in a more complete picture, but these data are not currently available.
+**Work-in-progress:** In HELCOM, assessment approaches based on core indicators are currently underway for beach litter, litter on the seafloor and microlitter. Threshold values for the assessment are being developed in an EU-process which can be used in the next BHI iteration.
 
+### 1.5 Other information {-}
+
+No expert for this particular sub-goal.

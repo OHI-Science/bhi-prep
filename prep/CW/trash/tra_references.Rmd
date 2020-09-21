@@ -1,4 +1,3 @@
-
 Data for litter/trash from [**Jambeck et al 2015: Plastic waste inputs from land into the ocean**](http://science.sciencemag.org/content/347/6223/768.full.pdf+html)
 
 [Interim Report of the Working Group on Marine Litter (WGML)](http://ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/HAPISG/2018/01%20WGML%20-%20Report%20of%20the%20Working%20Group%20on%20Marine%20Litter.pdf)
