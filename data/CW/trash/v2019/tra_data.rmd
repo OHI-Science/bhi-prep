@@ -1,61 +1,38 @@
 
-
-```{r eut data preamble, echo = FALSE, include = FALSE, error = FALSE}
+```{r tra data preamble, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "data.R"))
 source(here::here("R", "spatial.R"))
+source(here::here("R", "setup.R"))
 
 ## root location of the raw data
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "TRA")
+dir_intermediate <- file.path(here::here("data", "CW", "trash", version_year, "intermediate"))
 ```
-
-The Trash sub-goal assesses a region's ability to manage litter to prevent them from entering the ocean to cause harm to the coastal and marine environment. Marine litter is a large global concern, impacting all marine environments of the world.
-
-Due to the lack of data in the Baltic Sea, in the previous assessment (BHI 1.0) the status was calculated by a country's amount of mismanaged plastic litter that has the potential to enter the ocean, from modelled data by Jambeck et al. 2015 ("Plastic waste inputs from land into the ocean").
-The modelled data were downweighted for Russia, Germany, Denmark and Sweden (proportion of coastal pop/national pop) to include only the litter that reaches the the Baltic Sea from these countries.
-
-Currently (2020), the [HELCOM Expert Network on Marine Litter](https://helcom.fi/helcom-at-work/groups/pressure/en-marine-litter/) is working on facilitating the implementation of the Regional Action Plan on Marine Litter, and developing [core indicators](http://stateofthebalticsea.helcom.fi/pressures-and-their-status/marine-litter/) to be used for the second HELCOM holistic assessment of the ecosystem health. 
-
-Marine litter can be found on beaches and shorelines, floating on the surface, submerged in the water column or sunk to the bottom. Therefore, different main indicators might be used:
-- beach litter monitoring
-- floating litter monitoring
-- seafloor litter monitoring
-
-However, the majority of litter monitoring methods are not standardized specifically for the Baltic Sea. There is a need to harmonize data collection, give more information for reference, improve comparability of results and allow benchmarking. These proposed new actions will be discussed during 2020 by the relevant HELCOM Working Groups and probably inserted in the updated BSAP.
- 
- 
-**Overview of monitoring methods in the Baltic Sea**
-
-```{r echo = FALSE, results = "asis"}
-tab <- t(data.frame(
-  c("Beach litter", "Marlin/ OSPAR", "Poland", "years"), 
-  c("Floating litter", "Net curtains / from ships", "Estonia", "years"),
-  c("Seafloor litter", "BITS (Baltic International Trawl Survey)", "Denmark (?)", "years"),
-  c("Microplastics", "", "Finland", "years")))
-
-colnames(tab) <- c("Litter monitoring", "Method", "Lead Country", "Years")
-rownames(tab) <- NULL
-
-knitr::kable(tab, caption = "Source: [Blastic](https://www.sei.org/wp-content/uploads/2017/12/blastic-overview-of-available-monitoring-methods-final.pdf) <br/> [HELCOM Meeting notes](https://portal.helcom.fi/workspaces/MARINE%20LITTER-92/Beach%20litter%20pre%20core%20indicator/Memo%20on-line%20meeting%20HELCOM%20EN-ML_27_1_2020.pdf)Downloaded 18 May 2020 by Andrea De Cervo")
-```
-
 
 ## 2. Data
 
-```{r preamble data, echo = FALSE, include = FALSE, error = FALSE}
-source(here::here("R", "setup.R"))
-```
-
 ### 2.1 Datasets with Sources {-}
-
 
 #### 2.1.1 Marine Litter {-}
 
-
-**Modelled Marine Litter and Trash Data**  
+**Modelled Marine Litter and Trash Data** 
 
 Data for litter/trash from [Plastic waste inputs from land into the ocean(Jambeck et al 2015)](http://science.sciencemag.org/content/347/6223/768.full.pdf+html)
 
+Raw data were stored in `bhi-1.0-archive/baltic2015/prep/CW/trash/raw` and now also stored in 
+
+```{r write jamberk trash data, eval = FALSE}
+write_csv(
+  NUTS2_BHI_ID_Pop_density_in_buffer, 
+  file.path(dir_intermediate, "NUTS2_BHI_ID_Pop_density_in_buffer.csv")
+)
+
+write_csv(
+  X1260352_SupportingFile_Suppl_Excel_seq1_v1, 
+  file.path(dir_intermediate, "trash_jambeck_baltic.csv")
+)
+```
 
 The Jambeck et al method includes:
 
@@ -63,6 +40,15 @@ The Jambeck et al method includes:
 2. the percentage of waste that is plastic; and 
 3. the percentage of plastic waste that is mismanaged and, therefore, has the potential to enter the ocean as marine debris (12) (data S1). By applying a range of conversion rates from mismanaged waste to marine debris, we estimated the mass of plastic waste entering the ocean from each country in 2010, used population growth data (13) to project the increase in mass to 2025, and predicted growth in the percentage of waste that is plastic.
 
+Footnotes from .xls file column headers 
+1 - Based upon 2010 Gross National Income
+2 - Based upon a 50 km coastal buffer created in GIS with global population densities
+3 - Bold data were taken directly from World Bank estimates
+4 - Bold data were taken directly from World Bank estimates 
+5 - Using a model developed for this study (see Supplemental Information)
+6 - From U.S. national litter study
+7 - Calculated values
+8 - Economic status changed from 2005 to 2010; waste generation rate and %plastic were assigned using average values for the 2010 economic category  
 
 **Litter Exchange Data = (HH and LT) – continuously updated**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/TRA/DATRAS -->
@@ -125,21 +111,26 @@ knitr::kable(tab, caption = "Source: [Plastic Marine Pollution Global Dataset, s
 
 <br/>
 
-#### 2.1.2 Reference Values {-}
+**Overview of monitoring methods in the Baltic Sea**
 
-**Marine Strategy Framework Directive** 
+```{r echo = FALSE, results = "asis"}
+tab <- t(data.frame(
+  c("Beach litter", "Marlin/ OSPAR", "Poland", "years"), 
+  c("Floating litter", "Net curtains / from ships", "Estonia", "years"),
+  c("Seafloor litter", "BITS (Baltic International Trawl Survey)", "Denmark (?)", "years"),
+  c("Microplastics", "", "Finland", "years")))
 
-From BHI 1.0:  The official good environmental status (reference point) from the [Marine Strategy Framework Directive](https://mcc.jrc.ec.europa.eu/main/dev.py?N=28&O=223&titre_chap=D10%20Marine%20litter) is "Properties and quantities of marine litter do not cause harm to the coastal and marine environment". Currently, there is no offical quantitative reference point set. Therefore we set reference points based on modeled data from Jambeck et al. 2015 to rescale the litter data and make them comparable across BHI regions. The upper reference point is the maximum amount of litter among all Baltic surrounding countries in 2010 - this will be used until an offical reference point is set. The lower reference point is zero litter in the Baltic Sea.
+colnames(tab) <- c("Litter monitoring", "Method", "Lead Country", "Years")
+rownames(tab) <- NULL
 
-**Beach litter threshold proposal** 
-
-The JRC presented a [beach litter threshold proposal](https://circabc.europa.eu/ui/group/326ae5ac-0419-4167-83ca-e3c210534a69/library/254a8e7b-443f-4889-912a-941889b29cf3/details) for an EU-level beach litter threshold value for MSFD criterion D10C1. The threshold value proposed of a total abundance of 13 items/100m is based on the value achieved by the top 10 percent EU beaches in the baseline data set in 2015-2016. 
-
+knitr::kable(tab, caption = "Source: [Blastic](https://www.sei.org/wp-content/uploads/2017/12/blastic-overview-of-available-monitoring-methods-final.pdf) <br/> [HELCOM Meeting notes](https://portal.helcom.fi/workspaces/MARINE%20LITTER-92/Beach%20litter%20pre%20core%20indicator/Memo%20on-line%20meeting%20HELCOM%20EN-ML_27_1_2020.pdf)Downloaded 18 May 2020 by Andrea De Cervo")
+```
 
 <br>
 
 ### 2.2 Centralization & Normalization {-}
 
+**Marine litter data**
 ```{r load raw data, message = FALSE, echo = TRUE, warning = FALSE, results = "hide"}
 ## root location of the raw data
 dir_rawdata <- file.path(dir_B, "Goals", "CW", "TRA")
@@ -147,25 +138,4 @@ marinepastic_raw <- readr::read_csv(file.path(dir_rawdata, "Eriksen_PlasticMarin
 litterdata_raw <- readr::read_csv(file.path(dir_rawdata, "DATRAS", "Litter Exchange Data", "litter_exchange_data.csv"))
 litterassess_raw <- readr::read_csv(file.path(dir_rawdata, "DATRAS", "Litter Assessment Output", "litter_assessment_output.csv"))
 ```
-
-
-
-#### 2.2.1 Rename Fields/Variables
-
-#### 2.2.2 Standardize Units
-
-#### 2.2.3 Save to BHI Database
-
-<br/>
-
-### 2.3 Initial Data Exploration
-
-#### 2.3.1 Compare versus Previous Years Data
-
-#### 2.3.2 Timeseries Plots
-
-```{r CODE CHUNK WITH FIGURE OR GRAPH, results = "show", message = FALSE, echo = TRUE, fig.width = 9.5, fig.height = 4.5}
-```
-
-#### 2.3.3 Map
 
