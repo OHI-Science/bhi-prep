@@ -1,34 +1,17 @@
 ### 1.1 Goal Description {-}
 
-The Mariculture sub-goal of the Food Provision (FP) goal describes a country's ability to maximize the sustainable yield of farmed fish and shellfish in the ocean for human consumption. Mariculture is not a large industry in the Baltic, but it does provide some food production. **For the BHI rainbow trout production was included in parts of Denmark, Sweden, Germany, and Finland**, using available data. All other BHI regions are scored as NA, and thus MAR will not contribute to their overall FP goal score. 
+The Mariculture sub-goal describes a country's ability to maximize the sustainable yield of farmed fish in the ocean for human consumption. 
 
 ### 1.2 Model & Data {-}
+
+Sustainable mariculture represents a good supplementary opportunity that can support food provisioning needs, especially when considering not compromising the water quality in the farmed area and not relying on wild populations to feed or replenish the cultivated species. However, assessing the sustainable production of farmed fish can be difficult, as information is limited (location of the fish farms, species produced, nutrient and antibiotic release from these farms). Overall, in terms of total fish production, mariculture is at the moment not a large industry in the Baltic Sea, and dominated by rainbow trout production, which was included using available national data.
+
+Despite the production of rainbow trouts in some Baltic countries (Denmark, Germany, Sweden and Finland), there is currently very limited data on nutrient discharge, and therefore the Mariculture sub-goal was not assessed and will not contribute to the overall Food Provision goal score.
  
-Tonnes of mariculture production data were collected from country databases or reports:
+### 1.3 Reference points {-}
 
-**Rainbow trout mariculture**
+The maximum nutrient discharge for both phosphorus (P) and nitrogen (N) could be used as target for this sub-goal, if information is available. The [HELCOM Recommendation](http://www.helcom.fi/Recommendations/Rec%2025-4.pdf), provides a management target that existing and new marine fish farms should not exceed the annual average of 7g of P (total-P) and 50g of N (total-N) per 1kg fish (living weight) produced.
 
-- Sweden: [Jorbruksverket database](https://www.scb.se/hitta-statistik/statistik-efter-amne/jord-och-skogsbruk-fiske/vattenbruk/vattenbruk/)
-
-- Denmark: [Ministry of Environment and Food of Denmark database](https://fiskeristyrelsen.dk/fiskeristatistik/akvakulturstatistik/)
-
-- Finland (mariculture by species dataset): [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f)
-
-- Finland (total mariculture by area): [Natural Resources Institute database](http://statdb.luke.fi/PXWeb/pxweb/en/LUKE/LUKE__06%20Kala%20ja%20riista__02%20Rakenne%20ja%20tuotanto__10%20Vesiviljely/?tablelist=true&rxid=ef8a2896-d6cb-4660-a8aa-fee93bd4212f)
-
-- Germany: Email from plant manager (tassilo@jaeger-kleinicke.de)
-
-**Finfish Mariculture & Aquaculture Production**
-
-- Finfish Mariculture: [HELCOM database](http://maps.helcom.fi/website/mapservice/?datasetID=3cfa469a-6a78-4913-b82f-57fd0e7f4dc0)
-
-- All Baltic countries, Aquaculture Production: [FAO FishStatJ](http://www.fao.org/fishery/statistics/software/fishstatj/en#downlApp)
-
-
-### Reference points {-}
-
-[Maximum nutrient discharge (N and P)](http://www.helcom.fi/Recommendations/Rec%2025-4.pdf) where existing and new marine fish farms should not exceed the annual average of: 7g of P (tot-P) and 50g of N (tot-N) per kilogram of fish produced.
-
-### Other information {-}
+### 1.4 Other information {-}
 
 Data for `BHI1.0` were compiled primarily by [Ginnette Flores Carmenate](https://bioenv.gu.se/digitalAssets/1575/1575339_flores-carmenate.pdf) as part of a Masters thesis. Data sources and aggregation approaches were slightly revised for `BHI2.0`. See data prep methods for more details.
