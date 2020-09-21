@@ -81,7 +81,7 @@ cpue <- read_csv(file.path(dirname(data_path), "intermediate", "ao_cleaned_cpue.
 
 The raw coastal fish data must be assigned to their respective Subbasins and BHI Regions based on their latitude/longitude coordinates. 
 
-```{r assign BHI regions to coastal fish data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r assign BHI regions to coastal fish data, echo = TRUE, message = FALSE, warning = FALSE}
 # Rename some variable and subbasin name to make it match to the basin_lookup table
 combined_coastal_fish1 <- combined_coastal_fish %>% 
   rename(lat = Latitude, lon = Longitude) %>% 
@@ -113,7 +113,8 @@ coastalfish_rgns <- join_rgns_info(
 
 <br/>
 
-```{r explore coastal fish data in map, eval = FALSE, results = "show", fig.width = 9, fig.height = 6}
+**Explore coastal fish data on a map**
+```{r explore coastal fish data in map, results = "show", fig.width = 11, fig.height = 9}
 library(leaflet)
 source(here::here("R", "spatial.R"))
 regions_shape()
@@ -175,7 +176,7 @@ Xao = Mean Stock Indicator Value / Reference Point
 - Reference value = 0.6
 
 **A status of 100 indicates target is achieved**
-```{r status calculation, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r status calculation, echo = TRUE, message = FALSE, warning = FALSE}
 ## Number of time series that will contribute to the mean score in each bhi rgn
 basin_n_obs <- coastalfish_rgns1 %>% 
   dplyr::select(BHI_ID) %>%
@@ -226,7 +227,7 @@ Plot the monitoring stations and BHI regions
 **Note that points are "jittered" in the second plot to make visible**  
 
 **Colors in the second plot are different monitoring locations**
-```{r plot scores levels of aggregation, results = "show", echo = TRUE, fig.width = 7.5, fig.height = 4}
+```{r plot scores levels of aggregation, results = "show", echo = TRUE, fig.width = 8.5, fig.height = 6}
 ## Plot monitoring area indicator mean scores
 ggplot(monitoring_indicator_mean) + 
   geom_point(aes(monitoring.area, mean_core_monitoring_score, color = core_indicator,
@@ -271,7 +272,7 @@ ggplot(bhi_indicator_mean) +
 
 **Plot bhi mean score across indicators**
 The mean of the two indicator scores was taken for each bhi region
-```{r plot basin mean across indicators, results = "show", echo = TRUE, fig.width = 7.5, fig.height = 4}
+```{r plot basin mean across indicators, results = "show", echo = TRUE, fig.width = 7.5, fig.height = 6}
 ## Plot bhi mean score across indicators
 ggplot(bhi_mean_score) + 
   geom_point(aes(rgn_nam, mean_bhi_score), size=2) +
@@ -291,7 +292,7 @@ The score to regions where no sampling occurred, due to local population.
 Therefore, 12 regions have the score replaced with NA (4, 7, 8, 10, 13, 16, 17, 18, 19, 21, 22, 33).
 _See this map of sampling locations provided by Jens Olsson for the above justification (note that the Finnish sites are not marked but covered the entire coastline as they are ICES regions. Coloration of the coastal waters is indication HELCOM coastal water type._  
 
-```{r final score objects, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r final score objects, echo = TRUE, message = FALSE, warning = FALSE}
 ## Calculate bhi status as: basin_mean/basin_target, constraining values to 1 as maximum score
 bhi_status <- bhi_mean_score %>%
   dplyr::select(BHI_ID, mean_bhi_score, threshold_value) %>%
@@ -312,7 +313,7 @@ bhi_status <- bhi_mean_score %>%
 #### 4.1.4  Plot final score objects
 
 
-```{r ao final score object plotted, results = "show", echo = TRUE, fig.width = 6, fig.height = 4}
+```{r ao final score object plotted, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 6.5}
 ## Number of observations
 ##basin_n_obs    
 ##Plot points
@@ -372,7 +373,7 @@ STEPS:
 8) Apply trend value for all BHI regions (except in Gulf of Finland, do not apply Finnish site value to Estonia and Russian regions)
  
 **Select time period and plot data**  
-```{r select time period and plot data, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+```{r select time period and plot data, results = "show", echo = TRUE, fig.width = 11.5, fig.height = 6.5}
 ## Select years 2008-2018
 cpue <- cpue %>%
   filter(Year >= 2008 & Year <= 2018) %>% 
@@ -401,7 +402,7 @@ ggplot(filter(cpue, Taxa == "Piscivores")) +
 <br/>
 
 **Transform data**
-```{r transform data, eval = FALSE, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+```{r transform data, results = "show", echo = TRUE, fig.width = 11.5, fig.height = 6.5}
 # square root transform and zscore each time series
 cpue_trans <- cpue %>%
   mutate(cpue_sqrt = sqrt(cpue))%>% ## square root transform the data
@@ -444,7 +445,7 @@ ggplot(filter(cpue_trans, Taxa =="Piscivores")) +
 ```
 
 **Fit LM, extract slope**
-```{r fit linear model, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r fit linear model, echo = TRUE, message = FALSE, warning = FALSE}
 library(broom)
 cpue_mdl <- cpue_trans %>%
   dplyr::select(bhi_id, rgn_nam, monitoring_area, core_indicator, Taxa, Year, cpue_z) %>%
@@ -469,8 +470,8 @@ cpue_mdl %>%
 
 ```
 
-**Plot slope**
-```{r ao plot slope, results = "show", echo = TRUE, fig.width = 5.5, fig.height = 3.5}
+**Plot slope extracted with number of observations**
+```{r ao plot slope, results = "show", echo = TRUE, fig.width = 8.5, fig.height = 6.5}
 ## Plot slope extracted with number of observations
 ggplot(cpue_mdl) +
   geom_point(aes(rgn_nam, slope, colour = monitoring_area, 
@@ -498,7 +499,7 @@ ggplot(cpue_mdl) +
 
 ### 5.2 Plot the slopes from all timeseries
 
-```{r plot slopes, eval = FALSE, results = "show", echo = TRUE, fig.width = 6.5, fig.height = 3.5}
+```{r plot slopes, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 6.5}
 #### Plot the slopes from all timeseries
 ggplot(cpue_mdl)+
   geom_hline(yintercept = 0) +
@@ -537,7 +538,7 @@ ggplot(filter(cpue_mdl, core_indicator == "Key species")) +
 ### 5.3 Mean Slope group per bhi region
 
 Within each time series group (key species, cyprinid, piscivore), take the mean slope for each group within each bhi region 
-```{r mean slope by group per bhi region, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 5.5}
+```{r mean slope by group per bhi region, results = "show", echo = TRUE, fig.width = 10.5, fig.height = 7.5}
 ## slope (per bhi region)
 slope_bhi <- cpue_mdl %>%
   mutate(bhi_id = as.character(bhi_id)) %>% 
@@ -567,7 +568,7 @@ ggplot(slope_bhi) +
 ### 5.4 Mean slope for each indicator (Functional group, Key Spp)
 
 Within each bhi region take a mean functional group indicator slope (mean of cyprinid mean and piscivore mean) and take mean of each Key species indicator
-```{r ao mean indicator slope, results = "show", echo = TRUE, fig.width = 6.5, fig.height = 3.5}
+```{r ao mean indicator slope, results = "show", echo = TRUE, fig.width = 8.5, fig.height = 5.5}
 ## new object only mean value
 slope <- slope_bhi %>%
   dplyr::select(bhi_id, rgn_nam, core_indicator, Taxa, slope_mean_bhi_taxa)
@@ -595,7 +596,7 @@ ggplot(slope2) +
 ### 5.5 BHI region mean slope
 
 Take the mean for each bhi region across the indicator types (Functional groups, key species)
-```{r ao bhi mean slope, results = "show", echo = TRUE, fig.width = 6.5, fig.height = 3.5}
+```{r ao bhi mean slope, results = "show", echo = TRUE, fig.width = 8.5, fig.height = 5.5}
 ## new object only bhi rgn and indicator mean
 slope3 <- slope2 %>%
   dplyr::select(bhi_id, rgn_nam, core_indicator, slope_mean_bhi_indicator)
@@ -620,7 +621,7 @@ ggplot(slope3) +
 #### 5.5.1 Investigate on functional groups slopes
 
 This plot might help explaining the overall positive trend of functional groups
-```{r ao functional group mean slope, results = "show", echo = TRUE, fig.width = 6.5, fig.height = 3.5}
+```{r ao functional group mean slope, results = "show", echo = TRUE, fig.width = 8.5, fig.height = 5.5}
 # Investigate on functional groups
 slope22 <- slope2 %>%
   group_by(bhi_id, core_indicator) %>%
@@ -645,7 +646,7 @@ ggplot(slope22) +
 
 ### 5.6 Final slope object
 
-```{r final slope object, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r final slope object, echo = TRUE, message = FALSE, warning = FALSE}
 ## new object, only bhi rgn mean
 slope4 <- slope3 %>%
   dplyr::select(bhi_id, slope_mean_bhi) %>% 
@@ -665,7 +666,7 @@ bhi_slope <- slope4 %>%
 #### 5.6.1. Plot final slope object
 
 Size points by number of times series used
-```{r ao plot final code object, results = "show", echo = TRUE, fig.width = 6.5, fig.height = 4}
+```{r ao plot final code object, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 6.5}
 ##object with number of observations
 plot_slope <- bhi_slope %>%
   full_join(., basin_lookup, by = c("rgn_id" = "bhi_id")) %>% 

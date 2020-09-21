@@ -1,9 +1,9 @@
 
-```{r ao data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r ao data preamble, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
 source(here::here("R", "data.R"))
 source(here::here("R", "spatial.R"))
-
+library(tidyr)
 ## root location of the raw data
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Goals", "AO")
@@ -25,7 +25,7 @@ Finnish data are fisheries data from ICES assessment regions (ICES 29-32).
 
 Since coastal fish data ('coastal_fish_data_2018.csv') are updated until 2018, but the latest status assessment (HOLAS II) only includes data until 2016, we have decided to use the data included in HOLAS II (until 2016) for this first BHI 2.0 calculations ('key_species_status.csv', 'piscivores_status.csv', 'cyprinids_status.csv'). Then, once the most updated data will be included into the next "intermediate" status assessment, we will also include the newest data.
 
-```{r load raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r load raw data, echo = TRUE, message = FALSE, warning = FALSE}
 # library(readr)
 # load all raw data (containing the newest data)
 coastal_fish_raw <- read.csv(
@@ -53,7 +53,7 @@ coastal_areas <- sf::st_read(file.path(
 ```
 
 **Explore and clean coastal fish data for trend calculation**
-```{r cleaning coastal fish raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r cleaning coastal fish raw data, echo = TRUE, message = FALSE, warning = FALSE}
 coastal_fish_cpue <- coastal_fish_raw %>% 
   dplyr::rename(
     monitoring_area = Area, 
@@ -98,7 +98,7 @@ readr::write_csv(
 
 
 **Clean, explore and merge key species, cyprinids and piscivores status data**
-```{r merging coastal fish raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r merging coastal fish raw data, echo = TRUE, message = FALSE, warning = FALSE}
 coastal_fish_status <- rbind(
   key_species_status_raw %>% 
     dplyr::rename(
@@ -207,7 +207,7 @@ coastal_fish_status <- rbind(
 ```
 <br>
 
-```{r save merged data, eval = FALSE}
+```{r save merged data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 readr::write_csv(
   coastal_fish_status, 
   here::here("data", "AO", version_year, "intermediate", "ao_merged_rawdata.csv")
@@ -228,7 +228,7 @@ readr::write_csv(
 - 1 monitoring area with two Key_spp status: *Kvädöfjärden*  
 
 **Number of indicators by monitoring location**
-```{r unique indicators monitoring region, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 4}
+```{r unique indicators monitoring region, results = "show", echo = TRUE, fig.width = 9.5, fig.height = 6}
 ## how many core indicators, how many taxa
 indicator_count <- coastal_fish_status %>%
   select(
@@ -281,7 +281,7 @@ indicator_taxa_count %>%
 
 #### 2.3.2 Compare status values across taxa {-}
 
-```{r show data, results = "show", eval = FALSE, echo = TRUE, fig.width = 7.5, fig.height = 4}
+```{r show data, results = "show", echo = TRUE, fig.width = 7.5, fig.height = 6}
 # make coastal_fish_scores in long format then plot
 temp_long <- coastal_fish_status %>% 
   select(
