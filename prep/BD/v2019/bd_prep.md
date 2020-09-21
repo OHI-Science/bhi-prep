@@ -1,17 +1,28 @@
----
-title: "Biodiversity (BD) Goal Data Preparation"
-output:
-  github_document:
-    toc: true
-    toc_depth: 3
-params:
-    datasource: csv
-always_allow_html: true
----
+Biodiversity (BD) Goal Data Preparation
+================
+
+-   [1. Background](#background)
+    -   [1.1 Goal Description](#goal-description)
+    -   [1.2 Model & Data](#model-data)
+    -   [1.3 Reference points](#reference-points)
+    -   [1.4 Other information](#other-information)
+-   [2. Data](#data)
+    -   [2.1 Datasets with Sources](#datasets-with-sources)
+-   [3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling](#prep-wrangling-derivations-checksevaluation-gapfilling)
+    -   [3.1 Initial Data Wrangling/Harmonizing](#initial-data-wranglingharmonizing)
+    -   [3.2 Match BHI regions by Country and/or Subbasin](#match-bhi-regions-by-country-andor-subbasin)
+    -   [3.3 Waterbirds Data](#waterbirds-data)
+    -   [3.4 Save Biodiversity Layers](#save-biodiversity-layers)
+    -   [3.5 Biodiversity Trial Status & Trend Calculations](#biodiversity-trial-status-trend-calculations)
+-   [4. Visualizing Data Layers](#visualizing-data-layers)
+    -   [4.1 Bar Plots by Indicator and Overall Status](#bar-plots-by-indicator-and-overall-status)
+    -   [4.2 Maps](#maps)
+-   [5. Considerations for `BHI3.0`](#considerations-for-bhi3.0)
+-   [6. References](#references)
 
 <br>
 
-```{r bd preamble prep, message = FALSE}
+``` r
 source(here::here("R", "setup.R"))
 source(here::here("R", "spatial.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
@@ -26,41 +37,123 @@ refs_path <- file.path(loc, "bd_references.Rmd")
 # file.exists(c(loc, bkgd_path, data_path, refs_path))
 ```
 
-## 1. Background
+1. Background
+-------------
 
-```{r bd background, child = bkgd_path, results = "asis", echo = FALSE}
-```
+### 1.1 Goal Description
+
+This goal captures the biodiversity status of the Baltic Sea ecosystems and intactness of broad, encompassing marine habitats/zones.
+
+### 1.2 Model & Data
+
+This goal consists of five components: - benthic habitats - pelagic habitats - fish - mammals (seals) - seabirds
+
+It has been evaluated using the biological quality ratios and seabird abundance, derived in the integrated biodiversity assessments from HELCOM (the HELCOM assessment tool: <https://github.com/NIVA-Denmark/BalticBOOST>). These are based on core indicators for key species and species groups, including abundance, distribution, productivity, physiological and demographic characteristics.
+
+Statuses of these five biodiversity components are aggregated first within each component, combining coastal area values with area-weighted averages, then combining the values for coastal and offshore areas of each BHI region with equal weight. A single biodiversity status score per region is calculated as geometric mean of the five components. More detailed information on the indicators and the biodiversity assessment can be found at HELCOM (<http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/>).
+
+### 1.3 Reference points
+
+For the seabirds, the HELCOM core indicator threshold of 0.75 abundance, decided by HELCOM, was used as good status (corresponding to a status score of 100 in BHI). For the other four components (benthic habitats, pelagic habitats, fish, and mammals), a biological quality ratio (BQR) of 0.6 was developed by HELCOM with the aim to represent good status and was used as here as the target.
+
+### 1.4 Other information
+
+External advisors/goalkeepers: Andrea Belgrano and Henn Ojaveer
 
 <br/>
 
-## 2. Data
+2. Data
+-------
 
 This prep document is used to generate and explore the following data layers:
 
-- `bd_hab_benthic_bhi2019.csv` 
-- `bd_hab_pelagic_bhi2019.csv`
-- `bd_spp_fish_bhi2019.csv` 
-- `bd_spp_seals_bhi2019.csv`
-- `bd_spp_winter_birds_bhi2019.csv` 
-- `bd_spp_breeding_birds_bhi2019.csv`
+-   `bd_hab_benthic_bhi2019.csv`
+-   `bd_hab_pelagic_bhi2019.csv`
+-   `bd_spp_fish_bhi2019.csv`
+-   `bd_spp_seals_bhi2019.csv`
+-   `bd_spp_winter_birds_bhi2019.csv`
+-   `bd_spp_breeding_birds_bhi2019.csv`
 
 These are saved to the `layers` folder. All these are derived from or informed by the raw datasets from the HELCOM 2018 integrated biodiversity status assessments.
 
 <br>
 
-```{r bd data, child = data_path, results = "asis", echo = FALSE}
-```
+### 2.1 Datasets with Sources
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+The data for the Biodiversity goal consists of 4 shapefiles downloaded from HELCOM Metadata catalogue, with status and metrics reported by HELCOM Assessment Units – HELCOM open sea sub-basins and coastal WFD water bodies.
 
+#### 2.1.1 Habitats
 
-### 3.1 Initial Data Wrangling/Harmonizing {-}
+**Integrated biodiversity status assessment - Benthic Habitats**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue:](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/478d52dd-08b7-4777-b879-8806b1188b27)
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Benthic Habitats](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/benthic-habitats/).
+
+**Integrated biodiversity status assessment - Pelagic Habitats**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue:](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/821b33a7-35b3-489c-93ab-9ef8f4422f2a)
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Pelagic Habitats](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/pelagic-habitats/).
+
+#### 2.1.2 Species Groups
+
+**Integrated biodiversity status assessment - Fish**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue:](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/ee20ad8b-c826-4561-b63a-bf203bb481b9)
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Fish](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/fish/).
+
+**Integrated biodiversity status assessment - Seals**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue:](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/c1662d7b-f63a-48cc-96f6-3072d328ae56)
+
+Downloaded 9 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Marine Mammals (Seals)](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/marine-mammals/).
+
+**Abundance of waterbirds in the breeding season, 2018**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue:](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/67d2f5e9-7f56-4ef0-87f0-a036528c56b9). The metadata catalogue and Map Viewer have pages/layers titled by bird groups (wading, surface, pelagic, benthic, grazing feeders), but the data linked on each of the metadata catalogue pages seem to be the same shapefile with all these groups included.
+
+Downloaded 10 September 2020 by Ellie Campbell.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Waterbirds](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/waterbirds/).
+
+**Abundance of waterbirds in the wintering season, 2018**
+
+<!-- dataset save location BHI_share/BHI 2.0/Goals/BD/helcom_integrated_assessments -->
+Source: [HELCOM Metadata catalogue:](http://metadata.helcom.fi/geonetwork/srv/eng/catalog.search#/metadata/cf3f0772-acd1-4674-8c78-44ea5abbe5f1). The metadata catalogue and Map Viewer have pages/layers titled by bird groups (wading, surface, pelagic, benthic, grazing feeders), but the data linked on each of the metadata catalogue pages seem to be the same shapefile with all these groups included.
+
+For more information about the dataset and indicators see the [State of the Baltic Sea webpage on Waterbirds](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/waterbirds/).
+
+Downloaded 10 September 2020 by Ellie Campbell.
+
+<br>
+
+<br/>
+
+3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+---------------------------------------------------------------
+
+### 3.1 Initial Data Wrangling/Harmonizing
 
 **Load all Biodiversity Datasets**
 
-```{r load habitats and fish and seals spatial data layers, warning = FALSE, message = FALSE, results = "hide"}
+``` r
 files <- grep(
   "helcom_.*\\.shp$", 
   list.files(dir_rawdata, recursive = TRUE, full.names = TRUE), 
@@ -80,10 +173,9 @@ lapply(
 )
 ```
 
-
 **Subset, replace zeros with NAs where zone Not Assessed, add Year column, some subbasin alternative names**
 
-```{r initial wrangling of bd datasets, warning = FALSE, message = FALSE, results = "hide"}
+``` r
 ## HABITATS ----
 ## benthic and pelagic habitats have the same columns and spatial units
 for(shp in c("benthic_shp", "pelagic_shp")){
@@ -184,13 +276,11 @@ for(shp in c("wintering_birds_shp", "breeding_birds_shp")){
   
   assign(shp, birdshp)
 }
-
 ```
 
+### 3.2 Match BHI regions by Country and/or Subbasin
 
-### 3.2 Match BHI regions by Country and/or Subbasin {-}
-
-```{r wrangle habitats datasets including matching to bhi regions}
+``` r
 regions_shape()
 
 rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
@@ -262,10 +352,9 @@ for(shp in c("benthic_shp", "pelagic_shp", "fish_shp", "seals_shp", "wintering_b
 }
 ```
 
+### 3.3 Waterbirds Data
 
-### 3.3 Waterbirds Data {-}
-
-```{r wrangle water birds data}
+``` r
 ## need to merge and reshape as the waterbirds data is by bird groups: 
 ## wading, surface, pelagic, benthic, grazing feeders
 ## and also wintering vs breeding
@@ -281,10 +370,9 @@ birds_data <- bind_rows(wintering_birds_w_rgns, breeding_birds_w_rgns) %>%
   select(region_id, region_name, helcom_id, coastal, year, feeder_group, spatial_group, area_km2, BQR)
 ```
 
+### 3.4 Save Biodiversity Layers
 
-### 3.4 Save Biodiversity Layers {-}
-
-```{r save bd layers}
+``` r
 write_csv(
   benthic_w_rgns %>% 
     st_drop_geometry() %>% 
@@ -316,10 +404,9 @@ write_csv(
 )
 ```
 
+### 3.5 Biodiversity Trial Status & Trend Calculations
 
-### 3.5 Biodiversity Trial Status & Trend Calculations {-}
-
-```{r trial bd status calculations to test calculations and visualize}
+``` r
 ## will do bird assessment with spatial groups specified in the data rather than BHI regions
 ## then will rematch to BHI regions afterwards
 birds_spatial_units <- distinct(birds_data, region_id, region_name, spatial_group)
@@ -418,11 +505,12 @@ bd_status <- bind_rows(
 
 <br/>
 
-## 4. Visualizing Data Layers {-}
+4. Visualizing Data Layers
+--------------------------
 
-### 4.1 Bar Plots by Indicator and Overall Status {-}
+### 4.1 Bar Plots by Indicator and Overall Status
 
-```{r plot of biodiversity status results, fig.width = 9, fig.height = 14}
+``` r
 ggplot(bd_status) + 
     geom_col(aes(x = region_name, y = status, fill = status)) +
     scale_fill_viridis_c(direction = -1) +
@@ -431,10 +519,11 @@ ggplot(bd_status) +
     facet_wrap(~indicator, nrow = 2)
 ```
 
+![](bd_prep_files/figure-markdown_github/plot%20of%20biodiversity%20status%20results-1.png)
 
-### 4.2 Maps {-}
+### 4.2 Maps
 
-```{r simplify bd shapefiles and plot for visual inspection}
+``` r
 bhirgn_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 
 ## simplify the polygons before creating maps
@@ -458,10 +547,9 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 ```
 
+#### 4.2.1 Benthic and Pelagic Habitats
 
-#### 4.2.1 Benthic and Pelagic Habitats {-}
-
-```{r map of benthic and pelagic, results = "show", fig.width = 9.5, fig.height = 4}
+``` r
 gridExtra::grid.arrange(
   basemap +
     geom_sf(
@@ -491,10 +579,11 @@ gridExtra::grid.arrange(
 )
 ```
 
+![](bd_prep_files/figure-markdown_github/map%20of%20benthic%20and%20pelagic-1.png)
 
-#### 4.2.2 Fish and Seals {-}
+#### 4.2.2 Fish and Seals
 
-```{r map of seals and fish, results = "show", fig.width = 9.5, fig.height = 4}
+``` r
 gridExtra::grid.arrange(
   basemap +
     geom_sf(
@@ -524,19 +613,28 @@ gridExtra::grid.arrange(
 )
 ```
 
+![](bd_prep_files/figure-markdown_github/map%20of%20seals%20and%20fish-1.png)
+
 <br>
 
-## 5. Considerations for `BHI3.0`
+5. Considerations for `BHI3.0`
+------------------------------
 
-
-**Temporal data:** The data used here consists of an integrated assessment period (2011-2016), so no trend was calculated from the same data used in status calculations. The trend dimension included is from the global OHI assessment, which employs a different status calculation approach.
-
+\*\*Temporal <data:**> The data used here consists of an integrated assessment period (2011-2016), so no trend was calculated from the same data used in status calculations. The trend dimension included is from the global OHI assessment, which employs a different status calculation approach.
 
 **Varied habitats and functions:** Including a greater range of more specific habitat types and functional types (in a transparent way), could help make the goal more actionable for managers at local scales.
 
 <br>
 
-## 6. References
+6. References
+-------------
 
-```{r bd references, child = refs_path, results = "asis", echo = FALSE}
-```
+[State of the Baltic Sea webpage on Benthic Habitats](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/benthic-habitats/)
+
+[State of the Baltic Sea webpage on Pelagic Habitats](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/pelagic-habitats/)
+
+[State of the Baltic Sea webpage on Fish](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/fish/)
+
+[State of the Baltic Sea webpage on Marine Mammals (Seals)](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/marine-mammals/)
+
+[State of the Baltic Sea webpage on Waterbirds](http://stateofthebalticsea.helcom.fi/biodiversity-and-its-status/waterbirds/)
