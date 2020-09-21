@@ -1,3 +1,13 @@
+---
+title: "Food Provision (FP) - Wild-Caught Fisheries (FIS) Subgoal / Natural Products (NP) Goal Data Preparation"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params: 
+    datasource: csv
+always_allow_html: true
+---
 
 ```{r fis preamble prep, message = FALSE}
 loc <- here::here("prep", "FIS")
@@ -895,7 +905,7 @@ Source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
 
 #### 3.5.3 Setting F-Score and B-score parameters {-}
 
-```{r fis fscores formula, out.width = "70%", results = "show", echo = FALSE}
+```{r fis fscores formula, out.width = "70%", results = "show", echo = FALSE, fig.width = 10, fig.height = 8}
 knitr::include_graphics(file.path(dir_prep, "prep", "FIS", "fis-fscores-formula.png"))
 ```
 
@@ -910,15 +920,21 @@ BHI status and trend scores differ spatially across regions as they are combinat
 
 ```{r fis goal status map, results = "show"}
 ## combine with spatial info for mapping
+regions_shape()
+bhi_rgns_shp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+
 scores_shp <- bhi_rgns_shp %>% 
   dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2) %>% 
   left_join(filter(scores, year == max(scores$year)), by = c("BHI_ID" = "region_id")) %>% 
   mutate(Name = paste(rgn_nam, Subbasin, sep = ", "))
+
 pal <- leaflet::colorNumeric(
   palette = "RdYlBu", na.color = "#fcfcfd",
   domain = seq(0.4, 1, 0.005)) # min score across years is 0.16, to visualize need to change scale...
 
 ## create map
+library(leaflet)
+library(leaflet.providers)
 leaflet::leaflet(data = scores_shp) %>% 
   addProviderTiles(providers$CartoDB.Positron) %>%
   setView(18, 59, zoom = 5) %>% 
@@ -946,6 +962,7 @@ leaflet::leaflet(data = scores_shp) %>%
 ## 5. Considerations for `BHI3.0` {-}
 
 Implement strong sustainability concept e.g. with a BMSY reference representing 'ideal' (near pristine) environmental conditions (e.g. historic extent of anoxic bottom)
+Also, aim to use survey and effort data to improve the goal calculations.
 
 <br>
 

@@ -16,4 +16,4 @@ The reference point used for the computation are based on the MSY principle and 
 
 ### 1.4 Other information {-}
 
-External advisors/goalkeepers are Christian Möllmann & Stefan Neuenfeldt
+External advisors/goalkeepers. Christian Möllmann 
