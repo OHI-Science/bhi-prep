@@ -1,5 +1,5 @@
 
-```{r eut data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r eut data preamble, include = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 source(here::here("R", "setup.R"))
 source(here::here("R", "data.R"))
 source(here::here("R", "spatial.R"))
@@ -10,10 +10,6 @@ dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_intermediate <- file.path(here::here("data", "CS", version_year, "intermediate"))
 dir_rawdata <- file.path(dir_B, "Goals", "CS")
 ```
-
-The Carbon Storage goal captures the ability of the coastal habitats to remove carbon given their carbon uptake rate and health conditions. A score of 100 means all habitats that contribute to carbon removal are still intact or have been restored and they can function to their full carbon burial potential. Highly productive coastal wetland ecosystems or seagrass store substantially large amount of carbon have the highest sequestration rates of any habitats on earth. They are also threatened by under-regulated coastal development but are amenable to restoration and conservation efforts. For the BHI we planned to use seagrass as an indicator for carbon storage. 
-(Due to data limitions, the Carbon Storage goal was assigned as NA in the BHI 1.0)
-
 
 ### 2.1 Datasets with Sources {-}
 <br/>
@@ -70,7 +66,6 @@ knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metada
 
 <br/>
 
-
 **Seagrass Meadows**
 
 The data set is showing seagrass meadows in the Baltic Sea area as points used for the BRISK project (Sub-regional risk of spill of oil and hazardous substances in the Baltic Sea; learn more [here](http://www.brisk.helcom.fi/)). This dataset has been produced by [COWI](http://www.cowi.dk) based on data from HELCOM.
@@ -94,10 +89,11 @@ knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](http://metada
 
 #### 2.2.1 Zostera marina shapefile {-}
 
-We will only explore the dataset chose by BHI 1.0 (Alternative 4), unless new available better data.
+We will only explore the dataset chosen by BHI 1.0 (Alternative 4), unless new available better data.
 
-```{r load raw data, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+```{r load cs raw data, echo = TRUE, message = FALSE, warning = FALSE}
 # library(readr)
+library(raster)
 # load all raw data (containing the newest data)
 macrophytes <- sf::st_read(file.path(
   dir_rawdata, "Join_macrophytes_20200713",
@@ -138,7 +134,7 @@ extent(seagrass_meadows)
 
 <br/>
 
-```{r polygon data explore, echo=FALSE, message=FALSE}
+```{r polygon data explore, echo=TRUE, message=FALSE}
 ## inspect BHI regions ----
 # bhi <- sf::st_read(file.path(dir_A, "Shapefiles", "BHI_shapefile", "BHI_shapefile.shp"))
 bhi <- rgdal::readOGR(dsn = path.expand(file.path(dir_A, "Shapefiles", "BHI_shapefile")),
@@ -172,18 +168,17 @@ raster::extent(bhi_transf)
 # ymax        : 4818369 
 
 ## save transformed shapefile
-writeOGR(bhi_transf, dsn = path.expand(dir_intermediate), layer = 'bhi_transf', driver = 'ESRI Shapefile', overwrite = TRUE) 
+#writeOGR(bhi_transf, dsn = path.expand(dir_intermediate), layer = 'bhi_transf', driver = 'ESRI Shapefile', overwrite = TRUE) 
 ```
 
 <br/>
 
 #### 2.2.2  Intersect the BHI shapefiles and zostera data
 
-The zostera data contains areal extent that matches well with the BHI regions. The graph below shows overlay of zostera data with BHI region shape file - each blue cross is a sampling site with coordinates and coverage type (dense, sparse, or NA). 
-
 **Problem**: The area listed in the Zostera file only contained the location of each sampling point, but not the area of vegetation coverage. The area data seems to be the total area of the BHI region. Therefore, we can't calculate the total area of Zostera as planned.
 
-```{r intersect and save csv, message = FALSE}
+```{r intersect and save csv, eval = FALSE, message = FALSE}
+library(rgeos)
 bhi_buff <- gBuffer(bhi_transf, byid=TRUE, width=0)
 macrophytes_buff <- gBuffer(macrophytes, byid=TRUE, width=0)
 
@@ -192,5 +187,5 @@ cs_bhi_intersect <- raster::intersect(macrophytes_buff, bhi_buff)
 # plot(cs_bhi_intersect)
 
 ## save intersected shapefile
-writeOGR(cs_bhi_intersect, dsn = path.expand(dir_intermediate), layer = 'cs_bhi_intersect', driver = 'ESRI Shapefile', overwrite = TRUE) 
+#writeOGR(cs_bhi_intersect, dsn = path.expand(dir_intermediate), layer = 'cs_bhi_intersect', driver = 'ESRI Shapefile', overwrite = TRUE) 
 ```
