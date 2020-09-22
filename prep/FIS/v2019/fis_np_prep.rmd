@@ -909,64 +909,16 @@ Source: [Casini M et al. 2016](http://dx.doi.org/10.1098/rsos.160416)
 knitr::include_graphics(file.path(dir_prep, "prep", "FIS", "fis-fscores-formula.png"))
 ```
 
-
-## 4. Visualizing Data Layers {-}
-
-### 4.1 Goal Status Map {-}
-
-Below is a map of the `FIS` goal status scores. These are not the finalized BHI scores with pressure, resilience, or trend included- just status.
-Spatially, data inputs are the same value per year per stock, across the BHI regions in which the stock exists.  
-BHI status and trend scores differ spatially across regions as they are combinations of multiple stocks status weighted by landings proportions.
-
-```{r fis goal status map, results = "show"}
-## combine with spatial info for mapping
-regions_shape()
-bhi_rgns_shp <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
-
-scores_shp <- bhi_rgns_shp %>% 
-  dplyr::select(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID, Area_km2) %>% 
-  left_join(filter(scores, year == max(scores$year)), by = c("BHI_ID" = "region_id")) %>% 
-  mutate(Name = paste(rgn_nam, Subbasin, sep = ", "))
-
-pal <- leaflet::colorNumeric(
-  palette = "RdYlBu", na.color = "#fcfcfd",
-  domain = seq(0.4, 1, 0.005)) # min score across years is 0.16, to visualize need to change scale...
-
-## create map
-library(leaflet)
-library(leaflet.providers)
-leaflet::leaflet(data = scores_shp) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  setView(18, 59, zoom = 5) %>% 
-  addPolygons(
-    stroke = TRUE, opacity = 0.3, weight = 1, fillOpacity = 0.7,
-    fillColor = ~pal(status_prop)
-  ) %>% 
-  addPolygons(
-    popup = paste(
-      "<h5><strong>", "Region:", "</strong>",
-      scores_shp$Name, "</h5>",
-      "<h5><strong>", "Region ID:", "</strong>",
-      scores_shp$BHI_ID, "</h5>",
-      "<h5><strong>", "Status:", "</strong>",
-      round(scores_shp$status_prop, 2), "</h5>", sep = " "
-    ),
-    fillOpacity = 0,
-    stroke = FALSE
-  ) %>% 
-  addLegend("bottomright", pal, seq(0.4, 1, 0.005))
-```
-
 <br>
 
-## 5. Considerations for `BHI3.0` {-}
+## 4. Considerations for `BHI3.0` {-}
 
 Implement strong sustainability concept e.g. with a BMSY reference representing 'ideal' (near pristine) environmental conditions (e.g. historic extent of anoxic bottom)
 Also, aim to use survey and effort data to improve the goal calculations.
 
 <br>
 
-## 6. References {-}
+## 5. References {-}
 
 ```{r fis references, child = refs_path, results = "asis", echo = FALSE}
 ```
