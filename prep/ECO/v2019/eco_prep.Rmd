@@ -1,13 +1,13 @@
 ---
 title: "Livelihoods and Economies (LE) - Economies (ECO) Subgoal Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
-    toc_depth: 4
-    code_folding: hide
+    toc_depth: 3
+params:
+    datasource: csv
 ---
 
-<br>
 <br>
 
 ```{r eco preamble prep, message = FALSE}
@@ -15,6 +15,7 @@ loc <- here::here("prep", "ECO")
 
 source(here::here("R", "setup.R"))
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, results = "hide")
+dir_intermediate <- here::here("data", "ECO", version_year, "intermediate")
 
 bkgd_path <- here::here("supplement", "goal_summaries", "ECO.Rmd")
 data_path <- here::here("data", "ECO", version_year, "eco_data.rmd")
@@ -46,25 +47,67 @@ These are saved to the `layers` folder. Saved to `data/ECO/v2019/intermediate` i
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+## 3. Visualizing Data Layers
 
-<br/>
+### 3.1 Map
 
-## 4. Visualizing Data Layers
+**Marine sectors economic growth rates**
+```{r marine sectors economic growth rates, results = "show", fig.width = 9.5, fig.height = 8.5}
+source(here::here("R", "spatial.R"))
+regions_shape()
+bhirgn_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 
-### 4.1 Map
+eco_data_combined <- read_csv(file.path(dir_intermediate, "le_eco_bluegrowth_bhi2019.csv"))
 
-```{r marine sectors economic growth rates, eval = FALSE, results = "show", fig.width = 9.5, fig.height = 8.5}
-# source(here::here("R", "spatial.R"))
-# regions_shape()
-# bhirgn_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
+eco_data_combined <- eco_data_combined %>% 
+  dplyr::select(
+    country, sector, sub_sector, activity, 
+    ## only need GVA for 2009 and 2018
+    value_added_at_factor_cost_2009,
+    value_added_at_factor_cost_2018
+  ) %>% 
+  
+  ## group and aggregate by sub-sector and country
+  group_by(country, sector) %>% 
+  summarize(
+    value_added_at_factor_cost_2009 = sum(value_added_at_factor_cost_2009, na.rm = TRUE), 
+    value_added_at_factor_cost_2018 = sum(value_added_at_factor_cost_2018, na.rm = TRUE)
+  ) %>% 
+  ungroup() %>% 
+  
+  ## calculate annual growth rate with cagr formula
+  ## annualgrowthrate result in decimal form, multiply by 100 to get percent %
+  mutate(annualgrowthrate = (value_added_at_factor_cost_2018/value_added_at_factor_cost_2009)^(1/9) - 1) %>% 
+  mutate(annualgrowthrate = ifelse(is.nan(annualgrowthrate), NA, annualgrowthrate)) %>% 
+  
+  ## estimate GVA at years 2009-2018, 
+  ## CONVERT VALUE TO SECTOR PROPORTION OF TOTAL COUNTRY MARINE GVA
+  ## (so when expand to BHI regions rather than countries, isn't misleading!!!)
+  mutate(year = list(c(2009:2018))) %>% 
+  tidyr::unnest(cols = c(year)) %>% 
+  mutate(value_added_year = value_added_at_factor_cost_2009*((annualgrowthrate+1)^(year-2009))) %>% 
+  group_by(country, year) %>% 
+  mutate(annual_total_marine_value_added = sum(value_added_year, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(prop_annual_value_added = value_added_year/annual_total_marine_value_added)
+  
+## add bhi regions
+eco_data_bhirgns <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
+  dplyr::select(region_id, country = eez) %>% 
+  mutate(year = list(c(2009:2018))) %>%
+  tidyr::unnest(cols = c(year)) %>%
+  full_join(eco_data_combined, by = c("country", "year")) %>% 
+ 
+  ## convert the annual growth rate into a perentage and round to just one decimal place
+  ## NOTE: NOW GROWTH RATE WILL BE IN PERCENTAGE NOT DECIMAL FORM
+  mutate(annualgrowthrate = round(annualgrowthrate*100, 1))
 
 mapsf <- left_join(
   bhirgn_simple %>% 
-    select(region_id = BHI_ID, Subbasin, country = rgn_nam),
+    dplyr::select(region_id = BHI_ID, Subbasin, country = rgn_nam),
   eco_data_bhirgns %>% 
     filter(year == 2018) %>% 
-    select(region_id, country, sector, annualgrowthrate),
+    dplyr::select(region_id, country, sector, annualgrowthrate),
     # mutate(sector = stringr::str_replace_all(stringr::str_to_lower(sector), " ", "_")) %>% 
     # tidyr::pivot_wider(names_from = sector, values_from = annualgrowthrate),
   by = c("region_id", "country")
@@ -90,7 +133,7 @@ ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf"
 
 <br>
 
-## 5. Considerations for `BHI3.0`
+## 4. Considerations for `BHI3.0`
 
 Will need to find new data sources for GVA in next BHI Assessments, if Blue Growth Reports are discontinued. Eurostat has SBS trade indicators, which together with other sources form the basis for the Blue Growth Reports. These data could be explored as a replacement for GVA values extracted from the Blue Growth Reports. This option (using eurostat data) may be made easier by using the Eurostat R package.
 
@@ -98,7 +141,7 @@ Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gi
 
 <br>
 
-## 6. References
+## 5. References
 
 ```{r eco references, child = refs_path, results = "asis", echo = FALSE}
 ```

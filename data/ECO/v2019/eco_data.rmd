@@ -74,7 +74,7 @@ columns <- columns %>%
     stringr::str_remove("_$") %>% 
     stringr::str_replace_all("__", "_")
 
-for(f in grep(".*csv", list.files(dir_rawdata), value = TRUE)){
+for(f in grep(".*_blueconomy.*csv", list.files(dir_rawdata), value = TRUE)){
   
   tmp <- read.csv(file.path(dir_rawdata, f), sep = ";")
   tmp[,] <- sapply(tmp[,], as.character)
@@ -100,18 +100,17 @@ for(f in grep(".*csv", list.files(dir_rawdata), value = TRUE)){
 
 **Clean, explore and merge GVA datasets**
 
-```{r merging eu gva data}
-
+```{r merging eu gva data, echo = TRUE, message = FALSE, warning = FALSE}
 eco_data_combined <- rbind(den_gva, est_gva, fin_gva, ger_gva, lat_gva, lit_gva, pol_gva, swe_gva) %>% 
   filter(!(sector == "all sectors" & sub_sector == "all sub-sectors"))
 
-write_csv(
-  eco_data_combined,
-  file.path(dir_intermediate, "le_eco_bluegrowth_bhi2019.csv")
-)
+#write_csv(
+#  eco_data_combined,
+#  file.path(dir_intermediate, "le_eco_bluegrowth_bhi2019.csv")
+#)
 
 eco_data_combined <- eco_data_combined %>% 
-  select(
+  dplyr::select(
     country, sector, sub_sector, activity, 
     ## only need GVA for 2009 and 2018
     value_added_at_factor_cost_2009,
@@ -156,7 +155,7 @@ eco_data_bhirgns <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "r
 ```
 
 
-
+**Plot of Blue Economy approximate annual growth by country**
 ```{r plot of blue economy approximate annual growth by country, fig.width = 9.5, fig.height = 8}
 ggplot(eco_data_bhirgns %>% filter(!is.na(sector))) + 
   geom_line(aes(x = year, y = value_added_year, color = sector), size = 0.6) +
@@ -167,7 +166,7 @@ ggplot(eco_data_bhirgns %>% filter(!is.na(sector))) +
   theme(legend.position = c(0.85, 0.15), legend.background = element_rect(color = "steelblue"))
 ```
 
-```{r save eco data layers}
+```{r save eco data layers, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 write_csv(
   select(eco_data_bhirgns, region_id, sector, year, annual_growth_rate = annualgrowthrate),
   file.path(dir_layers, "le_eco_bluegrowth_rates_bhi2019.csv")

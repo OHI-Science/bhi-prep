@@ -7,14 +7,14 @@ Ideally, the economic sub-goal would also incorporate information on the sustain
 
 ### 1.2 Model & Data {-}
 
-### 1.2.1 Data {-}
+#### 1.2.1 Data {-}
 
 Data for each country were downloaded from [The EU Blue Economy Report. 2020.](https://ec.europa.eu/maritimeaffairs/sites/maritimeaffairs/files/2020_06_blueeconomy-2020-ld_final.pdf), which provided 2009 and 2018 marine sector-specific revenue data (GVA) among other metrics, in the country-specific Appendices. The report also identified the potential for Blue Growth in each of the EU Member States (MS) of the Baltic Sea Region (BSR) as well as at sea-basin level. 
 
 (Due to a lack of data, Russian regions (19, 22, 33) have NA scores for this subgoal.)
 
 
-### 1.2.2 Status Model {-}
+#### 1.2.2 Status Model {-}
 
 Because the Blue Economy Report 2020 contains GVA values only for 2009 and 2018, the actual annual growth rates are not known and instead a constant annual growth rate (AGR) across the 9 years is estimated using the formula:
 
@@ -34,7 +34,7 @@ $$SectorStatus = \begin{cases}
 $$
 
 
-### 1.2.3 Trend Model {-}
+#### 1.2.3 Trend Model {-}
 
 Trend of this goal is the weighted average of the growth rates of each sector by their relative contribution to the total revenue, where the sector growth rates are the annual growth rates (AGR) estimated from 2009 and 2018 GVA data. 
 
@@ -48,5 +48,5 @@ As reference points we used a 1.5% annual growth between 2010 and 2020, as envis
 
 ### 1.4 Other information {-}
 
-External advisors/goalkeepers: Martin Quaas and Wilfried Rickels.
+External advisors/goalkeepers: Wilfried Rickels.
 
