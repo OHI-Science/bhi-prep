@@ -1,6 +1,6 @@
 ### 1.1 Goal Description {-}
 
-The Livelihoods sub-goal describes livelihood quantity and quality for people living on the coast. Livelihoods includes the number of jobs in different marine related sectors. Ideally, this sub-goal would speak to the quality and quantity of marine jobs in an area. It would encompass all the marine sectors that supply jobs and wages to coastal communities, incorporating information on the sustainability of different sectors while also telling about the working conditions and job satisfaction. 
+The Livelihoods sub-goal describes livelihood quantity and quality for people living on the coast. Livelihoods includes the number of jobs in different marine related sectors. Ideally, this sub-goal would speak to the quality and quantity of marine jobs in an area. It would encompass all the marine sectors that supply jobs and wages to coastal communities, incorporating information on the sustainability of different sectors while also telling about the working conditions and job satisfaction.
 
 Due to an earlier lack of sector-specific employment information, the BHI currently uses overall employment rates in the Baltic coastal regions to represent ocean-dependent livelihood. The assumption being that relative employment rates in marine sectors mirror those in the regions' economies overall. Subsequent iterations of the BHI will use Blue Growth Report employment data, to more accurately represent the societal value derived from marine livelihoods in the Baltic Sea.
 
@@ -15,9 +15,9 @@ Regional employment numbers are derived using NUTS2 eployment rates and populati
 
 ### 1.3 Reference points {-}
 
-Reference point is max Region:Country employment ratio of the past five years, and highest country employment in the last fifteen years (77.4%).
+Reference point is max Region:Country employment ratio of the past five years, and highest country employment in the last fifteen years (77.4%). The region-to-country ratio puts the value into local context, then adjusting with respect to highest country employment rate in the last fifteen years from around the Baltic Sea situates the ratio in broader geographic context.
 
 
 ### 1.4 Other information {-}
 
-External advisors/goalkeepers: Martin Quaas and Wilfried Rickels.
+External advisors/goalkeepers: Wilfried Rickels.

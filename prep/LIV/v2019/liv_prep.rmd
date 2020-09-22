@@ -1,10 +1,11 @@
 ---
 title: "Livelihoods and Economies (LE) - Livelihoods (LIV) Subgoal Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
     toc_depth: 3
-    code_folding: hide
+params:
+    datasource: csv
 ---
 
 ```{r liv prep preamble, include = FALSE}
@@ -50,7 +51,7 @@ These are saved to the `layers` folder. Saved to `data/LIV/v2019/intermediate` a
 
 [Eurostat NUTS regions shapefiles can be found here](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts). The NUTS 2016, 2013, 2010, 2006, and 2003 were downloaded at 1:10 million resolution (NUTS_RG_10M_year_4326_LEVL_2or3 files within the zipped downloads are the polygons in espg 4326 projection).
 
-```{r NUTS2 polygons}
+```{r nuts polygons, echo = TRUE, message = FALSE, warning = FALSE}
 ##  NUTS3 shapefiles because coastal regions are distinguished from non-coastal at this level
 nutsshpfiles <- grep(
   "NUTS_RG_10M_[0-9]{4}_4326_LEVL_3/.*\\.shp", 
@@ -93,7 +94,7 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 
 ### 3.2 Clean and Merge Employment Rate Data: standardize units, rename fields/variables {-}
 
-```{r read in datasets with liv employment by country}
+```{r read in datasets with liv employment by country, echo = TRUE, message = FALSE, warning = FALSE}
 employ_data <- do.call(rbind, lapply(
   grep("emp-rate.csv", list.files(dir_rawdata, recursive = TRUE, full.names = TRUE), value = TRUE),
   function(x){
@@ -117,11 +118,9 @@ employ_data <- do.call(rbind, lapply(
 ```
 
 
-
-
 ### 3.3 Clean Population Data: standardize units, rename fields/variables {-}
 
-```{r BHI coastal population estimation from NUTS2 population data}
+```{r BHI coastal population estimation from NUTS3 population data, echo = TRUE, message = FALSE, warning = FALSE}
 ## regional employment per NUTS3 assessemnt areas, raw data from eurostat
 regional_pop_data <- file.path(
     dir_rawdata, "Population_NUTS3", 
@@ -134,7 +133,7 @@ regional_pop <- read.csv(
 )
 ```
 
-```{r clean regional population data}
+```{r clean regional pop data, echo = TRUE, message = FALSE, warning = FALSE}
 rgn_pop_clean <- regional_pop %>%
   filter(SEX == "Total") %>% 
   dplyr::select(
@@ -196,8 +195,7 @@ basemap +
 
 ### 3.4 Wrangle and Save LIV data Layers {-}
 
-
-```{r merge with bhi regions save data layers for the liv subgoal}
+```{r merge with bhi regions save data layers for the liv subgoal, echo = TRUE, message = FALSE, warning = FALSE}
 rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))
 
 ## join bhi regions with employment rates ----
@@ -285,10 +283,9 @@ write_csv(
 
 ## 4. Visualizing Data Layers {-}
 
-
 **Calculating the LIV Status**
 
-```{r calculate liv status}
+```{r calculate liv status, echo = TRUE, message = FALSE, warning = FALSE}
 coastal_pop_percentage <- left_join(
   rgn_coast_pop %>% 
     select(region_id, region_name, eez, year, natl_coastal_pop) %>% 
@@ -308,7 +305,6 @@ liv_status <- emp_lyr %>%
 
 distinct(liv_status, eez, year, blue_economy_pct_of_natl, coastal_pop_pct, coastal_emp_vs_coastal_pop)
 ```
-
 
 **Plotting LIV Status**
 
@@ -330,17 +326,13 @@ gridExtra::grid.arrange(
 )
 ```
 
-
 <br/>
-
-
 
 ## 5. Considerations for `BHI3.0` {-}
 
 In the EU Blue Growth Reports, the Blue Economy metrics by country don't distinguish between coasts i.e. Baltic vs North Sea.
 
 Consider: should employment in marine-related sectors be normalize just by coastal vs total national population, or is potential for coastal jobs more related to geography (e.g. length coastline vs total area)?
-
 
 Use [Eurostat API for Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units) and [R package 'eurostat: Tools for Eurostat Open Data'](https://cran.r-project.org/web/packages/eurostat/index.html). See tutorial about the R package here: https://ropengov.github.io/eurostat/articles/eurostat_tutorial.html
 

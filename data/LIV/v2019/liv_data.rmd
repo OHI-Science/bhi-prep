@@ -2,6 +2,7 @@
 ```{r liv data preamble, echo = FALSE, include = FALSE, error = FALSE}
 source(here::here("R", "setup.R"))
 source(here::here("R", "spatial.R"))
+dir_rawdata <- file.path(dir_B, "Goals", "LE", "LIV")
 ```
 
 
@@ -49,11 +50,10 @@ The EU-LFS is designed to give accurate quarterly information at national level 
 
 <br/>
 
-**Population change - Demographic balance and crude rates at regional level (NUTS 3), Filter to NUTS2 Level** 
-
+**Population change - Demographic balance and crude rates at regional level (NUTS 2), Filter to NUTS2 Level**
 <!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Population_Jan1/demo_r_gind3_2019_w_nutscodes -->
 
-```{r population change demographics nuts2-3 regions, echo = FALSE, results = "asis"}
+```{r population change demographics nuts2 regions, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("TIME (Years):", "2000-2019"), 
   c("GEO:", "NUTS2 (Filtering - Nuts level) SHOW: CODES"), # need NUTS codes to match to BHI regions!
@@ -90,10 +90,10 @@ knitr::kable(tab, caption = "Source: [eurostat database](http://appsso.eurostat.
 <br/>
 
 
-**Population change - Demographic balance and crude rates at regional level (NUTS 3), Filter to NUTS3 Level** 
+**Population change - Demographic balance and crude rates at regional level (NUTS 3), Filter to NUTS3 Level**
 <!-- dataset save location BHI_share/2.0/Goals/LE/LIV/Population_NUTS3/demo_r_pjangrp3_w_nutscodes -->
 
-```{r population change demographics nuts2-3 regions, echo = FALSE, results = "asis"}
+```{r population change demographics nuts3 regions, echo = FALSE, results = "asis"}
 tab <- t(data.frame(
   c("TIME (Years):", "2014-2019"), 
   c("GEO:", "NUTS3 (Filtering - Nuts level) SHOW: CODES") # need NUTS codes to match to BHI regions!
@@ -170,7 +170,7 @@ Summary of steps/analysis in this document:
 
 [Eurostat NUTS regions shapefiles can be found here](https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts). The NUTS 2016, 2013, 2010, 2006, and 2003 were downloaded at 1:10 million resolution (NUTS_RG_10M_year_4326_LEVL_2or3 files within the zipped downloads are the polygons in espg 4326 projection).
 
-```{r NUTS2 polygons}
+```{r nuts2 polygons, echo = TRUE, message = FALSE, warning = FALSE}
 ##  NUTS2 shapefiles
 ## using level 2 but also have level 3 NUTS if those are better?
 nutsshpfiles <- grep(
@@ -214,21 +214,20 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 #### 2.2.2 Clean Employment Rates Data: standardize units, rename fields/variables {-}
 
 ```{r read in NUTS2 regional employment data, message = FALSE}
-dir_rawdata <- file.path(dir_B, "Goals", "LE", "LIV")
-
 ## regional employment per NUTS2 assessemnt areas, raw data from eurostat
-regional_employ_data <- file.path(
+regional_employ <- file.path(
     dir_rawdata, "Employment_NUTS2", 
     "lfst_r_lfe2emprt_2019_w_nutscodes", 
     "lfst_r_lfe2emprt_1_Data.csv"
   )
+
 regional_employ <- read.csv(
   regional_employ_data, 
   stringsAsFactors = FALSE
 )
 ```
 
-```{r clean regional employment rates data}
+```{r clean regional employment rates data, echo = TRUE, message = FALSE, warning = FALSE}
 rgn_employ_clean <- regional_employ %>%
   select(
     year = TIME, nuts2 = GEO,
@@ -295,7 +294,6 @@ gridExtra::grid.arrange(
 
 **Check NUTS2 regions alignment with reported Employment Data**
 
-
 For Finland NUTS2 version 2016 works for employment data after and including 2005. Because of this we will keep and use only employment data from 2005 onwards.
 
 Missing rates for Lithuania before 2013-- reported for LT00 which includes LT01 and LT02. Will assign to LT01 and LT02 the same employment rate reported for LT00 for years before 2013.
@@ -303,7 +301,7 @@ Missing rates for Lithuania before 2013-- reported for LT00 which includes LT01 
 For Denmark, don't have pop data by nuts2016 level2 reporting regions before 2007. Changes are small though - population overall increases less than 1% from 2007 to 2005 (5447084 in 2007 and 5411405 in 2005). Will use ratios between country populations in different years to approximate regional population for 2005 and 2006.
 
 
-```{r aligning NUTS regions with employment data across years and changes in regions reporting}
+```{r aligning NUTS regions with employment data across years and changes in regions reporting, echo = TRUE, message = FALSE, warning = FALSE}
 ## fix rgn_employ_clean to address these issues and then recreate rgn_employ_nuts_spatial 
 rgn_employ_clean <- rbind(
   rgn_employ_clean %>% 
@@ -352,7 +350,7 @@ nuts2_employ <- tidyr::pivot_wider(
 ```
 
 
-```{r BHI coastal population estimation from NUTS2 population data}
+```{r BHI coastal population estimation from NUTS2 population data, echo = TRUE, message = FALSE, warning = FALSE}
 ## regional employment per NUTS2 assessemnt areas, raw data from eurostat
 regional_pop_data <- file.path(
     dir_rawdata, "Population_Jan1", 
@@ -365,7 +363,7 @@ regional_pop <- read.csv(
 )
 ```
 
-```{r clean regional population data}
+```{r clean regional population data, echo = TRUE, message = FALSE, warning = FALSE}
 rgn_pop_clean <- regional_pop %>%
   dplyr::select(
     year = TIME, nuts2 = GEO,
@@ -432,7 +430,7 @@ For Denmark, don't have pop data by nuts2016 level2 reporting regions before 200
 
 Population data for Lithuania, as for employment data, is reported at the country level before 2013. Will use LT0 values to derive population estimates in each LT01 and LT02 for year 2005-2012, based on the relative proprtions in LT01 and LT02 in 2013...
 
-```{r aligning NUTS regions with population data across years and changes in regions reporting}
+```{r aligning NUTS regions with population data across years and changes in regions reporting, echo = TRUE, message = FALSE, warning = FALSE}
 
 rgn_pop_clean <- rbind(
   rgn_pop_clean %>% 
@@ -498,7 +496,7 @@ The below code will calculate in order:
 
 **Join NUTS2 Data (Employ and Pop) with NUTS2 Spatial Information**
 
-```{r join cleaned population and employment datasets with spatial nuts2 regions}
+```{r join cleaned population and employment datasets with spatial nuts2 regions, echo = TRUE, message = FALSE, warning = FALSE}
 nuts2_2016_shp <- cbind(
   nuts2_2016_shp,
   ## calculate area of NUTS2 regions in 2016 version
@@ -553,7 +551,7 @@ basemap +
 
 <br>
 
-```{r calculate coastal employment and coastal population}
+```{r calculate coastal employment and coastal population, echo = TRUE, message = FALSE, warning = FALSE}
 
 ## combine population and employment and calculate info for intersected polygons
 coastal_pop_employ_combine <- nuts2_bhibuff_polys %>% 
@@ -610,7 +608,7 @@ basemap +
 
 #### 2.2.5 Save LIV Data Layers
 
-```{r save the liv subgoal regional employment data layer}
+```{r save the liv subgoal regional employment data layer, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 write_csv(
   select(
     coastal_employ_bhi_rgns, 
@@ -622,7 +620,7 @@ write_csv(
 )
 ```
 
-```{r save the liv subgoal national employment data layer}
+```{r save the liv subgoal national employment data layer, echo = TRUE, message = FALSE, warning = FALSE}
 natl_employ_rates <- left_join(
   rgn_employ_clean %>%
     filter(stringr::str_length(nuts2) == 2) %>% 
@@ -644,13 +642,13 @@ natl_employ_rates <- left_join(
   by = "eez"
 )
 
-write_csv(
-  select(natl_employ_rates, region_id, year, employ_pop),
-  file.path(dir_layers, "le_liv_national_employ_bhi2019.csv")
-)
+#write_csv(
+#  select(natl_employ_rates, region_id, year, employ_pop),
+#  file.path(dir_layers, "le_liv_national_employ_bhi2019.csv")
+#)
 ```
 
-```{r save coastal employment intermediate dataset}
+```{r save coastal employment intermediate dataset, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 write_csv(
   select(
     coastal_employ_bhi_rgns, 
@@ -667,15 +665,7 @@ write_csv(
 
 ### 2.3 Initial Data Exploration
 
-
-#### 2.3.1 Compare with Previous Years Data
-
-```{r compare with previous bhi assessment regional employment data layer}
-
-```
-
-
-#### 2.3.2 Timeseries Plots: check regional employment time series
+#### 2.3.1 Timeseries Plots: check regional employment time series
 
 ```{r plot and check regional employment time series, results = "show", fig.width = 9.5}
 ggplot(coastal_pop_employ_combine) +
