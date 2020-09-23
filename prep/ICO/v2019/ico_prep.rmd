@@ -189,11 +189,11 @@ ico_spp_w_birds %>%
   write.csv(here::here("layers/sp_ico_assessments_bhi2019.csv"), row.names = FALSE)
 
 ## save 'no records this decade' info also as a ICO layer, so can use for penalty/scaling?
-ico_spp_w_birds %>% 
-  right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
-  filter(no_rec_this_dec == TRUE) %>% 
-  select(region_id, assessment_year_red_list, scientific_name = latin_name) %>% 
-  write.csv(here::here("layers/sp_ico_norec_bhi2019.csv"), row.names = FALSE)
+# ico_spp_w_birds %>% 
+#   right_join(rgns_complete, by = c("Subbasin" = "subbasin")) %>% 
+#   filter(no_rec_this_dec == TRUE) %>% 
+#   select(region_id, assessment_year_red_list, scientific_name = latin_name) %>% 
+#   write.csv(here::here("layers/sp_ico_norec_bhi2019.csv"), row.names = FALSE)
 ```
 
 <br/>
