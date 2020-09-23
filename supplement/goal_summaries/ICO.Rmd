@@ -1,6 +1,6 @@
-### Goal Description
+### 1.1 Goal Description {-}
 
-Iconic species are those that are relevant to local cultural identity through a species' relationship to one or more of the following: 1) traditional activities such as fishing, hunting or commerce; 2) local ethnic or religious practices; 3) existence value; and 4) locally-recognized aesthetic value (e.g., touristic attractions/common subjects for art such as whales). Habitat-forming species are not included in this definition of iconic species, nor are species that are harvested solely for economic or utilitarian purposes (even though they may be iconic to a sector or individual). This sub-goal assesses how well those species are conserved. 
+Marine species hold multiple meanings for humans, ranging from the food provisioning and socio-economic services perspective to aesthetic and religious values across diverse societies and communities. This subgoal captures the status of species that are important to a region because they are relevant to local cultural identity.
 
 **For the BHI, a survey identified the following iconic species:**
 
@@ -21,16 +21,19 @@ Iconic species are those that are relevant to local cultural identity through a 
 - Common eider/
 
 
-### Model & Data
+### 1.2 Model & Data {-}
+
+The status of iconic species was evaluated using species observational data from the HELCOM database. A subset of species identified as culturally significant in the region included eight fish (cod, flounder, herring, perch, pike, salmon, trout, and sprat), five mammals (grey seal, harbour seal, ringed seal, harbour porpoise, and European otter), and two birds (sea eagle and common eider). The status of each of these iconic species is a numeric weight corresponding to their Red List threat category (ranging from “extinct” to “least concern”) of the International Union for Conservation of Nature (IUCN).
 
 HELCOM provides species checklists for the Baltic that include distribution and a complete list of all species assessed with IUCN criteria. Species were assigned a _threat category_ (ranging from "extinct" to "least concern") and assigned a weight. The goal score is the average weight of all species assessed.
 
 
-### Reference points
+### 1.3 Reference points {-}
 
-The target is for all species are in the "least concern" category; this will produce a score of 100. The lower cut-off point when 75% of species are extinct and score is 0.
+A maximum score of 100 will be achieved in the case when all species are categorised as **’Least Concern’**.
 
-### Other information
+
+### 1.4 Other information {-}
 
 
 

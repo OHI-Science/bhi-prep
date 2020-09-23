@@ -1,13 +1,13 @@
 ---
-title: "Iconic Species - Sense of Place Subgoal data prep"
+title: "Sense of Place (SP) - Iconic Species (ICO) Subgoal Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
-    toc_depth: 4
-    code_folding: hide
+    toc_depth: 3
+params:
+    datasource: csv
 ---
 
-<br>
 <br>
 
 ```{r preamble prep, message = FALSE, include = FALSE}
@@ -34,7 +34,7 @@ This prep document is used to generate and explore the following data layers:
 - `sp_ico_assessments_bhi2019.csv`
 - `sp_ico_norec_bhi2019.csv`
 
-These are saved to the layers folder. These are based on the `bd_spp_all_assessments.csv` dataset saved to the `data/ICO/v2019/intermediate` folder during the Biodiversity species subgoal data prep (see `prep/SPP/v2019/spp_prep.Rmd` for details). All these are derived from or informed by the raw datasets from datasets from the HELCOM Biodiversity database:  Observations data, Red list information data, Species data.
+These are saved to the layers folder. These are based on the `bd_spp_all_assessments.csv` dataset saved to the `data/ICO/v2019/intermediate` folder during the Biodiversity species subgoal data prep (see `prep/ICO/v2019/spp_prep.Rmd` for details). All these are derived from or informed by the raw datasets from datasets from the HELCOM Biodiversity database:  Observations data, Red list information data, Species data.
 
 <br>
 
@@ -218,7 +218,9 @@ ico_spp_w_birds %>%
 
 ## 5. Considerations for `BHI3.0`
 
-More comprehensive assessment of species presence for Biodiversity goal will also improve the ICO subgoal. Also, might want to update list of Iconic Speices based on new survey. 
+**Species ranges:** One limitation of the observation data used is larger uncertainties in spatial ranges of rare species. Estimation of rare species could be improved to more confidently represent distributions of species around the Baltic Sea; one way to do this would be using IUCN species range maps to establish species occurrence in relation to their spatial habitat area.
+**Relation to other assessments:** Improve the link between the BHI and the future Biodiversity assessments by IPBES and use the UN Ocean Biodiversity Information System (OBIS) as national and regional assessments will be performed and linked to IPBES in the future.
+**Data consideration:** Lack of quantitative information about the level of effort involved in obtaining the species observations data, or background environmental conditions corresponding to the data points, precludes useful interpretation from observation frequencies of species; rigorous assessment of the historical conditions of all species collectively would require this data which is not readily.
 
 <br>
 
