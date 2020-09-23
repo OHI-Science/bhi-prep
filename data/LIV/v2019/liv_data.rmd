@@ -215,7 +215,7 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 
 ```{r read in NUTS2 regional employment data, message = FALSE}
 ## regional employment per NUTS2 assessemnt areas, raw data from eurostat
-regional_employ <- file.path(
+regional_employ_data <- file.path(
     dir_rawdata, "Employment_NUTS2", 
     "lfst_r_lfe2emprt_2019_w_nutscodes", 
     "lfst_r_lfe2emprt_1_Data.csv"
@@ -244,10 +244,10 @@ rgn_employ_clean <- regional_employ %>%
   )
 
 ## check dataflags
-unique(rgn_employ_clean$flag_notes)
-filter(rgn_employ_clean, flag_notes == "low reliability") # not Baltic country
-filter(rgn_employ_clean, flag_notes == "break in timeseries and low reliability") # not Baltic country
-filter(rgn_employ_clean, flag_notes == "break in timeseries") # not such a concern
+# unique(rgn_employ_clean$flag_notes)
+# filter(rgn_employ_clean, flag_notes == "low reliability") # not Baltic country
+# filter(rgn_employ_clean, flag_notes == "break in timeseries and low reliability") # not Baltic country
+# filter(rgn_employ_clean, flag_notes == "break in timeseries") # not such a concern
 
 ## remove flags_notes
 rgn_employ_clean <- rgn_employ_clean %>% 
@@ -279,8 +279,8 @@ gridExtra::grid.arrange(
     geom_sf(data = rgn_employ_nuts_spatial, aes(fill = emp_2019), size = 0.1) +
     geom_sf(data = buffer_25k_simple, fill = NA, color = "red", size = 0.2) +
     scale_fill_gradient2(mid = "thistle", midpoint = 65, limits = c(45, 85)) +
-    labs(fill = "Employment Rate %") +
-    theme(legend.position = c(0.15, 0.85)) +
+    labs(fill = "Emp. Rate %") +
+    theme(legend.position = c(0.18, 0.8)) +
     ggtitle("Employment 2019"),
   basemap + 
     geom_sf(data = rgn_employ_nuts_spatial, aes(fill = emp_2009), size = 0.1, show.legend = FALSE) +
@@ -291,6 +291,8 @@ gridExtra::grid.arrange(
 )
 ## loop through all years to check employment data alignment with reporting regions...
 ```
+
+<br>
 
 **Check NUTS2 regions alignment with reported Employment Data**
 
@@ -381,10 +383,11 @@ rgn_pop_clean <- regional_pop %>%
   )
 
 ## check dataflags
-unique(rgn_pop_clean$flag_notes)
+# unique(rgn_pop_clean$flag_notes)
+
 ## no rows "low reliability" or "break in timeseries and low reliability"
 ## breaks in timeseries a concern?
-filter(rgn_pop_clean, flag_notes == "break in timeseries")
+# filter(rgn_pop_clean, flag_notes == "break in timeseries")
 
 ## remove flags_notes
 rgn_pop_clean <- rgn_pop_clean %>% 
