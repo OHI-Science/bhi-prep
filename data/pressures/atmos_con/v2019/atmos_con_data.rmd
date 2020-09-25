@@ -1,4 +1,3 @@
-**Preparation of the Atmospheric Contaminants pressure data layer**
 
 ```{r atmos con data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
 source(file.path(here::here(), "R", "data.R"))
@@ -10,12 +9,9 @@ dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Pressure", "atmos_con")
 ```
 
+## 2. Data {-}
 
-## 1. Background
-
-## 2. Data  
-
-### 2.1  Atmospheric deposition of PCB-153 on the Baltic Sea  
+### 2.1  Atmospheric deposition of PCB-153 on the Baltic Sea {-}
 Data are provided for nine major Baltic Sea basins: Archipelago Sea, Baltic Proper, Bothnian Bay, Bothnian Sea, Gulf of Finland, Gulf of Riga, Kattegat, The Sound, Western Baltic.  
 
 Data downloaded from the [HELCOM website](https://helcom.fi/baltic-sea-trends/environment-fact-sheets/hazardous-substances/) on 19 August 2020 by Andrea De Cervo. Data are provided on the basin level and extracted from the pdf file. 

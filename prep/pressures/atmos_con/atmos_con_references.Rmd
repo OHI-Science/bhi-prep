@@ -1,0 +1,17 @@
+[Atmospheric deposition of PCB-153 on the Baltic Sea](https://helcom.fi/wp-content/uploads/2020/07/H_BSEFS_PCB153_dep_v2.pdf)
+
+[Atmospheric deposition of PCDD/Fs on the Baltic Sea](https://helcom.fi/wp-content/uploads/2020/07/AIR-Deposition-PCDDF-1990-2015.pdf)
+
+Bartnicki J., Gusev A., Aas W., Gauss M., and J. E. Jonson (2017) Atmospheric supply of nitrogen, cadmium, mercury, lead, and PCDD/Fs to the Baltic Sea in 2015. EMEP Centres Joint Report for HELCOM. EMEP/MSC- W Technical Report 1/2017. Norwegian Meteorological Institute. Oslo, Norway. Available in the web: http://www.emep.int/publ/helcom/2017/index.html
+
+Breivik K., Sweetman A., Pacyna J.M., Jones K.C. [2007] Towards a global historical emission inventory for selected PCB congeners - A mass balance approach-3. An update. Science of the Total Environment, vol. 377, pp. 296-307.
+
+Denier van der Gon H.A.C., van het Bolscher M., Visschedijk A.J.H. and P.Y.J.Zandveld [2005]. Study to the effectiveness of the UNECE Persistent Organic Pollutants Protocol and costs of possible additional measures. Phase I: Estimation of emission reduction resulting from the implementation of the POP Protocol. TNO-report B&O-A R 2005/194.
+
+Gusev A., I. Ilyin, L.Mantseva, O.Rozovskaya, V. Shatalov, O. Travnikov [2006] Progress in further development of MSCE-HM and MSCE-POP models (implementation of the model review recommendations. EMEP/MSC-E Technical Report 4/2006. (http://www.msceast.org/reports/4_2006.pdf)
+
+Gusev A., E. Mantseva, V. Shatalov, B.Strukov [2005] Regional multicompartment model MSCE-POP EMEP/MSC-E Technical Report 5/2005. (http://www.msceast.org/reports/5_2005.pdf)
+
+Shatalov V., Gusev A., Dutchak S., Holoubek I., Mantseva E., Rozovskaya O., Sweetman A., Strukov B. and N.Vulykh [2005] Modelling of POP Contamination in European Region: Evaluation of the Model Performance. Technical Report 7/2005. (http://www.msceast.org/reports/7_2005.pdf)
+
+Shatalov V., Ilyin I., Gusev A., Rozovskaya O., Sokovykh V., Travnikov O., Wiberg K. and Cousins I. [2012] Heavy Metals and Persistent Organic Pollutants : New developments. EMEP/MSC-E Technical report 4/2012. (http://www.msceast.org/reports/4_2012.pdf))
