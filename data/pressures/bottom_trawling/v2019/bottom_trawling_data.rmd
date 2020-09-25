@@ -1,12 +1,20 @@
-# Bottom Trawling Pressure Layer
 
-## 1. Background
+```{r atmos con data preamble, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+source(file.path(here::here(), "R", "data.R"))
+source(file.path(here::here(), "R", "common.R"))
+source(file.path(here::here(), "R", "spatial.R"))
 
-## 2. Data 
+## root location of the raw data
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Pressure", "bottom_trawling")
+```
 
-### 2.1 Data sources
 
-#### 2.1.1 Fishing Effort mobile bottom-contacting gear
+## 2. Data {-}
+
+### 2.1 Data sources {-}
+
+#### 2.1.1 Fishing Effort mobile bottom-contacting gear {-}
 
 <!-- dataset save location BHI_share/BHI 2.0/Pressure/bottom_trawling/ -->
 ```{r echo = FALSE, results = "asis"}
@@ -36,7 +44,7 @@ The correct data product citation is following: [ICES. 2015. Fishing abrasion pr
 **Data caveates**  
 When using the data for analysis/assessments the following caveats need to be taken into consideration:The methods for identifying fishing activity from the VMS data varied between countries; therefore there may be some country-specific biases that ICES cannot evaluate. Additionally, activities other than active towing of gear may have been incorrectly identified as fishing activity. This would have the effect of overestimating the apparent fishing intensity in ports and in areas used for passage.The data for 2012 and 2013 is not directly comparable to the data of previous years in the data call (2010–2011) due to the gradual increase in VMS-enabled vessels in the range of 12–15 m. This is likely to be most relevant when examining trends in effort for inshore areas. Many countries have substantial fleets of smaller vessels that are not equipped with VMS (The fishing abrasion pressure methodology is based on very broad assumptions in terms of the area affected by abrasion. A single speed and gear width was applied across each gear category in most cases, which can lead to both underestimates and overestimates in actual surface and subsurface abrasion.  
 
-#### 2.1.2 Fishing intensity Dredge 2016
+#### 2.1.2 Fishing intensity Dredge 2016 {-}
 
 This dataset describes fishing intensity for Dredge mobile bottom contacting gear in 2016 based on VMS/Log book data processed by ICES Working Group on Spatial Fisheries Data ( [WGSFD](http://ices.dk/community/groups/Pages/WGSFD.aspx)). 
 
@@ -68,11 +76,11 @@ Several caveats, listed below, should be taken into account when considering thi
 - Data outputs represent vessels over 15 m (2009–2011) and vessels over 12 m (2012–2015). 
 - Data outputs in this technical service assume a uniform distribution of trawling within each c-square. When using the data products of this technical service it should be noted that the above assumption will apply when trawling is evaluated over longer time periods (e.g. 2012–2015). However, at shorter, yearly time scales the proportion of the sea floor trawled will be overestimated because trawling is randomly distributed at small spatial scales (Rijnsdorp et al., 1998; Ellis et al., 2014; Eigaard et al., 2016).
 
-### 2.2 Data attributes
+### 2.2 Data attributes {-}
 
 **SubsurfSAR**: Subsurface area ratio (Swept area, subsurface =>2 cm penetration depth of the gear components) will be the parameter used to calculate the pressure for the bottom trawling (differently from the BHI 1.0, were 'fishing hours per area' was used from the fishing effort data).
 
-#### 2.2.1 Spatial reference information
+#### 2.2.1 Spatial reference information {-}
 *Provided in the HELCOM file*  
 Spatial Reference, ArcGIS coordinate system
 
@@ -100,48 +108,3 @@ Well-known text: PROJCS["ETRS_1989_LAEA",GEOGCS["GCS_ETRS_1989",DATUM["D_ETRS_19
 HELCOM secretariat did the following processing to the shapefile provided by ICES:
 - Conversion to ETRS89LAEA coordinate system
 - Added feature and attribute "Reported" to display unreported areas.
-
-## 3. Prepare bottom trawl pressure layer
-
-```{r bottom trawling data preamble setup, echo = FALSE, message = FALSE}
-## root location of the raw data
-source(here::here("R", "setup.R"))
-source(here::here("R", "spatial.R"))
-
-dir_A <- file.path(dirname(dir_prep), "bhi-data")
-dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
-dir_rawdata <- file.path(dir_B, "Pressure", "bottom_trawling")
-dir_intermediate <- file.path(here::here("data", "pressures", "bottom_trawling", version_year, "intermediate"))
-```
-
-### 3.1 Read in Data and Explore
-
-```{r read in data, cache = TRUE}
-## read in bhi shapefile and bottom trawling pressure data from 2009
-bhi <- sf::st_read(file.path(dir_A, "Shapefiles", "BHI_shapefile", "BHI_shapefile.shp"))
-# CRS: 4326
-
-trawling_raw <- sf::st_read(file.path(dir_rawdata, "HELCOM_intensity_Dredge_2016_v2", "HELCOM_intensity_Dredge_2016_v2.shp"))
-# CRS: 3035
-
-## change trawling coord. system to the bhi coord system
-trawling_tranfs <- sf::st_transform(trawling_raw, crs = 4326)
-```
-
-### 3.2 Intersect/Join trawling effort with BHI shapefiles  
-
-```{r intersect with bhi shape file, echo = FALSE, eval = FALSE}
-# trawling_bhi <- sf::st_intersection(
-#   st_geometry(trawling_tranfs), 
-#   st_geometry(bhi)
-# )
-
-# join the two adjusted shapefiles
-trawling_bhi <- sf::st_join(
-  trawling_tranfs, 
-  bhi
-)
-
-## save intersected shapefile
-st_write(trawling_bhi, dsn = path.expand(dir_intermediate), layer = 'trawling_bhi_raw', driver = 'ESRI Shapefile', overwrite = TRUE) 
-```

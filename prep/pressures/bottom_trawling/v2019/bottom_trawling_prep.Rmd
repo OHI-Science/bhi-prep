@@ -1,3 +1,85 @@
+---
+title: "Bottom Trawling Pressure Layer Data Preparation"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params: 
+    datasource: csv
+---
+
+```{r bottom trawling data preamble setup, echo = FALSE, message = FALSE}
+loc <- here::here("prep", "pressures", "bottom_trawling")
+## root location of the raw data
+source(here::here("R", "setup.R"))
+source(here::here("R", "data.R"))
+source(here::here("R", "spatial.R"))
+data_path <- here::here("data", "pressures", "bottom_trawling", version_year, "bottom_trawling_data.rmd")
+refs_path <- file.path(loc, "bottom_trawling_references.Rmd")
+
+dir_A <- file.path(dirname(dir_prep), "bhi-data")
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Pressure", "bottom_trawling")
+dir_intermediate <- file.path(here::here("data", "pressures", "bottom_trawling", version_year, "intermediate"))
+
+bhi_basin_lookup <- read_delim(file.path(dir_prep, "supplement", "lookup_tabs", "bhi_basin_country_lookup.csv"), delim = ";") %>% 
+  rename(subbasin = Subbasin) 
+```
+
+## 1. Background {-}
+
+Bottom Trawling can negatively affect the benthic life, in fact it can affect the score for the Biodiversity (BD) goal.
+
+## 2. Data {-}
+
+This prep document is used to generate and explore the following data layer:
+
+- `hab_bottom_trawl_bhi2019.csv` 
+
+This is saved to the `layers/v2019` folder and is derived from or informed by the raw datasets from HELCOM database.
+
+<br>
+
+```{r bottom trawling prep data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prepare bottom trawl pressure layer {-}
+
+### 3.1 Read in Data and Explore
+
+```{r read in data, echo = TRUE, message = FALSE}
+## read in bhi shapefile and bottom trawling pressure data from 2009
+bhi <- sf::st_read(file.path(dir_A, "Shapefiles", "BHI_shapefile", "BHI_shapefile.shp"))
+# CRS: 4326
+
+trawling_raw <- sf::st_read(file.path(dir_rawdata, "HELCOM_intensity_Dredge_2016_v2", "HELCOM_intensity_Dredge_2016_v2.shp"))
+# CRS: 3035
+
+## change trawling coord. system to the bhi coord system
+trawling_tranfs <- sf::st_transform(trawling_raw, crs = 4326)
+```
+
+### 3.2 Intersect/Join trawling effort with BHI shapefiles  
+
+```{r intersect with bhi shape file, echo = TRUE, message = FALSE}
+# trawling_bhi <- sf::st_intersection(
+#   st_geometry(trawling_tranfs), 
+#   st_geometry(bhi)
+# )
+
+# join the two adjusted shapefiles
+trawling_bhi <- sf::st_join(
+  trawling_tranfs, 
+  bhi
+)
+
+## save intersected shapefile
+# st_write(trawling_bhi, dsn = path.expand(dir_intermediate), layer = 'trawling_bhi_raw', driver = 'ESRI Shapefile', overwrite = TRUE) 
+```
+
+
 ## 4. Pressure Model
 Overlay trawl effort with BHI shape files so can assign intensity per each BHI region.
 
@@ -18,25 +100,12 @@ for now:
 
 rescaled value = (max - current) / (max - min)
 
-```{r r bottom trawling data setup, echo = FALSE, message = FALSE}
-## root location of the raw data
-source(here::here("R", "setup.R"))
-source(here::here("R", "spatial.R"))
-
-dir_A <- file.path(dirname(dir_prep), "bhi-data")
-dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
-dir_rawdata <- file.path(dir_B, "Pressure", "bottom_trawling")
-dir_intermediate <- file.path(here::here("data", "pressures", "bottom_trawling", version_year, "intermediate"))
-
-bhi_basin_lookup <- read_delim(file.path(dir_prep, "supplement", "lookup_tabs", "bhi_basin_country_lookup.csv"), delim = ";") %>% 
-  rename(subbasin = Subbasin) 
-```
-
 ### 4.3 Read joined shapefile and explore it 
 
 ### 4.3.1 Extract swept area (SubsurfSAR) by BHI region 
+
 **Only 2 BHI regions have reported swept area: 3 and 4**
-```{r extract swept area data, eval = FALSE, echo = FALSE}
+```{r extract swept area data, echo = TRUE, message = FALSE}
 trawling_bhi_raw <- sf::st_read(file.path(dir_intermediate, "trawling_bhi_raw.shp"))
 # st_geometry(trawling_bhi_raw) <- NULL
 
@@ -49,11 +118,9 @@ swept_area <- trawling_bhi_raw %>%
 ```
 
 
-### 4.5 Calculate and Plot Swept Area
+### 4.5 Pressure layer for BHI regions
 
-Plot below shows the trawling intensity per area in each region in 2016. 
-
-```{r calculate and plot hours per area region}
+```{r calculate and plot hours per area region, echo = TRUE, message = FALSE}
 # rescale swept_area
 bottom_trawling_score <- swept_area %>%
   mutate(max = max(swept), 
@@ -73,7 +140,15 @@ bottom_trawling_score <- full_join(bhi_basin_lookup, bottom_trawling_score,
                 pressure_score = score)
 
 # save pressure layer
-write_csv(bottom_trawling_score, file.path(dir_layers, 'hab_bottom_trawl_bhi2019.csv')) 
+# write_csv(bottom_trawling_score, file.path(dir_layers, 'hab_bottom_trawl_bhi2019.csv')) 
 
+```
+
+## 5. Considerations for `BHI3.0` {-}
+
+
+## 6. References {-}
+
+```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
 
