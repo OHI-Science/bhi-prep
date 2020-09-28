@@ -20,6 +20,7 @@ refs_path <- file.path(loc, "atmos_con_references.Rmd")
 dir_A <- file.path(dirname(dir_prep), "bhi-data")
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Pressure", "atmos_con")
+dir_intermediate <- file.path(here::here("data", "pressures", "atmos_con", version_year, "intermediate"))
 ```
 
 ## 1. Background {-}
@@ -152,6 +153,13 @@ pcdd_rgns <- join_rgns_info(
 pcdd_rgns_bhi <- pcdd_rgns %>% 
   filter(!(is.na(BHI_ID))) %>% 
   mutate(station = as.character(station))
+
+# save pcb153 timeseries
+pcb153_timeseries <- pcb153_basins %>%
+  select(-subbasin_abb, -basin) %>% 
+  rename(pcb153 = value)
+
+write.csv(pcb153_timeseries, file.path(dir_intermediate,"atmos_pcb153_bhi2019.csv"), row.names = FALSE)
 ```
 
 #### 4.1.4 Plot data
