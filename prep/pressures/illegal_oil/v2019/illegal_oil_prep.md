@@ -1,15 +1,9 @@
----
-title: "Illegal Oil Pressure Layer Data Preparation"
-output:
-  github_document:
-    toc: true
-    toc_depth: 3
-params: 
-    datasource: csv
----
+Illegal Oil Pressure Layer Data Preparation
+================
+
 <br>
 
-```{r illegal oil pressure preamble prep, message = FALSE}
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 source(here::here("R", "setup.R"))
 loc <- here::here("prep", "pressures", "illegal_oil")
@@ -18,62 +12,94 @@ data_path <- here::here("data", "pressures", "illegal_oil", version_year, "illeg
 
 <br>
 
-## 1. Background {-}
+## 1\. Background
 
-As the Baltic Sea in classified as a very sensitive marine area, discharging oil into the Baltic can have a huge impact. For the BHI, some of the goals have been considered as negatively impacted by this 'pressure', in particular the Contaminants (CON) sub-goal, the Fisheries (FIS) and Mariculture (MAR) sub-goals, the Iconic Species (ICO) and Lasting Special Places (LSP) sub-goals, and the Natural Products goal.
+As the Baltic Sea in classified as a very sensitive marine area,
+discharging oil into the Baltic can have a huge impact. For the BHI,
+some of the goals have been considered as negatively impacted by this
+‘pressure’, in particular the Contaminants (CON) sub-goal, the
+Fisheries (FIS) and Mariculture (MAR) sub-goals, the Iconic Species
+(ICO) and Lasting Special Places (LSP) sub-goals, and the Natural
+Products goal.
 
-## 2. Data {-}
+## 2\. Data
 
-This prep document is used to generate and explore the following data layer:
+This prep document is used to generate and explore the following data
+layer:
 
-- `hab_illegal_oil_bhi2019.csv` 
+  - `hab_illegal_oil_bhi2019.csv`
 
-These are saved to the `layers` folder. These are derived from or informed by the raw Oceanographic datasets obtained from HELCOM.
+These are saved to the `layers` folder. These are derived from or
+informed by the raw Oceanographic datasets obtained from HELCOM.
 
 <br>
 
-```{r illegal oil pressure prep data, child = data_path, results = "asis", echo = FALSE}
-```
+### 2.1 Datasets with Sources
+
+This dataset contains points of information describing the location and
+size of illegal oil discharges observed during aerial surveillance
+flights by HELCOM Contracting Parties during 1998-2017. Further
+information about illegal discharges of oil in the Baltic Sea area and
+HELCOM aerial surveillance activities can be found at
+<http://www.helcom.fi/baltic-sea-trends/maritime/illegal-spills/>
+
+<!-- dataset save location BHI_share/BHI 2.0/Pressure/illegal_oil -->
+
+| Option    | Specification          |
+| :-------- | :--------------------- |
+| Shipping: | Illegal oil discharges |
+| <br/>     |                        |
+
+Source: [HELCOM Map and Data
+Service](https://maps.helcom.fi/website/mapservice/) <br/> Downloaded 21
+August 2020 by Andrea De Cervo
 
 <br/>
 
-## 3. Data Layer preparation {-}
+## 3\. Data Layer preparation
 
-### 3.1 Pressure model {-}
-Assign all spill locations a BHI ID. Sum the total volume of illegal oil spilled in each BHI region in each year.
+### 3.1 Pressure model
+
+Assign all spill locations a BHI ID. Sum the total volume of illegal oil
+spilled in each BHI region in each year.
 
 Calculate the volume spilled per region surface area
 
-Note- Exclude reported spills with volume  
+Note- Exclude reported spills with volume
 
-Provide summary of total oil spills reported per year per BHI region, number reported with volumes per year per BHI region  
+Provide summary of total oil spills reported per year per BHI region,
+number reported with volumes per year per BHI region
 
 <br/>
 
-**Current conditions**
-Mean volume spilled in each BHI region 2009-2017 / region surface area
+**Current conditions** Mean volume spilled in each BHI region 2009-2017
+/ region surface area
 
 **Rescaling 0 to 1**
 
-- min value =  0
-- max value =  max annual volume spilled / per surface area  *spatial reference*
+  - min value = 0
+  - max value = max annual volume spilled / per surface area *spatial
+    reference*
 
+### 3.2 Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
 
-### 3.2 Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+Steps:
 
-Steps:  
+1.  Get a BHI region assignment for all oil spill reports - do this by
+    overlaying lat, lon locations with BHI shapefile
 
-1. Get a BHI region assignment for all oil spill reports - do this by overlaying lat, lon locations with BHI shapefile 
+2.  Get volume spilled by year by BHI region (also visualize number of
+    spills per year per BHI region, number of spills with zero volumne
+    reported)
 
-2. Get volume spilled by year by BHI region (also visualize number of spills per year per BHI region, number of spills with zero volumne reported)  
+3.  Get current conditions, find max value, rescale data to between 0
+    and 1
 
-3. Get current conditions, find max value, rescale data to between 0 and 1  
-
-4. Export and register data layer
+4.  Export and register data layer
 
 **Data prep setup**
-```{r setup, message = FALSE}
 
+``` r
 ## Libraries
 
 library(tidyverse) # install.packages('tidyverse')
@@ -93,11 +119,12 @@ dir_A <- file.path(dirname(dir_prep), "bhi-data")
 dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
 dir_rawdata <- file.path(dir_B, "Pressure", "illegal_oil")
 ```
+
 <br/>
 
 **Read in data and explore**
-```{r read in data, message = FALSE}
 
+``` r
 ## read in BHI shape file
 bhi <- rgdal::readOGR(dsn = path.expand(file.path(dir_A, "Shapefiles", "BHI_shapefile")),
                       layer = 'BHI_shapefile') 
@@ -122,16 +149,20 @@ bhi_transf <- spTransform(bhi, oil@proj4string)
 
 ## plot data (takes time)
 plot(oil); plot(bhi_transf, border = "grey", main = "Illegal Oil Discharges and BHI regions overlay", add = TRUE); legend('bottom', c("BHI regions", " Illegal Oil Discharges"), lty = c(1,1), lwd = c(2.5, 2.5, 2.5), col = c("grey", "black"), text.font = 1, box.lty = 0 )
+```
 
+![](illegal_oil_prep_files/figure-gfm/read%20in%20data-1.png)<!-- -->
+
+``` r
 ## intersect with BHI regions
 oil_bhi_intersect <- raster::intersect(oil, bhi_transf)
-
-
 ```
+
 <br/>
 
-## 4 Calculate pressure scores {-}
-```{r calculate}
+## 4 Calculate pressure scores
+
+``` r
 ## read in oil data, calculate average vol/area
 data <- oil_bhi_intersect@data[,-1] %>% #get rid of duplicated column, otherwise select doesn't work...
   dplyr::select(BHI_ID,
@@ -159,4 +190,5 @@ oil_pressure <- data %>%
 # save in layers folder
 #write_csv(oil_pressure, file.path(dir_layers, 'hab_illegal_oil_bhi2019.csv'))
 ```
+
 <br/>
