@@ -58,6 +58,9 @@ Gridded raw data of 23PeCDF were provided by Irina Strijkina
 
 **Table:** Annual total deposition flux 23PeCDF (emissions 2018, meteorology 2018) g TEQ/km2/year EMEP_01x01
 
+Data for previous years are available in the [MSC-E database](http://en.msceast.org/index.php/pollution-assessment/emep-domain-menu?id=119). 
+**Be aware that these data are based on different model versions and different submissions of official emissions. Therefore, these deposition data should not be considered as uniform trends.**
+
 #### 2.2.1 Additional reference information as provided on the HELCOM website
 **Data Source: EMEP/MSC**
 

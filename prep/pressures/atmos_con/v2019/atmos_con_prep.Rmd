@@ -155,6 +155,7 @@ pcdd_rgns_bhi <- pcdd_rgns %>%
   mutate(station = as.character(station))
 
 # save pcb153 timeseries
+## we only have trend data for pcb153
 pcb153_timeseries <- pcb153_basins %>%
   select(-subbasin_abb, -basin) %>% 
   rename(pcb153 = value)

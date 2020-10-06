@@ -113,7 +113,7 @@ swept_area <- trawling_bhi_raw %>%
   mutate(swept = ifelse(SubsurfSAR >= 0, SubsurfSAR, NA)) %>% # the negative values are considered "missing info"
   filter(!is.na(BHI_ID)) %>% # those with not assigned BHI_ID are points out of the Baltic Sea area
   filter(!is.na(swept)) %>% 
-  dplyr::select(swept, BHI_ID) %>%
+  dplyr::select(Year, swept, BHI_ID, Subbasin, rgn_nam) %>%
   group_by(BHI_ID) 
 ```
 
@@ -130,13 +130,14 @@ bottom_trawling_score <- swept_area %>%
   group_by(BHI_ID) %>% 
   summarize(mean_score = round(mean(score, na.rm = TRUE), 3)) %>% 
   dplyr::select(BHI_ID, 
-         score = mean_score) 
+         score = mean_score) %>% 
+  right_join(swept_area, by = "BHI_ID")
 
 # join bhi regions and include final pressure scores
 bottom_trawling_score <- full_join(bhi_basin_lookup, bottom_trawling_score, 
-                                   by = "BHI_ID") %>% 
+                                   by = c("BHI_ID", "rgn_nam", "subbasin" = "Subbasin")) %>% 
   mutate(score = ifelse(is.na(score), 0, score)) %>% 
-  dplyr::select(BHI_ID, 
+  dplyr::select(Year, swept, BHI_ID, subbasin, rgn_nam, 
                 pressure_score = score)
 
 # save pressure layer
