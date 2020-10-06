@@ -1,15 +1,9 @@
----
-title: "Oxygen Debt Pressure Layer Data Preparation"
-output:
-  github_document:
-    toc: true
-    toc_depth: 3
-params: 
-    datasource: csv
----
+Oxygen Debt Pressure Layer Data Preparation
+================
+
 <br>
 
-```{r oxygen debt pressure preamble prep, message = FALSE}
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 source(here::here("R", "setup.R"))
 loc <- here::here("prep", "pressures", "open_sea_anoxia")
@@ -18,43 +12,91 @@ data_path <- here::here("data", "pressures", "oxygen_debt", version_year, "oxyge
 
 <br>
 
-## 1. Background {-}
+## 1\. Background
 
+HELCOM uses [anoxia as an applicable
+indicator](http://www.helcom.fi/baltic-sea-trends/indicators/oxygen/) in
+the Bornholm Basin, Western Gotland Basin, Eastern Gotland Basin,
+Northern Baltic Proper and Gulf of Finland. Other areas are not included
+in this study but at the present time have no anoxia problems -
+therefore they will recieve a pressure value of NA.
 
-HELCOM uses [anoxia as an applicable indicator](http://www.helcom.fi/baltic-sea-trends/indicators/oxygen/) in the Bornholm Basin, Western Gotland Basin, Eastern Gotland Basin, Northern Baltic Proper and Gulf of Finland. Other areas are not included in this study but at the present time have no anoxia problems - therefore they will recieve a pressure value of NA.  
+### 1.1 Pressure Model
 
+This pressure layer is the inverse of the Eutrophication subgoal oxygen
+debt indicator
+status.
 
-### 1.1 Pressure Model {-}
-
-This pressure layer is the inverse of the Eutrophication subgoal oxygen debt indicator status.
-
-### 1.2 Reference points {-}
+### 1.2 Reference points
 
 <!-- Data sources and data preparation are found in the [Clean Water subgoal Eutrophication](https://github.com/OHI-Science/bhi-prep/blob/master/data/CW/eutrophication/v2019/eut_data.rmd) which uses secchi data as one measure of nutrient status. The respective targets are also saved and organized in the Eutrophication goal prep.   -->
 
+## 2\. Data
 
-## 2. Data {-}
+This prep document is used to generate and explore the following data
+layer:
 
-This prep document is used to generate and explore the following data layer:
+  - `hab_oxygen_debt_bhi2019.csv`
 
-- `hab_oxygen_debt_bhi2019.csv`
-
-This is saved to the `layers` folder. The layer is derived from the raw datasets from the ICES Oceanographic database.
+This is saved to the `layers` folder. The layer is derived from the raw
+datasets from the ICES Oceanographic database.
 
 <br>
 
-```{r anoxia pressure prep data, child = data_path, results = "asis", echo = FALSE}
-```
+### 2.1 Datasets with Sources
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+#### 2.1.1 Oxygen Data
 
-### 3.1 Calculate Oxygen Debt Status Scores {-}
+Data are the same as were used for the oxygen debt clean water
+indicator. More about the data sources and data preparation can be found
+in the [Clean Water subgoal
+Eutrophication](https://github.com/OHI-Science/bhi-prep/blob/master/data/CW/eutrophication/v2019/eut_data.rmd)
+and the [BHI repository forked from ICES tools HEAT assessment tool
+repository](https://github.com/OHI-Baltic/HEAT).
 
-For details on data preparation for oxygen debt layer, see [this github repository](https://github.com/OHI-Baltic/HEAT), forked from ICE HEAT assessment tool for fitting oxygen debt profiles to oxygen data measurements. Oxygen data measurements used were obtained from ICE and merged as documented in section 2.2.4 of the Eutrophication data prep document.
+<br>
 
-```{r read in oxy debt data from HEAT repository and eutrophication targets, results = "hide", message = FALSE}
+**ICES Oxygen Data**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+
+Data downloaded from the [ICES
+database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes). Each
+dataset has been extracted by country and Denmark split into five (5)
+because too big otherwise.
+
+**ICES CTD Data**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+
+Data downloaded from the [ICES
+database](https://ocean.ices.dk/HydChem/HydChem.aspx?plot=yes). Each
+dataset has been extracted by country, Denmark split into three (3) and
+Germany into five (5) because too big otherewise. No CTD found for
+Lithuania.
+
+**SMHI CTD Data**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/EUT/OxygenDebt_ICES -->
+
+Data downloaded from the [SMHI Database](https://sharkweb.smhi.se/),
+Physical and Chemical parameters, CTD Profiles.
+
+<br>
+
+<br/>
+
+## 3\. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+
+### 3.1 Calculate Oxygen Debt Status Scores
+
+For details on data preparation for oxygen debt layer, see [this github
+repository](https://github.com/OHI-Baltic/HEAT), forked from ICE HEAT
+assessment tool for fitting oxygen debt profiles to oxygen data
+measurements. Oxygen data measurements used were obtained from ICE and
+merged as documented in section 2.2.4 of the Eutrophication data prep
+document.
+
+``` r
 heat_output <- "https://raw.githubusercontent.com/OHI-Baltic/HEAT/master/analysis/output/"
 oxydebt <- read_csv(paste0(heat_output,"OxygenDebt/uncorrected_indicator_table_by_year_2000_2019.csv"))
 
@@ -64,8 +106,7 @@ eut_thresholds <- read.csv(file.path(dir_layers, "cw_eut_targets_bhi2019.csv")) 
   select(helcom_id, target = value)
 ```
 
-
-```{r assign BHI regions to oxygen debt data, echo = TRUE, message = FALSE, warning = FALSE}
+``` r
 basin_lookup <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv")) %>% 
   select(region_id, subbasin, helcom_id)
 
@@ -91,9 +132,9 @@ oxydebt_status_allyrs <- oxydebt_rgns %>%
 
 <br>
 
-### 3.2 Calculate Oxygen Debt Pressure Scores and Save Layer {-}
+### 3.2 Calculate Oxygen Debt Pressure Scores and Save Layer
 
-```{r calculate oxygen debt pressure as inverse of oxygen debt status}
+``` r
 inv_oxydebt <- oxydebt_status_allyrs %>%
   mutate(pressure_score = 1 - status) %>% 
   select(region_id, year, subbasin, ES, target, status, pressure_score)
@@ -110,11 +151,11 @@ write_csv(
 
 <br>
 
-## 4. Visualizing Data Layers {-}
+## 4\. Visualizing Data Layers
 
-### 4.1 Oxygen Debt Pressure Scores by Subbasin {-}
+### 4.1 Oxygen Debt Pressure Scores by Subbasin
 
-```{r oxygen debt pressure scores, results  = "show", fig.width  = 9.5}
+``` r
 plotdf <- inv_oxydebt %>% 
   filter(!is.na(subbasin), !is.na(target)) %>% 
   distinct(year, subbasin, pressure_score)
@@ -126,9 +167,11 @@ ggplot(plotdf) +
   labs(x = NULL, y = "Oxygen Debt Pressure Score")
 ```
 
-### 4.2 Oxygen Debt Pressure Scores by Subbasin {-}
+![](oxygen_debt_pressure_prep_files/figure-gfm/oxygen%20debt%20pressure%20scores-1.png)<!-- -->
 
-```{r load spatial info for secchi pressure map}
+### 4.2 Oxygen Debt Pressure Scores by Subbasin
+
+``` r
 bhi_rgn <- sf::st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
 bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
   sf::st_as_sf() %>% 
@@ -144,8 +187,7 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 cols <- c("darkred", "indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 ```
 
-
-```{r oxygen debt pressure map, results = "show", fig.width = 9.5}
+``` r
 basemap +
   geom_sf(
     data = left_join(
@@ -166,6 +208,10 @@ basemap +
     limits = c(0, 1)
   ) +
   facet_wrap(~year)
-  # facet_wrap(~year, nrow = 2)
 ```
 
+![](oxygen_debt_pressure_prep_files/figure-gfm/oxygen%20debt%20pressure%20map-1.png)<!-- -->
+
+``` r
+  # facet_wrap(~year, nrow = 2)
+```
