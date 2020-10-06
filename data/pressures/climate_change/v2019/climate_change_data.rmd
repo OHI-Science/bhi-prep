@@ -5,7 +5,7 @@
 #### 2.1.1 Sea Surface Temperature & Surface Salinity {-}
 <!-- dataset save location BHI_share/BHI 2.0/Pressure/climate_change/Helcom/helcom.csv -->
 
-In BHI 2.0, since the BALTSEM is not as easily accessible, [data from HELCOM stations, obtained from  ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead, only including sea surface temperature (SST) and surface salinity (SS) (as bottom water salinity -BWS- is not available). Data was downloaded on 24 August 2020 by Andrea De Cervo. 
+In BHI 2.0, since the BALTSEM is not as easily accessible, [data from HELCOM stations, obtained from  ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) were used instead, only including sea surface temperature (SST) and surface salinity (SS) (as bottom water salinity -BWS- is not available). Data was downloaded on 24 August 2020 by Andrea De Cervo. 
 
 
 #### 2.1.2 Surface Salinity & Temperature Projections {-}

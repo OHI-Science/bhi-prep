@@ -1,15 +1,9 @@
----
-title: "Climate Change Pressure Layer Data Preparation"
-output:
-  github_document:
-    toc: true
-    toc_depth: 3
-params: 
-    datasource: csv
----
+Climate Change Pressure Layer Data Preparation
+================
+
 <br>
 
-```{r climate change pressure preamble prep, message = FALSE}
+``` r
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
 source(here::here("R", "setup.R"))
 loc <- here::here("prep", "pressures", "climate_change")
@@ -18,64 +12,116 @@ data_path <- here::here("data", "pressures", "climate_change", version_year, "cl
 
 <br>
 
-## 1. Background {-}
+## 1\. Background
 
-The direct effects of climate change in the abiotic environment will be changes to water temperature and salinity. In the BHI framework, we will include sea surface temperature (SST) and surface salinity (SS) as climate change pressures. Depth of bottom water varies by basin. In BHI1.0 we also used bottom water salinity (BWS), but were not able to obtain this (modeled) data for more recent years to include. The Climate Change layer can negatively affect scores for different goals, in particular the Artisanal Fishing Opportunities (AO) goal, the Carbon Storage (CS) goal, the Fisheries (FIS) sub-goal, the Iconic Species (ICO) sub-goal, and the Biodiversity (BD). The Tourism (TR) is particularly affected by the sea surface temperature (SST).
+The direct effects of climate change in the abiotic environment will be
+changes to water temperature and salinity. In the BHI framework, we will
+include sea surface temperature (SST) and surface salinity (SS) as
+climate change pressures. Depth of bottom water varies by basin. In
+BHI1.0 we also used bottom water salinity (BWS), but were not able to
+obtain this (modeled) data for more recent years to include. The Climate
+Change layer can negatively affect scores for different goals, in
+particular the Artisanal Fishing Opportunities (AO) goal, the Carbon
+Storage (CS) goal, the Fisheries (FIS) sub-goal, the Iconic Species
+(ICO) sub-goal, and the Biodiversity (BD). The Tourism (TR) is
+particularly affected by the sea surface temperature (SST).
 
+### 1.1 Notes on the Data
 
-### 1.1 Notes on the Data {-}
+In BHI 1.0, data were extracted from the [BALTSEM
+model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html),
+run by Bärbel Muller-Karulis from the Baltic Sea Centre at Stockholm
+University. In BHI 2.0, since the BALTSEM is not as easily accessible,
+[data from HELCOM stations, obtained from
+ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead.
 
-In BHI 1.0, data were extracted from the [BALTSEM model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html), run by Bärbel Muller-Karulis from the Baltic Sea Centre at Stockholm University. In BHI 2.0, since the BALTSEM is not as easily accessible, [data from HELCOM stations, obtained from ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) was used instead.
+These pressure layers are both calculated on the sub-basin scale, the
+scores which are then applied for all BHI regions within the respective
+sub-basin.
 
-These pressure layers are both calculated on the sub-basin scale, the scores which are then applied for all BHI regions  within the respective sub-basin.
+### 1.2 Reference points and Rescaling
 
+Projections from two models. One set of projection scenarios use BALTSEM
+results run with forcing from the
+[ECHAM5](http://www.mpimet.mpg.de/en/science/models/echam/) global
+climate model for the scenario A1b. Project goes to year 2100. The
+second set of projection scenarios use BALTSEM results run with forcing
+from the
+[HADCM3](http://www.metoffice.gov.uk/research/modelling-systems/unified-model/climate-models/hadcm3)
+global climate model for the scenario A1b. Projection goes to year 2099.
 
-### 1.2 Reference points and Rescaling {-}
-
-
-Projections from two models. One set of projection scenarios use BALTSEM results run with forcing from the [ECHAM5](http://www.mpimet.mpg.de/en/science/models/echam/) global climate model for the scenario A1b. Project goes to year 2100. The second set of projection scenarios use BALTSEM results run with forcing from the [HADCM3](http://www.metoffice.gov.uk/research/modelling-systems/unified-model/climate-models/hadcm3) global climate model for the scenario A1b. Projection goes to year 2099.  
-
-These projections are used to identify reasonable lower reference point for salinity and upper reference point for temperature. Salinity is projected to decrease with climate change, therefore we take the maximum from the historical period and the minimum from the current period. Temperature is projected to increase with climate change and therefore we take the minimum from the historical period and maximum from the projection.
-
+These projections are used to identify reasonable lower reference point
+for salinity and upper reference point for temperature. Salinity is
+projected to decrease with climate change, therefore we take the maximum
+from the historical period and the minimum from the current period.
+Temperature is projected to increase with climate change and therefore
+we take the minimum from the historical period and maximum from the
+projection.
 
 Current conditions = mean of recent 5 years
 
-min salinity value = minimum annual salinity during the future projection period (2020-2050)   
+min salinity value = minimum annual salinity during the future
+projection period (2020-2050)
 
-max salinity value = maximum annual salinity during reference period (1960-1990) 
+max salinity value = maximum annual salinity during reference period
+(1960-1990)
 
-min temperature value = minimum annual temperature during reference period (1960-1990)  
+min temperature value = minimum annual temperature during reference
+period (1960-1990)
 
-max temperature value = maximum annual temperature during the future projection period (2020-2050)   
+max temperature value = maximum annual temperature during the future
+projection period (2020-2050)
 
-
-Note: Greater pressure occurs with lower salinity, so will need to take the inverse of the rescaling
-
+Note: Greater pressure occurs with lower salinity, so will need to take
+the inverse of the rescaling
 
 <br/>
 
-## 2. Data {-}
+## 2\. Data
 
-This prep document is used to generate and explore the following data layer:
+This prep document is used to generate and explore the following data
+layer:
 
-- `cc_sst_bhi2019.csv` 
-- `cc_sal_surf_bhi2019.csv` 
+  - `cc_sst_bhi2019.csv`
+  - `cc_sal_surf_bhi2019.csv`
 
-These are saved to the `layers` folder. These are derived from or informed by the raw Oceanographic datasets obtained from ICES.
+These are saved to the `layers` folder. These are derived from or
+informed by the raw Oceanographic datasets obtained from
+ICES.
 
 <br>
 
-```{r climate change pressure prep data, child = data_path, results = "asis", echo = FALSE}
-```
+### 2.1 Datasets with Sources
 
 <br/>
 
-## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
+#### 2.1.1 Sea Surface Temperature & Surface Salinity
 
+<!-- dataset save location BHI_share/BHI 2.0/Pressure/climate_change/Helcom/helcom.csv -->
 
-Two data layers, surface water salinity and temperature. 
+In BHI 2.0, since the BALTSEM is not as easily accessible, [data from
+HELCOM stations, obtained from
+ICES](https://ocean.ices.dk/Helcom/Helcom.aspx?Mode=1) were used
+instead, only including sea surface temperature (SST) and surface
+salinity (SS) (as bottom water salinity -BWS- is not available). Data
+was downloaded on 24 August 2020 by Andrea De Cervo.
 
-```{r read in the climate change pressure data}
+#### 2.1.2 Surface Salinity & Temperature Projections
+
+From BHI 1.0, we have data extracted from the [BALTSEM
+model](http://www.balticnest.org/balticnest/thenestsystem/baltsem.4.3186f824143d05551ad20ea.html),
+run by Bärbel Muller-Karulis from the Baltic Sea Centre at Stockholm
+University.
+
+<br>
+
+<br/>
+
+## 3\. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling
+
+Two data layers, surface water salinity and temperature.
+
+``` r
 ## read in the climate raw data from ICES
 ## data.table::fread is faster than read.csv or readr
 ices_cc_data <- data.table::fread(
@@ -84,16 +130,16 @@ ices_cc_data <- data.table::fread(
 )
 ```
 
-```{r load spatial data for climate change layers prep}
+``` r
 source(here::here("R", "spatial.R"))
 regions_shape()
 ```
 
 <br>
 
-###  3.1 Initial Cleaning {-}
+### 3.1 Initial Cleaning
 
-```{r rename and take subset of cc data columns}
+``` r
 ices_cc_data <- ices_cc_data %>% 
   dplyr::mutate(
     date = as.Date(`yyyy-mm-ddThh:mm`),
@@ -118,10 +164,9 @@ ices_cc_data <- ices_cc_data %>%
   filter(year >= 1960)
 ```
 
+### 3.2 Match Monitoring Stations to Subbasins
 
-### 3.2 Match Monitoring Stations to Subbasins {-}
-
-```{r match cc pressure layers data to subbasins using lat long and spatial files, eval =  FALSE}
+``` r
 cc_data_w_rgns_sp <- join_rgns_info(
   ices_cc_data, helcomID_col = "helcom_id", country_col = "country", 
   latlon_vars = c("latitude", "longitude"), return_spatial = TRUE, 
@@ -130,10 +175,9 @@ cc_data_w_rgns_sp <- join_rgns_info(
 ) 
 ```
 
+### 3.2 Check Spatial Assignment of Data, Distributions, Timeseries
 
-### 3.2 Check Spatial Assignment of Data, Distributions, Timeseries {-}
-
-```{r load spatial files for climate change pressures maps}
+``` r
 bhi_rgn <- st_read(file.path(dirname(dir_B), "Shapefiles", "BHI_shapefile"))
 bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>% 
   sf::st_as_sf() %>% 
@@ -141,7 +185,7 @@ bhi_rgn_simple <- rmapshaper::ms_simplify(input = bhi_rgn) %>%
   mutate(region_nam = paste(rgn_nam, subbasin, sep  = ", "))
 ```
 
-```{r climate change pressure data spatial checks}
+``` r
 library(leaflet)
 
 ## check points not assigned to BHI regions...
@@ -190,7 +234,7 @@ make_datapts_leafletmap(cc_data_w_rgns_sp)
 cc_data_w_rgns <- sf::st_drop_geometry(cc_data_w_rgns_sp)
 ```
 
-```{r climate change pressure datasets maps}
+``` r
 basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")) +
   geom_sf(size = 0.1, color = "burlywood", alpha = 0.4) +
   theme(panel.background = element_rect(fill = "#F8FBFC", color = "#E2EEF3")) +
@@ -200,7 +244,7 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 cols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
 ```
 
-```{r surface salinity data points map, fig.width = 9.5, fig.heigth = 3, results = "show"}
+``` r
 basemap +
   geom_sf(
     data = st_as_sf(cc_data_w_rgns, coords = c("longitude", "latitude"), crs = 4326) %>% 
@@ -217,7 +261,9 @@ basemap +
   facet_grid(cols = vars(year))
 ```
 
-```{r sea surface temperatures data points map, fig.width = 9.5, fig.heigth = 3, results = "show"}
+![](climate_change_prep_files/figure-gfm/surface%20salinity%20data%20points%20map-1.png)<!-- -->
+
+``` r
 basemap +
   geom_sf(
     data = st_as_sf(cc_data_w_rgns, coords = c("longitude", "latitude"), crs = 4326) %>% 
@@ -234,16 +280,21 @@ basemap +
   facet_grid(cols = vars(year))
 ```
 
+![](climate_change_prep_files/figure-gfm/sea%20surface%20temperatures%20data%20points%20map-1.png)<!-- -->
 
 <br>
 
-### 3.3 Current Conditions {-}
+### 3.3 Current Conditions
 
-Current conditions if taken from the hindcast data. Each scenario year takes average from the five most recent years (e.g. for 2019 assessment, pressure score is derived from 2015-2019 average, rescaled).
+Current conditions if taken from the hindcast data. Each scenario year
+takes average from the five most recent years (e.g. for 2019 assessment,
+pressure score is derived from 2015-2019 average, rescaled).
 
-Note that the climate projections for temperature are for months July-August, so we will calculate temperature averages from these months rather than the entire year.
+Note that the climate projections for temperature are for months
+July-August, so we will calculate temperature averages from these months
+rather than the entire year.
 
-```{r current surface sal and temp ices, results = "show", fig.width = 9.5}
+``` r
 surf_sal_current <- cc_data_w_rgns %>%
   group_by(Subbasin, year, month) %>% 
   summarize(monthly_mean_surfsal = mean(surfsal, na.rm = TRUE)) %>% 
@@ -294,13 +345,17 @@ gridExtra::grid.arrange(
 )
 ```
 
+![](climate_change_prep_files/figure-gfm/current%20surface%20sal%20and%20temp%20ices-1.png)<!-- -->
 
+### 3.4 Maximums and Minimums for Normalizing Salinity and Temperature Averages
 
-### 3.4 Maximums and Minimums for Normalizing Salinity and Temperature Averages {-}
+Projections data, to get referece points for rescaling surface
+temperature and salinity. Upper reference point for temperature and
+lower reference point for salinity are derived based on projected future
+max and min
+respectively.
 
-Projections data, to get referece points for rescaling surface temperature and salinity. Upper reference point for temperature and lower reference point for salinity are derived based on projected future max and min respectively.
-
-```{r read and wrangle climate change projections datasets}
+``` r
 # baltsem_basins_lookup <- read_csv(file.path(dir_B, "Pressure", "climate_change", "Projections", "baltsem_basins_lookup.csv"))
 baltsem_basins_lookup <- read_csv(file.path(dir_B, "Pressure", "Projections", "baltsem_basins_lookup.csv"))
 
@@ -337,11 +392,16 @@ cc_proj_df <- cc_proj_df %>%
 
 **Minimum Salinity, from Projection Period**
 
-min salinity value = minimum annual salinity during the future projection period (2020-2050)   
+min salinity value = minimum annual salinity during the future
+projection period (2020-2050)
 
-From projections data, extract the minimum annual surface salinity for each basin between 2020-2050. Compare between the two projection data sets. ECHAM5 projects higher salinity than HADCM3, difference greatest between the two in Great Belt, Kattegat, Kiel, The Sound (which are the most variable and most saline).  
+From projections data, extract the minimum annual surface salinity for
+each basin between 2020-2050. Compare between the two projection data
+sets. ECHAM5 projects higher salinity than HADCM3, difference greatest
+between the two in Great Belt, Kattegat, Kiel, The Sound (which are the
+most variable and most saline).
 
-```{r min annual salinity, fig.width = 9.5, results = "show"}
+``` r
 min_salinity_plot <- cc_proj_df %>% 
   filter(timeframes == "future") %>% 
   select(year, salin_o_5, model, basin_name_holas)
@@ -358,14 +418,18 @@ ggplot(min_salinity_plot) +
   labs(x = NULL, y = "Surface Salinity Projections (PSU)", color = "Model")
 ```
 
+![](climate_change_prep_files/figure-gfm/min%20annual%20salinity-1.png)<!-- -->
 
 **Maximum Temperature, from Projection Period**
 
-max temperature value = maximum annual temperature during the future projection period (2020-2050)   
+max temperature value = maximum annual temperature during the future
+projection period (2020-2050)
 
-From projections data, extract the maximum annual surface temperature for each basin between 2020-2050. Projections are fairly similar, with HADCM3 generally predicting higher temperatures. 
+From projections data, extract the maximum annual surface temperature
+for each basin between 2020-2050. Projections are fairly similar, with
+HADCM3 generally predicting higher temperatures.
 
-```{r max annual temperatures, fig.width = 9.5, results = "show"}
+``` r
 max_temp_plot <- cc_proj_df %>%
   filter(timeframes == "future") %>%
   select(year, temp_o_5_julaug, model, basin_name_holas)
@@ -382,14 +446,16 @@ ggplot(max_temp_plot) +
   labs(x = NULL, y = "Summer Sea Surface Temperature Projections (Jul-Aug, deg C)", color = "Model")
 ```
 
+![](climate_change_prep_files/figure-gfm/max%20annual%20temperatures-1.png)<!-- -->
 
 **Maximum Annual Salinity, from Hindcast**
 
-max value = maximum annual salinity during reference period (1960-1990)  
+max value = maximum annual salinity during reference period (1960-1990)
 
-From hindcast data, extract the maximum annual surface salinity for each basin between 1960-1990.
+From hindcast data, extract the maximum annual surface salinity for each
+basin between 1960-1990.
 
-```{r max annual salinity}
+``` r
 ## take max from hindcast dataset
 ## use moving average or annual means??
 max_surf_sal <- surf_sal_current %>%
@@ -400,14 +466,15 @@ max_surf_sal <- surf_sal_current %>%
   ungroup()
 ```
 
-
 **Minimum Annual Temperature, from Hindcast**
 
-min temperature value = minimum annual temperature during reference period (1960-1990)  
+min temperature value = minimum annual temperature during reference
+period (1960-1990)
 
-From hindcast data, extract the minimum annual surface temperature for each basin between 1960-1990.
+From hindcast data, extract the minimum annual surface temperature for
+each basin between 1960-1990.
 
-```{r min annual temperatures}
+``` r
 ## take max from hindcast dataset
 ## use moving average or annual means??
 min_surf_temp <- surf_temp_current %>%
@@ -418,8 +485,7 @@ min_surf_temp <- surf_temp_current %>%
   ungroup()
 ```
 
-
-```{r current surface salinity between min max reference points, fig.width = 9.5, results = "show"}
+``` r
 plot_surf_sal_refpts <- surf_sal_current %>% 
   left_join(max_surf_sal, by = "basin_name_holas") %>% 
   left_join(
@@ -436,7 +502,9 @@ ggplot(plot_surf_sal_refpts) +
   labs(x = NULL, y = "Surface Salinity (PSU) between Upper and Lower Reference Points\n")
 ```
 
-```{r current surface salinity between min max ref points, fig.width = 9.5, results = "show"}
+![](climate_change_prep_files/figure-gfm/current%20surface%20salinity%20between%20min%20max%20reference%20points-1.png)<!-- -->
+
+``` r
 plot_surf_temp_refpts <- surf_temp_current %>% 
   left_join(min_surf_temp, by = "basin_name_holas") %>% 
   left_join(
@@ -453,30 +521,30 @@ ggplot(plot_surf_temp_refpts) +
   labs(x = NULL, y = "Jul-Aug Surface Temperature (deg C) between Upper and Lower Reference Points\n")
 ```
 
+![](climate_change_prep_files/figure-gfm/current%20surface%20salinity%20between%20min%20max%20ref%20points-1.png)<!-- -->
 
-### 3.4 Calculate Surface Salinity Pressure Scores {-}
+### 3.4 Calculate Surface Salinity Pressure Scores
 
-```{r calculate surface salinity pressure scores, fig.width = 9.5, results = "show"}
+``` r
 surf_sal_prs <- plot_surf_sal_refpts %>% 
   mutate(surf_sal_pressure = (ma5_surf_sal - max_surf_sal)/(min_salinity_hadcm3 - max_surf_sal)) %>% 
   mutate(surf_sal_pressure = pmin(1, pmax(0, round(surf_sal_pressure, 2)))) %>% 
   rename(subbasin = basin_name_holas)
 ```
 
+### 3.5 Calculate Sea Surface Temperature Pressure Scores
 
-### 3.5 Calculate Sea Surface Temperature Pressure Scores {-}
+Note: Greater pressure occurs with lower salinity, so will need to take
+the inverse of the rescaling
 
-Note: Greater pressure occurs with lower salinity, so will need to take the inverse of the rescaling
-
-```{r calculate surface temperature pressure scores}
+``` r
 surf_temps_prs <- plot_surf_temp_refpts %>% 
   mutate(surf_temp_pressure = (ma5_julaug_surf_temp - min_surf_temp)/(max_temp_hadcm3 - min_surf_temp)) %>% 
   mutate(surf_temp_pressure = pmin(1, pmax(0, round(surf_temp_pressure, 2)))) %>% 
   rename(subbasin = basin_name_holas)
 ```
 
-
-```{r assign the subbasin pressures to BHI regions and save the layer}
+``` r
 rgns_complete <- read_csv(file.path(dir_prep, "supplement", "lookup_tabs", "rgns_complete.csv"))
 ## missing a few regions in a few years, add these...
 d <- expand.grid(list(region_id = 1:42, year = 1990:2019), stringsAsFactors = FALSE)
@@ -504,12 +572,11 @@ write.csv(
 )
 ```
 
-
 <br>
 
-## 4. Visualizing Data Layers {-}
+## 4\. Visualizing Data Layers
 
-```{r plot surface salinity and temperature pressure scores timeseries, fig.width = 9.5, results = "show"}
+``` r
 gridExtra::grid.arrange(
   ggplot(surf_sal_prs) +
     geom_col(aes(year, surf_sal_pressure, fill = surf_sal_pressure)) +
@@ -525,11 +592,11 @@ gridExtra::grid.arrange(
 )
 ```
 
+![](climate_change_prep_files/figure-gfm/plot%20surface%20salinity%20and%20temperature%20pressure%20scores%20timeseries-1.png)<!-- -->
 
 <br>
 
-## 5. Considerations for `BHI3.0` {-}
+## 5\. Considerations for `BHI3.0`
 
-Need modeled data for full spatial coverage or check somehow that data are fully representative for subbasins...?
-
-
+Need modeled data for full spatial coverage or check somehow that data
+are fully representative for subbasins…?
