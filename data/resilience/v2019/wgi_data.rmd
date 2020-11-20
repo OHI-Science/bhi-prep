@@ -1,21 +1,14 @@
-# Preparation of Worldwide Governance Indicators (WGI) for Social Resilience Data Layers
+### 2.1 Datasets with Sources {-}
+<br/>
 
-## 1. Background
-The [Worldwide Governance Indicators (WGI) project](http://info.worldbank.org/governance/wgi/index.aspx#home) reports aggregate and individual governance indicators for 215 economies over the period 1996–2014, for six dimensions of governance: 
-
-- Voice and Accountability  
-- Political Stability and Absence of Violence/Terrorism  
-- Government Effectiveness  
-- Regulatory Quality  
-- Rule of Law  
-- Control of Corruption  
-
-### 1.1 Data  
+#### 2.1.1 Data {-}
 OHI has already extracted these data by country.  
 For BHI, we obtained these data on 21 August 
 2020 from [the file 'wgi_combined_scores_by_country.csv' on the OHI github site](https://github.com/OHI-Science/ohiprep/tree/master/globalprep/prs_res_wgi/v2017/intermediate).
 
-#### 1.1.1 Data attributes  
+The value for each country in 2015.
+
+#### 2.1.1 Data Attributes {-}
 Colname names in 'wgi_combined_scores_by_country.csv'
     "country": reporting country
     "year": reporting year

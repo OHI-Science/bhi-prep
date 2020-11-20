@@ -1,7 +1,6 @@
-# Prep of Illegal Oil Spill pressure data layer
+### 2.1 Datasets with Sources {-}
 
-### 1 Data 
-Data were downloaded from [HELCOM's Baltic Sea Pressures and Human Activities Map Service](http://maps.helcom.fi/website/Pressures/index.html). Data were under the tab 'Maritime & Response' then 'Illegal Oil Discharges'
+This dataset contains points of information describing the location and size of illegal oil discharges observed during aerial surveillance flights by HELCOM Contracting Parties during 1998-2017. Further information about illegal discharges of oil in the Baltic Sea area and HELCOM aerial surveillance activities can be found at http://www.helcom.fi/baltic-sea-trends/maritime/illegal-spills/
 
 <!-- dataset save location BHI_share/BHI 2.0/Pressure/illegal_oil -->
 ```{r echo = FALSE, results = "asis"}
@@ -13,7 +12,6 @@ rownames(tab) <- NULL
 
 knitr::kable(tab, caption = "Source: [HELCOM Map and Data Service](https://maps.helcom.fi/website/mapservice/) <br/> Downloaded 21 August 2020 by Andrea De Cervo") 
 ```
+<br/>
 
-Further information about illegal discharges of oil in the Baltic Sea area and HELCOM aerial surveillance activities can be found at http://www.helcom.fi/baltic-sea-trends/maritime/illegal-spills/
 
-Data are available from 1998-2017. 

@@ -1,13 +1,12 @@
 ---
-title: "Climate change pressure layer prep"
+title: "Climate Change Pressure Layer Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
-    toc_depth: 4
-    code_folding: hide
+    toc_depth: 3
+params: 
+    datasource: csv
 ---
-
-<br>
 <br>
 
 ```{r climate change pressure preamble prep, message = FALSE}
@@ -21,7 +20,7 @@ data_path <- here::here("data", "pressures", "climate_change", version_year, "cl
 
 ## 1. Background {-}
 
-The direct effects of climate change in the abiotic environment will be changes to water temperature and salinity. In the BHI framework, we will include sea surface temperature (SST) and surface salinity (SS) as climate change pressures. Depth of bottom water varies by basin. In BHI1.0 we also used bottom water salinity (BWS), but were not able to obtain this (modeled) data for more recent years to include.
+The direct effects of climate change in the abiotic environment will be changes to water temperature and salinity. In the BHI framework, we will include sea surface temperature (SST) and surface salinity (SS) as climate change pressures. Depth of bottom water varies by basin. In BHI1.0 we also used bottom water salinity (BWS), but were not able to obtain this (modeled) data for more recent years to include. The Climate Change layer can negatively affect scores for different goals, in particular the Artisanal Fishing Opportunities (AO) goal, the Carbon Storage (CS) goal, the Fisheries (FIS) sub-goal, the Iconic Species (ICO) sub-goal, and the Biodiversity (BD). The Tourism (TR) is particularly affected by the sea surface temperature (SST).
 
 
 ### 1.1 Notes on the Data {-}
@@ -306,7 +305,7 @@ Projections data, to get referece points for rescaling surface temperature and s
 baltsem_basins_lookup <- read_csv(file.path(dir_B, "Pressure", "Projections", "baltsem_basins_lookup.csv"))
 
 load_files <- list.files(
-  file.path(dir_B, "Pressure", "Projections"), 
+  file.path(dir_B, "Pressure", "climate_change", "Projections"), 
   # file.path(dir_B, "Pressure", "climate_change", "Projections"), 
   recursive = TRUE, full.names = TRUE
 )
@@ -437,7 +436,7 @@ ggplot(plot_surf_sal_refpts) +
   labs(x = NULL, y = "Surface Salinity (PSU) between Upper and Lower Reference Points\n")
 ```
 
-```{r current surface salinity between min max reference points, fig.width = 9.5, results = "show"}
+```{r current surface salinity between min max ref points, fig.width = 9.5, results = "show"}
 plot_surf_temp_refpts <- surf_temp_current %>% 
   left_join(min_surf_temp, by = "basin_name_holas") %>% 
   left_join(

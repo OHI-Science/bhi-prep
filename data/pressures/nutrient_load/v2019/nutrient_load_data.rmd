@@ -26,9 +26,6 @@ MAI values for each basin are found in [Summary report on the development of rev
 
 These are the same values as presented in Table 2.2 page 11 in the [Review of the Fifth Baltic Sea PLC for the 2013 HELCOM Ministerial Meeting](https://helcom.fi/media/publications/BSEP141.pdf)
 
-
----
-
 <br/>
 
 
@@ -119,7 +116,7 @@ p_tab <- tidyr::separate(p_tab, col = "alldata", into = newcolnames, sep = "(?<=
 
 ```{r tonnes nitrogen atmospheric deposition}
 # pdf_atmos_n <- file.path(dir_B, "Pressure", "nutrient_load", "Atmospheric-deposition-N.pdf")
-pdf_atmos_n <- file.path(dir_B, "Pressure", "Atmospheric-deposition-N.pdf")
+pdf_atmos_n <- file.path(dir_B, "Pressure", "nutrient_load", "Atmospheric-deposition-N.pdf")
 txt <- pdf_text(pdf_atmos_n)
 
 
@@ -264,6 +261,3 @@ write_csv(
 ```
 
 <br/>
-
-### 2.3 Initial Data Exploration
-

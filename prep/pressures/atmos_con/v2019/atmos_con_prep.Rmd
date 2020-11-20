@@ -1,12 +1,58 @@
+---
+title: "Atmospheric Contaminants Pressure Layer Data Preparation"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params: 
+    datasource: csv
+---
 
-## 3. Pressure Model
+```{r atm con setup, message = FALSE, warning = FALSE, include = FALSE}
+loc <- here::here("prep", "pressures", "atmos_con")
+## root location of the raw data
+source(here::here("R", "setup.R"))
+source(here::here("R", "data.R"))
+source(here::here("R", "spatial.R"))
+data_path <- here::here("data", "pressures", "atmos_con", version_year, "atmos_con_data.rmd")
+refs_path <- file.path(loc, "atmos_con_references.Rmd")
 
-### 3.1 Current conditions 
+dir_A <- file.path(dirname(dir_prep), "bhi-data")
+dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
+dir_rawdata <- file.path(dir_B, "Pressure", "atmos_con")
+dir_intermediate <- file.path(here::here("data", "pressures", "atmos_con", version_year, "intermediate"))
+```
+
+## 1. Background {-}
+
+Annual atmospheric deposition fluxes of PCB-153 and PCDD/Fs over the Baltic Sea can negatively affect scores for different goals, in particular the Artisanal Fishing Opportunities (AO) goal, the Carbon Storage (CS) goal, the Contaminants (CON) sub-goal, the Fisheries (FIS) and Mariculture (MAR) sub-goals, the Iconic Species (ICO) sub-goal, the Biodiversity (BD) and Natural Products (NP) goals.
+
+## 2. Data {-}
+
+This prep document is used to generate and explore the following data layers:
+
+- `po_atmos_pcb153_bhi2019.csv` 
+- `po_atmos_pcdd_bhi2019.csv` 
+
+These are saved to the `layers/v2019` folder. 
+All these are derived from or informed by the raw datasets from HELCOM and EMEP/MSC database.
+
+<br>
+
+```{r atm con prep data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Pressure Model {-}
+
+### 3.1 Current conditions {-}
 Value in most recent year. 
 
-PCB 153 = 2016  
+PCB 153 = 2016
+PCDD = 2018
 
-### 3.2 Rescaling  
+### 3.2 Rescaling {-}
 Min value = 0
 
 Max value = maximum value across all basin 1990 - max year  
@@ -14,23 +60,12 @@ Max value = maximum value across all basin 1990 - max year
 
 ## 4. Data layer preparation
 
-```{r setup}
-## root location of the raw data
-source(here::here("R", "setup.R"))
-source(here::here("R", "data.R"))
-source(here::here("R", "spatial.R"))
-
-dir_A <- file.path(dirname(dir_prep), "bhi-data")
-dir_B <- file.path(dirname(dir_prep), "bhi-data", "BHI 2.0")
-dir_rawdata <- file.path(dir_B, "Pressure", "atmos_con")
-```
-
 ### 4.1 Read in and organize data
 
 #### 4.1.1 Read in data
 
 Computed annual atmospheric deposition of PCB-153 over the six Baltic Sea sub-basins, the whole Baltic Sea (BAS) and normalized deposition to the Baltic Sea (Norm) for period 1990-2016. Units: kg/year.
-```{r read in data}
+```{r read in data, echo = TRUE, message=FALSE}
 pcb153 <- read.csv(file.path(dir_rawdata, "pcb153.csv"), sep=";", stringsAsFactors = FALSE)
 
 # Annual total deposition flux 23PeCDF (emissions 2018, meteorology 2018) ug TEQ/km2/year EMEP_01x01
@@ -39,7 +74,7 @@ pcdd <- read_table2(url("http://en.msceast.org/database/EMEP/pcdd_dep_2018.dat")
   rename(id = i,
          station = j,
          lon = long,
-         value = "23PeCDF") %>% 
+         value = "PCDD/Fs") %>% 
   mutate(unit = "ug TEQ/km2/year")
 
 # Save it to the pressure data folder
@@ -76,7 +111,8 @@ basins <- bind_rows(
 ```
 
 #### 4.1.2 Transform data to long format
-```{r transform to long format}
+```{r transform to long format, echo = TRUE, message=FALSE}
+library(tidyr)
 pcb153_long <- pcb153 %>%
   gather(subbasin_abb, value, -X) %>%
   rename(year = X) %>% 
@@ -100,7 +136,7 @@ pcb153_long <- pcb153 %>%
 
 #### 4.1.3 Join to HOLAS basin names  
 Data are joined to HOLAS basin names because these are what are associated with BHI regions. This is a slightly indirect approach, could have made a look up table to associated the major basins from the deposition data directly with the BHI regions, but this should have the same result.  
-```{r join to holas basin names}
+```{r join to holas basin names, echo = TRUE, message=FALSE}
 # Join the basins to pcb
 pcb153_basins <- pcb153_long %>%
   full_join(., basins, by = "basin") 
@@ -117,10 +153,18 @@ pcdd_rgns <- join_rgns_info(
 pcdd_rgns_bhi <- pcdd_rgns %>% 
   filter(!(is.na(BHI_ID))) %>% 
   mutate(station = as.character(station))
+
+# save pcb153 timeseries
+## we only have trend data for pcb153
+pcb153_timeseries <- pcb153_basins %>%
+  select(-subbasin_abb, -basin) %>% 
+  rename(pcb153 = value)
+
+write.csv(pcb153_timeseries, file.path(dir_intermediate,"atmos_pcb153_bhi2019.csv"), row.names = FALSE)
 ```
 
 #### 4.1.4 Plot data
-```{r plot raw data}
+```{r plot raw data, message=FALSE, results = "show", fig.width = 9, fig.height = 6}
 # Plot data by major basin provided
 ggplot(pcb153_basins) +
   geom_point(aes(year, value)) +
@@ -150,10 +194,10 @@ basemap <- ggplot2::ggplot(rnaturalearth::ne_countries(scale = "medium", returnc
 
 bhi_rgns_simple <- rmapshaper::ms_simplify(input = BHI_rgns_shp) %>% sf::st_as_sf()
 
-pcdd_map <- basemap +
+basemap +
   geom_sf(data = bhi_rgns_simple, fill = "white", size = 0.2, color = "burlywood") +
   geom_sf(
-    mapping = aes(colour = Subbasin),
+    mapping = aes(colour = station),
     data = sf::st_as_sf(
       pcdd_rgns_bhi, 
       coords = c("lon", "lat"), 
@@ -161,23 +205,23 @@ pcdd_map <- basemap +
     ),
     size = 0.2
   ) +
-  labs(x = NULL, y = NULL, colour = "Subbasin") +
-  ggtitle("Sampling Locations")
+  labs(x = NULL, y = NULL, colour = "Stations") +
+  ggtitle("PCDD Sampling Stations")
 ```
 
 
 ### 4.2 Current value
 
 #### 4.2.1 Get most recent year for current value
-```{r get current year value}
+```{r get current year value, echo = TRUE, message=FALSE}
 max_yr_pcb153 <- pcb153_basins %>%
   select(year)%>%
   max()%>%
-  as.numeric()
+  as.numeric() # 2016
 ```
 
-#### 4.2.2 Get current pressure data
-```{r get current pressure data values}
+#### 4.2.2 Get current pressure data by Subbasins
+```{r get current pressure data values, echo = TRUE, message=FALSE}
 current_pcb153 <- pcb153_basins %>%
   filter(year == max_yr_pcb153) %>%
   select(subbasin, value, unit, year)
@@ -193,7 +237,7 @@ current_pcdd <- pcdd_rgns_bhi %>%
 ```
 
 #### 4.2.3 Plot current year data
-```{r plot current year data}
+```{r plot current year data, message=FALSE, results = "show", fig.width = 8, fig.height = 5}
 ggplot(current_pcb153)+
   geom_point(aes(subbasin, value), size = 2.5)+
   ylab("PCB 153 kg/year")+
@@ -206,19 +250,19 @@ ggplot(current_pcb153)+
 # Plot data by subbasin
 ggplot(current_pcdd) +
   geom_col(aes(BHI_ID, value, fill = Subbasin)) +
-  ylab("23PeCDF ug TEQ/km2/year")+
+  ylab("PCDD ug TEQ/km2/year")+
   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
                                   hjust=.5, vjust=.5, face = "plain"),
           strip.text.x = element_text(size = 6))+
-  ggtitle("23PeCDF Atmospheric Deposition by Subbasin 2018")
+  ggtitle("PCDD Atmospheric Deposition by Subbasin 2018")
 
-ggplot(current_pcdd)+
-  geom_point(aes(Subbasin, value), size = 2.5)+
-  ylab("23PeCDF ug TEQ/km2/year")+
-   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
-                                  hjust=.5, vjust=.5, face = "plain"),
-          strip.text.x = element_text(size = 6))+
-  ggtitle("23PeCDF Atmospheric Deposition in 2018")
+#ggplot(current_pcdd)+
+#  geom_point(aes(BHI_ID, value), size = 2.5)+
+#  ylab("PCDD ug TEQ/km2/year")+
+#   theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, 
+#                                  hjust=.5, vjust=.5, face = "plain"),
+#          strip.text.x = element_text(size = 6))+
+#  ggtitle("PCDD Atmospheric Deposition in 2018")
 
 ```
 
@@ -228,7 +272,7 @@ ggplot(current_pcdd)+
 #### 4.3.1 Maximum value
 Select maximum value across all basins within each time series. 
 PCB 153:  Baltic Proper in 1990, 40.246 kg/year  
-```{r select max values}
+```{r select max values, echo = TRUE, message=FALSE}
 max_pcb153 <- pcb153_basins %>%
   select(value)%>%
   max()%>%
@@ -251,14 +295,14 @@ pcdd_rgns_bhi %>% filter(value == max_pcdd) %>% select(Subbasin, unit, value) %>
 
 #### 4.3.2 Minimum value
 Minimum value is 0, the value at which there is no pressure 
-```{r select min values}
+```{r select min values, echo = TRUE, message=FALSE}
 min_pcb153 = 0
 
 min_pcdd = 0
 ```
 
 #### 4.3.3 Join current, max, and min values
-```{r join current max and min values}
+```{r join current max and min values, echo = TRUE, message=FALSE}
 pcb153_rescale <- current_pcb153 %>%
   mutate(min = min_pcb153, 
          max= max_pcb153) %>% 
@@ -273,7 +317,7 @@ pcdd_rescale <- current_pcdd %>%
 ```
 
 #### 4.3.4 Plot current, max and min
-```{r plot current max and min}
+```{r plot current max and min, message=FALSE, results = "show", fig.width = 6, fig.height = 3.5}
 ggplot(gather(pcb153_rescale, type, concentration, -subbasin, -unit, -year)) +
   geom_point(aes(subbasin, concentration, colour = type, shape = type), size= 2.5)+
   ylab("PCB 153 kg/year") +
@@ -292,7 +336,7 @@ ggplot(gather(pcdd_rescale, type, concentration, -BHI_ID, -Subbasin, -unit, -yea
 
 
 #### 4.3.5 Rescale data
-```{r rescale data}
+```{r rescale data, echo = TRUE, message=FALSE}
 pcb153_rescale1 <- pcb153_rescale %>%
   mutate(pcb153_normalize = (current - min)/(max - min))
 
@@ -301,7 +345,7 @@ pcdd_rescale1 <- pcdd_rescale %>%
 ```
 
 #### 4.3.6 Plot rescaled pressure layer
-```{r plot rescales pressure layer}
+```{r plot rescales pressure layer, message=FALSE, results = "show", fig.width = 6, fig.height = 3.5}
 ggplot(pcb153_rescale1) +
   geom_point(aes(subbasin, pcb153_normalize), size= 2.5)+
   ylab("Pressure Value") +
@@ -314,7 +358,7 @@ ggplot(pcb153_rescale1) +
 ### 4.4 Pressure layer for BHI regions
 
 #### 4.4.1 Apply basin values to BHI regions
-```{r apply basin values to BHI regions}
+```{r apply basin values to BHI regions, echo = TRUE, message=FALSE}
 pcb153_rgn <- pcb153_rescale1 %>%
   full_join(., basin_lookup, by = "subbasin") %>%
   select(bhi_id, pcb153_normalize) %>%
@@ -322,7 +366,7 @@ pcb153_rgn <- pcb153_rescale1 %>%
 ```
 
 #### 4.4.2 Plot Pressure layer by BHI regions
-```{r Plot Pressure layer by BHI regions}
+```{r Plot Pressure layer by BHI regions, message=FALSE, results = "show", fig.width = 6, fig.height = 3.5}
 ggplot(pcb153_rgn)+
   geom_point(aes(bhi_id, pcb153_normalize), size= 2.5)+
   ylab("Pressure Value")+
@@ -345,7 +389,7 @@ ggplot(pcdd_rescale1) +
 ### 4.5 Prepare and save object for layers  
 
 #### 4.5.1 Prepare objects
-```{r prepare object for layers}
+```{r prepare object for layers, echo = TRUE, message=FALSE}
 po_atmos_pcb153 <- pcb153_rgn %>%
   dplyr::rename(pressure_score = pcb153_normalize)
 
@@ -355,9 +399,17 @@ po_atmos_pcdd <- pcdd_rescale1 %>%
 ```
 
 #### 4.5.2 Save objects to layers
-```{r save objects to layers}
+```{r save objects to layers, eval = FALSE, echo = TRUE, message=FALSE}
 write.csv(po_atmos_pcb153, file.path(dir_layers,"po_atmos_pcb153_bhi2019.csv"), row.names = FALSE)
 
 write.csv(po_atmos_pcdd, file.path(dir_layers,"po_atmos_pcdd_bhi2019.csv"), row.names = FALSE)
+```
+
+## 5. Considerations for `BHI3.0` {-}
+
+
+## 6. References {-}
+
+```{r References, child = refs_path, results = "asis", echo = FALSE}
 ```
 

@@ -1,13 +1,12 @@
 ---
-title: "Nutrient loads pressure layer prep"
+title: "Nutrients Loads Pressure Layer Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
-    toc_depth: 4
-    code_folding: hide
+    toc_depth: 3
+params: 
+    datasource: csv
 ---
-
-<br>
 <br>
 
 ```{r nutrient load pressure preamble prep, message = FALSE}

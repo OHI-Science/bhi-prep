@@ -1,14 +1,54 @@
-## 3. Pressure layer 
-The rescaled value of the WGI score is a resilience data layer (eg. higher WGI, greater resilience).  
-The inverse is the WHI pressure score.  
+---
+title: "Worldwide Governance Indicators (WGI) Pressure Layer Data Preparation"
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+params: 
+    datasource: csv
+---
+<br>
 
-### 3.1 Current value
-The value for each country in 2015  
 
-### 3.2 Rescaling
-The WGI scores have a range -2.5 to 2.5. They need to be rescaled to between 0 and 1. Use minimum and maximum value in the dataset.  We compare the pressure layer difference if all countries are included in the dataset when selecting min and max to rescale or if only Baltic region values are used obtain min and max values to rescale.    
+```{r climate change pressure preamble prep, message = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = TRUE, results = "hide", fig.width = 9.5, fig.height = 6)
+source(here::here("R", "setup.R"))
+loc <- here::here("prep", "pressures", "wgi_social")
+data_path <- here::here("data", "pressures", "wgi_social", version_year, "wgi_social_data.rmd")
+```
 
-## 4. Prepare Data layer
+<br>
+
+## 1. Background {-}
+
+The [Worldwide Governance Indicators (WGI) project](http://info.worldbank.org/governance/wgi/index.aspx#home) reports aggregate and individual governance indicators for 215 economies over the period 1996–2018, for six dimensions of governance:
+
+- Voice and Accountability  
+- Political Stability and Absence of Violence 
+- Government Effectiveness  
+- Regulatory Quality  
+- Rule of Law  
+- Control of Corruption  
+
+The rescaled value of the WGI score is a resilience data layer (eg. higher WGI, greater resilience).
+The inverse is the WHI pressure score. 
+
+## 2. Data {-}
+
+This prep document is used to generate and explore the following data layer:
+
+- `ss_wgi_bhi2019.csv` 
+
+This is saved to the `layers` folder. These are derived from or informed by the raw dataset obtained from OHI github webpage.
+
+<br>
+
+```{r wgi pressure prep data, child = data_path, results = "asis", echo = FALSE}
+```
+
+<br/>
+
+## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
 
 ```{r setup}
 
@@ -24,9 +64,8 @@ library(rprojroot) # install.packages('rprojroot')
 
 ```
 
-### 4.1 Read in and organize data
+### 3.1 Read in and organize data {-}
 
-#### 4.1.1 Read in data
 ```{r read in data}
 ## read in data
 wgi_global <- read_csv("https://raw.githubusercontent.com/OHI-Science/ohiprep/master/globalprep/prs_res_wgi/v2017/intermediate/wgi_combined_scores_by_country.csv")
@@ -39,16 +78,16 @@ bhi_lookup <- read.csv(file.path(dir_prep, "supplement", "lookup_tabs", "bhi_bas
     country = rgn_nam)
 ```
 
-#### 4.1.2 Select Baltic Sea countries
+### 3.2 Select Baltic Sea countries {-}
 ```{r select baltic countries}
 wgi_baltic <- wgi_global %>%
   filter(grepl("Denmark|Estonia|Finland|Germany|Latvia|Lithuania|Poland|Sweden|Russia", country))
 ```
 
 
-### 4.2 Plot WGI scores
+### 3.3 Plot WGI scores {-}
 
-####  4.2.1  Plot WGI scores (WGI scale)
+####  3.3.1  Plot WGI scores (WGI scale) {-}
 ```{r Plot raw Baltic WGI scores}
 ggplot(wgi_baltic) + 
   geom_point(aes(year, score_wgi_scale, colour = country)) +
@@ -59,7 +98,7 @@ ggplot(wgi_baltic) +
 ```
 
 
-####  4.2.2  Plot WGI scores  - OHI global rescale
+####  3.3.2  Plot WGI scores - OHI global rescale {-}
 ```{r Plot Baltic WGI ohi global rescale scores}
 ggplot(wgi_baltic) + 
   geom_point(aes(year, score_ohi_scale, colour = country)) +
@@ -71,9 +110,12 @@ ggplot(wgi_baltic) +
 ```
 
 
-### 4.3 Rescale to the Baltic region
+### 3.4 Rescale to the Baltic region {-}
 
-#### 4.3.1 Select Min and Max
+#### 3.4.1 Select Min and Max {-}
+
+The WGI scores have a range -2.5 to 2.5. They need to be rescaled to between 0 and 1. Use minimum and maximum value in the dataset.  We compare the pressure layer difference if all countries are included in the dataset when selecting min and max to rescale or if only Baltic region values are used obtain min and max values to rescale. 
+
 ```{r select min and max from the Baltic}
 ## min
 baltic_min <- wgi_baltic %>%
@@ -101,7 +143,8 @@ filter(wgi_baltic, score_wgi_scale == baltic_max)
 
 ```
 
-#### 4.3.2 Rescale Baltic
+#### 3.4.2 Rescale Baltic {-}
+
 ```{r rescale baltic}
 wgi_baltic <- wgi_baltic %>%
   mutate(min = baltic_min,
@@ -111,7 +154,8 @@ wgi_baltic <- wgi_baltic %>%
 ```
 
 
-#### 4.3.3 Plot rescaled to Baltic Region
+#### 3.4.3 Plot rescaled to Baltic Region {-}
+
 ```{r plot rescaled to baltic }
 ggplot(wgi_baltic) + 
   geom_point(aes(year, score_bhi_scale, colour = country)) +
@@ -122,7 +166,7 @@ ggplot(wgi_baltic) +
 ```
 
 
-#### 4.3.4 Plot and Compare Rescaling options
+#### 3.4.4 Plot and Compare Rescaling options {-}
 Using the BHI region rescaling penalizes Russia. Does also spread the scores somewhat.  
 
 ```{r Plot and Compare Rescaling options}
@@ -137,10 +181,11 @@ ggplot(gather(wgi_baltic, score_type, score, -country,-year) %>% filter(score_ty
 ```
 
 
-### 4.4 Convert to Pressure score  
+### 3.5 Convert to Pressure score {-}
 
-#### 4.4.1 Convert to pressure score
+#### 3.5.1 Convert to pressure score {-}
 Inverse of the score  
+
 ```{r convert to pressure score}
 wgi_baltic_pressure <- wgi_baltic %>%
   select(-score_wgi_scale) %>%
@@ -149,7 +194,7 @@ wgi_baltic_pressure <- wgi_baltic %>%
   select(-score)
 ```
 
-#### 4.4.2 Plot pressure score
+#### 3.5.2 Plot pressure score {-}
 ```{r Plot and Compare Rescaling options with Pressure score}
 ggplot(wgi_baltic_pressure) + 
   geom_point(aes(year, pressure_score, colour = country)) +
@@ -161,9 +206,9 @@ ggplot(wgi_baltic_pressure) +
 
 ```
 
-### 4.5 Assign country scores to BHI regions
+### 3.6 Assign country scores to BHI regions {-}
 
-#### 4.5.1 Join BHI region lookup to country scores
+#### 3.6.1 Join BHI region lookup to country scores {-}
 ```{r join BHI region lookup to country scores}
 wgi_pressure_rgn <- wgi_baltic_pressure %>%
   mutate(country = ifelse(country == "Russian Federation", "Russia", country)) %>%
@@ -171,10 +216,10 @@ wgi_pressure_rgn <- wgi_baltic_pressure %>%
 ```
 
 
-## 5. Prepare and save Objects
+## 4. Prepare and save Objects {-}
 Select global rescaling so that Russia is not so heavily penalized.  
 
-### 5.1 Prepare object
+### 4.1 Prepare object {-}
 ```{r prepare object}
 ss_wgi <- wgi_pressure_rgn %>%
   filter(score_type == "score_ohi_scale") %>%
@@ -187,10 +232,7 @@ ss_wgi <- wgi_pressure_rgn %>%
 
 ss_wgi <- ss_wgi %>%
         select(-year)
-```
 
-#### 5.2 Save object
-```{r save object}
-write.csv(ss_wgi, file.path(dir_layers, 'ss_wgi_bhi2019.csv'), row.names=FALSE)
+# Save object
+#write.csv(ss_wgi, file.path(dir_layers, 'ss_wgi_bhi2019.csv'), row.names=FALSE)
 ```
-

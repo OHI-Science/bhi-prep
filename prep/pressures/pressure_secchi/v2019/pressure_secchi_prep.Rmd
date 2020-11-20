@@ -1,13 +1,12 @@
 ---
-title: "Secchi depth pressure layer prep"
+title: "Secchi Depth Pressure Layer Data Preparation"
 output:
-  html_document:
+  github_document:
     toc: true
-    toc_depth: 4
-    code_folding: hide
+    toc_depth: 3
+params: 
+    datasource: csv
 ---
-
-<br>
 <br>
 
 ```{r secchi depth pressure preamble prep, message = FALSE}
@@ -33,7 +32,6 @@ This pressure layer is the inverse of the Eutrophication subgoal secchi indicato
 Data sources and data preparation are found in the [Clean Water subgoal Eutrophication](https://github.com/OHI-Science/bhi-prep/blob/master/data/CW/eutrophication/v2019/eut_data.rmd) which uses secchi data as one measure of nutrient status. The respective targets are also saved and organized in the Eutrophication goal prep.  
 
 
-
 ## 2. Data {-}
 
 This prep document is used to generate and explore the following data layer:
@@ -44,13 +42,12 @@ This is saved to the `layers` folder. The layer is derived from the raw datasets
 
 <br>
 
-```{r nutrient load pressure prep data, child = data_path, results = "asis", echo = FALSE}
+```{r secchi depth pressure prep data, child = data_path, results = "asis", echo = FALSE}
 ```
 
 <br/>
 
 ## 3. Prep: Wrangling & Derivations, Checks/Evaluation, Gapfilling {-}
-
 
 ```{r read in the secchi depth data and eutrophication targets}
 ## read in the secchi depth data, prepared in the eutrophication goal prep
@@ -64,7 +61,6 @@ cw_eut_targets <- read.csv(file.path(dir_layers, "cw_eut_targets_bhi2019.csv")) 
 
 
 ### 3.1 Calculate Secchi Status Scores {-}
-
 
 ```{r calculate secchi indicator status as it is calculated in the eutrophication function}
 ## join regions info for grouping by subbasins
