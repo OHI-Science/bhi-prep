@@ -1999,40 +1999,24 @@ concern_subst_indicator <- rgn_monitor_allsubst %>%
   mutate(substance = paste0(substance, "_monitored")) %>% 
   tidyr::pivot_wider(names_from = "substance", values_from = "monitored")
 
-
+yrs <- 2014:2018
 num_substances <- length(grep("_monitored", colnames(concern_subst_indicator)))
-concern_subst_ind_ts <- data.frame(
-  Subbasin = character(), 
-  BHI_ID = numeric(),
-  proportion_monitored = numeric(),
-  dimension = character(),
-  year = numeric()
-)
 
-for(y in 2018:(min(concern_subst_indicator$year)+4)){
-  yrs <- y:(y-4)
-  
-  concern_subst_ind_ts <- bind_rows(
-    concern_subst_ind_ts,
-    concern_subst_indicator %>%
-      ## look at monitoring only within time period of interest
-      filter(year %in% yrs) %>% 
-      group_by(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID) %>% 
-      summarise_at(vars(ends_with("_monitored")), sum) %>% 
-      ungroup() %>% 
-      mutate_at(vars(ends_with("_monitored")), funs(pmin(1, .))) %>% 
-      ## add columns on number substances and number monitored
-      mutate(
-        num_substances = num_substances,
-        num_monitored = rowSums(.[grep("_monitored", names(.))]),
-        proportion_monitored = round(num_monitored/num_substances, 2)
-      ) %>%
-      select(Subbasin, BHI_ID, proportion_monitored) %>% 
-      mutate(dimension = "status", year = y)
-  )
-}
-
-concern_subst_indicator <- filter(concern_subst_ind_ts, year %in% 2014:2018)
+concern_subst_indicator <- concern_subst_indicator %>%
+  ## look at monitoring only within time period of interest
+  filter(year %in% yrs) %>% 
+  group_by(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID) %>% 
+  summarise_at(vars(ends_with("_monitored")), sum) %>% 
+  ungroup() %>% 
+  mutate_at(vars(ends_with("_monitored")), funs(pmin(1, .))) %>% 
+  ## add columns on number substances and number monitored
+  mutate(
+    num_substances = num_substances,
+    num_monitored = rowSums(.[grep("_monitored", names(.))]),
+    proportion_monitored = round(num_monitored/num_substances, 2)
+  ) %>%
+  select(Subbasin, BHI_ID, proportion_monitored) %>% 
+  mutate(dimension = "status")
 ```
 
 ### 3.4.2 Save concerning substances layer and intermediate datasets {-}
