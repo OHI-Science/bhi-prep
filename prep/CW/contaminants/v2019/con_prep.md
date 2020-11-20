@@ -1,151 +1,98 @@
 Clean Water (CW) - Contaminants (CON) Subgoal Data Preparation
 ================
 
-<br>
+-   [1. Background](#background)
+    -   [1.1 Goal Description](#goal-description)
+    -   [1.2 Model & Data](#model-data)
+    -   [1.3 Reference points](#reference-points)
+    -   [1.4 Other information](#other-information)
+-   [2. Data](#data)
+    -   [2.1 Datasets with Sources](#datasets-with-sources)
+    -   [2.2 Centralization & Normalization](#centralization-normalization)
+    -   [2.3 Initial Data Exploration](#initial-data-exploration)
+-   [3. Wrangling, Evaluation, and Gapfilling](#wrangling-evaluation-and-gapfilling)
+    -   [3.1 PCB Indicator](#pcb-indicator)
+    -   [3.2 PFOS Indicator](#pfos-indicator-1)
+    -   [3.3 Dioxin Indicator](#dioxin-indicator)
+    -   [3.4 Concerning Substances Indicator](#concerning-substances-indicator)
+    -   [3.4.1 Regional monitoring of Concerning Substances](#regional-monitoring-of-concerning-substances)
+    -   [3.4.2 Save concerning substances layer and intermediate datasets](#save-concerning-substances-layer-and-intermediate-datasets)
+-   [4. Visualizing Contaminants Data Layers](#visualizing-contaminants-data-layers)
+    -   [4.1 Contaminants data layers Maps & Subbasin Trends](#contaminants-data-layers-maps-subbasin-trends)
+-   [5. Considerations for `BHI3.0`](#considerations-for-bhi3.0)
+-   [6. References](#references)
 
 <br>
 
-## 1\. Background
+<br>
+
+1. Background
+-------------
 
 ### 1.1 Goal Description
 
-The Contaminant sub-goal of the Clean Water goal captures the degree to
-which local waters are unpolluted by contaminants. This sub-goal scores
-highest when the contamination level is below a threshold, which is
-defined by the Marine Framework Directive. For the BHI three
-contaminants indicators are proposed, describing different aspects of
-toxicity: dioxin and dioxin like compounds, polychlorinated biphenyl
-compounds (PCBs), and perfluorooctanesulfonic acid (PFOS). In addition,
-a penalty factor has been applied to account for the fact that current
-monitoring programs do not cover all the registered and harmful
-contaminants.
+The Contaminant sub-goal of the Clean Water goal captures the degree to which local waters are unpolluted by contaminants. This sub-goal scores highest when the contamination level is below a threshold, which is defined by the Marine Framework Directive. For the BHI three contaminants indicators are proposed, describing different aspects of toxicity: dioxin and dioxin like compounds, polychlorinated biphenyl compounds (PCBs), and perfluorooctanesulfonic acid (PFOS). In addition, a penalty factor has been applied to account for the fact that current monitoring programs do not cover all the registered and harmful contaminants.
 
 ### 1.2 Model & Data
 
-All contaminant data were downloaded from the open-accessible ICES
-database (see below).
+All contaminant data were downloaded from the open-accessible ICES database (see below).
 
-  - [ICES Database for Contaminants in Biota (PCBs, Dioxins, PFOS, and
-    Concerning
-    Substances)](http://dome.ices.dk/views/ContaminantsBiota.aspx)
-  - [ICES Database for Contaminants in Sediment (PCBs, Dioxins, and
-    Concerning
-    Substances)](http://dome.ices.dk/views/ContaminantsSediment.aspx)
-  - [Reference codes for PCB
-    Congeners](https://vocab.ices.dk/?CodeID=26983)
-  - [Reference codes for Dioxin
-    Congeners](https://vocab.ices.dk/?CodeID=26986)
+-   [ICES Database for Contaminants in Biota (PCBs, Dioxins, PFOS, and Concerning Substances)](http://dome.ices.dk/views/ContaminantsBiota.aspx)
+-   [ICES Database for Contaminants in Sediment (PCBs, Dioxins, and Concerning Substances)](http://dome.ices.dk/views/ContaminantsSediment.aspx)
+-   [Reference codes for PCB Congeners](https://vocab.ices.dk/?CodeID=26983)
+-   [Reference codes for Dioxin Congeners](https://vocab.ices.dk/?CodeID=26986)
 
 Table to calculate the Concerning Substances indicator (penalty factor):
 
-  - [European Chemical Agency Candidate List of substances of very high
-    concern for
-    Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists)
+-   [European Chemical Agency Candidate List of substances of very high concern for Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists)
 
 ### 1.3 Reference points
 
 #### 1.3.1 PCB Concentration Indicator Biota
 
-Non-dioxin like PCBs: sum of congeners (28, 52, 101, 138, 153, 180).
-Target is set at the threshold of 75 ug/kg ww (wet weight) fish muscle.
+Non-dioxin like PCBs: sum of congeners (28, 52, 101, 138, 153, 180). Target is set at the threshold of 75 ug/kg ww (wet weight) fish muscle.
 
-This is similar to the ICES-7 except that PCB 118 is excluded, since it
-is metabolized by mammals.
+This is similar to the ICES-7 except that PCB 118 is excluded, since it is metabolized by mammals.
 
-75 ng/g wet weight is the [EU threshold for fish muscle. See Section 5
-Annex, 5.3](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF).
-This threshold was also agreed upon as GES boundary at the meeting of
-the [Working Group on the State of the Environment and Nature
-Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation)
-April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*
+75 ng/g wet weight is the [EU threshold for fish muscle. See Section 5 Annex, 5.3](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF). This threshold was also agreed upon as GES boundary at the meeting of the [Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation) April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*
 
 <br/>
 
 #### 1.3.2 TEQ values for Dioxins and Dioxin-like PCBs in Biota
 
-Dioxin and dioxin-like compounds. Target is set at 0.0065 TEQ ug/kg ww
-fish, crustaceans or molluscs (source of target: EQS biota human
-health). Secondary GES boundary: CB-118 24 ug/kg lw fish liver or muscle
-(source: EAC).
+Dioxin and dioxin-like compounds. Target is set at 0.0065 TEQ ug/kg ww fish, crustaceans or molluscs (source of target: EQS biota human health). Secondary GES boundary: CB-118 24 ug/kg lw fish liver or muscle (source: EAC).
 
-This threshold was agreed upon as GES indicator at the meeting of the
-[Working Group on the State of the Environment and Nature
-Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation)
-April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*
+This threshold was agreed upon as GES indicator at the meeting of the [Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation) April 11-15, 2016. *Recevied the draft report from Elisabeth Nyberg.*
 
-This is consistent with the [EU human health thresholds for dioxin and
-dioxin-like compounds - 6.5
-pg/g](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF)
+This is consistent with the [EU human health thresholds for dioxin and dioxin-like compounds - 6.5 pg/g](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF)
 
-TEQ values from the [World Health
-Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)
+TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)
 
 <br/>
 
 #### 1.3.3 PFOS Indicator
 
-According to [HELCOM PFOS core indicator document,
-p.3](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf),
-the “GES boundary is set to 9.1 μg/kg wet weight (or 9.1 ng/g ww) with
-the protection goal of human health”.
+According to [HELCOM PFOS core indicator document, p.3](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf), the "GES boundary is set to 9.1 μg/kg wet weight (or 9.1 ng/g ww) with the protection goal of human health".
 
-“The GES boundary is an environmental quality standard (EQS), derived at
-EU level as a substance included on the list of priority substances
-under the Water Framework Directive (European Commission 2000, 2013).
-GES, in accordance with the MSFD is defined as ‘concentrations of
-contaminants at levels not giving rise to pollution effects’. EQS are
-derived from ecotoxicological studies to protect freshwater and marine
-ecosystems from potential adverse effects of chemicals, as well as
-adverse effects on human health via drinking water and food from aquatic
-environments. Quality Standards (QS) are derived for different
-protection goals, i.e.: pelagic and benthic communities, top-predators
-in these ecosystems, and human health. The most stringent of these QS is
-the basis for the EQS. The EQS boundary for PFOS is based on the QS set
-for biota to protect human health (9.1 μg/ kg fish ww), defined for
-edible parts in fish. For harmonization purposes the EC Guidance
-Document No. 32 on biota monitoring (the implementation of EQS biota)
-under the WFD was developed (European Commission 2014). This guidance
-document recommends that the results from the monitoring should be
-standardized to represent fish at a trophic level of 4, which is an
-estimate of the general trophic level in commercial fish in Europe. The
-recommendation to obtain PFOS data in fish at a trophic level of 4 is to
-adjust the values from monitoring in accordance with trophic
-magnification factors and trophic level.” \(-\) [HELCOM PFOS core
-indicator document,
-p.8](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)
+"The GES boundary is an environmental quality standard (EQS), derived at EU level as a substance included on the list of priority substances under the Water Framework Directive (European Commission 2000, 2013). GES, in accordance with the MSFD is defined as 'concentrations of contaminants at levels not giving rise to pollution effects'. EQS are derived from ecotoxicological studies to protect freshwater and marine ecosystems from potential adverse effects of chemicals, as well as adverse effects on human health via drinking water and food from aquatic environments. Quality Standards (QS) are derived for different protection goals, i.e.: pelagic and benthic communities, top-predators in these ecosystems, and human health. The most stringent of these QS is the basis for the EQS. The EQS boundary for PFOS is based on the QS set for biota to protect human health (9.1 μg/ kg fish ww), defined for edible parts in fish. For harmonization purposes the EC Guidance Document No. 32 on biota monitoring (the implementation of EQS biota) under the WFD was developed (European Commission 2014). This guidance document recommends that the results from the monitoring should be standardized to represent fish at a trophic level of 4, which is an estimate of the general trophic level in commercial fish in Europe. The recommendation to obtain PFOS data in fish at a trophic level of 4 is to adjust the values from monitoring in accordance with trophic magnification factors and trophic level." − [HELCOM PFOS core indicator document, p.8](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)
 
-**HELCOM core indicator report uses liver PFOS concentrations converted
-to muscle equivalent values** as in [Faxneld et
-al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).
+**HELCOM core indicator report uses liver PFOS concentrations converted to muscle equivalent values** as in [Faxneld et al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).
 
 <br/>
 
 #### 1.3.4 TEQ values for PCBs in Sediment
 
-Only a few environmental quality standards (EQS) are to date defined in
-the Baltic Sea for marine surface sediments. The Norwegian threshold
-values are often used when a comparison with ecotoxicological effects is
-needed. In particular, the [Norwegian Environment
-Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
-has defined EQS in sediment for 28 EU priority substances.
+Only a few environmental quality standards (EQS) are to date defined in the Baltic Sea for marine surface sediments. The Norwegian threshold values are often used when a comparison with ecotoxicological effects is needed. In particular, the [Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf) has defined EQS in sediment for 28 EU priority substances.
 
-PCB7 (sum PCB 28, 52, 101, 118, 138, 153, and 180): Target is set at 4.1
-TS ug/kg dw. [Environmental quality classification of water
-bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
+PCB7 (sum PCB 28, 52, 101, 118, 138, 153, and 180): Target is set at 4.1 TS ug/kg dw. [Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
 
-**Recommended threshold values are given only for total PCB7, and not
-for each individual congener. This is because toxicity data are
-available for only a minority of congeners.**
+**Recommended threshold values are given only for total PCB7, and not for each individual congener. This is because toxicity data are available for only a minority of congeners.**
 
 <br/>
 
 #### 1.3.5 TEQ values for Dioxins in Sediment
 
-Dioxin and dioxin-like compounds. Target is set at 0.00086 TEQ ug/kg dw
-(Total TEQ). [Norwegian Environment
-Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
-TEQ values from the [World Health
-Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)
+Dioxin and dioxin-like compounds. Target is set at 0.00086 TEQ ug/kg dw (Total TEQ). [Norwegian Environment Agency](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf) TEQ values from the [World Health Organization 2005](http://www.who.int/ipcs/assessment/tef_values.pdf)
 
 <br/>
 
@@ -155,21 +102,17 @@ External advisors/goalkeepers: Anna Sobek
 
 <br/>
 
-## 2\. Data
+2. Data
+-------
 
-This prep document is used to generate and explore the following data
-layers:
+This prep document is used to generate and explore the following data layers:
 
-  - `cw_con_pcb_bhi2019.csv`
-  - `cw_con_pfos_bhi2019.csv`
-  - `cw_con_dioxin_bhi2019.csv`
-  - `cw_con_penalty_bhi2019.csv`
+-   `cw_con_pcb_bhi2019.csv`
+-   `cw_con_pfos_bhi2019.csv`
+-   `cw_con_dioxin_bhi2019.csv`
+-   `cw_con_penalty_bhi2019.csv`
 
-These are saved to the `layers` folder. Intermediate datasets saved to
-`data/CW/contaminants/v2019/intermediate` include:
-`pcb_bio_cleaned.csv`, `pcb_sed_cleaned.csv`, `pfos_bio_cleaned.csv`,
-`dioxin_bio_cleaned.csv` and `dioxin_sed_cleaned.csv`. All these are
-derived from or informed by the following raw datasets.
+These are saved to the `layers` folder. Intermediate datasets saved to `data/CW/contaminants/v2019/intermediate` include: `pcb_bio_cleaned.csv`, `pcb_sed_cleaned.csv`, `pfos_bio_cleaned.csv`, `dioxin_bio_cleaned.csv` and `dioxin_sed_cleaned.csv`. All these are derived from or informed by the following raw datasets.
 
 ### 2.1 Datasets with Sources
 
@@ -177,1936 +120,180 @@ derived from or informed by the following raw datasets.
 
 #### 2.1.1 PCB Data
 
-**PCB Data in Biota**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_PCBs.csv -->
-<!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_20Feb07_PCBs.csv -->
-
-<table class="table" style="">
-
-<caption>
-
-Source: [ICES
-Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br>
-Downloaded 22 April 2019 by Ellie Campbell
-
-</caption>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-Option
-
-</th>
-
-<th style="text-align:left;">
-
-Specification
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-Year
-
-</td>
-
-<td style="text-align:left;">
-
-1990-2017
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Purpose of monitoring
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Country
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Monitoring Program
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Parameter Group
-
-</td>
-
-<td style="text-align:left;">
-
-Chlorobiphenyls
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Reporting Laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Analytical laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Geographical Areas
-
-</td>
-
-<td style="text-align:left;">
-
-(HELCOM) ALL HELCOM sub-basins
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-**PCB Congeners**
-<!-- reference codes found here: https://vocab.ices.dk/?CodeID=26983 -->
-
-<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-
-<thead>
-
-<tr>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
-Data
-Code
-
-</th>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB180
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,3,4,4’,5,5’-heptachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-SCB7
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-sum of CBs.- Sum of
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB28
-
-</td>
-
-<td style="text-align: right;">
-
-2,4,4’-trichlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB52
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,5,5’-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB101
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,4,5,5’-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB118
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,3’,4,4’,5-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB153
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,4,4’,5,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB138
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,4,4’,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-PCB
-
-</td>
-
-<td style="text-align: right;">
-
-polychlorinated biphenyls - Deprecated- Report as single PCBs
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB194
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,3’,4,4’,5,5’-octachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB105
-
-</td>
-
-<td style="text-align: right;">
-
-2,3,3’,4,4’-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB110
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,3,3’,4’,6-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB126
-
-</td>
-
-<td style="text-align: right;">
-
-3,3’,4,4’,5-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB128
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,3’,4,4’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB149
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,3,4’,5’,6-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB151
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,5,5’,6-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB156
-
-</td>
-
-<td style="text-align: right;">
-
-2,3,3’,4,4’,5-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB157
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,3,4,3’,4’,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB170
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,3,3’,4,4’,5-heptachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB44
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,5’-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB49
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,4,5’-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB99
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,4,4’,5-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB77
-
-</td>
-
-<td style="text-align: right;">
-
-3,3’,4,4’-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB169
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-3,3’,4,4’,5,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB31
-
-</td>
-
-<td style="text-align: right;">
-
-2,4’,5-trichlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB81
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-3,4,4’,5-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-SCB
-
-</td>
-
-<td style="text-align: right;">
-
-sum of CBs.- Specify in method data
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB189
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,3,3’,4,4’,5,5’-heptachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB114
-
-</td>
-
-<td style="text-align: right;">
-
-2,3,4,4’,5-pentachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB123
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1,1’-Biphenyl, 2,3’,4,4’,5’-pentachloro-
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB167
-
-</td>
-
-<td style="text-align: right;">
-
-2’,3,4,4’,5,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB187
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,4’,5,5’,6-heptachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB66
-
-</td>
-
-<td style="text-align: right;">
-
-2,3’,4,4’-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB60
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1,1’-Biphenyl, 2,3,4,4’-tetrachloro-
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB141
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,3,4,5,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB74
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,4,4’,5-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB206
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,3,3’,4,4’,5,5’,6-nonachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB33
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2’,3,4-trichlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB18
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,5-trichlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB183
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,4,4’,5’,6-heptachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB47
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,4,4’-tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB209
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2,2’,3,3’,4,4’,5,5’,6,6’-decachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CB51
-
-</td>
-
-<td style="text-align: right;">
-
-2,2’,4,6’-Tetrachlorobiphenyl
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CB122
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1,1’-Biphenyl, 2,3,3’,4’,5’-pentachloro-
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="border-bottom: 2px solid grey; text-align: left;">
-
-CB138+163
-
-</td>
-
-<td style="border-bottom: 2px solid grey; text-align: right;">
-
-2,2’,3,4,4’,5’-hexachlorobiphenyl
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+**PCB Data in Biota** <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_PCBs.csv --> <!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_20Feb07_PCBs.csv -->
+
+| Option                | Specification                  |
+|:----------------------|:-------------------------------|
+| Year                  | 1990-2017                      |
+| Purpose of monitoring | All                            |
+| Country               | All                            |
+| Monitoring Program    | All                            |
+| Parameter Group       | Chlorobiphenyls                |
+| Reporting Laboratory  | All                            |
+| Analytical laboratory | All                            |
+| Geographical Areas    | (HELCOM) ALL HELCOM sub-basins |
+
+**PCB Congeners** <!-- reference codes found here: https://vocab.ices.dk/?CodeID=26983 -->
+
+| Data Code |                                                               |
+|:----------|:--------------------------------------------------------------|
+| CB180     | 2,2',3,4,4',5,5'-heptachlorobiphenyl                          |
+| SCB7      | sum of CBs.- Sum of                                           |
+| CB28      | 2,4,4'-trichlorobiphenyl                                      |
+| CB52      | 2,2',5,5'-tetrachlorobiphenyl                                 |
+| CB101     | 2,2',4,5,5'-pentachlorobiphenyl                               |
+| CB118     | 2,3',4,4',5-pentachlorobiphenyl                               |
+| CB153     | 2,2',4,4',5,5'-hexachlorobiphenyl                             |
+| CB138     | 2,2',3,4,4',5'-hexachlorobiphenyl                             |
+| PCB       | polychlorinated biphenyls - Deprecated- Report as single PCBs |
+| CB194     | 2,2',3,3',4,4',5,5'-octachlorobiphenyl                        |
+| CB105     | 2,3,3',4,4'-pentachlorobiphenyl                               |
+| CB110     | 2,3,3',4',6-pentachlorobiphenyl                               |
+| CB126     | 3,3',4,4',5-pentachlorobiphenyl                               |
+| CB128     | 2,2',3,3',4,4'-hexachlorobiphenyl                             |
+| CB149     | 2,2',3,4',5',6-hexachlorobiphenyl                             |
+| CB151     | 2,2',3,5,5',6-hexachlorobiphenyl                              |
+| CB156     | 2,3,3',4,4',5-hexachlorobiphenyl                              |
+| CB157     | 2,3,4,3',4',5'-hexachlorobiphenyl                             |
+| CB170     | 2,2',3,3',4,4',5-heptachlorobiphenyl                          |
+| CB44      | 2,2',3,5'-tetrachlorobiphenyl                                 |
+| CB49      | 2,2',4,5'-tetrachlorobiphenyl                                 |
+| CB99      | 2,2',4,4',5-pentachlorobiphenyl                               |
+| CB77      | 3,3',4,4'-tetrachlorobiphenyl                                 |
+| CB169     | 3,3',4,4',5,5'-hexachlorobiphenyl                             |
+| CB31      | 2,4',5-trichlorobiphenyl                                      |
+| CB81      | 3,4,4',5-tetrachlorobiphenyl                                  |
+| SCB       | sum of CBs.- Specify in method data                           |
+| CB189     | 2,3,3',4,4',5,5'-heptachlorobiphenyl                          |
+| CB114     | 2,3,4,4',5-pentachlorobiphenyl                                |
+| CB123     | 1,1'-Biphenyl, 2,3',4,4',5'-pentachloro-                      |
+| CB167     | 2',3,4,4',5,5'-hexachlorobiphenyl                             |
+| CB187     | 2,2',3,4',5,5',6-heptachlorobiphenyl                          |
+| CB66      | 2,3',4,4'-tetrachlorobiphenyl                                 |
+| CB60      | 1,1'-Biphenyl, 2,3,4,4'-tetrachloro-                          |
+| CB141     | 2,2',3,4,5,5'-hexachlorobiphenyl                              |
+| CB74      | 2,4,4',5-tetrachlorobiphenyl                                  |
+| CB206     | 2,2',3,3',4,4',5,5',6-nonachlorobiphenyl                      |
+| CB33      | 2',3,4-trichlorobiphenyl                                      |
+| CB18      | 2,2',5-trichlorobiphenyl                                      |
+| CB183     | 2,2',3,4,4',5',6-heptachlorobiphenyl                          |
+| CB47      | 2,2',4,4'-tetrachlorobiphenyl                                 |
+| CB209     | 2,2',3,3',4,4',5,5',6,6'-decachlorobiphenyl                   |
+| CB51      | 2,2',4,6'-Tetrachlorobiphenyl                                 |
+| CB122     | 1,1'-Biphenyl, 2,3,3',4',5'-pentachloro-                      |
+| CB138+163 | 2,2',3,4,4',5'-hexachlorobiphenyl                             |
 
 <br/>
 
-**PCBs in Sediment**
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_PCBs/ContaminantsSediment_PCBs.csv -->
-
-<table class="table" style="">
-
-<caption>
-
-Source: [ICES
-Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br>
-Downloaded 13 February 2020 by Ellie Campbell
-
-</caption>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-Option
-
-</th>
-
-<th style="text-align:left;">
-
-Specification
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-Year
-
-</td>
-
-<td style="text-align:left;">
-
-All8
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Purpose of monitoring
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Country
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Monitoring Program
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Parameter Group
-
-</td>
-
-<td style="text-align:left;">
-
-Chlorobiphenyls
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Reporting Laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Analytical laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Geographical Areas
-
-</td>
-
-<td style="text-align:left;">
-
-(ICES) All ICES Areas
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+**PCBs in Sediment** <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_PCBs/ContaminantsSediment_PCBs.csv -->
+
+| Option                | Specification         |
+|:----------------------|:----------------------|
+| Year                  | All8                  |
+| Purpose of monitoring | All                   |
+| Country               | All                   |
+| Monitoring Program    | All                   |
+| Parameter Group       | Chlorobiphenyls       |
+| Reporting Laboratory  | All                   |
+| Analytical laboratory | All                   |
+| Geographical Areas    | (ICES) All ICES Areas |
 
 <br/>
 
 #### 2.1.2 PFOS Data
 
-**PFOS in
-Biota**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_PFOS.csv -->
-<!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_20Feb07_PFOS.csv -->
-
-<table class="table" style="">
-
-<caption>
-
-Source: [ICES
-Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br>
-Downloaded 22 April 2019 by Ellie Campbell
-
-</caption>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-Option
-
-</th>
-
-<th style="text-align:left;">
-
-Specification
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-Year
-
-</td>
-
-<td style="text-align:left;">
-
-2005-2017 (2005 earliest allowed)
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Purpose of monitoring
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Country
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Monitoring Program
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Parameter Group
-
-</td>
-
-<td style="text-align:left;">
-
-Organofluorines
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Reporting Laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Analytical laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Geographical Areas
-
-</td>
-
-<td style="text-align:left;">
-
-(HELCOM) ALL HELCOM sub-basins
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+**PFOS in Biota**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_PFOS.csv --> <!-- w/ one year more of data...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_20Feb07_PFOS.csv -->
+
+| Option                | Specification                     |
+|:----------------------|:----------------------------------|
+| Year                  | 2005-2017 (2005 earliest allowed) |
+| Purpose of monitoring | All                               |
+| Country               | All                               |
+| Monitoring Program    | All                               |
+| Parameter Group       | Organofluorines                   |
+| Reporting Laboratory  | All                               |
+| Analytical laboratory | All                               |
+| Geographical Areas    | (HELCOM) ALL HELCOM sub-basins    |
 
 <br/>
 
 #### 2.1.3 Dioxin Data
 
-**Dioxins in
-Biota**  
-<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_Dioxins.csv -->
-<!-- w/ one year more...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_20Feb07_Dioxins.csv -->
-
-<table class="table" style="">
-
-<caption>
-
-Source: [ICES
-Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br>
-Downloaded 22 April 2019 by Ellie Campbell
-
-</caption>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-Option
-
-</th>
-
-<th style="text-align:left;">
-
-Specification
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-Year
-
-</td>
-
-<td style="text-align:left;">
-
-1998-2017 (1998 earliest allowed)
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Purpose of monitoring
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Country
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Monitoring Program
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Parameter Group
-
-</td>
-
-<td style="text-align:left;">
-
-Dioxins
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Reporting Laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Analytical laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Geographical Areas
-
-</td>
-
-<td style="text-align:left;">
-
-(HELCOM) ALL HELCOM sub-basins
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-**Dioxin Congeners**
-<!-- reference codes found here: https://vocab.ices.dk/?CodeID=26986 -->
-
-<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-
-<thead>
-
-<tr>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
-Data
-Code
-
-</th>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDD1N
-
-</td>
-
-<td style="text-align: right;">
-
-1 2 3 7 8-pentachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDD4X
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1 2 3 4 7 8-hexachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDD6P
-
-</td>
-
-<td style="text-align: right;">
-
-1 2 3 4 6 7 8-heptachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDD6X
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1 2 3 6 7 8-hexachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDD9X
-
-</td>
-
-<td style="text-align: right;">
-
-1 2 3 7 8 9-hexachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDDO
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1 2 3 4 6 7 8 9-octachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDF2N
-
-</td>
-
-<td style="text-align: right;">
-
-2 3 4 7 8-pentachlorodibenzofuran
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDF2T
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-2 3 7 8-tetrachloro-dibenzofuran
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDF4X
-
-</td>
-
-<td style="text-align: right;">
-
-2 3 4 6 7 8-hexachlorodibenzofuran
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDF6P
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1 2 3 4 6 7 8-heptachlorodibenzofuran
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDF6X
-
-</td>
-
-<td style="text-align: right;">
-
-1 2 3 6 7 8-hexachlorodibenzofuran
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDF9P
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1 2 3 4 7 8 9-heptachlorodibenzofuran
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDF9X
-
-</td>
-
-<td style="text-align: right;">
-
-1 2 3 7 8 9-hexachlorodibenzofuran
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; text-align: left;">
-
-CDFDN
-
-</td>
-
-<td style="background-color: #8d909e; text-align: right;">
-
-1 2 3 7 8/1 2 3 4 8-pentachloro-dibenzofuran
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align: left;">
-
-CDFO
-
-</td>
-
-<td style="text-align: right;">
-
-octachloro-dibenzofuran
-(group)
-
-</td>
-
-</tr>
-
-<tr style="background-color: #8d909e;">
-
-<td style="background-color: #8d909e; border-bottom: 2px solid grey; text-align: left;">
-
-TCDD
-
-</td>
-
-<td style="background-color: #8d909e; border-bottom: 2px solid grey; text-align: right;">
-
-2 3 7 8-tetrachlorodibenzo-p-dioxin
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+**Dioxins in Biota**
+<!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_Dioxins.csv --> <!-- w/ one year more...BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_20Feb07_Dioxins.csv -->
+
+| Option                | Specification                     |
+|:----------------------|:----------------------------------|
+| Year                  | 1998-2017 (1998 earliest allowed) |
+| Purpose of monitoring | All                               |
+| Country               | All                               |
+| Monitoring Program    | All                               |
+| Parameter Group       | Dioxins                           |
+| Reporting Laboratory  | All                               |
+| Analytical laboratory | All                               |
+| Geographical Areas    | (HELCOM) ALL HELCOM sub-basins    |
+
+**Dioxin Congeners** <!-- reference codes found here: https://vocab.ices.dk/?CodeID=26986 -->
+
+| Data Code |                                              |
+|:----------|:---------------------------------------------|
+| CDD1N     | 1 2 3 7 8-pentachlorodibenzo-p-dioxin        |
+| CDD4X     | 1 2 3 4 7 8-hexachlorodibenzo-p-dioxin       |
+| CDD6P     | 1 2 3 4 6 7 8-heptachlorodibenzo-p-dioxin    |
+| CDD6X     | 1 2 3 6 7 8-hexachlorodibenzo-p-dioxin       |
+| CDD9X     | 1 2 3 7 8 9-hexachlorodibenzo-p-dioxin       |
+| CDDO      | 1 2 3 4 6 7 8 9-octachlorodibenzo-p-dioxin   |
+| CDF2N     | 2 3 4 7 8-pentachlorodibenzofuran            |
+| CDF2T     | 2 3 7 8-tetrachloro-dibenzofuran             |
+| CDF4X     | 2 3 4 6 7 8-hexachlorodibenzofuran           |
+| CDF6P     | 1 2 3 4 6 7 8-heptachlorodibenzofuran        |
+| CDF6X     | 1 2 3 6 7 8-hexachlorodibenzofuran           |
+| CDF9P     | 1 2 3 4 7 8 9-heptachlorodibenzofuran        |
+| CDF9X     | 1 2 3 7 8 9-hexachlorodibenzofuran           |
+| CDFDN     | 1 2 3 7 8/1 2 3 4 8-pentachloro-dibenzofuran |
+| CDFO      | octachloro-dibenzofuran (group)              |
+| TCDD      | 2 3 7 8-tetrachlorodibenzo-p-dioxin          |
 
 <br>
 
-**Dioxins in
-Sediment**  
+**Dioxins in Sediment**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_Dioxins/ContaminantsSediment_Dioxins.csv -->
 
-<table class="table" style="">
-
-<caption>
-
-Source: [ICES
-Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br>
-Downloaded 13 February 2020 by Ellie Campbell
-
-</caption>
-
-<thead>
-
-<tr>
-
-<th style="text-align:left;">
-
-Option
-
-</th>
-
-<th style="text-align:left;">
-
-Specification
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td style="text-align:left;">
-
-Year
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Purpose of monitoring
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Country
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Monitoring Program
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Parameter Group
-
-</td>
-
-<td style="text-align:left;">
-
-Dioxins
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Reporting Laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Analytical laboratory
-
-</td>
-
-<td style="text-align:left;">
-
-All
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Geographical Areas
-
-</td>
-
-<td style="text-align:left;">
-
-(ICES) All ICES
-Areas
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+| Option                | Specification         |
+|:----------------------|:----------------------|
+| Year                  | All                   |
+| Purpose of monitoring | All                   |
+| Country               | All                   |
+| Monitoring Program    | All                   |
+| Parameter Group       | Dioxins               |
+| Reporting Laboratory  | All                   |
+| Analytical laboratory | All                   |
+| Geographical Areas    | (ICES) All ICES Areas |
+
+<br>
 
 #### 2.1.4 Concerning Substances Datasets
 
 <!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_ConcerningSubstances -->
-
 <!-- datasets save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsSediment_ConcerningSubstances -->
-
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/concerning_substances_lookup.csv -->
+A list of concerning substances was obtained from [European Chemical Agency Candidate List of substances of very high concern for Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists) (published in accordance with Article 59(10) of the REACH Regulation). These substances were compared with those in the [ICES database](http://dome.ices.dk/views/ContaminantsBiota.aspx). Datasets for substances with ICES records were downloaded and saved in a similar manner as the PCBs, PFOS, and Organofluorines datasets.
 
-A list of concerning substances was obtained from [European Chemical
-Agency Candidate List of substances of very high concern for
-Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists)
-(published in accordance with Article 59(10) of the REACH Regulation).
-These substances were compared with those in the [ICES
-database](http://dome.ices.dk/views/ContaminantsBiota.aspx). Datasets
-for substances with ICES records were downloaded and saved in a similar
-manner as the PCBs, PFOS, and Organofluorines
-datasets.
-
------
+------------------------------------------------------------------------
 
 <br>
 
 ### 2.2 Centralization & Normalization
 
 <!-- note: remainder of this document incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections: -->
-
 <!-- raw_pcb_data_prep.R, raw_dioxin_data_prep.R, and raw_pfos_data_prep.R -->
-
 <!-- station_attribute_prep.R, congener_description.R -->
+This preliminary data wrangling includes steps to harmonize and check the 5 datasets used in the Contaminants subgoal:
 
-This preliminary data wrangling includes steps to harmonize and check
-the 5 datasets used in the Contaminants subgoal:
-
-  - Check number of years with samples by Country and Species, for
-    Contaminants in Biota datasets
-  - Rename columns and some variables within columns to improve clarity
-  - Standardize by converting units and also between methods of
-    measurement (e.g. wet vs. dry weight or muscle vs liver matrix
-    analyzed)
+-   Check number of years with samples by Country and Species, for Contaminants in Biota datasets
+-   Rename columns and some variables within columns to improve clarity
+-   Standardize by converting units and also between methods of measurement (e.g. wet vs. dry weight or muscle vs liver matrix analyzed)
 
 More details about the standardization and convertions in section 2.2.2.
 
@@ -2146,69 +333,35 @@ lapply(
 )
 ```
 
-##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills}
+##### Check number of years with samples by Country
 
 ###### PCBs
 
-<!--html_preserve-->
+![](con_prep_files/figure-markdown_github/check%20number%20of%20years%20sample%20by%20country%20in%20pcb%20data-1.png)
 
-<div id="htmlwidget-d0bff17a05b53a500389" class="datatables html-widget" style="width:100%;height:auto;">
-
-</div>
-
-<script type="application/json" data-for="htmlwidget-d0bff17a05b53a500389">{"x":{"filter":"none","data":[["Sweden","Sweden","Sweden","Sweden","Sweden","Sweden","Sweden","Sweden","Sweden","Poland","Poland","Poland","Poland","Poland","Finland","Finland","Finland","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Denmark","Denmark","Denmark","Denmark","Denmark","Denmark","Estonia","Estonia","Estonia","Latvia","Latvia","Latvia","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania"],["Cancer pagurus","Clupea harengus","Gadus morhua","Limanda limanda","Mytilus edulis","Perca fluviatilis","Platichthys flesus","Uria aalge","Zoarces viviparus","Clupea harengus","Gadus morhua","Mytilus edulis","Perca fluviatilis","Platichthys flesus","Clupea harengus","Perca fluviatilis","Saduria entomon","Abramis brama","Clupea harengus","Dreissena polymorpha","Gadus morhua","Larus argentatus","Limanda limanda","Mytilus edulis","Perca fluviatilis","Platichthys flesus","Zoarces viviparus","Mya arenaria","Mytilus edulis","Neogobius melanostomus","Platichthys flesus","Pleuronectes platessa","Zoarces viviparus","Clupea harengus","Clupea harengus membras","Perca fluviatilis","Clupea harengus","Macoma balthica","Perca fluviatilis","Clupea harengus","Gadus morhua","Macoma balthica","Mytilus edulis","Platichthys flesus"],[1,27,27,5,26,20,1,18,20,27,4,19,8,7,20,5,1,1,12,2,8,10,8,15,18,1,6,4,19,1,20,1,8,8,5,10,1,1,1,2,2,1,1,2],[2006,2014,2014,1993,2014,2014,2007,2014,2014,2014,1992,2014,2014,2014,2011,2010,1992,2017,2015,2014,2015,2015,2015,2015,2015,1998,2011,2006,2014,2018,2014,2018,2014,2018,2014,2014,2002,2002,2002,2016,2016,2015,2015,2016]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Country<\/th>\n      <th>Species<\/th>\n      <th>NumYrs<\/th>\n      <th>LatestYr<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-
-<!--/html_preserve-->
-
------
+------------------------------------------------------------------------
 
 <br>
 
 ###### PFOS
 
-<!--html_preserve-->
+![](con_prep_files/figure-markdown_github/check%20number%20of%20dates%20and%20years%20sample%20by%20country%20in%20pfos%20data-1.png)
 
-<div id="htmlwidget-9f520c96da46b8bc97c2" class="datatables html-widget" style="width:100%;height:auto;">
-
-</div>
-
-<script type="application/json" data-for="htmlwidget-9f520c96da46b8bc97c2">{"x":{"filter":"none","data":[["Sweden","Sweden","Sweden","Sweden","Sweden","Sweden","Finland","Finland","Denmark","Denmark","Denmark","Denmark","Poland","Poland","Poland","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Estonia","Estonia","Germany","Germany","Germany"],["Clupea harengus","Gadus morhua","Mytilus edulis","Perca fluviatilis","Uria aalge","Zoarces viviparus","Clupea harengus","Perca fluviatilis","Neogobius melanostomus","Platichthys flesus","Pleuronectes platessa","Zoarces viviparus","Clupea harengus","Perca fluviatilis","Platichthys flesus","Clupea harengus","Gadus morhua","Macoma balthica","Mytilus edulis","Platichthys flesus","Clupea harengus","Perca fluviatilis","Abramis brama","Perca fluviatilis","Zoarces viviparus"],[11,2,1,2,10,2,4,5,1,7,1,7,5,5,5,2,2,1,1,2,1,2,1,1,1],[2017,2017,2007,2017,2017,2017,2018,2016,2018,2017,2018,2017,2018,2018,2018,2016,2016,2015,2015,2016,2018,2018,2017,2017,2017]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Country<\/th>\n      <th>Species<\/th>\n      <th>NumYrs<\/th>\n      <th>LatestYr<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-
-<!--/html_preserve-->
-
------
+------------------------------------------------------------------------
 
 <br>
 
 ###### Dioxins
 
-<!--html_preserve-->
+![](con_prep_files/figure-markdown_github/check%20number%20of%20dates%20and%20years%20sample%20by%20country%20in%20dioxin%20data-1.png)
 
-<div id="htmlwidget-0f798ace572adf786bd2" class="datatables html-widget" style="width:100%;height:auto;">
-
-</div>
-
-<script type="application/json" data-for="htmlwidget-0f798ace572adf786bd2">{"x":{"filter":"none","data":[["Sweden","Sweden","Sweden","Sweden","Sweden","Sweden","Denmark","Denmark","Denmark","Denmark","Denmark","Denmark","Finland","Finland","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Estonia","Estonia","Germany","Germany","Germany"],["Cancer pagurus","Clupea harengus","Mytilus edulis","Perca fluviatilis","Platichthys flesus","Uria aalge","Mya arenaria","Mytilus edulis","Neogobius melanostomus","Platichthys flesus","Pleuronectes platessa","Zoarces viviparus","Clupea harengus","Perca fluviatilis","Clupea harengus","Gadus morhua","Macoma balthica","Mytilus edulis","Platichthys flesus","Clupea harengus","Perca fluviatilis","Abramis brama","Perca fluviatilis","Zoarces viviparus"],[1,12,2,8,1,10,1,12,1,7,1,8,3,5,2,2,1,1,2,1,1,1,1,1],[2006,2017,2007,2017,2007,2017,2005,2017,2018,2017,2018,2017,2018,2016,2016,2016,2015,2015,2016,2018,2018,2017,2017,2017]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Country<\/th>\n      <th>Species<\/th>\n      <th>NumYrs<\/th>\n      <th>LatestYr<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-
-<!--/html_preserve-->
-
------
+------------------------------------------------------------------------
 
 <br>
 
 #### 2.2.1 Rename Fields/Variables
 
-Renaming columns and some variables within columns for clarity. See
-references: [Contaminants in
-Biota](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20biota.pdf)
-and [Contaminants in
-Sediment](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20sediment.pdf).
-For more information about the ICES reporting format for environmental
-data see [this
-document](http://ices.dk/marine-data/Documents/ENV/ERF3.2.doc), also
-referenced in [this document from HELCOM BalticBOOST
-workshop](https://portal.helcom.fi/meetings/HELCOM%20BalticBOOST%20HZ%20WS%201-2016-323/MeetingDocuments/1-9%20Comparison%20of%20COMBINE%20data%20fields%20to%20EIONET%20data%20fields.pdf)
-on the HOLAS II hazardous substance assessment.
+Renaming columns and some variables within columns for clarity. See references: [Contaminants in Biota](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20biota.pdf) and [Contaminants in Sediment](http://dome.ices.dk/Download/Contaminants%20and%20effects%20of%20contaminants%20in%20sediment.pdf). For more information about the ICES reporting format for environmental data see [this document](http://ices.dk/marine-data/Documents/ENV/ERF3.2.doc), also referenced in [this document from HELCOM BalticBOOST workshop](https://portal.helcom.fi/meetings/HELCOM%20BalticBOOST%20HZ%20WS%201-2016-323/MeetingDocuments/1-9%20Comparison%20of%20COMBINE%20data%20fields%20to%20EIONET%20data%20fields.pdf) on the HOLAS II hazardous substance assessment.
 
 ``` r
 rename_vars <- function(dataset){
@@ -2293,49 +446,26 @@ lapply(
 )
 ```
 
------
+------------------------------------------------------------------------
 
 #### 2.2.2 Standardize Units
 
-The main objective of the code below is to clean the contaminants
-datases set so they contain only values based on wet weight for biota or
-dry weight for sediment-matrix measurements, in standardized units of
-ug/kg. This includes the following pre-processing steps:
+The main objective of the code below is to clean the contaminants datases set so they contain only values based on wet weight for biota or dry weight for sediment-matrix measurements, in standardized units of ug/kg. This includes the following pre-processing steps:
 
-  - Remove flagged and deprecated data entries  
-  - Separate `B-BIO` data from the other param group data (`OC-CB`,
-    `OC-DX`, or `O-FL` for PCB, Dioxin, PFOS resp.) for use in lipid
-    basis to wet weight conversion for biota or for conversion to dry
-    weight for sediments; also for calculation of muscle equivalent in
-    PFOS data
-  - Take averages where there are duplicate data samples, based on the
-    `sub_samp_ref` value groupings for biota or `samp_ref` value
-    groupings for sediment-matrix measurements  
-  - If wrangling PFOS dataset, calculate the muscle equivalent of values
-    where matrix analyzed was liver, using [Faxneld et al 2014,
-    table 8](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf)
-  - Convert all congener concentration data to ug/kg, and to wet weight
-    for biota or dry weight for sediment
-  - If data were presented in lipid weight, they were converted to wet
-    weight by: \((\mbox{EXLIP%}/100)*(\mbox{CB conc. lipid weight})\)
+-   Remove flagged and deprecated data entries
+-   Separate `B-BIO` data from the other param group data (`OC-CB`, `OC-DX`, or `O-FL` for PCB, Dioxin, PFOS resp.) for use in lipid basis to wet weight conversion for biota or for conversion to dry weight for sediments; also for calculation of muscle equivalent in PFOS data
+-   Take averages where there are duplicate data samples, based on the `sub_samp_ref` value groupings for biota or `samp_ref` value groupings for sediment-matrix measurements
+-   If wrangling PFOS dataset, calculate the muscle equivalent of values where matrix analyzed was liver, using [Faxneld et al 2014, table 8](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf)
+-   Convert all congener concentration data to ug/kg, and to wet weight for biota or dry weight for sediment
+-   If data were presented in lipid weight, they were converted to wet weight by: (EXLIP%/100)\*(CB conc. lipid weight)
 
-The datasets each contain two main categories (param\_groups) one of
-which is BBIO. BBIO consists of variables with information about the
-sample like dry/lipid/wet weight percentage, age, weight and length. The
-second category contains the congeners concentration information. In
-stages, these are each manipulated and later rejoined by the sample
-(`samp_ref` or `sub_samp_ref`) ID numbers.
+The datasets each contain two main categories (param\_groups) one of which is BBIO. BBIO consists of variables with information about the sample like dry/lipid/wet weight percentage, age, weight and length. The second category contains the congeners concentration information. In stages, these are each manipulated and later rejoined by the sample (`samp_ref` or `sub_samp_ref`) ID numbers.
 
 <br>
 
-**Check Sediment data Coverage before Filtering and Standardizing
-Units**
+**Check Sediment data Coverage before Filtering and Standardizing Units**
 
-Setting the cutoff to 0.05m (concentration measurements from sediment
-samples taked from within 5cm of the surface) means we retain coverage
-in the Gulf of Finland for PCBs indicator, and many more measurements in
-Germany around Kiel. Setting the depth cutoff to any smaller value would
-result in poor coverage.
+Setting the cutoff to 0.05m (concentration measurements from sediment samples taked from within 5cm of the surface) means we retain coverage in the Gulf of Finland for PCBs indicator, and many more measurements in Germany around Kiel. Setting the depth cutoff to any smaller value would result in poor coverage.
 
 ``` r
 ## basemap with baltic countries borders and BHI regions with ID numbers
@@ -2361,12 +491,11 @@ basemap <- ggplot2::ggplot() +
 
 <br>
 
-![](con_prep_files/figure-gfm/spatial%20coverage%20for%20sediment%20measurement%20depths-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/spatial%20coverage%20for%20sediment%20measurement%20depths-1.png)
 
 <br>
 
 <!-- the following code chunks are modified from raw_data_prep.r scripts in bhi-1.0-archive/baltic2015/prep/CW/contaminants -->
-
 ``` r
 standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param, rm_vars = NULL){
   
@@ -2814,15 +943,9 @@ standardize_con_data <- function(data_renamed, matrix_biota = TRUE, contam_param
 
 #### 2.2.3 Wrangle all and Save
 
-Apply the Standardization function defined above to all 5 Contaminants
-datasets and save the cleaned, harmonized data for later analysis. For
-PCBs in biota data, remove PCB, SCB, SCB7 variables as these are
-summarized data or depreciated codes; for PCBs in sediments remove PCB
-and
-SCB.
+Apply the Standardization function defined above to all 5 Contaminants datasets and save the cleaned, harmonized data for later analysis. For PCBs in biota data, remove PCB, SCB, SCB7 variables as these are summarized data or depreciated codes; for PCBs in sediments remove PCB and SCB.
 
 <!-- ideally at this stage we would save to a postgres+postgis database; still in the process of building this database now -->
-
 ``` r
 dir_interm <- here::here("data", "CW", "contaminants", version_year, "intermediate")
 
@@ -2864,196 +987,15 @@ lapply(
 )
 ```
 
------
+------------------------------------------------------------------------
 
 ### 2.3 Initial Data Exploration
-
-``` r
-## to start running code from here, will need to load in cleaned  datasets...
-
- dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
- lapply(list.files(dir_interm), function(dat){
-   dat_final <- read_csv(file.path(dir_interm, dat))
-   assign(
-     x = str_replace(dat, "cleaned.csv", "clean_df"),
-     value = dat_final,
-     envir = .GlobalEnv
-   )
- })
-```
-
-\[\[1\]\] \# A tibble: 10,582 x 40 country monit\_program monit\_purpose
-report\_institute monit\_year date\_ices <chr> <chr> <chr> <chr> <dbl>
-<chr>  
-1 Sweden COMB T SERI 2012 04/06/20… 2 Sweden COMB T SERI 2012 04/06/20…
-3 Sweden COMB T SERI 2012 04/06/20… 4 Sweden BMP T SERI 1998 22/09/19… 5
-Sweden BMP T SERI 1998 22/09/19… 6 Sweden CEMP~BMP T SERI 1998 07/09/19…
-7 Sweden CEMP~BMP T SERI 1998 07/09/19… 8 Sweden BMP T SERI 1998
-22/09/19… 9 Sweden CEMP~BMP T SERI 1998 07/09/19… 10 Sweden CEMP~BMP T
-SERI 1998 07/09/19… \# … with 10,572 more rows, and 34 more variables:
-day <dbl>, month <dbl>, \# num\_indiv\_subsample <dbl>, bulk\_id <lgl>,
-station <chr>, year <dbl>, \# species <chr>, basis\_determination <chr>,
-matrix\_analyzed <chr>, \# qflag <chr>, sub\_samp\_id <dbl>, samp\_ref
-<dbl>, sub\_samp\_ref <dbl>, \# date <date>, variable <chr>, longitude
-<dbl>, latitude <dbl>, value <dbl>, \# detect\_lim <dbl>, quant\_lim
-<dbl>, `EXLIP%` <dbl>, `FATWT%` <dbl>, \# WTMAX <dbl>, WTMEA <dbl>,
-WTMIN <dbl>, AGMEA <lgl>, `DRYWT%` <dbl>, \# LNMEA <dbl>, LNMAX <dbl>,
-LNMIN <dbl>, value\_wet\_wgt <dbl>, \# detect\_lim\_wet\_wgt <dbl>,
-quant\_lim\_wet\_wgt <dbl>, qflagged <lgl>
-
-\[\[2\]\] \# A tibble: 6,198 x 31 country monit\_program monit\_purpose
-report\_institute monit\_year date\_ices <chr> <chr> <chr> <chr> <dbl>
-<chr>  
-1 Denmark COMB T~S NERI 2014 31/10/20… 2 Denmark COMB T~S NERI 2014
-31/10/20… 3 Denmark COMB T~S NERI 2014 31/10/20… 4 Denmark COMB T~S NERI
-2014 31/10/20… 5 Denmark COMB T~S NERI 2014 31/10/20… 6 Denmark COMB T~S
-NERI 2014 31/10/20… 7 Denmark COMB T~S NERI 2014 31/10/20… 8 Denmark
-COMB T~S NERI 2014 31/10/20… 9 Denmark COMB T~S NERI 2014 31/10/20… 10
-Denmark COMB T~S NERI 2014 31/10/20… \# … with 6,188 more rows, and 25
-more variables: day <dbl>, month <dbl>, \# num\_indiv\_subsample <lgl>,
-bulk\_id <lgl>, station <chr>, year <dbl>, \# species <lgl>,
-basis\_determination <chr>, matrix\_analyzed <lgl>, \# qflag <chr>,
-sub\_samp\_id <chr>, samp\_ref <dbl>, date <date>, \# variable <chr>,
-longitude <dbl>, latitude <dbl>, value <dbl>, \# detect\_lim <dbl>,
-quant\_lim <dbl>, unit <chr>, `DRYWT%` <dbl>, \# value\_dry\_wgt <dbl>,
-detect\_lim\_dry\_wgt <dbl>, quant\_lim\_dry\_wgt <dbl>, \# qflagged
-<lgl>
-
-\[\[3\]\] \# A tibble: 58,981 x 43 country monit\_program monit\_purpose
-report\_institute monit\_year date\_ices <chr> <chr> <chr> <chr> <dbl>
-<chr>  
-1 Sweden COMB T SERI 2011 14/11/20… 2 Sweden COMB T SERI 2011 14/11/20…
-3 Sweden COMB T SERI 2012 03/12/20… 4 Sweden COMB T SERI 2012 03/12/20…
-5 Sweden COMB T SERI 2013 05/11/20… 6 Sweden COMB T SERI 2013 05/11/20…
-7 Sweden COMB T SERI 2014 24/11/20… 8 Sweden COMB T SERI 2014 24/11/20…
-9 Sweden NATL~COMB T SGUS 2016 28/11/20… 10 Sweden NATL~COMB T SGUS 2016
-28/11/20… \# … with 58,971 more rows, and 37 more variables: day <dbl>,
-month <dbl>, \# num\_indiv\_subsample <dbl>, bulk\_id <lgl>, station
-<chr>, year <dbl>, \# species <chr>, basis\_determination <chr>,
-matrix\_analyzed <chr>, \# qflag <chr>, sub\_samp\_id <chr>, samp\_ref
-<dbl>, sub\_samp\_ref <dbl>, \# date <date>, variable <chr>, longitude
-<dbl>, latitude <dbl>, value <dbl>, \# detect\_lim <dbl>, quant\_lim
-<dbl>, `EXLIP%` <dbl>, `FATWT%` <dbl>, \# WTMAX <lgl>, WTMEA <lgl>,
-WTMIN <lgl>, `DRYWT%` <dbl>, `LIPIDWT%` <lgl>, \# LNMEA <lgl>, AGMEA
-<lgl>, LNMAX <lgl>, LNMIN <lgl>, AGMAX <lgl>, \# AGMIN <lgl>,
-value\_wet\_wgt <dbl>, detect\_lim\_wet\_wgt <dbl>, \#
-quant\_lim\_wet\_wgt <dbl>, qflagged <lgl>
-
-\[\[4\]\] \# A tibble: 94,094 x 31 country monit\_program monit\_purpose
-report\_institute monit\_year date\_ices <chr> <chr> <chr> <chr> <dbl>
-<chr>  
-1 France JMP~WGA T~S ICBF 1991 26/08/19… 2 France JMP~WGA T~S ICBF 1991
-26/08/19… 3 France JMP~WGA T~S ICBF 1991 26/08/19… 4 France JMP~WGA T~S
-ICBF 1991 26/08/19… 5 France JMP~WGA T~S ICBF 1991 26/08/19… 6 France
-JMP~WGA T~S ICBF 1991 26/08/19… 7 France JMP~WGA T~S ICBF 1991 26/08/19…
-8 France JMP~WGA T~S ICBF 1991 26/08/19… 9 France JMP~WGA T~S ICBF 1991
-26/08/19… 10 France JMP~WGA T~S ICBF 1991 26/08/19… \# … with 94,084
-more rows, and 25 more variables: day <dbl>, month <dbl>, \#
-num\_indiv\_subsample <lgl>, bulk\_id <lgl>, station <chr>, year <dbl>,
-\# species <lgl>, basis\_determination <chr>, matrix\_analyzed <lgl>, \#
-qflag <chr>, sub\_samp\_id <chr>, samp\_ref <dbl>, date <date>, \#
-variable <chr>, longitude <dbl>, latitude <dbl>, value <dbl>, \#
-detect\_lim <dbl>, quant\_lim <dbl>, unit <lgl>, `DRYWT%` <dbl>, \#
-value\_dry\_wgt <dbl>, detect\_lim\_dry\_wgt <dbl>, quant\_lim\_dry\_wgt
-<dbl>, \# qflagged <lgl>
-
-\[\[5\]\] \# A tibble: 5,775 x 62 country monit\_program monit\_purpose
-report\_institute monit\_year date\_ices <chr> <chr> <chr> <chr> <dbl>
-<chr>  
-1 Finland COMB~WFD T~S SYKE 2015 18/09/20… 2 Finland COMB~WFD T~S SYKE
-2015 18/09/20… 3 Finland COMB~WFD T~S SYKE 2015 18/09/20… 4 Finland
-COMB~WFD T~S SYKE 2015 18/09/20… 5 Finland COMB~WFD T~S SYKE 2015
-18/09/20… 6 Finland COMB~WFD T~S SYKE 2015 18/09/20… 7 Finland COMB~WFD
-T~S SYKE 2015 18/09/20… 8 Finland COMB~WFD T~S SYKE 2015 18/09/20… 9
-Finland COMB~WFD T~S SYKE 2015 18/09/20… 10 Finland COMB~WFD T~S SYKE
-2015 18/09/20… \# … with 5,765 more rows, and 56 more variables: day
-<dbl>, month <dbl>, \# num\_indiv\_subsample <dbl>, bulk\_id <lgl>,
-station <chr>, year <dbl>, \# species <chr>, basis\_determination <chr>,
-matrix\_analyzed <chr>, \# qflag <chr>, sub\_samp\_id <dbl>, samp\_ref
-<dbl>, sub\_samp\_ref <dbl>, \# date <date>, variable <chr>, longitude
-<dbl>, latitude <dbl>, value <dbl>, \# detect\_lim <dbl>, quant\_lim
-<dbl>, `muscle_EXLIP%` <dbl>, \# `NA_FATWT%` <dbl>, `muscle_FATWT%`
-<dbl>, `muscle_LIPIDWT%` <lgl>, \# `muscle_DRYWT%` <dbl>, `liver_DRYWT%`
-<dbl>, `NA_EXLIP%` <dbl>, \# wholeorganism\_AGMEA <dbl>,
-wholeorganism\_WTMEA <dbl>, \# wholeorganism\_LNMEA <dbl>, `NA_DRYWT%`
-<lgl>, `liver_EXLIP%` <dbl>, \# wholeorganism\_LNMIN <lgl>,
-wholeorganism\_LNMAX <lgl>, \# wholeorganism\_WTMAX <lgl>,
-wholeorganism\_WTMIN <lgl>, liver\_WTMAX <lgl>, \# muscle\_WTMAX <lgl>,
-liver\_WTMEA <lgl>, liver\_WTMIN <lgl>, \# muscle\_WTMEA <lgl>,
-muscle\_WTMIN <lgl>, wholeorganism\_AGMAX <lgl>, \# wholeorganism\_AGMIN
-<lgl>, NA\_LNMIN <lgl>, NA\_LNMAX <lgl>, NA\_LNMEA <lgl>, \# NA\_WTMEA
-<lgl>, `liver_FATWT%` <lgl>, value\_pfos\_muscle\_equiv <dbl>, \#
-detect\_lim\_pfos\_muscle\_equiv <dbl>, quant\_lim\_pfos\_muscle\_equiv
-<dbl>, \# value\_pfos\_muscle\_equiv\_wet\_wgt <dbl>, \#
-detect\_lim\_pfos\_muscle\_equiv\_wet\_wgt <dbl>, \#
-quant\_lim\_pfos\_muscle\_equiv\_wet\_wgt <dbl>, qflagged <lgl>
-
-``` r
-make_plotdf <- function(x, yrs){
-  
-  grpvars <- c("year", "latitude", "longitude", "variable", "num_distinct_dates", "species")
-  valvar <- "value_wet_wgt"
-  if(str_detect(x, "sed")){
-    grpvars <- setdiff(grpvars, "species")
-    valvar <- "value_dry_wgt"
-  }
-  if(str_detect(x, "pfos")){
-    valvar <- "value_pfos_muscle_equiv_wet_wgt"
-  }
-  cbind(
-    get(x) %>%
-      filter(!is.na(!!!syms(valvar))) %>% 
-      filter(year %in% yrs, longitude > 9) %>%
-      group_by(latitude, longitude, variable) %>%
-      ## number of disinct dates at the location for the variable
-      mutate(num_distinct_dates = n_distinct(date)) %>%
-      group_by(!!!syms(grpvars)) %>%
-      ## mean annual values at the locatioin, by variable
-      summarize(
-        mean_val = ifelse(
-          str_detect(x, "sed"), 
-          mean(value_dry_wgt), 
-          ifelse(
-            str_detect(x, "pfos"),
-            mean(value_pfos_muscle_equiv_wet_wgt), 
-            mean(value_wet_wgt)
-          )
-        )
-      ) %>%
-      ungroup(),
-    source = str_to_upper(str_remove(x, "_clean_df")))
-}
-## apply make_plotdf bringing all datasets together 
-plotdf <- bind_rows(
-  do.call(
-    rbind, 
-    lapply(
-      list("pcb_bio_clean_df", "dioxin_bio_clean_df", "pfos_bio_clean_df"), 
-      function(x) make_plotdf(x, 2014:2019)
-    )) %>% mutate(matrix = "biota", indicator = str_remove(source, "_[A-Z].*")),
-  do.call(
-    rbind, 
-    lapply(
-      list("pcb_sed_clean_df", "dioxin_sed_clean_df"), 
-      function(x) make_plotdf(x, 2014:2019)
-    )) %>% mutate(matrix = "sediment", indicator = str_remove(source, "_[A-Z].*"))
-)
-```
 
 <br>
 
 #### 2.3.2 Spatial Distributions of Measurements {.tabset .tabset-fade .tabset-pills}
 
-The maps below show data distribution spatially. Size and color
-correspond to number of distinct dates measurements were collected for a
-variable, for the given location within the specified time period (2016
-through 2019); larger points with more yellow color indicate greater
-number of observations while smaller more red points indicate fewer
-observations. Opacity corresponds to number of years with greater
-transparency indicating fewer years of data. These faceted plots are
-created for multiple species; the species selected for visualization are
-those with the greatest number of measurements recorded across the three
-indicators.
+The maps below show data distribution spatially. Size and color correspond to number of distinct dates measurements were collected for a variable, for the given location within the specified time period (2016 through 2019); larger points with more yellow color indicate greater number of observations while smaller more red points indicate fewer observations. Opacity corresponds to number of years with greater transparency indicating fewer years of data. These faceted plots are created for multiple species; the species selected for visualization are those with the greatest number of measurements recorded across the three indicators.
 
 ``` r
 make_map <- function(mapdata){
@@ -3108,9 +1050,9 @@ make_map <- function(mapdata){
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus")))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20herring-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20herring-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3120,9 +1062,9 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Clupea harengus"
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparus")))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20eelpout-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20eelpout-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3132,9 +1074,9 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Zoarces viviparu
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatilis")))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20perch-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20perch-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3144,9 +1086,9 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Perca fluviatili
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys flesus")))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20flounder-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20flounder-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3156,9 +1098,9 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Platichthys fles
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20blue%20muscles-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20blue%20muscles-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3168,9 +1110,9 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Mytilus edulis")
 make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20common%20murre-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20common%20murre-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3180,15 +1122,16 @@ make_map(filter(plotdf, matrix == "biota", str_detect(species, "Uria aalge")))
 make_map(filter(plotdf, matrix == "sediment"))
 ```
 
-![](con_prep_files/figure-gfm/sampling%20maps%20sediments-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/sampling%20maps%20sediments-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
 <br/>
 
-## 3\. Wrangling, Evaluation, and Gapfilling
+3. Wrangling, Evaluation, and Gapfilling
+----------------------------------------
 
 ``` r
 read_clean_df <- function(filename){
@@ -3215,30 +1158,19 @@ read_clean_df <- function(filename){
 ```
 
 <!-- **Station Impact Codes** -->
-
 <!-- Note: as of `BHI2.0` the original station library has been replaced by a new web application -->
-
 <!-- [Site monitoring purpose](https://vocab.ices.dk/?ref=42) `monit_purpose` vocabulary reference for codes. -->
-
 <!-- Some sites have had the site type recorded in the ICES station dictionary ([see ICES vocabulary reference for codes](https://vocab.ices.dk/?ref=177). It is pertinent to know which sites are catagorized as:   -->
-
 <!-- **RH** = WFD R(HZ) - Representative of general conditions in terms of hazardous substances   -->
-
 <!-- **B** = WFD B - Baseline/Reference station   -->
-
 <!-- **Any of the codes containing "I"** (Starting with IH or IP) which refers to a specific type of impact at the site.   -->
-
 <!-- **RP** = WFD R(PHY) - Representative of general conditions for nutrients/organic matter  -->
-
 <!-- It appears that only Swedish sites have this information entered. Given only Swedish sites have this information recorded, it seems difficult to use this information to include or exclude sites.   -->
-
 <!-- From the station dictionary definitions: -->
-
 <!-- All_Biota_Data: Data type (DTYPE) CF - all parameters - contaminants and biological effects of contaminants including disease in biota   -->
-
 <!-- Contaminant_parameters_in_biota: Data type (DTYPE) CF - Contaminant parameter groups   -->
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3267,10 +1199,7 @@ pcb_sed <- join_rgns_info(
 
 #### 3.1.2 Filter PCBs to ICES6 Set or PCB7 for Sediment
 
-The PCBs indicator uses only the ICES6 congeners: CB28, CB52, CB101,
-CB138, CB153, CB180. Additionally, only herring are used from the biota
-datasets, as they are fairly equally spatially distributed across the
-baltic sea, while many other species are predominantly in the south.
+The PCBs indicator uses only the ICES6 congeners: CB28, CB52, CB101, CB138, CB153, CB180. Additionally, only herring are used from the biota datasets, as they are fairly equally spatially distributed across the baltic sea, while many other species are predominantly in the south.
 
 ``` r
 ## for the PCBs indicator we use the ICE6 congeners:
@@ -3340,13 +1269,13 @@ gridExtra::grid.arrange(
 )
 ```
 
-![](con_prep_files/figure-gfm/checking%20pcb%20bio%20data%20and%20outliers-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/checking%20pcb%20bio%20data%20and%20outliers-1.png)
 
 ``` r
 # pcb_bio <- filter(pcb_bio, chk) %>% select(-starts_with("chk"))
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3373,23 +1302,19 @@ gridExtra::grid.arrange(
 )
 ```
 
-![](con_prep_files/figure-gfm/checking%20pcb%20sed%20data%20and%20outliers-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/checking%20pcb%20sed%20data%20and%20outliers-1.png)
 
 ``` r
 # pcb_sed <- filter(pcb_sed, chk) %>% select(-starts_with("chk"))
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
 ##### Visualize flagged data in Timeseries
 
-Below the data are plotted in congener-subbasin combinations. Colorscale
-corresponds to number of observations, with lighter blues/greens
-indicating more observations for the given date-congener-subbasin group,
-while darker colors indicate fewer observations in the dataset for the
-given date-congener-subbasin combination.
+Below the data are plotted in congener-subbasin combinations. Colorscale corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination.
 
 ``` r
 ## pcb qflag adjustment congeners by basin and congener, 
@@ -3430,7 +1355,7 @@ qflag_timeseries_plot(
 )
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3440,19 +1365,15 @@ qflag_timeseries_plot(
 
 **What do the `qflags` indicate? Quantification limits, Flags Codes**
 
-  - **\<** = less than
+-   **&lt;** = less than
 
-  - **\>** = greather than
+-   **&gt;** = greather than
 
-  - **D** = reported value is less than the detection limit
-    (detect\_lim)
+-   **D** = reported value is less than the detection limit (detect\_lim)
 
-  - **Q** = reported value is less than the limit of quantification
-    (quant\_lim)
+-   **Q** = reported value is less than the limit of quantification (quant\_lim)
 
-  - **~** separates multiple flags
-
-<!-- end list -->
+-   **~** separates multiple flags
 
 ``` r
 ## what do the qflags actually indicate?
@@ -3486,9 +1407,9 @@ ggplot(chk_pcb_bio_qflags) +
   theme_dark()
 ```
 
-![](con_prep_files/figure-gfm/what%20do%20the%20qflags%20indicate-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/what%20do%20the%20qflags%20indicate-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3496,16 +1417,7 @@ ggplot(chk_pcb_bio_qflags) +
 
 **Defining two approaches to deal with flagged data**
 
-The function below aggregates the data spreading by variable (so each
-congner has a column and each date/location/sample is a single row) and
-summing the congeners rowwise to get date/location/sample specific
-concentration sums of the specified congners. The function allows for
-two approaches to handling flagged data: “NoQflag” which removes the
-flagged observations or “Adjusted” which adjust values. Adjustment of
-values would ideally use detect\_lim/2, however since detect\_lim values
-are not always provided, we apply the transformation to the reported
-data
-value.
+The function below aggregates the data spreading by variable (so each congner has a column and each date/location/sample is a single row) and summing the congeners rowwise to get date/location/sample specific concentration sums of the specified congners. The function allows for two approaches to handling flagged data: "NoQflag" which removes the flagged observations or "Adjusted" which adjust values. Adjustment of values would ideally use detect\_lim/2, however since detect\_lim values are not always provided, we apply the transformation to the reported data value.
 
 ``` r
 qflag_adjust <- function(dataset, indicator, congeners = NULL, matrix = "bio", sumcongeners = TRUE, approach = "Adjusted"){
@@ -3571,7 +1483,6 @@ pcb_sed_noqflag <- qflag_adjust(pcb_sed, "pcb", congeners = pcb7sed_congeners, m
 ```
 
 <!-- To visualize by country or basin pass "country" or "subbasin" respectively to `cntry_or_basin` arguement  -->
-
 ``` r
 ## timeseries plots, congeners by country
 plot_cwcon_initial <- function(dataset, col_pal, contam_param = "OC-CB", matrix = "bio", cntry_or_basin = "subbasin"){
@@ -3652,13 +1563,13 @@ cols <- colorRampPalette(fullpal)(42)[sample(1:42, size = 6)]
 plot_cwcon_initial(pcb_bio_qflag_adjust, col_pal = cols, contam_param = "OC-CB", cntry_or_basin = "country")
 ```
 
-![](con_prep_files/figure-gfm/congeners%20timeseries%20monthly%20by%20basin%20for%20biota-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/congeners%20timeseries%20monthly%20by%20basin%20for%20biota-1.png)
 
 ``` r
 # plotly::ggplotly(plot_cwcon_initial(pcb_bio_qflag_adjust, col_pal = cols, contam_param = "OC-CB", cntry_or_basin = "country"))
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3668,9 +1579,9 @@ plot_cwcon_initial(pcb_bio_qflag_adjust, col_pal = cols, contam_param = "OC-CB",
 plot_cwcon_initial(pcb_sed_qflag_adjust, c(cols, "turquoise"), "OC-CB", "sed", "country")
 ```
 
-![](con_prep_files/figure-gfm/congeners%20timeseries%20monthly%20by%20basin%20for%20sediments-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/congeners%20timeseries%20monthly%20by%20basin%20for%20sediments-1.png)
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3812,9 +1723,9 @@ pcb2014to2019 <- map_cwcon_initial(pcb_qflag_adjust_datemeans, yr = 2014:2018,  
 gridExtra::grid.arrange(pcb2014to2019$map, pcb2014to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
-<img src="con_prep_files/figure-gfm/map spatial dist of PCBs multiple years-1.png" width="120%" />
+<img src="con_prep_files/figure-markdown_github/map spatial dist of PCBs multiple years-1.png" width="120%" />
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -3848,442 +1759,217 @@ htmlTable::htmlTable(
 ```
 
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-
 <thead>
-
 <tr>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
 lastyr\_Adjusted
-
 </th>
-
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
 lastyr\_NoQflag
-
 </th>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: left;">
 Subbasin
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Aland
-Sea
-
+Aland Sea
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2015
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2015
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Arkona Basin
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2016
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Bay of
-Mecklenburg
-
+Bay of Mecklenburg
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Bornholm Basin
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Bothnian
-Bay
-
+Bothnian Bay
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Bothnian Sea
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Eastern Gotland
-Basin
-
+Eastern Gotland Basin
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Gdansk Basin
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2016
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Great
-Belt
-
+Great Belt
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Gulf of Finland
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Gulf of
-Riga
-
+Gulf of Riga
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Kattegat
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2016
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Kiel
-Bay
-
+Kiel Bay
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2016
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2016
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Northern Baltic Proper
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2016
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2016
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-The
-Quark
-
+The Quark
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2008
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2008
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
-The
-Sound
-
+The Sound
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; border-bottom: 2px solid grey; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; border-bottom: 2px solid grey; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; border-bottom: 2px solid grey; text-align: left;">
-
 Western Gotland Basin
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
------
+------------------------------------------------------------------------
 
 <br>
 
 **A function to calculate the Indicators**
 
-The function below takes as inputs: datalayer, years across which data
-is to be aggregated in status calculation, the biota reference point for
-the contaminant (health threshold in same units as datalayer values) and
-the sediment reference point, the trend-calculation approach, and trend
-lag i.e. the number of years we want to project into the future. Default
-approach for calculating the trend (scaledObs) is to scale the
-observations by the matrix-and-contaminant-specific reference point,
-capping at one, then group by spatial unit (BHI region or Subbasin) and
-matrix, and regress the scaled values against year; the year coefficient
-multiplied by `trendlag` becomes the trend score. Other approaches
-considered are: calculating trend with zscores of data, or using a
-mixed-effects model to try to account for different stations. See
-commented code below for more
-details.
+The function below takes as inputs: datalayer, years across which data is to be aggregated in status calculation, the biota reference point for the contaminant (health threshold in same units as datalayer values) and the sediment reference point, the trend-calculation approach, and trend lag i.e. the number of years we want to project into the future. Default approach for calculating the trend (scaledObs) is to scale the observations by the matrix-and-contaminant-specific reference point, capping at one, then group by spatial unit (BHI region or Subbasin) and matrix, and regress the scaled values against year; the year coefficient multiplied by `trendlag` becomes the trend score. Other approaches considered are: calculating trend with zscores of data, or using a mixed-effects model to try to account for different stations. See commented code below for more details.
 
 ``` r
 cwcon_indicators <- function(dat, yrs, bio_thresh = 75, sed_thresh = 4.1, approach = "relativeChange", trendlag = 5){
@@ -4457,19 +2143,12 @@ cwcon_indicators <- function(dat, yrs, bio_thresh = 75, sed_thresh = 4.1, approa
 }
 ```
 
-**Compare two approaches to deal with flagged data, for BHI regions vs
-Basin**
+**Compare two approaches to deal with flagged data, for BHI regions vs Basin**
 
-1.  Start with mean ICES6 conc. by date and location (unique
-    observations)
-2.  Scale observations compared to the relevant
-    contaminant-and-matrix-relevant reference point, capping at one
-3.  Calculate status as mean of all scaled obs. for past 5 years in
-    either BHI region or basin
-4.  Compare by-basin and by-BHI region results for status and for trend,
-    assess number of data points contributing
-
-<!-- end list -->
+1.  Start with mean ICES6 conc. by date and location (unique observations)
+2.  Scale observations compared to the relevant contaminant-and-matrix-relevant reference point, capping at one
+3.  Calculate status as mean of all scaled obs. for past 5 years in either BHI region or basin
+4.  Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing
 
 ``` r
 ## using function defined above, investigate:
@@ -4508,7 +2187,7 @@ ggplot(pcb_status, aes(Region, status, fill = Subbasin)) +
   theme(axis.text.y = element_text(size = 7))
 ```
 
-![](con_prep_files/figure-gfm/investigate%20approaches%20to%20qflags%20and%20summarizing%20by%20region%20vs%20basin%20pcb%20indicator-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/investigate%20approaches%20to%20qflags%20and%20summarizing%20by%20region%20vs%20basin%20pcb%20indicator-1.png)
 
 <br>
 
@@ -4532,22 +2211,19 @@ write_csv(
 
 #### 3.1.6 Methods discussion
 
-Only herring (no other species) used from biota dataset, because herring
-are most equally spatially spaced across the baltic sea, whereas others
-are mostly in the south.
+Only herring (no other species) used from biota dataset, because herring are most equally spatially spaced across the baltic sea, whereas others are mostly in the south.
 
-**Status formula, ICES6 PCBs Biota and 7PCBs in
-Sediment**
+**Status formula, ICES6 PCBs Biota and 7PCBs in Sediment**
 
-\(X_{\mbox{ICES6}} = \min\{\mbox{bio_reference_point/mean_ICES6_region, } 1\}\)
+*X*<sub>ICES6</sub> = min{bio\_reference\_point/mean\_ICES6\_region, 1}
 
-\(X_{\mbox{7sedPCB}} = \min\{\mbox{sed_reference_point/mean_7sedPCB_region, } 1\}\)
+*X*<sub>7sedPCB</sub> = min{sed\_reference\_point/mean\_7sedPCB\_region, 1}
 
-\(X_{\mbox{PCB}} = (X_{\mbox{ICES6}} + X_{\mbox{7sedPCB}})/2\)
+*X*<sub>PCB</sub> = (*X*<sub>ICES6</sub> + *X*<sub>7sedPCB</sub>)/2
 
-\(\mbox{bio_reference_point} = \mbox{health_threshold} = 75ug/kg\mbox{ wet weight}\)
+bio\_reference\_point = health\_threshold = 75*u**g*/*k**g* wet weight
 
-\(\mbox{sed_reference_point} = \mbox{health_threshold} = 4.1ug/kg\mbox{ dry weight}\)
+sed\_reference\_point = health\_threshold = 4.1*u**g*/*k**g* dry weight
 
 Score scaled between 0 and 1. If value is below 75, score = 1.
 
@@ -4555,57 +2231,34 @@ Score scaled between 0 and 1. If value is below 75, score = 1.
 
 **Conclusions & Decisions regarding Status and Trend Options**
 
-  - Including the qflag-adjusted values lowers the mean concentration by
-    date and location
+-   Including the qflag-adjusted values lowers the mean concentration by date and location
+-   Including qflag-adjusted values also provides more observations in the Kattegat, The Quark, and W. Gotland Basin
+-   When aggregating by BHI regions, more observations for Regions 1, 11, 26, 35, 36, 39, 41, 42 when including qflagged values
+-   Using data including qflag-adjusted (this could lower values),
 
-  - Including qflag-adjusted values also provides more observations in
-    the Kattegat, The Quark, and W. Gotland Basin
-
-  - When aggregating by BHI regions, more observations for Regions 1,
-    11, 26, 35, 36, 39, 41, 42 when including qflagged values
-
-  - Using data including qflag-adjusted (this could lower values),
-
-  - Use 5 year mean ICES6 concentration for status
-
-  - Use the five status years plus another five prior for the regression
-    that factors into trend calculation
+-   Use 5 year mean ICES6 concentration for status
+-   Use the five status years plus another five prior for the regression that factors into trend calculation
 
 <br>
 
 **Trend Considerations**
 
-  - Work on mixed effect model for trends?  
-  - Need to think about the interpretation of the data treatment. (a) If
-    use raw observations, then normalize (zscore data), then fit trend,
-    if get increase or decrease but all values are below the threshold,
-    does it make sense to apply a change in the trend to the status?
-    Would we really think the future status will be lower? (b) If take
-    all raw observations, calculate “status” as done for the mean value,
-    then fit trend, is this more true to the idea that variation below
-    the human health threshold should not affect the trajectory of the
-    future status?  
-  - Need to think if simple linear regression is okay, or if need to
-    account for site?
+-   Work on mixed effect model for trends?
+-   Need to think about the interpretation of the data treatment. (a) If use raw observations, then normalize (zscore data), then fit trend, if get increase or decrease but all values are below the threshold, does it make sense to apply a change in the trend to the status? Would we really think the future status will be lower? (b) If take all raw observations, calculate "status" as done for the mean value, then fit trend, is this more true to the idea that variation below the human health threshold should not affect the trajectory of the future status?
+-   Need to think if simple linear regression is okay, or if need to account for site?
 
 <br>
 
 **`BHI1.0` discussions with Anna Sobek **
 
-  - Indicator choice: We agreed that *ICES6 is the best* option  
-  - Decision about use of qflagg-adjusted data: *use qflagged data with
-    the adjustement* of (congener conc/2)  
-  - Decision about spatial scale of the data: decide best approach is to
-    *calculate for each basin*  
-  - Trend decision: best approach is first convert individual
-    observations to a “status” relative to the human health threshold,
-    then fit linear model by basin for **10 year period**. (Tred Check:
-    Does the trend value need to be rescaled to between -1 and 1? Does
-    not exceed now but need to consider if method broadly works?)
+-   Indicator choice: We agreed that *ICES6 is the best* option
+-   Decision about use of qflagg-adjusted data: *use qflagged data with the adjustement* of (congener conc/2)
+-   Decision about spatial scale of the data: decide best approach is to *calculate for each basin*
+-   Trend decision: best approach is first convert individual observations to a "status" relative to the human health threshold, then fit linear model by basin for **10 year period**. (Tred Check: Does the trend value need to be rescaled to between -1 and 1? Does not exceed now but need to consider if method broadly works?)
 
 <!-- **`BHI2.0` discussions with Anna Sobek ** -->
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -4629,18 +2282,7 @@ pfos <- join_rgns_info(
 
 #### 3.2.2 Filter Organofluorines Data keeping only PFOS in Clupea harengus
 
-Only herring (Clupea harengus) are used from the biota datasets, as they
-are fairly equally spatially distributed across the baltic sea, while
-many other species are predominantly in the south. Also, heerring are .
-In the raw organofluorine dataset, matrix analyzed for most measurements
-was liver but there were some also where muscle was analyzed. In the
-initial data cleaning (see
-`bhi-prep/data/CW/contaminants/v2019/con_data.rmd`), the concentrations
-from liver measurements were converted to muscle equivalent using the
-report: [Distribution of PFAS in liver and muscle of herring, perch,
-cod, eelpout, arctic char, and pike from limnic and marine environments
-in Sweden. Faxneld et
-al 2014](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).
+Only herring (Clupea harengus) are used from the biota datasets, as they are fairly equally spatially distributed across the baltic sea, while many other species are predominantly in the south. Also, heerring are . In the raw organofluorine dataset, matrix analyzed for most measurements was liver but there were some also where muscle was analyzed. In the initial data cleaning (see `bhi-prep/data/CW/contaminants/v2019/con_data.rmd`), the concentrations from liver measurements were converted to muscle equivalent using the report: [Distribution of PFAS in liver and muscle of herring, perch, cod, eelpout, arctic char, and pike from limnic and marine environments in Sweden. Faxneld et al 2014](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf).
 
 ``` r
 pfos <- pfos %>% 
@@ -4665,12 +2307,7 @@ pfos <- pfos %>%
 
 ##### Visualize PFOS flagged data in Timeseries
 
-PFOS data plotted by subbasin. Colorscale in plot one corresponds to
-number of observations, with lighter blues/greens indicating more
-observations for the given date-congener-subbasin group, while darker
-colors indicate fewer observations in the dataset for the given
-date-congener-subbasin combination. Plot 2 shows the same information in
-boxplot format, with data grouped by year.
+PFOS data plotted by subbasin. Colorscale in plot one corresponds to number of observations, with lighter blues/greens indicating more observations for the given date-congener-subbasin group, while darker colors indicate fewer observations in the dataset for the given date-congener-subbasin combination. Plot 2 shows the same information in boxplot format, with data grouped by year.
 
 ###### Concentrations Timeseries and Boxplots with Observation Counts
 
@@ -4720,7 +2357,7 @@ ggplot(boxplotdf) +
   theme_bw()
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -4745,9 +2382,9 @@ pfos2008to2019 <- map_cwcon_initial(pfos_qflag_adjust_datemeans, yr = 2014:2018,
 gridExtra::grid.arrange(pfos2008to2019$map, pfos2008to2019$basinplot, nrow = 1, widths = c(1.2, 1))
 ```
 
-<img src="con_prep_files/figure-gfm/pfos map of data records-1.png" width="120%" />
+<img src="con_prep_files/figure-markdown_github/pfos map of data records-1.png" width="120%" />
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -4781,303 +2418,154 @@ htmlTable::htmlTable(
 ```
 
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-
 <thead>
-
 <tr>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
 lastyr\_Adjusted
-
 </th>
-
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
 lastyr\_NoQflag
-
 </th>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: left;">
 Subbasin
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Aland
-Sea
-
+Aland Sea
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Arkona Basin
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Bornholm
-Basin
-
+Bornholm Basin
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Bothnian Bay
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Bothnian
-Sea
-
+Bothnian Sea
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Eastern Gotland Basin
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2018
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Gulf of
-Finland
-
+Gulf of Finland
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
 Kattegat
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: right;">
-
 2017
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; text-align: left;">
-
-Northern Baltic
-Proper
-
+Northern Baltic Proper
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: right;">
-
 2016
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; background-color: #f7f7f7; text-align: center;">
-
 2016
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; background-color: #f7f7f7; text-align: left;">
-
-The
-Quark
-
+The Quark
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5em; padding-right: 2em; border-bottom: 2px solid grey; text-align: right;">
-
 2014
-
 </td>
-
 <td style="padding-left: 5em; padding-right: 2em; border-bottom: 2px solid grey; text-align: center;">
-
 2014
-
 </td>
-
 <td style="padding-left: 14em; padding-right: 9em; border-bottom: 2px solid grey; text-align: left;">
-
 Western Gotland Basin
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
------
+------------------------------------------------------------------------
 
 <br>
 
-**Compare two approaches to deal with flagged data, for BHI regions vs
-Basin**
+**Compare two approaches to deal with flagged data, for BHI regions vs Basin**
 
 1.  Start with mean concentrations by date and location
-2.  Scale observations compared to the relevant
-    contaminant-and-matrix-relevant reference point, capping at one
-3.  Calculate status as mean of all scaled obs. for past 5 years in
-    either BHI region or basin
-4.  Compare by-basin and by-BHI region results for status and for trend,
-    assess number of data points contributing
-
-<!-- end list -->
+2.  Scale observations compared to the relevant contaminant-and-matrix-relevant reference point, capping at one
+3.  Calculate status as mean of all scaled obs. for past 5 years in either BHI region or basin
+4.  Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing
 
 ``` r
 ## using function defined above, investigate:
@@ -5112,7 +2600,7 @@ ggplot(pfos_status, aes(Region, status, fill = Subbasin)) +
   theme(axis.text.y = element_text(size = 7))
 ```
 
-![](con_prep_files/figure-gfm/investigate%20approaches%20to%20qflags%20and%20summarizing%20by%20region%20vs%20basin%20pfos%20indicator-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/investigate%20approaches%20to%20qflags%20and%20summarizing%20by%20region%20vs%20basin%20pfos%20indicator-1.png)
 
 <br>
 
@@ -5134,7 +2622,7 @@ write_csv(
 
 <br>
 
------
+------------------------------------------------------------------------
 
 #### 3.1.6 Methods discussion
 
@@ -5144,7 +2632,7 @@ write_csv(
 
 **Trend Considerations**
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -5152,11 +2640,7 @@ write_csv(
 
 #### 3.3.1 Match BHI Regions
 
-Dioxins and dioxin-like PCBs datasets are manipulated as separate
-objects for the next steps, combined only in the last code chunk before
-section 3.3.3 ‘Status and Trend Options’. Sediment and biota datasets
-for each dioxins and dioxin-like PCBs are joined before spatial
-plotting.
+Dioxins and dioxin-like PCBs datasets are manipulated as separate objects for the next steps, combined only in the last code chunk before section 3.3.3 'Status and Trend Options'. Sediment and biota datasets for each dioxins and dioxin-like PCBs are joined before spatial plotting.
 
 ``` r
 ## use 'join_rgns_info' helper function defined in spatial.R
@@ -5180,13 +2664,7 @@ dioxin_sed <- join_rgns_info(
 
 #### 3.3.2 Filter Dioxin-like PCBs to join with Dioxins dataset, and Convert all to Toxic Equivalents
 
-To convert dioxin and dioxin-like PCB congener concentrations to toxic
-equivalents we use the [IPCS Reference
-Table](https://www.who.int/ipcs/assessment/tef_values.pdf), taken from
-The 2005 World Health Organization Re-evaluation of Human and Mammalian
-Toxic Equivalency Factors for Dioxins and Dioxin-like Compounds (Van den
-Berg et al,
-2005).
+To convert dioxin and dioxin-like PCB congener concentrations to toxic equivalents we use the [IPCS Reference Table](https://www.who.int/ipcs/assessment/tef_values.pdf), taken from The 2005 World Health Organization Re-evaluation of Human and Mammalian Toxic Equivalency Factors for Dioxins and Dioxin-like Compounds (Van den Berg et al, 2005).
 
 ``` r
 tef_pdf <- pdftools::pdf_text("https://www.who.int/ipcs/assessment/tef_values.pdf")[1] %>%
@@ -5200,8 +2678,7 @@ tidyr::separate(tef_lookup, singlecolumn, c("WHO_compound_name", "TEF_1998", "TE
 lookup_tef <- read_csv(here::here("supplement", "lookup_tabs", "tef_conversion_lookup.csv"))
 ```
 
-**Filter PCB to keep only dioxin-like PCBs, convert units, and convert
-to TEQ**
+**Filter PCB to keep only dioxin-like PCBs, convert units, and convert to TEQ**
 
 ``` r
 ## get dioxin-like PCBs by joining TEF lookup table
@@ -5304,13 +2781,13 @@ gridExtra::grid.arrange(
 )
 ```
 
-![](con_prep_files/figure-gfm/checking%20dioxinlike%20pcb%20bio%20data%20and%20outliers-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/checking%20dioxinlike%20pcb%20bio%20data%20and%20outliers-1.png)
 
 ``` r
 dioxinlike_pcbbio_teq <- filter(dioxinlike_pcbbio_teq, chk) %>% select(-starts_with("chk"))
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -5344,13 +2821,13 @@ gridExtra::grid.arrange(
 )
 ```
 
-![](con_prep_files/figure-gfm/checking%20dioxinlike%20pcb%20sed%20data%20and%20outliers-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/checking%20dioxinlike%20pcb%20sed%20data%20and%20outliers-1.png)
 
 ``` r
 dioxinlike_pcbsed_teq <- filter(dioxinlike_pcbsed_teq,chk) %>% select(-starts_with("chk"))
 ```
 
------
+------------------------------------------------------------------------
 
 <br>
 
@@ -5383,7 +2860,7 @@ gridExtra::grid.arrange(
 )
 ```
 
-![](con_prep_files/figure-gfm/checking%20dioxin%20biota%20data%20and%20outliers-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/checking%20dioxin%20biota%20data%20and%20outliers-1.png)
 
 ``` r
 dioxinbio_teq <- filter(dioxinbio_teq, chk) %>% select(-starts_with("chk"))
@@ -5417,418 +2894,204 @@ htmlTable::htmlTable(
 ```
 
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-
 <thead>
-
 <tr>
-
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: left;">
 Subbasin
-
 </th>
-
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
 lastyr\_Adjusted
-
 </th>
-
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-
 lastyr\_NoQflag
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-Aland
-Sea
-
+Aland Sea
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-Arkona
-Basin
-
+Arkona Basin
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-Bay of
-Mecklenburg
-
+Bay of Mecklenburg
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2008
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2008
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-Bornholm
-Basin
-
+Bornholm Basin
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-Bothnian
-Bay
-
+Bothnian Bay
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2018
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-Bothnian
-Sea
-
+Bothnian Sea
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-Eastern Gotland
-Basin
-
+Eastern Gotland Basin
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2016
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2016
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-Great
-Belt
-
+Great Belt
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2015
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2015
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-Gulf of
-Finland
-
+Gulf of Finland
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2018
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-Gulf of
-Riga
-
+Gulf of Riga
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2018
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
 Kattegat
-
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-Kiel
-Bay
-
+Kiel Bay
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2011
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2011
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-Northern Baltic
-Proper
-
+Northern Baltic Proper
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: left;">
-
-The
-Quark
-
+The Quark
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: left;">
-
-The
-Sound
-
+The Sound
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; text-align: center;">
-
 2015
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; text-align: center;">
-
 2015
-
 </td>
-
 </tr>
-
 <tr style="background-color: #f7f7f7;">
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: left;">
-
-Western Gotland
-Basin
-
+Western Gotland Basin
 </td>
-
 <td style="padding-left: 5.75em; padding-right: 1.5em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-
 2017
-
 </td>
-
 <td style="padding-left: 10em; padding-right: 1.5em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-
 2017
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 <br>
 
-**Compare two approaches to deal with flagged data, for BHI regions vs
-Basin**
+**Compare two approaches to deal with flagged data, for BHI regions vs Basin**
 
-1.  Start with total TEQs: congeners summed per sample, means by date
-    and location, dioxin and dioxin-like PCB summes added together per
-    unique date and location  
-2.  Take mean of all unique obs. for latest 5 years in either BHI region
-    or basin
-3.  Compare by-basin and by-BHI region results for status and for trend,
-    assess number of data points contributing
-
-<!-- end list -->
+1.  Start with total TEQs: congeners summed per sample, means by date and location, dioxin and dioxin-like PCB summes added together per unique date and location
+2.  Take mean of all unique obs. for latest 5 years in either BHI region or basin
+3.  Compare by-basin and by-BHI region results for status and for trend, assess number of data points contributing
 
 ``` r
 ## using function defined above, investigate:
@@ -5870,7 +3133,7 @@ ggplot(dioxin_status, aes(Region, status, fill = Subbasin)) +
   theme(axis.text.y = element_text(size = 7))
 ```
 
-![](con_prep_files/figure-gfm/investigate%20approaches%20to%20qflags%20and%20summarizing%20by%20region%20vs%20basin%20dioxin%20indicator-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/investigate%20approaches%20to%20qflags%20and%20summarizing%20by%20region%20vs%20basin%20dioxin%20indicator-1.png)
 
 <br>
 
@@ -5892,41 +3155,23 @@ write_csv(
 
 <br>
 
------
+------------------------------------------------------------------------
 
 #### 3.3.6 Methods discussion
 
-**Status
-formula**
+**Status formula**
 
-\(X_{dioxinTEQ} = \min\{1, \mbox{ teq threshold}/\mbox{mean dioxin-like pcb teq value}\}\)
+*X*<sub>*d**i**o**x**i**n**T**E**Q*</sub> = min{1,  teq threshold/mean dioxin-like pcb teq value}
 
 **Conclusions & Decisions regarding Status and Trend Options**
 
 **Trend Considerations**
 
------
+------------------------------------------------------------------------
 
 ### 3.4 Concerning Substances Indicator
 
-This indicator is a new addition since the `BHI1.0`, conceptualized as a
-more comprehensive way to account for the fact that many concerning,
-hazardous substances are not currently monitored in the Baltic Sea. In
-the earlier assessment, a penalty factor of 0.1 was applied to the
-entire Baltic to reduce the contaminant subgoal scores so they better
-reflected this concerning situation. This method uses [a list compiled
-by ECHA of concerning
-substances](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists),
-and involves cross-referencing with those monitored substances in the
-[ICES contaminants databases for
-biota](http://dome.ices.dk/views/ContaminantsBiota.aspx) [and for
-sediments](http://dome.ices.dk/views/ContaminantsSediment.aspx). Those
-on the list which are monitored, are assessed for spatial coverage of
-monitoring; substances on the list may be monitored somewheree in the
-Baltic Sea, but only in some basins or for some countries. The final
-indicator score is the percentage of substances on the list that are
-monitored in the given
-region.
+This indicator is a new addition since the `BHI1.0`, conceptualized as a more comprehensive way to account for the fact that many concerning, hazardous substances are not currently monitored in the Baltic Sea. In the earlier assessment, a penalty factor of 0.1 was applied to the entire Baltic to reduce the contaminant subgoal scores so they better reflected this concerning situation. This method uses [a list compiled by ECHA of concerning substances](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists), and involves cross-referencing with those monitored substances in the [ICES contaminants databases for biota](http://dome.ices.dk/views/ContaminantsBiota.aspx) [and for sediments](http://dome.ices.dk/views/ContaminantsSediment.aspx). Those on the list which are monitored, are assessed for spatial coverage of monitoring; substances on the list may be monitored somewheree in the Baltic Sea, but only in some basins or for some countries. The final indicator score is the percentage of substances on the list that are monitored in the given region.
 
 ``` r
 get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", bhi_join_tab){
@@ -5990,9 +3235,7 @@ get_spatial_monitor_info <- function(substance_data_filepath, matrix = "bio", bh
 
 ### 3.4.1 Regional monitoring of Concerning Substances
 
-Of the concerning substances which are monitored, some are monitored
-only in some BHI regions and/or years. The code below is used in
-assessing this spatial coverage.
+Of the concerning substances which are monitored, some are monitored only in some BHI regions and/or years. The code below is used in assessing this spatial coverage.
 
 ``` r
 ## read in master table of emerging contaminant
@@ -6104,33 +3347,45 @@ concern_subst_indicator <- rgn_monitor_allsubst %>%
   mutate(substance = paste0(substance, "_monitored")) %>% 
   tidyr::pivot_wider(names_from = "substance", values_from = "monitored")
 
-yrs <- 2014:2018
-num_substances <- length(grep("_monitored", colnames(concern_subst_indicator)))
 
-concern_subst_indicator <- concern_subst_indicator %>%
-  ## look at monitoring only within time period of interest
-  filter(year %in% yrs) %>% 
-  group_by(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID) %>% 
-  summarise_at(vars(ends_with("_monitored")), sum) %>% 
-  ungroup() %>% 
-  mutate_at(vars(ends_with("_monitored")), funs(pmin(1, .))) %>% 
-  ## add columns on number substances and number monitored
-  mutate(
-    num_substances = num_substances,
-    num_monitored = rowSums(.[grep("_monitored", names(.))]),
-    proportion_monitored = round(num_monitored/num_substances, 2)
-  ) %>%
-  select(Subbasin, BHI_ID, proportion_monitored) %>% 
-  mutate(dimension = "status")
+num_substances <- length(grep("_monitored", colnames(concern_subst_indicator)))
+concern_subst_ind_ts <- data.frame(
+  Subbasin = character(), 
+  BHI_ID = numeric(),
+  proportion_monitored = numeric(),
+  dimension = character(),
+  year = numeric()
+)
+
+for(y in 2018:(min(concern_subst_indicator$year)+4)){
+  yrs <- y:(y-4)
+  
+  concern_subst_ind_ts <- bind_rows(
+    concern_subst_ind_ts,
+    concern_subst_indicator %>%
+      ## look at monitoring only within time period of interest
+      filter(year %in% yrs) %>% 
+      group_by(rgn_nam, rgn_key, Subbasin, HELCOM_ID, BHI_ID) %>% 
+      summarise_at(vars(ends_with("_monitored")), sum) %>% 
+      ungroup() %>% 
+      mutate_at(vars(ends_with("_monitored")), funs(pmin(1, .))) %>% 
+      ## add columns on number substances and number monitored
+      mutate(
+        num_substances = num_substances,
+        num_monitored = rowSums(.[grep("_monitored", names(.))]),
+        proportion_monitored = round(num_monitored/num_substances, 2)
+      ) %>%
+      select(Subbasin, BHI_ID, proportion_monitored) %>% 
+      mutate(dimension = "status", year = y)
+  )
+}
+
+concern_subst_indicator <- filter(concern_subst_ind_ts, year %in% 2014:2018)
 ```
 
 ### 3.4.2 Save concerning substances layer and intermediate datasets
 
-The data layer for the concerning substances indicator contains
-true/false records per BHI region per year for each of the 35 distinct
-substances on the [European Chemical Agency Candidate List of substances
-of very high concern for
-Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists).
+The data layer for the concerning substances indicator contains true/false records per BHI region per year for each of the 35 distinct substances on the [European Chemical Agency Candidate List of substances of very high concern for Authorisation](https://echa.europa.eu/candidate-list-table?p_p_id=disslists_WAR_disslistsportlet&p_p_lifecycle=1&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=2&p_p_col_count=3&_disslists_WAR_disslistsportlet_javax.portlet.action=searchDissLists).
 
 ``` r
 write_csv(
@@ -6146,9 +3401,10 @@ write_csv(
 )
 ```
 
------
+------------------------------------------------------------------------
 
-## 4\. Visualizing Contaminants Data Layers
+4. Visualizing Contaminants Data Layers
+---------------------------------------
 
 ``` r
 ## join PCB, Dioxin and PFOS indicators, and take average
@@ -6189,11 +3445,7 @@ cw_con_w_penalty <- cw_con %>%
 
 ### 4.1 Contaminants data layers Maps & Subbasin Trends
 
-Maps on the left show each indicator’s status individually, and the
-larger map on the right shows the combined status score with PCB, PFOS,
-and Dioxin indicators averaged and penalized by the Concerning
-Substances indicator (monitored
-proportion).
+Maps on the left show each indicator's status individually, and the larger map on the right shows the combined status score with PCB, PFOS, and Dioxin indicators averaged and penalized by the Concerning Substances indicator (monitored proportion).
 
 ``` r
 mapcols <- c("indianred", "coral", "goldenrod1", "khaki", "lightblue", "steelblue")
@@ -6285,56 +3537,36 @@ gridExtra::grid.arrange(
 )
 ```
 
-![](con_prep_files/figure-gfm/visualize%20con%20data%20layers%20and%20trends-1.png)<!-- -->
+![](con_prep_files/figure-markdown_github/visualize%20con%20data%20layers%20and%20trends-1.png)
 
 <br>
 
-## 5\. Considerations for `BHI3.0`
+5. Considerations for `BHI3.0`
+------------------------------
 
-From the ICES Organofluorines dataset, include PFAS in addition to PFOS.
-To include PFAS, a suitable reference point will need to be found.
+From the ICES Organofluorines dataset, include PFAS in addition to PFOS. To include PFAS, a suitable reference point will need to be found.
 
 <br>
 
-## 6\. References
+6. References
+-------------
 
-[Faxneld et
-al. 2014a](http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A728508&dswid=1554)
-Biological effects and environmental contaminants in herring and Baltic
-Sea top predators
+[Faxneld et al. 2014a](http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A728508&dswid=1554) Biological effects and environmental contaminants in herring and Baltic Sea top predators
 
-[Faxneld et
-al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf)
-Distribution of PFAS in liver and muscle of herring, perch, cod,
-eelpout, arctic char, and pike from limnic and marine environments in
-Sweden.
+[Faxneld et al. 2014b](https://www.diva-portal.org/smash/get/diva2:767385/FULLTEXT01.pdf) Distribution of PFAS in liver and muscle of herring, perch, cod, eelpout, arctic char, and pike from limnic and marine environments in Sweden.
 
-[Bignert, A., Nyberg, E., Sundqvist, K.L., Wiberg,
-K., 2007.](http://pubs.rsc.org/en/Content/ArticleLanding/2007/EM/b700667e#!divAbstract)
-Spatial variation in concentrations and patterns of the PCDD/F and
-dioxin-like PCB content in herring from the northern Baltic Sea. J.
-Environ. Monit. 9, 550–556.
+[Bignert, A., Nyberg, E., Sundqvist, K.L., Wiberg, K., 2007.](http://pubs.rsc.org/en/Content/ArticleLanding/2007/EM/b700667e#!divAbstract) Spatial variation in concentrations and patterns of the PCDD/F and dioxin-like PCB content in herring from the northern Baltic Sea. J. Environ. Monit. 9, 550–556.
 
-[Working Group on the State of the Environment and Nature
-Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation)
+[Working Group on the State of the Environment and Nature Conservation](http://helcom.fi/helcom-at-work/groups/state-and-conservation)
 
-[Commission Regulation (EU) No. 1259/2011 of 2
-December 2011.](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF)
-Amending Regulation (EC) No 1881/2006 as regards maximum levels for
-dioxins, dioxin-like PCBs and non dioxin-like PCBs in foodstuffs.
+[Commission Regulation (EU) No. 1259/2011 of 2 December 2011.](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:320:0018:0023:EN:PDF) Amending Regulation (EC) No 1881/2006 as regards maximum levels for dioxins, dioxin-like PCBs and non dioxin-like PCBs in foodstuffs.
 
-[Van den Berg et al, World Health
-Organization 2005.](http://www.who.int/ipcs/assessment/tef_values.pdf)
-The 2005 World Health Organization Re-evaluation of Human and Mammalian
-Toxic Equivalency Factors for Dioxins and Dioxin-like Compounds.
+[Van den Berg et al, World Health Organization 2005.](http://www.who.int/ipcs/assessment/tef_values.pdf) The 2005 World Health Organization Re-evaluation of Human and Mammalian Toxic Equivalency Factors for Dioxins and Dioxin-like Compounds.
 
-[HELCOM PFOS core indicator
-document](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)
+[HELCOM PFOS core indicator document](http://www.helcom.fi/Core%20Indicators/PFOS_HELCOM%20core%20indicator%202016_web%20version.pdf)
 
-[Norwegian environment agency, PCBs and Dioxins indicator in
-sediment](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
+[Norwegian environment agency, PCBs and Dioxins indicator in sediment](https://www.miljodirektoratet.no/globalassets/publikasjoner/m1132/m1132.pdf)
 
-[Norwegian Environmental quality classification of water
-bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
+[Norwegian Environmental quality classification of water bodies](http://www.vannportalen.no/globalassets/nasjonalt/dokumenter/veiledere-direktoratsgruppa/Klassifisering-av-miljotilstand-i-vann-02-2018.pdf)
 
 <br>

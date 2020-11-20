@@ -4,10 +4,10 @@ source(here::here("R", "setup.R"))
 ```
 
 
-### 2.1 Datasets with Sources {-}
+### 2.1 Datasets with Sources
 <br/>
 
-#### 2.1.1 PCB Data {-}
+#### 2.1.1 PCB Data
 
 **PCB Data in Biota**
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PCBs/ContaminantsBiota_PCBs.csv -->
@@ -26,8 +26,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell") %>% 
-  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
 ```
 
 **PCB Congeners**
@@ -82,7 +81,8 @@ pcb_congeners <- t(data.frame(
 
 colnames(pcb_congeners) <- c("Data Code", "")
 rownames(pcb_congeners) <- NULL
-htmlTable::htmlTable(pcb_congeners, align = "lr", col.rgroup = c("none", "#8D909E"))
+# htmlTable::htmlTable(pcb_congeners, align = "lr", col.rgroup = c("none", "#d6d7dc"))
+knitr::kable(pcb_congeners)
 ```
 <br/>
 
@@ -102,12 +102,11 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell") %>% 
-  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell") 
 ```
 <br/>
 
-#### 2.1.2 PFOS Data {-}
+#### 2.1.2 PFOS Data
 
 **PFOS in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_PFOS/ContaminantsBiota_PFOS.csv -->
@@ -126,13 +125,12 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell") %>% 
-  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
 ```
 
 <br/>
 
-#### 2.1.3 Dioxin Data {-}
+#### 2.1.3 Dioxin Data
 
 **Dioxins in Biota**  
 <!-- dataset save location BHI_share/BHI 2.0/Goals/CW/CON/ContaminantsBiota_Dioxins/ContaminantsBiota_Dioxins.csv -->
@@ -151,8 +149,7 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell") %>% 
-  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsBiota.aspx) <br/> Downloaded 22 April 2019 by Ellie Campbell")
 ```
 
 **Dioxin Congeners**
@@ -178,7 +175,8 @@ dioxin_congeners <- t(data.frame(
 
 colnames(dioxin_congeners) <- c("Data Code", "")
 rownames(dioxin_congeners) <- NULL
-htmlTable::htmlTable(dioxin_congeners, align = "lr", col.rgroup = c("none", "#8D909E"))
+# htmlTable::htmlTable(dioxin_congeners, align = "lr", col.rgroup = c("none", "#d6d7dc"))
+knitr::kable(dioxin_congeners)
 ```
 <br>
 
@@ -198,9 +196,10 @@ tab <- t(data.frame(
 colnames(tab) <- c("Option", "Specification")
 rownames(tab) <- NULL
 
-knitr::kable(tab, format = "html", caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell") %>% 
-  kableExtra::kable_styling(latex_option = c("hold_position"), position = "left")
+knitr::kable(tab, caption = "Source: [ICES Database](http://dome.ices.dk/views/ContaminantsSediment.aspx) <br/> Downloaded 13 February 2020 by Ellie Campbell")
 ```
+<br>
+
 
 #### 2.1.4 Concerning Substances Datasets {-}
 
@@ -214,7 +213,7 @@ A list of concerning substances was obtained from [European Chemical Agency Cand
 
 <br>
 
-### 2.2 Centralization & Normalization {-}
+### 2.2 Centralization & Normalization
 <!-- note: remainder of this document incorporates from BHI1.0, along with preliminary contaminants_prep.Rmd sections: -->
 <!-- raw_pcb_data_prep.R, raw_dioxin_data_prep.R, and raw_pfos_data_prep.R -->
 <!-- station_attribute_prep.R, congener_description.R -->
@@ -265,7 +264,7 @@ lapply(
 ```
 
 
-##### Check number of years with samples by Country {.tabset .tabset-fade .tabset-pills} {-}
+##### Check number of years with samples by Country
 
 ###### PCBs {-}
 
@@ -999,18 +998,18 @@ lapply(
 
 ### 2.3 Initial Data Exploration {-}
 
-```{r combining con data for initial exploration, echo = TRUE, warning = FALSE, message = FALSE}
+```{r combining con data for initial exploration, echo = TRUE, warning = FALSE, message = FALSE, include = FALSE}
 ## to start running code from here, will need to load in cleaned  datasets...
 
- dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
- lapply(list.files(dir_interm), function(dat){
-   dat_final <- read_csv(file.path(dir_interm, dat))
-   assign(
-     x = str_replace(dat, "cleaned.csv", "clean_df"),
-     value = dat_final,
-     envir = .GlobalEnv
-   )
- })
+dir_interm <- here::here("data/CW/contaminants/v2019/intermediate")
+lapply(list.files(dir_interm), function(dat){
+  dat_final <- read_csv(file.path(dir_interm, dat))
+  assign(
+    x = str_replace(dat, "cleaned.csv", "clean_df"),
+    value = dat_final,
+    envir = .GlobalEnv
+  )
+})
 
 make_plotdf <- function(x, yrs){
   
